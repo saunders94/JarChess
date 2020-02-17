@@ -45,8 +45,8 @@ public class ExampleSteps {
         out = systemUnderTest.toUppercase(in);
     }
 
-    @Then("the returned result is \"([^\\\"]*)\"")
-    public void theReturnedResultIsOut(String expected) {
+    @Then("the returned result should be \"([^\\\"]*)\"")
+    public void theReturnedResultShouldBeOut(String expected) {
         Assert.assertEquals("systemUnderTest.toUpper(\""+in+"\")", expected, out);
     }
 }

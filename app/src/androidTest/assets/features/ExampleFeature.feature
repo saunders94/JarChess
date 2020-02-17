@@ -3,7 +3,7 @@ Feature: String Conversion using system under test
   Scenario Outline: Convert to uppercase
     Given <in> is the original string
     When converted to uppercase
-    Then the returned result is <out>
+    Then the returned result should be <out>
 
     Examples:
 
