@@ -10,6 +10,10 @@ import org.junit.runners.Suite;
 
 import static org.junit.Assert.assertEquals;
 
+
+/**
+ * @author Joshua Zierman
+ */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         CoordinateUnitTest.ValidTests.class,
