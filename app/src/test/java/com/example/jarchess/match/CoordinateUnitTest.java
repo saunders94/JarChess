@@ -251,7 +251,7 @@ public class CoordinateUnitTest {
         @Parameter(value = 1)
         public int invalidRank;
 
-        @Parameters(name = "{index}: file is '{0}', rank is {1}. ")
+        @Parameters(name = "{index}: file is ''{0}'', rank is {1}. ")
         public static Object[][] invalidRankData() {
             return new Object[][]{
 
@@ -373,7 +373,7 @@ public class CoordinateUnitTest {
         @Parameter(value = 1)
         public int validRank;
 
-        @Parameters(name = "{index}: file is '{0}', rank is {1}. ")
+        @Parameters(name = "{index}: file is ''{0}'', rank is {1}. ")
         public static Object[][] invalidRankData() {
             return new Object[][]{
 
@@ -465,7 +465,7 @@ public class CoordinateUnitTest {
         @Parameter(value = 1)
         public int invalidRank;
 
-        @Parameters(name = "{index}: file is '{0}', rank is {1}. ")
+        @Parameters(name = "{index}: file is ''{0}'', rank is {1}. ")
         public static Object[][] invalidRankData() {
             return new Object[][]{
 

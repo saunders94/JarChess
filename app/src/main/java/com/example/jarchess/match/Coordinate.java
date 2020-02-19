@@ -41,7 +41,7 @@ public class Coordinate {
      *
      * @return the file
      */
-    public int getFile() {
+    public char getFile() {
         return file;
     }
 
