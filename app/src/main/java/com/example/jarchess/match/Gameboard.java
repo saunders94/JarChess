@@ -109,8 +109,20 @@ public class Gameboard {
          * @throws IllegalArgumentException if an invalid or null coordinate is provided
          */
         private static String makeMessage(Coordinate coordinate) throws IllegalArgumentException{
+            
             if(coordinate == null){
                 throw new IllegalArgumentException("AlreadyOccupiedException cannot be constructed with null coordinate");
+            }
+
+            final int column = coordinate.getColumn();
+            final int row = coordinate.getRow();
+            
+            if(column < 0 || column >= COLUMN_COUNT) {
+                throw new IllegalArgumentException("AlreadyOccupiedException cannot be constructed with coordinate that returns column out of range [0, 8)");
+            }
+
+            if(row < 0 || row >= ROW_COUNT){
+                throw new IllegalArgumentException("AlreadyOccupiedException cannot be constructed with coordinate that returns row out of range [0, 8)");
             }
 
             return coordinate.toString() + " is already occupied.";
@@ -151,11 +163,23 @@ public class Gameboard {
          * @throws IllegalArgumentException if a invalid or null coordinate was detected
          */
         private static String makeMessage(Coordinate coordinate) throws IllegalArgumentException{
+
             if(coordinate == null){
-                throw new IllegalArgumentException("AlreadyOccupiedException cannot be constructed with null coordinate");
+                throw new IllegalArgumentException("AlreadyEmptyException cannot be constructed with null coordinate");
             }
 
-            return coordinate.toString() + " is already occupied.";
+            final int column = coordinate.getColumn();
+            final int row = coordinate.getRow();
+
+            if(column < 0 || column >= COLUMN_COUNT) {
+                throw new IllegalArgumentException("AlreadyEmptyException cannot be constructed with coordinate that returns column out of range [0, 8)");
+            }
+
+            if(row < 0 || row >= ROW_COUNT){
+                throw new IllegalArgumentException("AlreadyEmptyException cannot be constructed with coordinate that returns row out of range [0, 8)");
+            }
+
+            return coordinate.toString() + " is already empty.";
         }
 
         /**
