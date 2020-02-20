@@ -1,0 +1,49 @@
+@startuml
+hide empty members
+
+class Piece<<abstract>>{
+-color:Color
++getColor():Color
+}
+
+class Pawn{
+
+}
+
+class Rook{
+
+}
+
+class Knight{
+
+}
+
+class Bishop{
+
+}
+
+class Queen{
+
+}
+
+class King{
+
+}
+
++enum Piece.Color{
+BLACK
+WHITE
+}
+
+Piece.Color "1" --o "*" Piece
+Piece.Color --right+ Piece
+
+Pawn -up-|> Piece
+Rook -up-|> Piece
+Knight -up-|> Piece
+Bishop -up-|> Piece
+Queen -up-|> Piece
+King -up-|> Piece
+
+
+@enduml

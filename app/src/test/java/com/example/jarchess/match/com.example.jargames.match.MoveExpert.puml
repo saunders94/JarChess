@@ -1,0 +1,7 @@
+@startuml
+
+class moveExpert{
+    getValidDestinations(originCoordinate:Coordinate, piece:Piece)
+}
+
+@enduml

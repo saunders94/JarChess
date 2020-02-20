@@ -1,0 +1,14 @@
+@startuml
+class MatchController{
++ startMatch()
+}
+
+class Match{
+- whiteParticipant: MatchParticipant
+- blackParticipant: MatchParticipant
+- gameboard: GameBoard
+}
+
+MatchController <--> Match
+MatchController <--> MatchParticipantController
+@enduml

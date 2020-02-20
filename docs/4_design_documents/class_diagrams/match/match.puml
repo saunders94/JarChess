@@ -1,0 +1,14 @@
+@startuml
+hide empty members
+hide private members
+
+!include com.example.jargames.match.Coordinate.puml
+!include com.example.jargames.match.Gameboard.puml
+!include com.example.jargames.match.piece.Piece.puml
+!include com.example.jargames.match.MatchParticipant.puml
+!include com.example.jargames.match.MatchController.puml
+!include com.example.jargames.match.MoveExpert.puml
+
+
+
+@enduml

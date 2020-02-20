@@ -1,0 +1,15 @@
+@startuml
+class Coordinate{
+
+-file
+-rank
+-column
+-row
+
++getFile():char
++getRank():int
++getColumn():int
++getRow():int
+
+}
+@enduml
