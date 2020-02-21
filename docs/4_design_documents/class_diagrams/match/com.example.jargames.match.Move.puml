@@ -2,14 +2,40 @@
 
 
 
-class Move{
+interface Move{
++getTurnColor():Piece.Color
++getPieceMovements():Collection<PieceMovement>
+}
+
+class PieceMovement{
+getPieceType():Piece.Type
+getPieceColor():Piece.Color
+getOrigin:Coordinate
+getDestination:Coordinate
+}
+
+class NormalMove{
 
 }
 
-class Castle{
+class PawnDoubleStepMove{
 
 }
 
-Castle --up-|> Move
+class CastleMove{
+
+}
+
+class EnPassantCaptureMove{
+
+}
+
+PawnDoubleStepMove --up-|> Move
+CastleMove --up-|> Move
+EnPassantCaptureMove --up-|> Move
+NormalMove --up-|> Move
+
+
+Move x-left-> PieceMovement
 
 @enduml
