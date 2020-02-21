@@ -1,4 +1,5 @@
 @startuml
+hide empty members
 
 !include com.example.jargames.match.piece.Piece.puml
 

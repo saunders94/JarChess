@@ -1,4 +1,5 @@
 @startuml
+hide empty members
 
 interface MatchParticipant{
 
