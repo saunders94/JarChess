@@ -1,0 +1,15 @@
+@startuml
+
+
+
+class Move{
+
+}
+
+class Castle{
+
+}
+
+Castle --up-|> Move
+
+@enduml

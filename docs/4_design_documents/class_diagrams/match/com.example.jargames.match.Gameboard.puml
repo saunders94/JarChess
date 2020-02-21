@@ -1,0 +1,19 @@
+@startuml
+hide empty members
+
+!include com.example.jargames.match.piece.Piece.puml
+
+
+class Gameboard{
+- pieces:Piece[][]
++ Gameboard()
++ add(Piece, Coordinate):void
++ remove(Coordinate):Piece
++ move(origin:Coordinate, destination:Coordinate):void
++ isEmptyAt(Coordinate):boolean
++ getPieceAt(Coordinate):Piece
+}
+
+Gameboard "*" o-- "0..64" Piece
+Gameboard x--> Coordinate
+@enduml

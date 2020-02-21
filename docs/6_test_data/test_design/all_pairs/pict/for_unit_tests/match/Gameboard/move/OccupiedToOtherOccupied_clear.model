@@ -1,0 +1,25 @@
+# Pict Model
+# com.example.jarchess.match.GameboardUnitTest.Move.OccupiedToOtherOccupied
+# occupied to other ocupied move
+
+origin color: BLACK, WHITE
+origin piece: Pawn, Rook, Knight, Bishop, Queen, King
+origin file: a, b, c, d, e, f, g, h
+origin rank: 1, 2, 3, 4, 5, 6, 7, 8
+destination color: BLACK, WHITE
+destination piece: Pawn, Rook, Knight, Bishop, Queen, King
+destination file: a, b, c, d, e, f, g, h
+destination rank: 1, 2, 3, 4, 5, 6, 7, 8
+
+#
+# for these tests we are not trying to move to the same space
+#
+IF [origin file] = [destination file]
+THEN [origin rank] <> [destination rank];
+
+#
+# there should never be 2 kings of the same color
+#
+IF [origin piece] = "King" and [destination piece] = "King"
+THEN [origin color] <> [destination color];
+
