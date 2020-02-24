@@ -5,15 +5,27 @@ hide empty members
 
 
 class Gameboard{
+'+ STARTING_STATE:Gameboard.State
 - pieces:Piece[][]
+
+
+'I think we may want to construct with a gameboard state paramater... so this might change
 + Gameboard()
-+ add(Piece, Coordinate):void
+'+ Gameboard(Gameboard.State)
+
+
 + remove(Coordinate):Piece
++ promote(Coordinate, Piece.Type)
 + move(origin:Coordinate, destination:Coordinate):void
 + isEmptyAt(Coordinate):boolean
 + getPieceAt(Coordinate):Piece
+- add(Piece.Type, Color, Coordinate):void
+}
+
+class Gameboard.State{
+
 }
 
 Gameboard "*" o-- "0..64" Piece
-Gameboard x--> Coordinate
+Gameboard x--> Coordinate: <<use>>
 @enduml
