@@ -32,7 +32,7 @@ class King{
 
 }
 
-+enum Piece.Color{
++enum Color{
 BLACK
 WHITE
 }
@@ -46,8 +46,9 @@ QUEEN
 KING
 }
 
-Piece.Color "1" --o "*" Piece
-Piece.Color --right+ Piece
+Color "1" --o "*" Piece
+Piece.Type --right+ Piece
+Piece.Type "1" --o "*" Piece
 
 Pawn -up-|> Piece
 Rook -up-|> Piece
@@ -55,6 +56,8 @@ Knight -up-|> Piece
 Bishop -up-|> Piece
 Queen -up-|> Piece
 King -up-|> Piece
+
+
 
 
 @enduml
