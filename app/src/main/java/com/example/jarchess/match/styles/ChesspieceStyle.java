@@ -6,6 +6,8 @@ import com.example.jarchess.match.pieces.Piece;
 
 /**
  * A chesspiece style is a style that allows resource ids for the piece art in the style to be accessed.
+ *
+ * @author Joshua Zierman
  */
 public interface ChesspieceStyle {
 

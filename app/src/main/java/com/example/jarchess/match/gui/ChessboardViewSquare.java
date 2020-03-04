@@ -8,6 +8,8 @@ import com.example.jarchess.match.Coordinate;
 
 /**
  * A chessboard view square is the view's representation of a chessboard square.
+ *
+ * @author Joshua Zierman
  */
 class ChessboardViewSquare {
 
@@ -17,6 +19,7 @@ class ChessboardViewSquare {
 
     /**
      * Creates a chessboard view square.
+     *
      * @param handler
      * @param imageView
      */

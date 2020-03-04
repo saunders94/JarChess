@@ -8,6 +8,8 @@ import com.example.jarchess.match.pieces.Rook;
 
 /**
  * A castle move is a specail type of move that involves moving a rook and king of the same color in a single move
+ *
+ * @author Joshua Zierman
  */
 public final class CastleMove implements Move {
 
@@ -33,7 +35,8 @@ public final class CastleMove implements Move {
 
     /**
      * Creates a castle move.
-     * @param color the color of the moving pieces
+     *
+     * @param color                 the color of the moving pieces
      * @param kingMovementDirection the direction the king will move
      */
     private CastleMove(ChessColor color, KingMovementDirection kingMovementDirection) {
@@ -126,8 +129,8 @@ public final class CastleMove implements Move {
 //    }
 
     /**
-    * {@inheritDoc}
-    */
+     * {@inheritDoc}
+     */
     @Override
     public Piece.Type getPieceType() {
         return null;//FIXME
@@ -195,6 +198,7 @@ public final class CastleMove implements Move {
 
     /**
      * Gets the type of the other piece moved during this move.
+     *
      * @return the type of the other piece moved during this move
      */
     public Piece.Type getOtherPieceType() {
@@ -205,6 +209,7 @@ public final class CastleMove implements Move {
 
     /**
      * Gets the color of the other piece being moved during this move.
+     *
      * @return the color of the other moving piece
      */
     public ChessColor getOtherPieceColor() {
@@ -215,6 +220,7 @@ public final class CastleMove implements Move {
 
     /**
      * Gets the origin coordinate of the other moving piece during this move.
+     *
      * @return the coordinate where the other moving piece was before this move.
      */
     public Coordinate getOtherOrigin() {
@@ -225,6 +231,7 @@ public final class CastleMove implements Move {
 
     /**
      * Gets the destination coordinate of the other moving piece during this move.
+     *
      * @return the destination coordinate where the other piece will be after this move.
      */
     public Coordinate getOtherDestination() {

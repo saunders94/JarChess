@@ -6,6 +6,7 @@ import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.participant.Player;
 import com.example.jarchess.match.resignation.ResignationEvent;
 
+//TODO javadocs
 public class PlayerMatch extends Match {
 
     private final Player player;

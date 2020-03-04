@@ -10,6 +10,8 @@ import java.util.Random;
  * <li>BLACK
  * <li>WHITE
  * </ul>
+ *
+ * @author Joshua Zierman
  */
 public enum ChessColor {
 

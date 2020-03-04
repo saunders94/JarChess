@@ -2,6 +2,8 @@ package com.example.jarchess.match.resignation;
 
 /**
  * A resignation listener listens for a resignation event and reacts when one is observed
+ *
+ * @author Joshua Zierman
  */
 public interface ResignationListener {
     /**

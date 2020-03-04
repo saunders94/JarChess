@@ -5,6 +5,8 @@ import com.example.jarchess.match.Coordinate;
 
 /**
  * A marble chessboard style is a chessboard style that has alternating black and white marble patterned squares
+ *
+ * @author Joshua Zierman
  */
 public class MarbleChessboardStyle implements ChessboardStyle {
 

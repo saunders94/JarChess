@@ -16,6 +16,7 @@ import static com.example.jarchess.match.ChessColor.WHITE;
 import static com.example.jarchess.match.Coordinate.COLUMNS;
 import static com.example.jarchess.match.Coordinate.ROWS;
 
+//TODO javadocs
 class ChessboardView {
 
     private static final float DELTA = 0.1f;

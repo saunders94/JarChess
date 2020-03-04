@@ -7,6 +7,8 @@ import com.example.jarchess.match.Coordinate;
 
 /**
  * A chessboard style is a style that allows resource ids for the chessboard square art in the style to be accessed.
+ *
+ * @author Joshua Zierman
  */
 public interface ChessboardStyle {
 

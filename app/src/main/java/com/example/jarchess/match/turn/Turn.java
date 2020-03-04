@@ -10,6 +10,8 @@ import com.example.jarchess.match.ChessColor;
  * <li>It has a move that was made during that turn.
  * <li>It has an elapsed time that passed during that turn.
  * </ul>
+ *
+ * @author Joshua Zierman
  */
 public class Turn {
     private final ChessColor color;
@@ -18,8 +20,9 @@ public class Turn {
 
     /**
      * Creates a turn.
-     * @param color the color of the moving participant
-     * @param move the move being made
+     *
+     * @param color       the color of the moving participant
+     * @param move        the move being made
      * @param elapsedTime the time in milliseconds that passed during the turn
      */
     public Turn(ChessColor color, Move move, long elapsedTime) {
@@ -30,6 +33,7 @@ public class Turn {
 
     /**
      * Gets the color of the participant making a move on this turn.
+     *
      * @return the color of the participant making a move on this turn.
      */
     public ChessColor getColor() {
@@ -38,6 +42,7 @@ public class Turn {
 
     /**
      * Gets the move that was made during this turn.
+     *
      * @return the move that was made during this turn.
      */
     public Move getMove() {
@@ -46,6 +51,7 @@ public class Turn {
 
     /**
      * Gets the amount of time that elapsed during this turn in milliseconds.
+     *
      * @return the amount of milliseconds that passed during this turn.
      */
     public long getElapsedTime() {

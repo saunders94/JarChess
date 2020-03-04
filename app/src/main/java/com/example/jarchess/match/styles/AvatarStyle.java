@@ -2,6 +2,8 @@ package com.example.jarchess.match.styles;
 
 /**
  * An avatar style is a style that allows the resource ids of avatar art in the style to be accessed.
+ *
+ * @author Joshua Zierman
  */
 public interface AvatarStyle {
 

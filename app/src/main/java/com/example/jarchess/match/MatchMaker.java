@@ -6,6 +6,7 @@ import com.example.jarchess.match.participant.HardAIOpponent;
 import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.participant.Player;
 
+//TODO javadocs
 public class MatchMaker {
     private static MatchMaker instance = null;
     private final JarAccount account = JarAccount.getInstance();

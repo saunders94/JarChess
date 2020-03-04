@@ -4,6 +4,7 @@ package com.example.jarchess.testmode;
 import java.util.LinkedList;
 import java.util.Queue;
 
+//TODO javadocs
 public class TestableCurrentTime {
     private static Queue<Long> returnValues = new LinkedList<Long>();
     private static boolean hasBeenSet = false;

@@ -7,6 +7,7 @@ import com.example.jarchess.match.pieces.movement.MovementPattern;
 import java.util.Collection;
 import java.util.LinkedList;
 
+//TODO javadocs
 public class MoveExpert {
     private final Gameboard gameboard;
     private final ChessColor colorOfMover;

@@ -4,6 +4,8 @@ import com.example.jarchess.R;
 
 /**
  * A leopard print avatar style is an avatar style with a square leopard print image.
+ *
+ * @author Joshua Zierman
  */
 public class AIAvatarStyle implements AvatarStyle {
 

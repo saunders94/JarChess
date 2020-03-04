@@ -14,6 +14,7 @@ import com.example.jarchess.match.turn.Turn;
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
 
+//TODO javadocs
 public abstract class Match implements ResignationListener {
     private final ResignationEventManager resignationEventManager;
     private final MatchHistory matchHistory;

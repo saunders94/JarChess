@@ -27,6 +27,8 @@ import static com.example.jarchess.match.pieces.Piece.Type.ROOK;
  * <li> "R" for Rooks
  * <li> "P" for Pawns
  * </ul>
+ *
+ * @author Joshua Zierman
  */
 public class NeonLetterChesspieceStyle extends BasicChesspieceStyle {
 

@@ -6,6 +6,8 @@ import com.example.jarchess.match.pieces.Piece;
 
 /**
  * a standard move is a move with only one moving piece
+ *
+ * @author Joshua Zierman
  */
 public class StandardMove implements Move {
 

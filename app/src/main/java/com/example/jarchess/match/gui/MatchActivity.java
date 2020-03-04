@@ -27,6 +27,8 @@ import static com.example.jarchess.match.ChessColor.WHITE;
 
 /**
  * A match activity is an activity where two participants play a chess match with each other.
+ *
+ * @author Joshua Zierman
  */
 public class MatchActivity extends AppCompatActivity implements LocalParticipantController, SquareClickListener {
 

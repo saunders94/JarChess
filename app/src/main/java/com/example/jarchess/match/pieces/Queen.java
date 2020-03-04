@@ -4,6 +4,17 @@ import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.pieces.movement.MovementPatternProducer;
 
+/**
+ * A queen is a chess piece that can move any number of straight squares left, right, up, or down of any number of diagonal squares.
+ * <p><ul>
+ * <li>It can capture on all moves, but doesn't have to.
+ * <li>It starts in file d.
+ * <li>It starts in rank 8 if black and 1 if white.
+ * <li>It can be placed on the board by promotion of a pawn.
+ * </ul>
+ *
+ * @author Joshua Zierman
+ */
 public class Queen extends Piece {
 
 
