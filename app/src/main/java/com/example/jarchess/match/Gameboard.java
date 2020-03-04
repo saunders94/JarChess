@@ -27,7 +27,10 @@ public class Gameboard {
     private static Gameboard instance;
     private final Piece[][] pieces = new Piece[ROW_COUNT][COLUMN_COUNT];
 
-    Gameboard() {
+    /**
+     * Private constructor used to create the instance of gameboard
+     */
+    private Gameboard() {
 
 
         Piece tmp;
@@ -53,6 +56,10 @@ public class Gameboard {
 
     }
 
+    /**
+     * Gets the instance of the gameboard
+     * @return
+     */
     public static Gameboard getInstance() {
         if (instance == null) {
             instance = new Gameboard();
@@ -60,12 +67,12 @@ public class Gameboard {
         return instance;
     }
 
+    /**
+     * Adds a piece to the gameboard at starting position
+     * @param piece the piece to add.
+     */
     private void add(Piece piece) {
         add(piece, piece.getStartingPosition());
-    }
-
-    public void destroy() {
-        instance = null;
     }
 
     /**
@@ -265,6 +272,13 @@ public class Gameboard {
          */
         public Coordinate getCoordinateThatWasAlreadyEmpty() {
             return coordinateThatWasAlreadyEmpty;
+        }
+
+        /**
+         * Resets the gameboard to stating positions.
+         */
+        public void reset(){
+            //TODO
         }
     }
 }

@@ -31,26 +31,88 @@ import static com.example.jarchess.match.ChessColor.WHITE;
 public final class Coordinate {
 
     // File Constants
+    /**
+     * The lowest valued file.
+     * <p>
+     * This is the furthest to the left file when black's starting position is at the top.
+     */
     public static final char MIN_FILE = 'a';
+
+    /**
+     * The highest valued file.
+     * <p>
+     * This is the furthest to the right file when black's starting position is at the top.
+     */
     public static final char MAX_FILE = 'h';
+
+    /**
+     * The array of all possible files.
+     */
     public static final char[] FILES = new char[]{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
 
 
     // Column Constants
+    /**
+     * The lowest valued column.
+     * <p>
+     * This is the furthest to the left column when black's starting position is at the top.
+     */
     public static final int MIN_COLUMN = 0;
+
+    /**
+     * the highest valued column.
+     * <p>
+     * This is the furthest to the right column when black's starting position is at the top.
+     */
     public static final int MAX_COLUMN = 7;
+
+    /**
+     * The array of all possible columns.
+     */
     public static final int[] COLUMNS = new int[]{0, 1, 2, 3, 4, 5, 6, 7};
 
 
     // Rank Constants
+
+    /**
+     * The lowest valued rank.
+     * <p>
+     * This is the furthest to the bottom rank when black's starting position is at the top.
+     */
     public static final int MIN_RANK = 1;
+
+    /**
+     * The highest valued rank.
+     * <p>
+     * This is the furthest to the top rank when black's starting position is at the top.
+     */
     public static final int MAX_RANK = 8;
+
+    /**
+     * The array of all ranks.
+     */
     public static final int[] RANKS = new int[]{1, 2, 3, 4, 5, 6, 7, 8};
 
 
     // Row Constants
+
+    /**
+     * The lowest valued row.
+     * <p>
+     * This is the furthest to the top row when black's starting position is at the top.
+     */
     public static final int MIN_ROW = 0;
+
+    /**
+     * The highest valued row.
+     * <p>
+     * This is the furthest to the bottom row when black's starting position is at the top.
+     */
     public static final int MAX_ROW = 7;
+
+    /**
+     * The array of all possible row values.
+     */
     public static final int[] ROWS = new int[]{0, 1, 2, 3, 4, 5, 6, 7};
 
 
@@ -61,7 +123,17 @@ public final class Coordinate {
     private final int row;
     private final int column;
 
-
+    /**
+     * Creates a coordinate with the provided pre-validated file, rank, column, and row.
+     * <p>
+     * This private constructor doesn't check the validity of the arguments.
+     * It is the responsibility of the caller to provided arguments that are valid and correct.
+     *
+     * @param file   a file, should be 'a', 'b', 'c', 'd', 'e', 'f', 'g', or 'h'
+     * @param rank   a rank, should be in range [1, 8]
+     * @param column a column, should be in range [0, 8)
+     * @param row    a row, should be in range [0, 8)
+     */
     private Coordinate(char file, int rank, int column, int row) {
         this.file = file;
         this.rank = rank;
