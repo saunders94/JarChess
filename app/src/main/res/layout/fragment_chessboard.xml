@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/captureBarLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".match.gui.MatchActivity">
+
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TableRow
+            android:id="@+id/rank8TableRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/SquareImageView_0_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_1_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_2_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_3_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_4_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_5_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_6_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_7_0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/rank7TableRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/SquareImageView_0_1"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_1_1"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:src="@drawable/chessboard_square_empty" />
+            android:scaleType="fitStart"
+            android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_2_1"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_3_1"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:src="@drawable/chessboard_square_empty" />
+            android:scaleType="fitStart"
+            android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_4_1"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_5_1"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:src="@drawable/chessboard_square_empty" />
+            android:scaleType="fitStart"
+            android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_6_1"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_7_1"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:src="@drawable/chessboard_square_empty" />
+            android:scaleType="fitStart"
+            android:src="@drawable/chessboard_square_empty" />
+            />
+
+        </TableRow>
+
+
+        <TableRow
+            android:id="@+id/rank6TableRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/SquareImageView_0_2"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_1_2"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_2_2"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_3_2"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_4_2"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_5_2"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_6_2"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_7_2"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+        </TableRow>
+
+
+        <TableRow
+            android:id="@+id/rank5TableRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/SquareImageView_0_3"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_1_3"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_2_3"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_3_3"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_4_3"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_5_3"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_6_3"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_7_3"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+        </TableRow>
+
+
+        <TableRow
+            android:id="@+id/rank4TableRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/SquareImageView_0_4"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_1_4"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_2_4"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_3_4"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_4_4"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_5_4"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_6_4"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_7_4"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+        </TableRow>
+
+
+        <TableRow
+            android:id="@+id/rank3TableRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/SquareImageView_0_5"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_1_5"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_2_5"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_3_5"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_4_5"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_5_5"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_6_5"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_7_5"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+        </TableRow>
+
+
+        <TableRow
+            android:id="@+id/rank2TableRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/SquareImageView_0_6"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_1_6"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_2_6"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_3_6"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_4_6"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_5_6"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_6_6"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_7_6"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+        </TableRow>
+
+
+        <TableRow
+            android:id="@+id/rank1TableRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/SquareImageView_0_7"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_1_7"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_2_7"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_3_7"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_4_7"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_5_7"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+            <ImageView
+                android:id="@+id/SquareImageView_6_7"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardDarkSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+
+            <ImageView
+                android:id="@+id/SquareImageView_7_7"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@drawable/chessboardLightSquareImg"
+                android:scaleType="fitStart"
+                android:src="@drawable/chessboard_square_empty" />
+            />
+
+        </TableRow>
+
+
+    </TableLayout>
+
+
+</android.support.constraint.ConstraintLayout>

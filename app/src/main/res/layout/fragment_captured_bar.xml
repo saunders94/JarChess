@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/captureBarLayout"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:background="#488A8A8A"
+    tools:context=".match.gui.MatchActivity"
+    tools:showIn="@layout/activity_match">
+
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent">
+
+            <ImageView
+                android:id="@+id/leftPawn0"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_green_black_letter_img" />
+
+            <ImageView
+                android:id="@+id/leftPawn1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_green_black_letter_img" />
+
+            <ImageView
+                android:id="@+id/leftPawn2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_green_black_letter_img" />
+
+            <ImageView
+                android:id="@+id/leftPawn3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_green_black_letter_img" />
+
+            <ImageView
+                android:id="@+id/leftPawn4"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_green_black_letter_img" />
+
+            <ImageView
+                android:id="@+id/leftPawn5"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_green_black_letter_img" />
+
+            <ImageView
+                android:id="@+id/leftPawn6"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_green_black_letter_img" />
+
+            <ImageView
+                android:id="@+id/leftPawn7"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_green_black_letter_img" />
+
+            <Space
+                android:layout_width="2dp"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:id="@+id/rightPawn0"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_pink_white_letter_img" />
+
+            <ImageView
+                android:id="@+id/rightPawn1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_pink_white_letter_img" />
+
+            <ImageView
+                android:id="@+id/rightPawn2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_pink_white_letter_img" />
+
+            <ImageView
+                android:id="@+id/rightPawn3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_pink_white_letter_img" />
+
+            <ImageView
+                android:id="@+id/rightPawn4"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_pink_white_letter_img" />
+
+            <ImageView
+                android:id="@+id/rightPawn5"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_pink_white_letter_img" />
+
+            <ImageView
+                android:id="@+id/rightPawn6"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_pink_white_letter_img" />
+
+            <ImageView
+                android:id="@+id/rightPawn7"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_pawn_pink_white_letter_img" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent">
+
+            <ImageView
+                android:id="@+id/leftRook0"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_rook_green_black_letter_img" />
+
+            <ImageView
+                android:id="@+id/leftKnight0"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_knight_green_black_letter_img" />
+
+            <ImageView
+                android:id="@+id/leftBishop0"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_bishop_green_black_letter_img" />
+
+            <ImageView
+                android:id="@+id/leftKingOrQueen0"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_queen_green_black_letter_img" />
+
+            <ImageView
+                android:id="@+id/leftKingOrQueen1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_king_green_black_letter_img" />
+
+            <ImageView
+                android:id="@+id/leftBishop1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_bishop_green_black_letter_img" />
+
+            <ImageView
+                android:id="@+id/leftKnight1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_knight_green_black_letter_img" />
+
+            <ImageView
+                android:id="@+id/leftRook1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_rook_green_black_letter_img" />
+
+            <Space
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:id="@+id/rightRook0"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_rook_pink_white_letter_img" />
+
+            <ImageView
+                android:id="@+id/rightKnight0"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_knight_pink_white_letter_img" />
+
+            <ImageView
+                android:id="@+id/rightBishop0"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_bishop_pink_white_letter_img" />
+
+            <ImageView
+                android:id="@+id/rightKingOrQueen0"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_queen_pink_white_letter_img" />
+
+            <ImageView
+                android:id="@+id/rightKingOrQueen1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_king_pink_white_letter_img" />
+
+            <ImageView
+                android:id="@+id/rightBishop1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_bishop_pink_white_letter_img" />
+
+            <ImageView
+                android:id="@+id/rightKnight1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_knight_pink_white_letter_img" />
+
+            <ImageView
+                android:id="@+id/rightRook1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                app:srcCompat="@drawable/piece_rook_pink_white_letter_img" />
+        </TableRow>
+    </TableLayout>
+
+
+</android.support.constraint.ConstraintLayout>

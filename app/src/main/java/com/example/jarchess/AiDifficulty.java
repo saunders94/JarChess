@@ -1,13 +1,16 @@
 package com.example.jarchess;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import com.example.jarchess.match.gui.MatchActivity;
+import com.example.jarchess.match.MatchMaker;
 
 
 /**
@@ -46,7 +49,12 @@ public class AiDifficulty extends Fragment {
                 //FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
                 //MainMenu mainMenu = new MainMenu();
                 //transaction.replace(R.id.fragmentHole, mainMenu);
-                //transaction.commit();
+                //transaction.commit();)
+
+                MatchMaker.getInstance().startEasyAIMatch();
+
+                Intent intent = new Intent(getActivity(), MatchActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -58,6 +66,12 @@ public class AiDifficulty extends Fragment {
                 //MainMenu mainMenu = new MainMenu();
                 //transaction.replace(R.id.fragmentHole, mainMenu);
                 //transaction.commit();
+
+
+                MatchMaker.getInstance().startHardAIMatch();
+
+                Intent intent = new Intent(getActivity(), MatchActivity.class);
+                startActivity(intent);
             }
         });
     }

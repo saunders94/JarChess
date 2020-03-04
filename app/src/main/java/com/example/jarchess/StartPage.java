@@ -23,7 +23,6 @@ public class StartPage extends Fragment {
     }
 
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -36,7 +35,6 @@ public class StartPage extends Fragment {
 
         return view;
     }
-
 
 
     @Override

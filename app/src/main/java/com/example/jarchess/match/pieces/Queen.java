@@ -1,7 +1,68 @@
 package com.example.jarchess.match.pieces;
 
+import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.Coordinate;
+import com.example.jarchess.match.pieces.movement.MovementPatternProducer;
+
 public class Queen extends Piece {
-    public Queen(Color color) {
-        super(color);
+
+
+    public static final char STARTING_FILE = 'd';
+    public static final int BLACK_STARTING_RANK = 8;
+    public static final int WHITE_STARTING_RANK = 1;
+    public static final String NAME = "Queen";
+    public static final Type TYPE = Type.QUEEN;
+
+    /**
+     * Creates a queen.
+     *
+     * @param color the color of the queen to be created
+     */
+    public Queen(ChessColor color) {//TODO write unit tests
+        super(color, TYPE, makeStartingCoordinate(color));
+
+        add(MovementPatternProducer.getAllDiagonalSlideMovementPatterns());
+        add(MovementPatternProducer.getAllStraightSlideMovementPatterns());
+
+    }
+
+
+    /**
+     * Creates a queen from a pawn that is being promoted.
+     * <p>
+     * The starting position of the pawn is used for the starting position of the new queen.
+     *
+     * @param pawnBeingPromoted the pawn being promoted into the queen
+     */
+    public Queen(Pawn pawnBeingPromoted) {
+        super(
+                pawnBeingPromoted.getColor(),
+                TYPE,
+                pawnBeingPromoted.getStartingPosition()
+        );
+
+
+        add(MovementPatternProducer.getAllDiagonalSlideMovementPatterns());
+        add(MovementPatternProducer.getAllStraightSlideMovementPatterns());
+
+    }
+
+
+    /**
+     * Makes the starting coordinate of a queen of the given color.
+     *
+     * @param color the color of the queen to get the starting coordinate of
+     * @return the starting coordinate of a queen of the given color
+     */
+    private static Coordinate makeStartingCoordinate(ChessColor color) {
+        Coordinate startingCoordinate;
+        int startingRank;
+
+        // set the rank based on the color provided
+        startingRank = color.equals(ChessColor.BLACK) ? BLACK_STARTING_RANK : WHITE_STARTING_RANK;
+
+        // create and return the coordinate.
+        startingCoordinate = Coordinate.getByFileAndRank(STARTING_FILE, startingRank);
+        return startingCoordinate;
     }
 }

@@ -19,7 +19,8 @@ android {
     }
     sourceSets {
         main { assets.srcDirs = ['src/main/assets'] }
-        androidTest { assets.srcDirs = ['src/androidTest/assets/'] } }
+        androidTest { assets.srcDirs = ['src/androidTest/assets/'] }
+    }
 }
 
 dependencies {
@@ -33,4 +34,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     testImplementation 'org.mockito:mockito-all:1.10.19'
     implementation 'io.cucumber:cucumber-android:4.4.0'
+    testImplementation 'org.powermock:powermock-module-test-mockito-junit4-java8-rule-xstream:1.6.6'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 }

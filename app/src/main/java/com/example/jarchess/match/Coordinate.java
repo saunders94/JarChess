@@ -1,37 +1,118 @@
 package com.example.jarchess.match;
 
+import androidx.annotation.Nullable;
+
+import com.example.jarchess.match.pieces.movement.MovementPattern;
+
+import static com.example.jarchess.match.ChessColor.WHITE;
+
 /**
  * @author Joshua Zierman
  */
-public class Coordinate {
+public final class Coordinate {
 
-    private static final char MIN_FILE = 'a';
-    private static final char MAX_FILE = 'h';
-    private static final int MIN_RANK = 1;
-    private static final int MAX_RANK = 8;
+    // File Constants
+    public static final char MIN_FILE = 'a';
+    public static final char MAX_FILE = 'h';
+    public static final char[] FILES = new char[]{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+
+
+    // Column Constants
+    public static final int MIN_COLUMN = 0;
+    public static final int MAX_COLUMN = 7;
+    public static final int[] COLUMNS = new int[]{0, 1, 2, 3, 4, 5, 6, 7};
+
+
+    // Rank Constants
+    public static final int MIN_RANK = 1;
+    public static final int MAX_RANK = 8;
+    public static final int[] RANKS = new int[]{1, 2, 3, 4, 5, 6, 7, 8};
+
+
+    // Row Constants
+    public static final int MIN_ROW = 0;
+    public static final int MAX_ROW = 7;
+    public static final int[] ROWS = new int[]{0, 1, 2, 3, 4, 5, 6, 7};
+
+
+    private static final Coordinate[][] coordinates = new Coordinate[COLUMNS.length][ROWS.length];
+
     private final char file;
     private final int rank;
     private final int row;
     private final int column;
 
 
-    public Coordinate(char file, int rank) {
-
-        file = Character.toLowerCase(file);
-        if(file < MIN_FILE || file > MAX_FILE){
-            String exceptionMessage = "Coordinate constructor expected file of 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' (case insensitive) but got '" + file + "' (" + (int)file + "). ";
-            throw new IllegalArgumentException(exceptionMessage);
-        }
-
-        if(rank < MIN_RANK || rank > MAX_RANK){
-            String exceptionMessage = "Coordinate constructor expected rank in range [0, 8] but got " + rank +". ";
-            throw new IllegalArgumentException(exceptionMessage);
-        }
-
+    private Coordinate(char file, int rank, int column, int row) {
         this.file = file;
         this.rank = rank;
-        this.row = 8 - rank;
-        this.column = file - 'a';
+        this.row = row;
+        this.column = column;
+    }
+
+    public static Coordinate getByFileAndRank(char file, int rank) {
+
+        file = Character.toLowerCase(file);
+        if (file < MIN_FILE || file > MAX_FILE) {
+            String exceptionMessage = "expected file of 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' (case insensitive) but got '" + file + "' (with int value of " + (int) file + "). ";
+            throw new IllegalArgumentException(exceptionMessage);
+        }
+
+        if (rank < MIN_RANK || rank > MAX_RANK) {
+            String exceptionMessage = "expected rank in range [1, 8] but got " + rank + ". ";
+            throw new IllegalArgumentException(exceptionMessage);
+        }
+
+
+        int row = 8 - rank;
+        int column = file - 'a';
+
+        if (coordinates[column][row] == null) {
+            coordinates[column][row] = new Coordinate(file, rank, column, row);
+        }
+
+        return coordinates[column][row];
+
+    }
+
+    public static Coordinate getByColumnAndRow(int column, int row) {
+
+        if (column < MIN_COLUMN || column > MAX_COLUMN) {
+            String exceptionMessage = "expected rank in range [0, 7] but got " + column + ". ";
+            throw new IllegalArgumentException(exceptionMessage);
+        }
+        if (row < MIN_ROW || row > MAX_ROW) {
+            String exceptionMessage = "expected rank in range [0, 7] but got " + row + ". ";
+            throw new IllegalArgumentException(exceptionMessage);
+        }
+
+        if (coordinates[column][row] == null) {
+
+            char file = (char) ('a' + column);
+            int rank = 8 - row;
+
+            coordinates[column][row] = new Coordinate(file, rank, column, row);
+        }
+
+        return coordinates[column][row];
+
+
+    }
+
+    @Nullable
+    public static Coordinate getDestination(Coordinate origin, MovementPattern pattern, ChessColor color) { //TODO make unit tests
+
+        int destinationColumn = origin.getColumn() + pattern.getKingwardOffset();
+        int destiniationRow = origin.getRow() + (color == WHITE ? pattern.getForwardOffset() : pattern.getBackwardOffset());
+
+        if (MIN_COLUMN <= destinationColumn
+                && destinationColumn < MAX_COLUMN
+                && MIN_ROW <= destiniationRow
+                && destiniationRow < MAX_ROW) {
+            return Coordinate.getByColumnAndRow(destinationColumn, destiniationRow);
+        } else {
+            return null;
+        }
 
     }
 
@@ -77,6 +158,14 @@ public class Coordinate {
 
     @Override
     public String toString() {
-        return "" + file  + rank;
+        return "" + file + rank;
+    }
+
+    public boolean isWhiteSquare() { //TODO write unit test
+        return (row + column) % 2 == 0;
+    }
+
+    public boolean isBlackSquare() { //TODO write unit test
+        return !isWhiteSquare();
     }
 }
