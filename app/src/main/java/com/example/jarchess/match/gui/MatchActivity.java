@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.example.jarchess.JarAccount;
 import com.example.jarchess.R;
 import com.example.jarchess.match.ChessColor;
@@ -23,7 +25,10 @@ import com.example.jarchess.match.styles.ChesspieceStyle;
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
 
-public class MatchActivity extends AppCompatActivity implements LocalParticipantController, SquareClickHandler {
+/**
+ * A match activity is an activity where two participants play a chess match with each other.
+ */
+public class MatchActivity extends AppCompatActivity implements LocalParticipantController, SquareClickListener {
 
 
     private Match match;
@@ -53,6 +58,9 @@ public class MatchActivity extends AppCompatActivity implements LocalParticipant
     // these are volatile, but need more robust synchronization
     private ChessColor waitingForMove;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,22 +138,92 @@ public class MatchActivity extends AppCompatActivity implements LocalParticipant
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public synchronized void handleSquareClick(Coordinate coordinateClicked) {
-        Log.d("MatchActivity", "clicked " + coordinateClicked.toString());
+    public synchronized void observeSquareClick(Coordinate coordinateClicked) {
+        // log the click
+        log("clicked " + coordinateClicked);
+
+
         Piece piece = match.getPieceAt(coordinateClicked);
         if (waitingForMove != null) {
-            if (piece.getColor() == waitingForMove) {
-                origin = coordinateClicked;
-            } else {
-                destination = coordinateClicked;
+            // Than one of the participants is waiting for a move.
+
+            if (piece != null && piece.getColor() == waitingForMove && origin != coordinateClicked) {
+                // If the square has a piece and it is the color of the waiting participant
+                // and it is not already the current origin,
+                //
+                // than we assume that the click indicates that the user intends to set that square as the new origin of the move
+
+                // set the origin
+                setOrigin(coordinateClicked);
+
+                // clear any garbage destination.
+                clearDestination();
+
+
+            } else if (origin != null) {
+                // If the origin was already set
+                // and the square was empty or had a piece that was a different color than the participant waiting for a move to be input,
+                //
+                // than we assume that the click indicates that the user intends to set that square as the destination of the move.
+
+                //TODO add some stuff to limit the destination to valid destinations
+                setDestination(coordinateClicked);
+
             }
         }
 
     }
 
+    /**
+     * clears the destination
+     */
+    private void clearDestination() {
+        setDestination(null);
+    }
+
+    /**
+     * Sets the origin.
+     *
+     * @param origin the origin coordinate to set to, may be null
+     */
+    private void setOrigin(@Nullable Coordinate origin) {
+
+        this.origin = origin;
+        log("set origin to " + this.origin);
+
+    }
+
+    /**
+     * Sets the destination.
+     *
+     * @param destination the destination coordinate to set to, may be null
+     */
+    private void setDestination(@Nullable Coordinate destination) {
+
+        this.destination = destination;
+        log("set destination to " + this.destination);
+
+    }
+
+    /**
+     * Logs a message as a debug message.
+     *
+     * @param msg the message to log
+     */
+    private void log(String msg) {
+        Log.d("MatchActivity", msg);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public synchronized void requestMove(ChessColor color) {
+        log("move was requested by " + color.toString());
         waitingForMove = color;
     }
 }

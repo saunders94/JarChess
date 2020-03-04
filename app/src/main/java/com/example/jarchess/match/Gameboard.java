@@ -17,8 +17,7 @@ import static com.example.jarchess.match.ChessColor.WHITE;
 /**
  * Gameboard is a container that holds Pieces
  * <p>
- * No game rules logic is handled by Gameboard beyond converting coordinates to board coordinates
- * and holding pieces as a gameboard
+ * No game rules logic is handled by Gameboard
  *
  * @author Joshua Zierman
  */

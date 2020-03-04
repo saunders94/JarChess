@@ -23,12 +23,12 @@ class ChessboardView {
     private final ChesspieceStyle chesspieceStyle;
     private final ChessboardStyle chessboardStyle;
     private final Match match;
-    private final SquareClickHandler handler;
+    private final SquareClickListener handler;
     private final ChessboardViewSquare[][] squares = new ChessboardViewSquare[COLUMNS.length][Coordinate.ROWS.length];
 
     private ChessColor currentPerspective;
 
-    public ChessboardView(View view, ChesspieceStyle chesspieceStyle, ChessboardStyle chessboardStyle, ChessColor perspective, Match match, SquareClickHandler handler) {
+    public ChessboardView(View view, ChesspieceStyle chesspieceStyle, ChessboardStyle chessboardStyle, ChessColor perspective, Match match, SquareClickListener handler) {
         this.view = view;
         this.chesspieceStyle = chesspieceStyle;
         this.chessboardStyle = chessboardStyle;

@@ -1,5 +1,6 @@
 package com.example.jarchess.match;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.jarchess.match.pieces.movement.MovementPattern;
@@ -7,6 +8,24 @@ import com.example.jarchess.match.pieces.movement.MovementPattern;
 import static com.example.jarchess.match.ChessColor.WHITE;
 
 /**
+ * A coordinate represents a positon on a chessboard.
+ * <p>
+ * The descriptions that follow assume that a chessboard is shown with the black player's starting row
+ * positioned at the top, and the white player's starting row at the bottom. King starting positions
+ * are on the right side of queen starting positions in this orientation.
+ * <p>
+ * Files are a way to describe the columns on the chessboard. They are represented with the letters
+ * a, b, c, d, e, f, g, and h. The furthest file to the left is a and the furthest file to the right is h.
+ * <p>
+ * Ranks are a way to describe the row on the chessboard. They are represented with the numbers
+ * 1, 2, 3, 4, 5, 6, 7, and 8. The furthest rank to the bottom on the chessboard is rank 1 and the
+ * furthest to the top is 8.
+ * <p>
+ * Rows and Columns are used like indexes in a 2D array so that (column 0, row 0) represents the top
+ * left square on the chessboard. Valid rows are 0, 1, 2, 3, 4, 5, 6, and 7. Valid columns are
+ * 0, 1, 2, 3, 4, 5, 6, and 7. The furthest row to the top on the chessboard is 0, and the furthest
+ * to the bottom is 7. The furthest column to the left is 0, and the furthest to the right is 7.
+ *
  * @author Joshua Zierman
  */
 public final class Coordinate {
@@ -50,6 +69,13 @@ public final class Coordinate {
         this.column = column;
     }
 
+    /**
+     * Gets a coordinate by file and rank.
+     *
+     * @param file the file of the coordinate where 'a' is the furthest file to left when black's starting position is at the top, must be 'a', 'b', 'c', 'd', 'e', 'f', 'g', or 'h'
+     * @param rank the rank of the coordinate where 1 is the furthest rank to bottom when black's starting position is at the top, must be in range [1, 8]
+     * @return the coordinate with matching file and rank
+     */
     public static Coordinate getByFileAndRank(char file, int rank) {
 
         file = Character.toLowerCase(file);
@@ -75,6 +101,13 @@ public final class Coordinate {
 
     }
 
+    /**
+     * Gets a coordinate by column and row.
+     *
+     * @param column the column of the coordinate where 0 is the furthest column to left when black's starting position is at the top, must be in range [0, 8)
+     * @param row    the row of the coordinate where 0 is the furthest row to the top when black's starting position is at the top, must be in range [0, 8)
+     * @return the coordinate with matching column and row
+     */
     public static Coordinate getByColumnAndRow(int column, int row) {
 
         if (column < MIN_COLUMN || column > MAX_COLUMN) {
@@ -99,8 +132,19 @@ public final class Coordinate {
 
     }
 
+    /**
+     * Gets a destination coordinate when applying a movement patter to an origin position for a piece of the indicated color.
+     * <p>
+     * The color of the piece is needed to determine what direction is considered forward.
+     *
+     * @param origin  the starting position of the piece that would be moved, not null
+     * @param pattern the movement pattern applied to the origin to determine the destination, not null
+     * @param color   the color of the piece that would be moved by the pattern, not null
+     * @return the destination coordinate if it is a valid coordinate, othewise returns null to indicate that the pattern would
+     * move a piece off the board
+     */
     @Nullable
-    public static Coordinate getDestination(Coordinate origin, MovementPattern pattern, ChessColor color) { //TODO make unit tests
+    public static Coordinate getDestination(@NonNull Coordinate origin, @NonNull MovementPattern pattern, @NonNull ChessColor color) { //TODO make unit tests
 
         int destinationColumn = origin.getColumn() + pattern.getKingwardOffset();
         int destiniationRow = origin.getRow() + (color == WHITE ? pattern.getForwardOffset() : pattern.getBackwardOffset());
@@ -161,10 +205,20 @@ public final class Coordinate {
         return "" + file + rank;
     }
 
+    /**
+     * Checks to see if this coordinate would be for a white square on a standard chessboard.
+     *
+     * @return true if the square at that coordinate is white
+     */
     public boolean isWhiteSquare() { //TODO write unit test
         return (row + column) % 2 == 0;
     }
 
+    /**
+     * Checks to see if this coordinate would be for a black square on a standard chessboard.
+     *
+     * @return true if the square at that coordinate is black
+     */
     public boolean isBlackSquare() { //TODO write unit test
         return !isWhiteSquare();
     }
