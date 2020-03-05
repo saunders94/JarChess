@@ -1,4 +1,4 @@
-package com.example.jarchess.match.gui;
+package com.example.jarchess.match.view;
 
 import android.view.View;
 import android.widget.ImageView;
@@ -9,6 +9,7 @@ import com.example.jarchess.R;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
+import com.example.jarchess.match.activity.SquareClickHandler;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.styles.ChessboardStyle;
 import com.example.jarchess.match.styles.ChesspieceStyle;

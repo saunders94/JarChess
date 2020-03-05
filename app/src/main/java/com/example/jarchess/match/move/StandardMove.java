@@ -1,4 +1,6 @@
-package com.example.jarchess.match.turn;
+package com.example.jarchess.match.move;
+
+import androidx.annotation.NonNull;
 
 import com.example.jarchess.match.Coordinate;
 
@@ -42,4 +44,9 @@ public class StandardMove implements Move {
         return destination;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return origin.toString() + "->" + destination.toString();
+    }
 }

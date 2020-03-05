@@ -1,4 +1,4 @@
-package com.example.jarchess.match.gui;
+package com.example.jarchess.match.view;
 
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.example.jarchess.match.Coordinate;
+import com.example.jarchess.match.activity.SquareClickHandler;
 
 
 /**

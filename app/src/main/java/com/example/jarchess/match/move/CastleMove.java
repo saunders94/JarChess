@@ -1,4 +1,4 @@
-package com.example.jarchess.match.turn;
+package com.example.jarchess.match.move;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;

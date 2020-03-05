@@ -9,9 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.example.jarchess.match.gui.EasyAIMatchActivity;
-import com.example.jarchess.match.gui.HardAIMatchActivity;
-import com.example.jarchess.match.gui.MatchActivity;
+import com.example.jarchess.match.activity.EasyAIMatchActivity;
+import com.example.jarchess.match.activity.HardAIMatchActivity;
 import com.example.jarchess.match.MatchMaker;
 
 

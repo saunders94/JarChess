@@ -1,4 +1,4 @@
-package com.example.jarchess.match.gui;
+package com.example.jarchess.match.activity;
 
 import com.example.jarchess.match.Coordinate;
 
@@ -7,7 +7,7 @@ import com.example.jarchess.match.Coordinate;
  *
  * @author Joshua Zierman
  */
-interface SquareClickHandler {
+public interface SquareClickHandler {
 
 
     /**

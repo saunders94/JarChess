@@ -1,4 +1,4 @@
-package com.example.jarchess.match.gui;
+package com.example.jarchess.match.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -15,9 +15,10 @@ import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.resignation.ResignationEvent;
 import com.example.jarchess.match.resignation.ResignationException;
 import com.example.jarchess.match.resignation.ResignationListener;
-import com.example.jarchess.match.turn.Move;
-import com.example.jarchess.match.turn.StandardMove;
+import com.example.jarchess.match.move.Move;
+import com.example.jarchess.match.move.StandardMove;
 import com.example.jarchess.match.turn.Turn;
+import com.example.jarchess.match.view.MatchView;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -220,10 +221,7 @@ public abstract class MatchActivity extends AppCompatActivity
         // wait until move is made
         waitForMove();
 
-        log( color + " should receive move");
-
-        log("getMove origin = " + move.getOrigin());
-        log("getMove destination = " + move.getDestination());
+        log( color + " should receive move " + move);
         // return the move
         return move;
     }

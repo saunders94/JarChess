@@ -1,4 +1,4 @@
-package com.example.jarchess.match.gui;
+package com.example.jarchess.match.activity;
 
 import com.example.jarchess.match.Match;
 import com.example.jarchess.match.MatchMaker;
