@@ -59,7 +59,7 @@ public class Gameboard {
     /**
      * Gets the instance of the gameboard
      *
-     * @return
+     * @return the instance of the gameboard
      */
     public static Gameboard getInstance() {
         if (instance == null) {
