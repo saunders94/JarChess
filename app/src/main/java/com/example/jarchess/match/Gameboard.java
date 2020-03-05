@@ -137,6 +137,7 @@ public class Gameboard {
         if (piece == null) {
             throw new AlreadyEmptyException(originCoordinate);
         }
+
         add(piece, destinationCoordinate);
         remove(originCoordinate);
         piece.setAsMoved();

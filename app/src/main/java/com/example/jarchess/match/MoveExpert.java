@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import static com.example.jarchess.match.ChessColor.WHITE;
+import static com.example.jarchess.match.pieces.movement.MovementPattern.CaptureType.MUST_CAPTURE;
 
 //TODO javadocs
 public class MoveExpert {
@@ -98,6 +99,19 @@ public class MoveExpert {
             Piece pieceAtDestination = gameboard.getPieceAt(destination);
             if (pieceAtDestination != null && pieceAtDestination.getColor().equals(pieceToMove.getColor())) {
                 return false; // because the destination would land on a piece of the same color
+            }
+
+            // check if the destination is a piece of the opposite color of the moving piece
+            else if (pieceAtDestination != null){
+
+                if(pattern.getCaptureType() == MovementPattern.CaptureType.CANNOT_CAPTURE){
+                    return  false; // because the destination has a piece of the opposite color
+                }
+            }
+
+            // check if there is no piece at destination and pattern must capture.
+            else if (pattern.getCaptureType() == MUST_CAPTURE){
+                return false; // because the the pattern requires capturing and there is no piece to capture at destination
             }
         }
 
