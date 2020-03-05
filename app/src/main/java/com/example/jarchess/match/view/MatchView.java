@@ -16,6 +16,7 @@ import com.example.jarchess.match.PlayerMatch;
 import com.example.jarchess.match.activity.CommitButtonClickHandler;
 import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.participant.MatchParticipant;
+import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.styles.ChessboardStyle;
 import com.example.jarchess.match.styles.ChesspieceStyle;
 
@@ -43,6 +44,7 @@ public class MatchView extends View {
     private final int rightParticipantTextColor;
     private final Button commitButton;
     private final CommitButtonClickHandler commitButtonClickHandler;
+    private final CapturedPiecesView capturedPieceView;
 
     public MatchView(Match match, MatchActivity activity) {
         super(activity.getBaseContext());
@@ -61,13 +63,13 @@ public class MatchView extends View {
         rightParticipantAvatarImageView = rightParticipantInfoView.findViewById(R.id.avatarImageView);
         commitButton = participantInfoBarView.findViewById(R.id.commitButton);
 
+
         commitButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 commitButtonClickHandler.handleCommitButtonClick();
             }
         });
-
 
 
         // update the view's style
@@ -97,6 +99,8 @@ public class MatchView extends View {
                     activity);
 
         }
+
+        capturedPieceView = new CapturedPiecesView(activity.findViewById(R.id.capturedBar), chesspieceStyle, leftParticipant.getColor());
 
         rightParticipant = leftParticipant.equals(match.getBlackPlayer()) ? match.getWhitePlayer() : match.getBlackPlayer();
         leftParticipantColor = leftParticipant.getColor() == BLACK ? android.graphics.Color.BLACK : android.graphics.Color.WHITE;
@@ -151,5 +155,9 @@ public class MatchView extends View {
 
     public void updatePiece(@NonNull Coordinate coordinate) {
         chessboardView.updatePiece(coordinate);
+    }
+
+    public void addCapturedPiece(Piece capturedPiece) {
+        capturedPieceView.add(capturedPiece);
     }
 }
