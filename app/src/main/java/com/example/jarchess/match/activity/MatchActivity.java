@@ -280,7 +280,7 @@ public abstract class MatchActivity extends AppCompatActivity
         Coordinate destination = move.getDestination();
         if(match.getPieceAt(destination) != null) {
             Piece capturedPiece = match.capture(destination);
-            //TODO add code to make the captured piece visible on the capture bar
+            matchView.addCapturedPiece(capturedPiece);
         }
         match.move(move.getOrigin(), move.getDestination());
     }

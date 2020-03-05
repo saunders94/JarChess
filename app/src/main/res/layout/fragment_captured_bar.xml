@@ -256,6 +256,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:adjustViewBounds="true"
+                android:visibility="visible"
                 app:srcCompat="@drawable/piece_queen_pink_white_letter_img" />
 
             <ImageView
