@@ -7,7 +7,7 @@ import com.example.jarchess.match.Coordinate;
  *
  * @author Joshua Zierman
  */
-interface SquareClickListener {
+interface SquareClickHandler {
 
 
     /**

@@ -1,11 +1,16 @@
 package com.example.jarchess;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import com.example.jarchess.match.MatchMaker;
+import com.example.jarchess.match.gui.LocalMultiplayerMatchActivity;
+import com.example.jarchess.match.gui.MatchActivity;
 
 
 public class MultiplayerType extends Fragment {
@@ -41,6 +46,11 @@ public class MultiplayerType extends Fragment {
                 //MainMenu mainMenu = new MainMenu();
                 //transaction.replace(R.id.fragmentHole, mainMenu);
                 //transaction.commit();
+
+
+                Intent intent = new Intent(getActivity(), LocalMultiplayerMatchActivity.class);
+                startActivity(intent);
+
             }
         });
 

@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.example.jarchess.match.gui.EasyAIMatchActivity;
+import com.example.jarchess.match.gui.HardAIMatchActivity;
 import com.example.jarchess.match.gui.MatchActivity;
 import com.example.jarchess.match.MatchMaker;
 
@@ -53,7 +55,7 @@ public class AiDifficulty extends Fragment {
 
                 MatchMaker.getInstance().startEasyAIMatch();
 
-                Intent intent = new Intent(getActivity(), MatchActivity.class);
+                Intent intent = new Intent(getActivity(), EasyAIMatchActivity.class);
                 startActivity(intent);
             }
         });
@@ -70,7 +72,7 @@ public class AiDifficulty extends Fragment {
 
                 MatchMaker.getInstance().startHardAIMatch();
 
-                Intent intent = new Intent(getActivity(), MatchActivity.class);
+                Intent intent = new Intent(getActivity(), HardAIMatchActivity.class);
                 startActivity(intent);
             }
         });

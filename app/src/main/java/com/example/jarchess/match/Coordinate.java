@@ -219,13 +219,13 @@ public final class Coordinate {
     public static Coordinate getDestination(@NonNull Coordinate origin, @NonNull MovementPattern pattern, @NonNull ChessColor color) { //TODO make unit tests
 
         int destinationColumn = origin.getColumn() + pattern.getKingwardOffset();
-        int destiniationRow = origin.getRow() + (color == WHITE ? pattern.getForwardOffset() : pattern.getBackwardOffset());
+        int destinationRow = origin.getRow() + (color == WHITE ? pattern.getBackwardOffset() : pattern.getForwardOffset());
 
         if (MIN_COLUMN <= destinationColumn
-                && destinationColumn < MAX_COLUMN
-                && MIN_ROW <= destiniationRow
-                && destiniationRow < MAX_ROW) {
-            return Coordinate.getByColumnAndRow(destinationColumn, destiniationRow);
+                && destinationColumn <= MAX_COLUMN
+                && MIN_ROW <= destinationRow
+                && destinationRow <= MAX_ROW) {
+            return Coordinate.getByColumnAndRow(destinationColumn, destinationRow);
         } else {
             return null;
         }

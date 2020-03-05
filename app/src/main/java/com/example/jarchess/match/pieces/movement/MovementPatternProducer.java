@@ -59,7 +59,7 @@ public class MovementPatternProducer {//TODO write unit tests
     public static Collection<MovementPattern> getAllStraightSlideMovementPatterns() {
         Collection<MovementPattern> collection = new LinkedList<MovementPattern>();
         MovementPattern tmp;
-        for (int i = 0; i <= MovementPatternProducer.MAX_OFFSET; i++) {
+        for (int i = 1; i <= MovementPatternProducer.MAX_OFFSET; i++) {
             tmp = new SlidePattern(0, i, MovementPattern.CaptureType.CAN_CAPTURE, false);
             collection.add(tmp);
             tmp = new SlidePattern(i, 0, MovementPattern.CaptureType.CAN_CAPTURE, false);
@@ -81,7 +81,7 @@ public class MovementPatternProducer {//TODO write unit tests
     public static Collection<MovementPattern> getAllDiagonalSlideMovementPatterns() {
         Collection<MovementPattern> collection = new LinkedList<MovementPattern>();
         MovementPattern tmp;
-        for (int i = 0; i <= MAX_OFFSET; i++) {
+        for (int i = 1; i <= MAX_OFFSET; i++) {
             tmp = new SlidePattern(i, i, MovementPattern.CaptureType.CAN_CAPTURE, false);
             collection.add(tmp);
             tmp = new SlidePattern(i, -i, MovementPattern.CaptureType.CAN_CAPTURE, false);

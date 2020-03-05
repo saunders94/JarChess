@@ -1,28 +1,28 @@
 package com.example.jarchess.match;
 
+import android.util.Log;
+
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.pieces.movement.CastleMovementPattern;
 import com.example.jarchess.match.pieces.movement.MovementPattern;
+import com.example.jarchess.match.pieces.movement.SlidePattern;
 
 import java.util.Collection;
 import java.util.LinkedList;
 
+import static com.example.jarchess.match.ChessColor.WHITE;
+
 //TODO javadocs
 public class MoveExpert {
     private final Gameboard gameboard;
-    private final ChessColor colorOfMover;
 
-    public MoveExpert(Gameboard gameboard, ChessColor colorOfMover) {
+    public MoveExpert(Gameboard gameboard) {
         this.gameboard = gameboard;
-        this.colorOfMover = colorOfMover;
     }
 
     Collection<Coordinate> getLegalDestinations(Coordinate origin) {
         Collection<Coordinate> collection = new LinkedList<Coordinate>();
         Piece pieceToMove = gameboard.getPieceAt(origin);
-        if (pieceToMove.getColor() != colorOfMover) {
-            return collection; // return empty collection because there are no legal moves.
-        }
 
         for (MovementPattern pattern : pieceToMove.getMovementPatterns()) {
             if (isLegalMove(pieceToMove, origin, pattern)) {
@@ -30,7 +30,7 @@ public class MoveExpert {
             }
         }
 
-        return null;//FIXME
+        return collection;
     }
 
     private boolean isLegalMove(Piece pieceToMove, Coordinate origin, MovementPattern pattern) {
@@ -39,31 +39,76 @@ public class MoveExpert {
         }
 
         if (pattern instanceof CastleMovementPattern) {
-            Piece king, rook;
-            //TODO set the values of king and rook
-            king = pieceToMove;
+            return false; // FIXME all castle moves are considered illegal until fixed
+//            Piece king, rook;
+//            //TODO set the values of king and rook
+//            king = pieceToMove;
+//
+//            if (pattern.getKingwardOffset() > 0) {
+//                rook = gameboard.getPieceAt(null);//FIXME
+//            } else {
+//                rook = gameboard.getPieceAt(null);//FIXME
+//            }
+//
+//            if (king.hasMoved() || rook.hasMoved()) {
+//                return false; //can't castle when king or rook has moved
+//            }
+//
+//            // TODO check that the king can slide to destination without being in danger before, during, or after the slide.
+//
+//            // TODO check that the rook can slide to destination.
 
-            if (pattern.getKingwardOffset() > 0) {
-                rook = gameboard.getPieceAt(null);//FIXME
-            } else {
-                rook = gameboard.getPieceAt(null);//FIXME
-            }
 
-            if (king.hasMoved() || rook.hasMoved()) {
-                return false; //can't castle when king or rook has moved
-            }
-
-            // TODO check that the king can slide to destination without being in danger before, during, or after the slide.
-
-            // TODO check that the rook can slide to destination.
         } else {
-            // TODO check if setAsMoved would place piece out of bounds
+            Coordinate destination = Coordinate.getDestination(origin, pattern, pieceToMove.getColor());
 
-            // TODO check if setAsMoved would leave the mover's king in check
+            // Check if the destination is on the board
+            if (destination == null) {
+                return false; // because the destination would be off the board
+            }
 
-            // TODO if pattern is slide, make sure nothing prevents the slide
+            // Check if moving from origin to destination would put the king of the moving piece's color in check
+            // TODO check if move would leave the mover's king in check
+
+
+            //FIXME
+
+            //Check if slide path is clear in the case that the pattern is a slide pattern.
+            if (pattern.isSlide()) {
+
+                final int x = ((SlidePattern) pattern).getKingwardSlideOffset();
+                final int y = (pieceToMove.getColor().equals(WHITE) ? -1 : 1) * ((SlidePattern) pattern).getForwardSlideOffset();
+
+                Coordinate tmp = origin;
+                Coordinate next;
+                next = Coordinate.getByColumnAndRow(tmp.getColumn() + x, tmp.getRow() + y);
+
+                while (next != destination) {
+                    tmp = next;
+                    next = Coordinate.getByColumnAndRow(tmp.getColumn() + x, tmp.getRow() + y);
+
+                    if (gameboard.getPieceAt(tmp) != null) {
+                        return false; //  because the slide path is blocked.
+                    }
+                }
+            }
+
+
+            // check if the destination is occupied by a piece of the same color
+            Piece pieceAtDestination = gameboard.getPieceAt(destination);
+            if (pieceAtDestination != null && pieceAtDestination.getColor().equals(pieceToMove.getColor())) {
+                return false; // because the destination would land on a piece of the same color
+            }
         }
 
-        return false;//FIXME
+        return true;
+    }
+
+    private void log(Object msg) {
+        Log.d("MoveExpert", msg.toString());
+    }
+
+    private void log(String msg) {
+        Log.d("MoveExpert", msg);
     }
 }

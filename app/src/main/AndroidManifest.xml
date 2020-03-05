@@ -17,6 +17,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".match.gui.EasyAIMatchActivity" />
+        <activity android:name=".match.gui.HardAIMatchActivity" />
+        <activity android:name=".match.gui.LocalMultiplayerMatchActivity" />
     </application>
 
 </manifest>

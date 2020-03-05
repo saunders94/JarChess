@@ -11,6 +11,8 @@ import com.example.jarchess.match.resignation.ResignationException;
 import com.example.jarchess.match.resignation.ResignationListener;
 import com.example.jarchess.match.turn.Turn;
 
+import java.util.Collection;
+
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
 
@@ -24,9 +26,10 @@ public abstract class Match implements ResignationListener {
 
     private ChessColor resigningColor;
     private ChessColor winner;
-    private boolean done;
+    private boolean isDone;
     private Result matchResult = null;
     private LocalParticipantController localParticipantController;
+    private final MoveExpert moveExpert;
 
     public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2) {
 
@@ -35,13 +38,6 @@ public abstract class Match implements ResignationListener {
         resignationEventManager.addListener(participant1);
         resignationEventManager.addListener(participant2);
 
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                playGame();
-            }
-        };
-
 
         gameboard = Gameboard.getInstance();
         gameboard.reset();
@@ -49,8 +45,7 @@ public abstract class Match implements ResignationListener {
         this.whitePlayer = participant1.getColor() == WHITE ? participant1 : participant2;
 
         matchHistory = new MatchHistory();
-
-        new Thread(runnable, "MatchRunnableThread").start();
+        moveExpert = new MoveExpert(gameboard);
     }
 
 
@@ -62,47 +57,6 @@ public abstract class Match implements ResignationListener {
             notifyAll();
         }
 
-    }
-
-    public void playGame() {
-        Turn turn;
-
-        try {
-            turn = blackPlayer.takeFirstTurn();
-            validate(turn);
-            execute(turn);
-
-            while (!done) {
-                turn = whitePlayer.takeTurn(turn);
-                validate(turn);
-                execute(turn);
-
-                if (!done) {
-                    turn = blackPlayer.takeTurn(turn);
-                    validate(turn);
-                    execute(turn);
-                }
-            }
-        } catch (ResignationException e) {
-            done = true;
-        }
-
-        matchResult = new Result(this);
-    }
-
-    private void execute(Turn turn) {
-        //TODO
-
-        //make changes to gameboard
-
-//        matchHistory.add(turn);
-//
-//        handleChecksAndCheckMates();
-//        handleDraws();
-    }
-
-    private void validate(Turn turn) {
-        //TODO
     }
 
     public LocalParticipantController getLocalParticipantController() {
@@ -118,8 +72,8 @@ public abstract class Match implements ResignationListener {
         }
     }
 
-    private boolean isDone() {
-        return done;
+    public boolean isDone() {
+        return isDone;
     }
 
     public MatchHistory getMatchHistory() {
@@ -136,6 +90,39 @@ public abstract class Match implements ResignationListener {
 
     public Piece getPieceAt(@NonNull Coordinate coordinate) {
         return gameboard.getPieceAt(coordinate);
+    }
+
+    public Turn getFirstTurn() throws ResignationException, InterruptedException {
+        return blackPlayer.takeFirstTurn();
+    }
+
+
+    public Turn getTurn(@NonNull Turn turn) throws ResignationException, InterruptedException {
+        return getParticipant(ChessColor.getOther(turn.getColor())).takeTurn(turn);
+    }
+
+    public MatchParticipant getParticipant(ChessColor color) {
+        switch (color) {
+
+            case BLACK:
+                return blackPlayer;
+            case WHITE:
+                return whitePlayer;
+            default:
+                throw new IllegalStateException("Unexpected color value: " + color);
+        }
+    }
+
+    public void setIsDone(boolean isDone) {
+        this.isDone = isDone;
+    }
+
+    public Collection<Coordinate> getPossibleMoves(Coordinate origin) {
+        return moveExpert.getLegalDestinations(origin);
+    }
+
+    public void move(Coordinate origin, Coordinate destination) {
+        gameboard.move(origin, destination);
     }
 
     public class Result {
@@ -165,5 +152,9 @@ public abstract class Match implements ResignationListener {
         public boolean wasDraw() {
             return winner == null;
         }
+    }
+
+    public ResignationEventManager addResignationListener(ResignationListener listener) {
+        return resignationEventManager;
     }
 }

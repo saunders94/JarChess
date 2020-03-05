@@ -255,7 +255,7 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
 //                    move = new CastleMove(moveByteBuffer.array());//FIXME
                     break;
                 case STANDARD_TURN_SIGNAL_INDICATOR_BYTE:
-                    move = new StandardMove(null, null, null, null);//FIXME
+                    move = new StandardMove(  null, null);//FIXME
                     break;
                 default:
                     throw new IllegalStateException("Unexpected signal indicator value: " + signal_indicator);

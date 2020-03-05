@@ -128,23 +128,23 @@ public final class CastleMove implements Move {
 //        }
 //    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Piece.Type getPieceType() {
-        return null;//FIXME
-//        return Piece.Type.KING;
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public Piece.Type getPieceType() {
+//        return null;//FIXME
+////        return Piece.Type.KING;
+//    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ChessColor getPieceColor() {
-        return null;//FIXME
-//        return color;
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public ChessColor getPieceColor() {
+//        return null;//FIXME
+////        return color;
+//    }
 
     /**
      * {@inheritDoc}

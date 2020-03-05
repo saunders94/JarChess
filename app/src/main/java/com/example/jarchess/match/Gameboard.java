@@ -25,7 +25,7 @@ public class Gameboard {
     private static final int ROW_COUNT = 8;
     private static final int COLUMN_COUNT = 8;
     private static Gameboard instance;
-    private final Piece[][] pieces = new Piece[ROW_COUNT][COLUMN_COUNT];
+    private final Piece[][] pieces = new Piece[COLUMN_COUNT][ROW_COUNT];
 
     /**
      * Private constructor used to create the instance of gameboard
@@ -87,7 +87,7 @@ public class Gameboard {
     public Piece getPieceAt(@NonNull Coordinate coordinate) {
         final int row = coordinate.getRow();
         final int column = coordinate.getColumn();
-        return pieces[row][column];
+        return pieces[column][row];
     }
 
     /**
@@ -116,7 +116,7 @@ public class Gameboard {
             throw new AlreadyOccupiedException(coordinate);
         }
 
-        pieces[row][column] = piece;
+        pieces[column][row] = piece;
     }
 
 
@@ -124,38 +124,67 @@ public class Gameboard {
      * Moves a piece from one coordinate to another on the gameboard
      *
      * @param originCoordinate      the coordinate of the piece to be moved
-     * @param destinationCoordinate the coordinate of where the piece will be after the setAsMoved
+     * @param destinationCoordinate the coordinate of where the piece will be after the move
      * @throws AlreadyOccupiedException if the destination is occupied
      */
     public void move(Coordinate originCoordinate, Coordinate destinationCoordinate) throws AlreadyOccupiedException, AlreadyEmptyException {
         if (!isEmptyAt(destinationCoordinate)) {
             throw new AlreadyOccupiedException(destinationCoordinate);
         }
-        //TODO complete by finishing writing tests and making them all work
 
-        //setAsMoved piece to new spot
+        Piece piece = getPieceAt(originCoordinate);
 
-        //call setAsMoved method on piece to mark it as moved
+        if (piece == null) {
+            throw new AlreadyEmptyException(originCoordinate);
+        }
+        add(piece, destinationCoordinate);
+        remove(originCoordinate);
+        piece.setAsMoved();
     }
 
     /**
      * Resets the gameboard to stating positions.
      */
     public void reset() {
-        //TODO
+
+        for(int column : Coordinate.COLUMNS){
+            for(int row : Coordinate.ROWS){
+                pieces[column][row] = null;
+            }
+        }
+
+
+        Piece tmp;
+
+        for (char file : Coordinate.FILES) {
+            add((tmp = new Pawn(BLACK, file)), tmp.getStartingPosition());
+            add((tmp = new Pawn(WHITE, file)), tmp.getStartingPosition());
+        }
+
+        for (ChessColor c : ChessColor.values()) {
+            add(new Rook(c, Rook.QUEENWARD_STARTING_FILE));
+            add(new Rook(c, Rook.KINGWARD_STARTING_FILE));
+
+            add(new Knight(c, Knight.QUEENWARD_STARTING_FILE));
+            add(new Knight(c, Knight.KINGWARD_STARTING_FILE));
+
+            add(new Bishop(c, Bishop.QUEENWARD_STARTING_FILE));
+            add(new Bishop(c, Bishop.KINGWARD_STARTING_FILE));
+
+            add(new Queen(c));
+            add(new King(c));
+        }
     }
 
-    /**
-     * Moves a piece from one coordinate to another on the gameboard
-     *
-     * @param coordinate the coordinate to remove a piece from;
-     * @throws AlreadyOccupiedException if the destination is occupied
-     */
-    public void remove(Coordinate coordinate) throws AlreadyOccupiedException, AlreadyEmptyException {
+
+    public Piece remove(Coordinate coordinate) throws AlreadyOccupiedException, AlreadyEmptyException {
         if (isEmptyAt(coordinate)) {
             throw new AlreadyEmptyException(coordinate);
         }
-        //TODO complete by finishing writing tests and making them all work
+        Piece pieceRemoved = pieces[coordinate.getColumn()][coordinate.getRow()];
+        pieces[coordinate.getColumn()][coordinate.getRow()] = null;
+
+        return pieceRemoved;
     }
 
 

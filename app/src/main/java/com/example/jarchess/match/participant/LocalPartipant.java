@@ -42,9 +42,10 @@ public abstract class LocalPartipant implements MatchParticipant {
      *
      * @return the turn that this participant takes
      * @throws ResignationException if a resignation was detected.
+     * @throws InterruptedException if the thread is interrupted during the turn.
      */
     @Override
-    public Turn takeFirstTurn() throws ResignationException {
+    public Turn takeFirstTurn() throws ResignationException, InterruptedException {
         return takeTurn();
     }
 
@@ -54,18 +55,30 @@ public abstract class LocalPartipant implements MatchParticipant {
      * @param lastTurnFromOtherParticipant the turn that happened immediately before by the other participant
      * @return the turn that this participant takes
      * @throws ResignationException if a resignation was detected.
+     * @throws InterruptedException if the thread is interrupted during the turn.
      */
     @Override
-    public Turn takeTurn(Turn lastTurnFromOtherParticipant) throws ResignationException {
+    public Turn takeTurn(Turn lastTurnFromOtherParticipant) throws ResignationException, InterruptedException {
         return takeTurn();
     }
 
-    private Turn takeTurn() {
+    /**
+     * Takes a turn.
+     *
+     * @return the turn that this participant takes
+     * @throws ResignationException if a resignation is observed during the turn
+     * @throws InterruptedException if the thread is interupted during the turn
+     */
+    private Turn takeTurn() throws ResignationException, InterruptedException {
         long start, end, elapsed;
-        Move move = null;
+        Move move;
+
+        if(controller == null) {
+            throw new IllegalStateException("controller is null when takeTurn is called");
+        }
 
         start = TestableCurrentTime.currentTimeMillis();
-//        move = controller.getMove(this); // at the moment we assume the move is valid
+        move = controller.getMove(this.getColor()); // at the moment we assume the move is valid
         end = TestableCurrentTime.currentTimeMillis();
 
         elapsed = end - start;

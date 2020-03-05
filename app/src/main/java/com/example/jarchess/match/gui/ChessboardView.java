@@ -3,6 +3,8 @@ package com.example.jarchess.match.gui;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+
 import com.example.jarchess.R;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
@@ -24,12 +26,12 @@ class ChessboardView {
     private final ChesspieceStyle chesspieceStyle;
     private final ChessboardStyle chessboardStyle;
     private final Match match;
-    private final SquareClickListener handler;
+    private final SquareClickHandler handler;
     private final ChessboardViewSquare[][] squares = new ChessboardViewSquare[COLUMNS.length][Coordinate.ROWS.length];
 
     private ChessColor currentPerspective;
 
-    public ChessboardView(View view, ChesspieceStyle chesspieceStyle, ChessboardStyle chessboardStyle, ChessColor perspective, Match match, SquareClickListener handler) {
+    public ChessboardView(View view, ChesspieceStyle chesspieceStyle, ChessboardStyle chessboardStyle, ChessColor perspective, Match match, SquareClickHandler handler) {
         this.view = view;
         this.chesspieceStyle = chesspieceStyle;
         this.chessboardStyle = chessboardStyle;
@@ -314,4 +316,41 @@ class ChessboardView {
 
     }
 
+    public void clearOriginSelectionIndicator(@NonNull Coordinate coordinate) {
+        squareAt(coordinate).clearOriginSelectionIndicator();
+    }
+
+    public void setOriginSelectionIndicator(@NonNull Coordinate coordinate) {
+        squareAt(coordinate).setOriginSelectionIndicator();
+    }
+
+    public void clearPossibleDestinationIndicator(@NonNull Coordinate coordinate) {
+        squareAt(coordinate).clearPossibleDestinationIndicator();
+    }
+
+    public void setPossibleDestinationIndicator(@NonNull Coordinate coordinate) {
+        squareAt(coordinate).setPossibleDestinationIndicator();
+    }
+
+    public void clearDestinationSelectionIndicator(@NonNull Coordinate coordinate) {
+        squareAt(coordinate).clearDestinationSelectionIndicator();
+    }
+
+    public void setDestinationSelectionIndicator(@NonNull Coordinate coordinate) {
+        squareAt(coordinate).setDestinationSelectionIndicator();
+    }
+
+    private ChessboardViewSquare squareAt(@NonNull Coordinate coordinate) {
+        return squares[coordinate.getColumn()][coordinate.getRow()];
+    }
+
+    public void updatePiece(@NonNull Coordinate coordinate) {
+        Piece piece = match.getPieceAt(coordinate);
+        ChessboardViewSquare s = squareAt(coordinate);
+
+        s.setCoordinate(coordinate);
+
+        // update piece images
+        s.setPieceImageResource(chesspieceStyle.getResourceID(piece));
+    }
 }

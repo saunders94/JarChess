@@ -1,6 +1,8 @@
 package com.example.jarchess.match.participant;
 
 import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.resignation.ResignationException;
+import com.example.jarchess.match.turn.Move;
 
 /**
  * A local participant controller allows a local participant to be controlled by a UI
@@ -8,5 +10,5 @@ import com.example.jarchess.match.ChessColor;
  * @author Joshua Zierman
  */
 public interface LocalParticipantController {
-    void requestMove(ChessColor color);
+    Move getMove(ChessColor color) throws InterruptedException, ResignationException;
 }

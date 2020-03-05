@@ -27,7 +27,7 @@ public class Pawn extends Piece {//TODO write unit tests
     public static final String NAME = "Pawn";
     public static final Type TYPE = Type.PAWN;
     private final static MovementPattern PAWN_NORMAL_MOVMENT_PATTERN = MovementPatternProducer.getNewSlideMovementPattern(0, 1, MovementPattern.CaptureType.CANNOT_CAPTURE, false);
-    private final static MovementPattern PAWN_DOUBLE_MOVMENT_PATTERN = MovementPatternProducer.getNewSlideMovementPattern(0, 1, MovementPattern.CaptureType.CANNOT_CAPTURE, true);
+    private final static MovementPattern PAWN_DOUBLE_MOVMENT_PATTERN = MovementPatternProducer.getNewSlideMovementPattern(0, 2, MovementPattern.CaptureType.CANNOT_CAPTURE, true);
     private final static MovementPattern PAWN_CAPTURE_MOVMENT_PATTERN_QUEENWARD = MovementPatternProducer.getNewSlideMovementPattern(-1, 1, MovementPattern.CaptureType.MUST_CAPTURE, false);
     private final static MovementPattern PAWN_CAPTURE_MOVMENT_PATTERN_KINGWARD = MovementPatternProducer.getNewSlideMovementPattern(1, 1, MovementPattern.CaptureType.MUST_CAPTURE, false);
 

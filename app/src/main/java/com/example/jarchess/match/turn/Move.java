@@ -11,19 +11,19 @@ import com.example.jarchess.match.pieces.Piece;
  */
 public interface Move {
 
-    /**
-     * Gets the type of the piece moved during this move.
-     *
-     * @return the type of the piece moved during this move
-     */
-    Piece.Type getPieceType();
-
-    /**
-     * Gets the color of the piece being moved during this move.
-     *
-     * @return the color of the moving piece
-     */
-    ChessColor getPieceColor();
+//    /**
+//     * Gets the type of the piece moved during this move.
+//     *
+//     * @return the type of the piece moved during this move
+//     */
+//    Piece.Type getPieceType();
+//
+//    /**
+//     * Gets the color of the piece being moved during this move.
+//     *
+//     * @return the color of the moving piece
+//     */
+//    ChessColor getPieceColor();
 
     /**
      * Gets the origin coordinate of the moving piece during this move.

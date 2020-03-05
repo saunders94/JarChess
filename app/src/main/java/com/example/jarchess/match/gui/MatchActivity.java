@@ -3,62 +3,50 @@ package com.example.jarchess.match.gui;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 
-import com.example.jarchess.JarAccount;
 import com.example.jarchess.R;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
-import com.example.jarchess.match.MatchMaker;
-import com.example.jarchess.match.PlayerMatch;
 import com.example.jarchess.match.participant.LocalParticipantController;
-import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.pieces.Piece;
-import com.example.jarchess.match.styles.ChessboardStyle;
-import com.example.jarchess.match.styles.ChesspieceStyle;
+import com.example.jarchess.match.resignation.ResignationEvent;
+import com.example.jarchess.match.resignation.ResignationException;
+import com.example.jarchess.match.resignation.ResignationListener;
+import com.example.jarchess.match.turn.Move;
+import com.example.jarchess.match.turn.StandardMove;
+import com.example.jarchess.match.turn.Turn;
 
-import static com.example.jarchess.match.ChessColor.BLACK;
-import static com.example.jarchess.match.ChessColor.WHITE;
+import java.util.Collection;
+import java.util.LinkedList;
 
 /**
  * A match activity is an activity where two participants play a chess match with each other.
  *
  * @author Joshua Zierman
  */
-public class MatchActivity extends AppCompatActivity implements LocalParticipantController, SquareClickListener {
-
-
-    private Match match;
-    private MatchParticipant leftParticipant;
-    private MatchParticipant rightParticipant;
-    private int leftParticipantColor;
-    private int rightParticipantColor;
-    private int leftParticipantTextColor;
-    private int rightParticipantTextColor;
-
-    private View participantInfoBarView;
-    private ChessboardView chessboardView;
-    private View rightParticipantInfoView;
-    private View leftParticipantInfoView;
-    private TextView rightParticipantNameTextView;
-    private TextView leftParticipantNameTextView;
-    private ImageView rightParticipantAvatarImageView;
-    private ImageView leftParticipantAvatarImageView;
-    private TextView rightParticipantColorTextView;
-    private TextView rightParticipantTimeTextView;
-    private TextView leftParticipantColorTextView;
-    private TextView leftParticipantTimeTextView;
-
-    private Coordinate origin;
-    private Coordinate destination;
+public abstract class MatchActivity extends AppCompatActivity
+        implements LocalParticipantController,
+        SquareClickHandler,
+        CommitButtonClickHandler,
+        ResignationListener{
 
     // these are volatile, but need more robust synchronization
-    private ChessColor waitingForMove;
+    private volatile ChessColor waitingForMove;
+    private volatile Move move;
+    private volatile ResignationEvent resignationDetected;
+
+    private Match match;
+    private Coordinate origin;
+    private Coordinate destination;
+    private MatchView matchView;
+    private final Collection <Coordinate> possibleDestinations;
+
+    public MatchActivity() {
+        this.possibleDestinations = new LinkedList<Coordinate>();
+    }
 
     /**
      * {@inheritDoc}
@@ -67,77 +55,26 @@ public class MatchActivity extends AppCompatActivity implements LocalParticipant
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d("MatchActivity", "created");
-        setContentView(R.layout.activity_match);
-        participantInfoBarView = findViewById(R.id.participant_info_bar);
-        leftParticipantInfoView = participantInfoBarView.findViewById(R.id.player_info);
-        leftParticipantNameTextView = leftParticipantInfoView.findViewById(R.id.nameTextView);
-        leftParticipantColorTextView = leftParticipantInfoView.findViewById(R.id.playerColorTextView);
-        leftParticipantTimeTextView = leftParticipantInfoView.findViewById(R.id.timeTextView);
-        leftParticipantAvatarImageView = leftParticipantInfoView.findViewById(R.id.avatarImageView);
-        rightParticipantInfoView = participantInfoBarView.findViewById(R.id.opponent_info);
-        rightParticipantNameTextView = rightParticipantInfoView.findViewById(R.id.nameTextView);
-        rightParticipantColorTextView = rightParticipantInfoView.findViewById(R.id.playerColorTextView);
-        rightParticipantTimeTextView = rightParticipantInfoView.findViewById(R.id.timeTextView);
-        rightParticipantAvatarImageView = rightParticipantInfoView.findViewById(R.id.avatarImageView);
-
         // set match to the current match
-        match = MatchMaker.getInstance().getCurrentMatch();
+        match = createMatch();
         match.setLocalParticipantController(this);
+        match.addResignationListener(this);
 
-        // update the view's style
-        ChesspieceStyle chesspieceStyle = JarAccount.getInstance().getPieceStyle();
-        ChessboardStyle chessboardStyle = JarAccount.getInstance().getBoardStyle();
+        setContentView(R.layout.activity_match);
+        matchView = new MatchView(match, this);
 
 
-        if (match instanceof PlayerMatch) {
 
-            PlayerMatch playerMatch = (PlayerMatch) match;
-            leftParticipant = playerMatch.getPlayer();
-            chessboardView = new ChessboardView(
-                    findViewById(R.id.chessboard),
-                    chesspieceStyle,
-                    chessboardStyle,
-                    leftParticipant.getColor(),
-                    match,
-                    this);
-        } else {
-            leftParticipant = match.getBlackPlayer();
-            chessboardView = new ChessboardView(
-                    findViewById(R.id.chessboard),
-                    chesspieceStyle,
-                    chessboardStyle,
-                    WHITE,
-                    match,
-                    this);
 
-        }
-        rightParticipant = leftParticipant.equals(match.getBlackPlayer()) ? match.getWhitePlayer() : match.getBlackPlayer();
-        leftParticipantColor = leftParticipant.getColor() == BLACK ? android.graphics.Color.BLACK : android.graphics.Color.WHITE;
-        rightParticipantColor = rightParticipant.getColor() == BLACK ? android.graphics.Color.BLACK : android.graphics.Color.WHITE;
-        leftParticipantTextColor = leftParticipant.getColor() == ChessColor.WHITE ? android.graphics.Color.BLACK : android.graphics.Color.WHITE;
-        rightParticipantTextColor = rightParticipant.getColor() == ChessColor.WHITE ? android.graphics.Color.BLACK : android.graphics.Color.WHITE;
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                playGame();
+            }
+        };
+        new Thread(runnable, "MatchRunnableThread").start();
 
-        leftParticipantNameTextView.setText(leftParticipant.getName());
-        leftParticipantNameTextView.setTextColor(leftParticipantTextColor);
-        leftParticipantTimeTextView.setTextColor(leftParticipantTextColor);
-        leftParticipantColorTextView.setTextColor(leftParticipantTextColor);
-        String leftColorText = leftParticipant.getColor().toString() + " PLAYER";
-        leftParticipantColorTextView.setText(leftColorText);
-//        leftParticipantNameTextView.setBackgroundColor(leftParticipantColor);
-        leftParticipantAvatarImageView.setImageResource(leftParticipant.getAvatarStyle().getAvatarResourceID());
-        leftParticipantInfoView.setBackgroundColor(leftParticipantColor);
-
-        rightParticipantNameTextView.setText(rightParticipant.getName());
-        rightParticipantNameTextView.setTextColor(rightParticipantTextColor);
-        rightParticipantTimeTextView.setTextColor(rightParticipantTextColor);
-        rightParticipantColorTextView.setTextColor(rightParticipantTextColor);
-        String rightColorText = rightParticipant.getColor().toString() + " PLAYER";
-        rightParticipantColorTextView.setText(rightColorText);
-//        rightParticipantNameTextView.setBackgroundColor(rightParticipantColor);
-        rightParticipantAvatarImageView.setImageResource(rightParticipant.getAvatarStyle().getAvatarResourceID());
-        rightParticipantInfoView.setBackgroundColor(rightParticipantColor);
-
+        Log.d("MatchActivity", "created");
     }
 
     /**
@@ -166,13 +103,13 @@ public class MatchActivity extends AppCompatActivity implements LocalParticipant
                 clearDestination();
 
 
-            } else if (origin != null) {
+            } else if (origin != null && possibleDestinations.contains(coordinateClicked)) {
                 // If the origin was already set
                 // and the square was empty or had a piece that was a different color than the participant waiting for a move to be input,
+                // and the square is in the set of possible destinations
                 //
                 // than we assume that the click indicates that the user intends to set that square as the destination of the move.
 
-                //TODO add some stuff to limit the destination to valid destinations
                 setDestination(coordinateClicked);
 
             }
@@ -181,20 +118,53 @@ public class MatchActivity extends AppCompatActivity implements LocalParticipant
     }
 
     /**
+     * clears the origin
+     */
+    private void clearOrigin() {
+
+        if(origin == null){
+            return;
+        }
+        matchView.clearOriginSelectionIndicator(origin);
+        for(Coordinate possibleDestination : possibleDestinations){
+            matchView.clearPossibleDestinationIndicator(possibleDestination);
+        }
+
+        this.origin = null;
+        possibleDestinations.clear();
+        log("cleared origin");
+    }
+
+    /**
      * clears the destination
      */
     private void clearDestination() {
-        setDestination(null);
+
+        if(destination == null){
+            return;
+        }
+
+        matchView.clearDestinationSelectionIndicator(destination);
+
+        this.destination = null;
+        log("cleared destination");
     }
 
     /**
      * Sets the origin.
      *
-     * @param origin the origin coordinate to set to, may be null
+     * @param origin the origin coordinate to set to, not null
      */
-    private void setOrigin(@Nullable Coordinate origin) {
+    private void setOrigin(@NonNull Coordinate origin) {
 
+        clearOrigin();
+        clearDestination();
         this.origin = origin;
+        possibleDestinations.addAll(match.getPossibleMoves(origin));
+        matchView.setOriginSelectionIndicator(origin);
+        for(Coordinate possibleDestination: possibleDestinations){
+            matchView.setPossibleDestinationIndicator(possibleDestination);
+        }
         log("set origin to " + this.origin);
 
     }
@@ -202,11 +172,15 @@ public class MatchActivity extends AppCompatActivity implements LocalParticipant
     /**
      * Sets the destination.
      *
-     * @param destination the destination coordinate to set to, may be null
+     * @param destination the destination coordinate to set to, not null
      */
-    private void setDestination(@Nullable Coordinate destination) {
+    private void setDestination(@NonNull Coordinate destination) {
 
+        if(this.destination != null){
+            matchView.setPossibleDestinationIndicator(this.destination);
+        }
         this.destination = destination;
+        matchView.setDestinationSelectionIndicator(destination);
         log("set destination to " + this.destination);
 
     }
@@ -220,12 +194,111 @@ public class MatchActivity extends AppCompatActivity implements LocalParticipant
         Log.d("MatchActivity", msg);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+////    TODO remove this if not needed
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public synchronized void requestMove(ChessColor color) {
+//        log("move was requested by " + color.toString());
+//        waitingForMove = color;
+//    }
+
     @Override
-    public synchronized void requestMove(ChessColor color) {
-        log("move was requested by " + color.toString());
+    public synchronized Move getMove(ChessColor color) throws InterruptedException, ResignationException {
+
+        log(color + " is waiting for move");
+
+        // clear all of the move related fields to make sure we start fresh.
+        move = null;
+        clearOrigin();
+        clearDestination();
+
+        // set the color that is waiting for move
         waitingForMove = color;
+
+        // wait until move is made
+        waitForMove();
+
+        log( color + " should receive move");
+
+        log("getMove origin = " + move.getOrigin());
+        log("getMove destination = " + move.getDestination());
+        // return the move
+        return move;
+    }
+
+    private synchronized void waitForMove() throws InterruptedException, ResignationException {
+        while(move == null){
+            wait();
+            if(resignationDetected != null){
+                throw new ResignationException(resignationDetected);
+            }
+        }
+    }
+
+    @Override
+    public synchronized void observeResignationEvent(ResignationEvent resignationEvent) {
+        resignationDetected = resignationDetected;
+        this.notifyAll();
+    }
+
+
+
+    private void playGame() {
+        Turn turn;
+
+
+        try {
+            turn = match.getFirstTurn();
+            validate(turn);
+            execute(turn);
+            updateView(turn);
+
+            while (!match.isDone()) {
+                turn = match.getTurn(turn);
+                validate(turn);
+                execute(turn);
+                updateView(turn);
+            }
+        } catch (ResignationException e) {
+            match.setIsDone(true);
+        } catch (InterruptedException e2){
+            match.setIsDone(true);
+        }
+    }
+
+    private void updateView(Turn turn) {
+        Move move = turn.getMove();
+        matchView.updatePiece(move.getOrigin());
+        matchView.updatePiece(move.getDestination());
+        //TODO add code to handle castle move
+        //TODO add code to handle en passant capture
+    }
+
+
+    private void execute(Turn turn) {
+
+        Move move = turn.getMove();
+        match.move(move.getOrigin(), move.getDestination());
+    }
+
+    private void validate(Turn turn) {
+        //TODO
+    }
+
+    public abstract Match createMatch();
+
+    @Override
+    public synchronized void handleCommitButtonClick() {
+            if(origin != null && destination != null){
+            move = new StandardMove(origin, destination);
+                log("handle click move.origin = " + move.getOrigin());
+                log("handle click move.destination = " + move.getDestination());
+            waitingForMove = null;
+            this.notifyAll();
+            clearDestination();
+            clearOrigin();
+        }
     }
 }
