@@ -8,9 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.example.jarchess.match.MatchMaker;
-import com.example.jarchess.match.gui.LocalMultiplayerMatchActivity;
-import com.example.jarchess.match.gui.MatchActivity;
+import com.example.jarchess.match.activity.LocalMultiplayerMatchActivity;
 
 
 public class MultiplayerType extends Fragment {

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#A72626"
-    tools:context=".match.gui.MatchActivity"
+    tools:context=".match.activity.MatchActivity"
     tools:showIn="@layout/activity_match">
 
 

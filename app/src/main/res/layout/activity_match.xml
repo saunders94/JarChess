@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_gray"
-    tools:context=".match.gui.MatchActivity">
+    tools:context=".match.activity.MatchActivity">
 
     <LinearLayout
         android:id="@+id/linearLayout"

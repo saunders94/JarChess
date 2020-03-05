@@ -1,10 +1,8 @@
 package com.example.jarchess.match.participant;
 
 import com.example.jarchess.match.ChessColor;
-import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.resignation.ResignationEvent;
 import com.example.jarchess.match.resignation.ResignationException;
-import com.example.jarchess.match.turn.Move;
 import com.example.jarchess.match.turn.Turn;
 
 /**

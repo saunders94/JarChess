@@ -1,6 +1,7 @@
 package com.example.jarchess.match.turn;
 
 import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.move.Move;
 
 /**
  * A turn is the encasilation of all basic elemnts of a turn in chess.

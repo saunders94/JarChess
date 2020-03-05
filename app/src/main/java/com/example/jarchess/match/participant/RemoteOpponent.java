@@ -8,9 +8,8 @@ import com.example.jarchess.match.resignation.ResignationEvent;
 import com.example.jarchess.match.resignation.ResignationEventManager;
 import com.example.jarchess.match.resignation.ResignationException;
 import com.example.jarchess.match.styles.AvatarStyle;
-import com.example.jarchess.match.turn.CastleMove;
-import com.example.jarchess.match.turn.Move;
-import com.example.jarchess.match.turn.StandardMove;
+import com.example.jarchess.match.move.Move;
+import com.example.jarchess.match.move.StandardMove;
 import com.example.jarchess.match.turn.Turn;
 
 import java.nio.ByteBuffer;
