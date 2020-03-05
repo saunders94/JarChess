@@ -43,7 +43,8 @@ public abstract class Match implements ResignationListener {
         };
 
 
-        gameboard = new Gameboard();
+        gameboard = Gameboard.getInstance();
+        gameboard.reset();
         this.blackPlayer = participant1.getColor() == BLACK ? participant1 : participant2;
         this.whitePlayer = participant1.getColor() == WHITE ? participant1 : participant2;
 

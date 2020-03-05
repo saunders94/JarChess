@@ -58,6 +58,7 @@ public class Gameboard {
 
     /**
      * Gets the instance of the gameboard
+     *
      * @return
      */
     public static Gameboard getInstance() {
@@ -69,6 +70,7 @@ public class Gameboard {
 
     /**
      * Adds a piece to the gameboard at starting position
+     *
      * @param piece the piece to add.
      */
     private void add(Piece piece) {
@@ -136,6 +138,12 @@ public class Gameboard {
         //call setAsMoved method on piece to mark it as moved
     }
 
+    /**
+     * Resets the gameboard to stating positions.
+     */
+    public void reset() {
+        //TODO
+    }
 
     /**
      * Moves a piece from one coordinate to another on the gameboard
@@ -274,11 +282,6 @@ public class Gameboard {
             return coordinateThatWasAlreadyEmpty;
         }
 
-        /**
-         * Resets the gameboard to stating positions.
-         */
-        public void reset(){
-            //TODO
-        }
+
     }
 }
