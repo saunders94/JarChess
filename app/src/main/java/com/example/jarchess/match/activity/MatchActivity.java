@@ -34,16 +34,15 @@ public abstract class MatchActivity extends AppCompatActivity
         CommitButtonClickHandler,
         ResignationListener{
 
+    private final Collection <Coordinate> possibleDestinations;
     // these are volatile, but need more robust synchronization
     private volatile ChessColor waitingForMove;
     private volatile Move move;
     private volatile ResignationEvent resignationDetected;
-
     private Match match;
     private Coordinate origin;
     private Coordinate destination;
     private MatchView matchView;
-    private final Collection <Coordinate> possibleDestinations;
 
     public MatchActivity() {
         this.possibleDestinations = new LinkedList<Coordinate>();
@@ -192,7 +191,7 @@ public abstract class MatchActivity extends AppCompatActivity
      * @param msg the message to log
      */
     private void log(String msg) {
-        Log.d("MatchActivity", msg);
+        Log.d("MatchActivity on " + Thread.currentThread().getName() + ": ", msg);
     }
 
 ////    TODO remove this if not needed
@@ -278,6 +277,11 @@ public abstract class MatchActivity extends AppCompatActivity
     private void execute(Turn turn) {
 
         Move move = turn.getMove();
+        Coordinate destination = move.getDestination();
+        if(match.getPieceAt(destination) != null) {
+            Piece capturedPiece = match.capture(destination);
+            //TODO add code to make the captured piece visible on the capture bar
+        }
         match.move(move.getOrigin(), move.getDestination());
     }
 

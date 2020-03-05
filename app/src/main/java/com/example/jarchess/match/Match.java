@@ -125,6 +125,11 @@ public abstract class Match implements ResignationListener {
         gameboard.move(origin, destination);
     }
 
+    public Piece capture(Coordinate destination)
+    {
+        return gameboard.remove(destination);
+    }
+
     public class Result {
         private final MatchParticipant blackParticipant;
         private final MatchParticipant whiteParticipant;
