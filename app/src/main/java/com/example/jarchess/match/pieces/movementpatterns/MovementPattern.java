@@ -1,4 +1,4 @@
-package com.example.jarchess.match.pieces.movement;
+package com.example.jarchess.match.pieces.movementpatterns;
 
 /**
  * A movement pattern is a coordinate offset with various conditions that can represent the movements of chess pieces.

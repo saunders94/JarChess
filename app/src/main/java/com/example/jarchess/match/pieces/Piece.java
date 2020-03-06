@@ -2,7 +2,7 @@ package com.example.jarchess.match.pieces;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
-import com.example.jarchess.match.pieces.movement.MovementPattern;
+import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
 
 import java.util.Collection;
 import java.util.LinkedList;

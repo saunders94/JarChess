@@ -2,8 +2,8 @@ package com.example.jarchess.match.pieces;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
-import com.example.jarchess.match.pieces.movement.MovementPattern;
-import com.example.jarchess.match.pieces.movement.MovementPatternProducer;
+import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
+import com.example.jarchess.match.pieces.movementpatterns.MovementPatternProducer;
 
 /**
  * A knight is a chess piece that can move 2 squares in any direction and 1 in the other as a single jump.

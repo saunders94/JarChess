@@ -1,4 +1,4 @@
-package com.example.jarchess.match.pieces.movement;
+package com.example.jarchess.match.pieces.movementpatterns;
 
 import com.example.jarchess.match.pieces.Rook;
 

@@ -1,4 +1,4 @@
-package com.example.jarchess.match.signal;
+package com.example.jarchess.match.datapackage;
 
 import androidx.annotation.NonNull;
 
