@@ -7,7 +7,7 @@ import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.StandardMove;
 import com.example.jarchess.match.turn.Turn;
 
-public class MatchSignal {
+public class Datapackege {
     public enum SignalType {
         STANDARD_MOVE_TURN(0),
         CASTLE_MOVE_TURN(1),
@@ -29,7 +29,7 @@ public class MatchSignal {
     private final SignalType signalType;
     private final Turn turn;
 
-    public MatchSignal(@NonNull Turn turn) {
+    public Datapackege(@NonNull Turn turn) {
         this.turn = turn;
 
         if(turn.getMove() == null){
@@ -44,13 +44,5 @@ public class MatchSignal {
         } else {
             throw new IllegalArgumentException("Unexpected move type in turn: " + move.getClass());
         }
-    }
-
-
-    public MatchSignal(MatchSignalConvertable convertableObject){
-            this.turn = convertableObject.getTurn();
-            this.signalType = convertableObject.getSignalType();
-
-
     }
 }
