@@ -1,4 +1,4 @@
-package com.example.jarchess.match.pieces.movement;
+package com.example.jarchess.match.pieces.movementpatterns;
 
 /**
  * A jump pattern is a movement pattern that is not blocked by any piece obstructing its jump path before reaching its destination.

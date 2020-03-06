@@ -1,4 +1,4 @@
-package com.example.jarchess.match.pieces.movement;
+package com.example.jarchess.match.pieces.movementpatterns;
 
 import static java.lang.Math.abs;
 

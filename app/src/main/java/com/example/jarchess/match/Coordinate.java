@@ -3,7 +3,7 @@ package com.example.jarchess.match;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.jarchess.match.pieces.movement.MovementPattern;
+import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
 
 import static com.example.jarchess.match.ChessColor.WHITE;
 

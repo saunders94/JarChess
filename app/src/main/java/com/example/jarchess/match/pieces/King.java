@@ -2,8 +2,8 @@ package com.example.jarchess.match.pieces;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
-import com.example.jarchess.match.pieces.movement.MovementPattern;
-import com.example.jarchess.match.pieces.movement.MovementPatternProducer;
+import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
+import com.example.jarchess.match.pieces.movementpatterns.MovementPatternProducer;
 
 /**
  * A king is a chess piece that can move 1 square in any direction.

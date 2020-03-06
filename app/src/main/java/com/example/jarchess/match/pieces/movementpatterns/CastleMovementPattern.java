@@ -1,4 +1,4 @@
-package com.example.jarchess.match.pieces.movement;
+package com.example.jarchess.match.pieces.movementpatterns;
 
 /**
  * A castle movement pattern is a special movement pattern for the castle move that involves a rook and king piece.

@@ -3,15 +3,15 @@ package com.example.jarchess.match;
 import android.util.Log;
 
 import com.example.jarchess.match.pieces.Piece;
-import com.example.jarchess.match.pieces.movement.CastleMovementPattern;
-import com.example.jarchess.match.pieces.movement.MovementPattern;
-import com.example.jarchess.match.pieces.movement.SlidePattern;
+import com.example.jarchess.match.pieces.movementpatterns.CastleMovementPattern;
+import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
+import com.example.jarchess.match.pieces.movementpatterns.SlidePattern;
 
 import java.util.Collection;
 import java.util.LinkedList;
 
 import static com.example.jarchess.match.ChessColor.WHITE;
-import static com.example.jarchess.match.pieces.movement.MovementPattern.CaptureType.MUST_CAPTURE;
+import static com.example.jarchess.match.pieces.movementpatterns.MovementPattern.CaptureType.MUST_CAPTURE;
 
 //TODO javadocs
 public class MoveExpert {
