@@ -2,5 +2,5 @@ package com.example.jarchess.match.datapackage;
 
 public interface DatapackageReceiver {
 
-    Datapackege recieveSignal();
+    Datapackege recieveNextDatapackage();
 }
