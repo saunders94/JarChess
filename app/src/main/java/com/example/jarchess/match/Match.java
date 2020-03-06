@@ -93,7 +93,7 @@ public abstract class Match implements ResignationListener {
     }
 
     public Turn getFirstTurn() throws ResignationException, InterruptedException {
-        return blackPlayer.takeFirstTurn();
+        return whitePlayer.takeFirstTurn();
     }
 
 
