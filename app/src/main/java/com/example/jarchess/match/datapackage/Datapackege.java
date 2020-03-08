@@ -41,6 +41,7 @@ public class Datapackege {
 
     /**
      * Gets the type of datapackage this is.
+     *
      * @return the type of datapackage this is
      */
     public DatapackageType getDatapackageType() {
@@ -57,6 +58,14 @@ public class Datapackege {
         return turn;
     }
 
+    public Move getMove() {
+        return turn.getMove();
+    }
+
+    public long getElapsedTime() {
+        return turn.getElapsedTime();
+    }
+
     public enum DatapackageType {
         TURN(0),
         RESIGNATION(1),
@@ -70,24 +79,12 @@ public class Datapackege {
             intValue = i;
         }
 
-        public int getIntValue() {
-            return intValue;
-        }
-
         public static DatapackageType getFromInt(int i) {
             return DatapackageType.values()[i];
         }
-    }
 
-    public SignalType getMoveType(){
-        return this.signalType;
-    }
-
-    public Move getMove(){
-        return turn.getMove();
-    }
-
-    public long getElapsedTime(){
-        return turn.getElapsedTime();
+        public int getIntValue() {
+            return intValue;
+        }
     }
 }
