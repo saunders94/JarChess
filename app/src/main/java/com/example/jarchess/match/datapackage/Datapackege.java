@@ -45,4 +45,16 @@ public class Datapackege {
             throw new IllegalArgumentException("Unexpected move type in turn: " + move.getClass());
         }
     }
+
+    public SignalType getMoveType(){
+        return this.signalType;
+    }
+
+    public Move getMove(){
+        return turn.getMove();
+    }
+
+    public long getElapsedTime(){
+        return turn.getElapsedTime();
+    }
 }
