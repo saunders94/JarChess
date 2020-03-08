@@ -62,7 +62,7 @@ public class MoveExpert {
         if (isLegalIgnoringCheck) {
             boolean leavesKingInCheck = isInCheck(pieceToMove.getColor(), gameboardToCheck.getCopyWithMovementsApplied(origin, destination));
 
-            return !leavesKingInCheck;
+            return !leavesKingInCheck; // you can't make a move that would leave your king in check
         } else {
             return false;
         }
