@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.jarchess.match.activity.LocalMultiplayerMatchActivity;
+import com.example.jarchess.online.networking.Controller;
 
 
 public class MultiplayerType extends Fragment {
@@ -29,6 +30,8 @@ public class MultiplayerType extends Fragment {
         localButton = view.findViewById(R.id.button_Local);
         onlineButton = view.findViewById(R.id.button_online);
 
+        Controller networkController = new Controller();
+        networkController.testSend();
         setupListeners();
 
 
