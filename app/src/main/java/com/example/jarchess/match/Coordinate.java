@@ -1,11 +1,8 @@
 package com.example.jarchess.match;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
-import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
-
-import static com.example.jarchess.match.ChessColor.WHITE;
+import java.util.Iterator;
 
 /**
  * A coordinate represents a positon on a chessboard.
@@ -28,7 +25,7 @@ import static com.example.jarchess.match.ChessColor.WHITE;
  *
  * @author Joshua Zierman
  */
-public final class Coordinate {
+public class Coordinate {
 
     // File Constants
     /**
@@ -114,6 +111,9 @@ public final class Coordinate {
      * The array of all possible row values.
      */
     public static final int[] ROWS = new int[]{0, 1, 2, 3, 4, 5, 6, 7};
+
+
+    public static final int VALUE_COUNT = COLUMNS.length * ROWS.length;
 
 
     private static final Coordinate[][] coordinates = new Coordinate[COLUMNS.length][ROWS.length];
@@ -204,32 +204,36 @@ public final class Coordinate {
 
     }
 
-    /**
-     * Gets a destination coordinate when applying a movement patter to an origin position for a piece of the indicated color.
-     * <p>
-     * The color of the piece is needed to determine what direction is considered forward.
-     *
-     * @param origin  the starting position of the piece that would be moved, not null
-     * @param pattern the movement pattern applied to the origin to determine the destination, not null
-     * @param color   the color of the piece that would be moved by the pattern, not null
-     * @return the destination coordinate if it is a valid coordinate, othewise returns null to indicate that the pattern would
-     * move a piece off the board
-     */
-    @Nullable
-    public static Coordinate getDestination(@NonNull Coordinate origin, @NonNull MovementPattern pattern, @NonNull ChessColor color) { //TODO make unit tests
+    public static Iterable<? extends Coordinate> values() {
 
-        int destinationColumn = origin.getColumn() + pattern.getKingwardOffset();
-        int destinationRow = origin.getRow() + (color == WHITE ? pattern.getBackwardOffset() : pattern.getForwardOffset());
+        return new Iterable<Coordinate>() {
 
-        if (MIN_COLUMN <= destinationColumn
-                && destinationColumn <= MAX_COLUMN
-                && MIN_ROW <= destinationRow
-                && destinationRow <= MAX_ROW) {
-            return Coordinate.getByColumnAndRow(destinationColumn, destinationRow);
-        } else {
-            return null;
-        }
+            @NonNull
+            @Override
+            public Iterator<Coordinate> iterator() {
+                return new Iterator<Coordinate>() {
+                    private int row = 0;
+                    private int column = 0;
 
+                    @Override
+                    public boolean hasNext() {
+                        return column < COLUMNS.length && row < ROWS.length;
+                    }
+
+                    @Override
+                    public Coordinate next() {
+                        Coordinate coordinate = getByColumnAndRow(column, row);
+
+                        column = (column + 1) % COLUMNS.length;
+                        if (column == 0) {
+                            row++;
+                        }
+
+                        return coordinate;
+                    }
+                };
+            }
+        };
     }
 
     /**

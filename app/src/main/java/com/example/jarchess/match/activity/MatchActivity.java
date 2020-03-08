@@ -10,13 +10,13 @@ import com.example.jarchess.R;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
+import com.example.jarchess.match.move.Move;
+import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.LocalParticipantController;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.resignation.ResignationEvent;
 import com.example.jarchess.match.resignation.ResignationException;
 import com.example.jarchess.match.resignation.ResignationListener;
-import com.example.jarchess.match.move.Move;
-import com.example.jarchess.match.move.StandardMove;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.view.MatchView;
 
@@ -267,22 +267,24 @@ public abstract class MatchActivity extends AppCompatActivity
 
     private void updateView(Turn turn) {
         Move move = turn.getMove();
-        matchView.updatePiece(move.getOrigin());
-        matchView.updatePiece(move.getDestination());
-        //TODO add code to handle castle move
-        //TODO add code to handle en passant capture
+        for (PieceMovement movement : move) {
+            matchView.updatePiece(movement.getOrigin());
+            matchView.updatePiece(movement.getDestination());
+        }
     }
 
 
     private void execute(Turn turn) {
 
         Move move = turn.getMove();
-        Coordinate destination = move.getDestination();
-        if(match.getPieceAt(destination) != null) {
-            Piece capturedPiece = match.capture(destination);
-            matchView.addCapturedPiece(capturedPiece);
+        for (PieceMovement movement : move) {
+            Coordinate destination = movement.getDestination();
+            if (match.getPieceAt(destination) != null) {
+                Piece capturedPiece = match.capture(destination);
+                matchView.addCapturedPiece(capturedPiece);
+            }
+            match.move(movement.getOrigin(), movement.getDestination());
         }
-        match.move(move.getOrigin(), move.getDestination());
     }
 
     private void validate(Turn turn) {
@@ -294,9 +296,8 @@ public abstract class MatchActivity extends AppCompatActivity
     @Override
     public synchronized void handleCommitButtonClick() {
             if(origin != null && destination != null){
-            move = new StandardMove(origin, destination);
-                log("handle click move.origin = " + move.getOrigin());
-                log("handle click move.destination = " + move.getDestination());
+                move = new Move(origin, destination);
+                log("handle click move = " + move);
             waitingForMove = null;
             this.notifyAll();
             clearDestination();

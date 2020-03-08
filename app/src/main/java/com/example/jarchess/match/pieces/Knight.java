@@ -31,6 +31,10 @@ public class Knight extends Piece {//TODO write unit tests
 
     }
 
+    public Knight(Knight pieceToCopy) {
+        super(pieceToCopy);
+    }
+
     /**
      * Creates a knight from a pawn that is being promoted.
      * <p>
@@ -93,7 +97,7 @@ public class Knight extends Piece {//TODO write unit tests
             int x = tmp[0];
             int y = tmp[1];
 
-            add(MovementPatternProducer.getNewJumpMovementPattern(x, y, MovementPattern.CaptureType.CAN_CAPTURE, false));
+            add(MovementPatternProducer.getNewJumpMovementPattern(x, y, MovementPattern.CaptureType.CAN_CAPTURE, false, getColor()));
 
         }
     }

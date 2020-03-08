@@ -1,5 +1,7 @@
 package com.example.jarchess.match.pieces.movementpatterns;
 
+import com.example.jarchess.match.ChessColor;
+
 import static java.lang.Math.abs;
 
 /**
@@ -19,9 +21,10 @@ public class SlidePattern extends MovementPattern {//TODO write unit tests
      *                               the movement pattern will shift the piece
      * @param captureType            the capturing type of the movement pattern.
      * @param mustBeFirstMoveOfPiece if the movement pattern only applies to the first movement of the piece.
+     * @param color                 the color of the piece this pattern if for
      */
-    SlidePattern(int kingwardOffset, int forwardOffset, CaptureType captureType, boolean mustBeFirstMoveOfPiece) {
-        super(kingwardOffset, forwardOffset, captureType, mustBeFirstMoveOfPiece);
+    SlidePattern(int kingwardOffset, int forwardOffset, CaptureType captureType, boolean mustBeFirstMoveOfPiece, ChessColor color) {
+        super(kingwardOffset, forwardOffset, captureType, mustBeFirstMoveOfPiece, color);
     }
 
     /**

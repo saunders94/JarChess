@@ -1,5 +1,13 @@
 package com.example.jarchess.match.pieces.movementpatterns;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.Coordinate;
+
+import static com.example.jarchess.match.ChessColor.WHITE;
+
 /**
  * A movement pattern is a coordinate offset with various conditions that can represent the movements of chess pieces.
  *
@@ -12,6 +20,7 @@ public abstract class MovementPattern {//TODO write unit tests
     private final int forwardOffset;
     private final CaptureType captureType;
     private final boolean mustBeFirstMoveOfPiece;
+    private final ChessColor color;
     /**
      * Creates a movement pattern.
      *
@@ -19,13 +28,41 @@ public abstract class MovementPattern {//TODO write unit tests
      * @param forwardOffset          The number of spaces up (when black starting position is at the top) that the movement pattern would shift the piece. A negative value indicates a backward movement at the magnitude.
      * @param captureType            the capturing type of the movement pattern
      * @param mustBeFirstMoveOfPiece if the movement pattern only applies to the first movement of the piece
+     * @param color                 the color of the piece this pattern if for
      * @return the created slide movement pattern
      */
-    MovementPattern(int kingwardOffset, int forwardOffset, CaptureType captureType, boolean mustBeFirstMoveOfPiece) {
+    MovementPattern(int kingwardOffset, int forwardOffset, CaptureType captureType, boolean mustBeFirstMoveOfPiece, ChessColor color) {
         this.kingwardOffset = kingwardOffset;
         this.forwardOffset = forwardOffset;
         this.captureType = captureType;
         this.mustBeFirstMoveOfPiece = mustBeFirstMoveOfPiece;
+        this.color = color;
+    }
+
+    /**
+     * Gets a destination coordinate when applying a movement patter to an origin position for a piece of the indicated color.
+     * <p>
+     * The color of the piece is needed to determine what direction is considered forward.
+     *
+     * @param origin the starting position of the piece that would be moved, not null
+     * @return the destination coordinate if it is a valid coordinate, othewise returns null to indicate that the pattern would
+     * move a piece off the board
+     */
+    @Nullable
+    public Coordinate getDestinationFrom(@NonNull Coordinate origin) { //TODO make unit tests
+
+        int destinationColumn = origin.getColumn() + getKingwardOffset();
+        int destinationRow = origin.getRow() + (color == WHITE ? getBackwardOffset() : getForwardOffset());
+
+        if (Coordinate.MIN_COLUMN <= destinationColumn
+                && destinationColumn <= Coordinate.MAX_COLUMN
+                && Coordinate.MIN_ROW <= destinationRow
+                && destinationRow <= Coordinate.MAX_ROW) {
+            return Coordinate.getByColumnAndRow(destinationColumn, destinationRow);
+        } else {
+            return null;
+        }
+
     }
 
     /**

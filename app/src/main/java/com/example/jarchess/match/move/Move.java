@@ -2,42 +2,113 @@ package com.example.jarchess.match.move;
 
 import androidx.annotation.NonNull;
 
-import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
-import com.example.jarchess.match.pieces.Piece;
 
-/**
- * A move is a representation of the set of piece movements the are part of a single turn in chess
- *
- * @author Joshua Zierman
- */
-public interface Move {
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 
-//    /**
-//     * Gets the type of the piece moved during this move.
-//     *
-//     * @return the type of the piece moved during this move
-//     */
-//    Piece.Type getPieceType();
-//
-//    /**
-//     * Gets the color of the piece being moved during this move.
-//     *
-//     * @return the color of the moving piece
-//     */
-//    ChessColor getPieceColor();
+public class Move implements Collection<PieceMovement> {
+    private final Collection<PieceMovement> movements;
 
-    /**
-     * Gets the origin coordinate of the moving piece during this move.
-     *
-     * @return the coordinate where the moving piece was before this move.
-     */
-    Coordinate getOrigin();
+    public Move(Coordinate origin, Coordinate destination) {
+        movements = new LinkedList<PieceMovement>();
+        add(new PieceMovement(origin, destination));
+    }
 
-    /**
-     * Gets the destination coordinate of the moving piece during this move.
-     *
-     * @return the destination coordinate where the piece will be after this move.
-     */
-    Coordinate getDestination();
+    public Move(PieceMovement pieceMovement) {
+        movements = new LinkedList<PieceMovement>();
+        add(pieceMovement);
+    }
+
+    @Override
+    public int size() {
+        return movements.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return movements.isEmpty();
+    }
+
+    @Override
+    public boolean contains(Object o) {
+        return movements.contains(o);
+    }
+
+    @Override
+    public Iterator<PieceMovement> iterator() {
+        return movements.iterator();
+    }
+
+    @Override
+    public Object[] toArray() {
+        return movements.toArray();
+    }
+
+    @Override
+    public <T> T[] toArray(T[] a) {
+        return movements.toArray(a);
+    }
+
+    @Override
+    public boolean add(PieceMovement pieceMovement) {
+        return movements.add(pieceMovement);
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        return movements.remove(o);
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        return movements.containsAll(c);
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends PieceMovement> c) {
+        return movements.addAll(c);
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        return movements.removeAll(c);
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        return movements.retainAll(c);
+    }
+
+    @Override
+    public void clear() {
+        movements.clear();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return movements.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return movements.hashCode();
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        String s = "";
+        boolean first = true;
+        for (PieceMovement movement : movements) {
+            if (first) {
+                first = false;
+            } else {
+                s += ", ";
+            }
+            s += movement.toString();
+        }
+        return s;
+    }
 }

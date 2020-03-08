@@ -11,44 +11,113 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import static com.example.jarchess.match.ChessColor.WHITE;
+import static com.example.jarchess.match.pieces.Piece.Type.KING;
+import static com.example.jarchess.match.pieces.movementpatterns.MovementPattern.CaptureType.CANNOT_CAPTURE;
 import static com.example.jarchess.match.pieces.movementpatterns.MovementPattern.CaptureType.MUST_CAPTURE;
 
 //TODO javadocs
 public class MoveExpert {
-    private final Gameboard gameboard;
 
-    public MoveExpert(Gameboard gameboard) {
-        this.gameboard = gameboard;
+    private static MoveExpert instance;
+
+    /**
+     * Creates an instance of <code>MoveExpert</code> to construct a singleton instance
+     */
+    private MoveExpert() {
     }
 
-    Collection<Coordinate> getLegalDestinations(Coordinate origin) {
+    /**
+     * Gets the instance.
+     *
+     * @return the instance.
+     */
+    public static MoveExpert getInstance() {
+        if (instance == null) {
+            instance = new MoveExpert();
+        }
+
+        return instance;
+    }
+
+    public Collection<Coordinate> getLegalDestinations(Coordinate origin, Gameboard gameboardToCheck) {
         Collection<Coordinate> collection = new LinkedList<Coordinate>();
-        Piece pieceToMove = gameboard.getPieceAt(origin);
+        Piece pieceToMove = gameboardToCheck.getPieceAt(origin);
 
         for (MovementPattern pattern : pieceToMove.getMovementPatterns()) {
-            if (isLegalMove(pieceToMove, origin, pattern)) {
-                collection.add(Coordinate.getDestination(origin, pattern, pieceToMove.getColor()));
+            if (isLegalMove(pieceToMove, origin, pattern, gameboardToCheck)) {
+                collection.add(pattern.getDestinationFrom(origin));
             }
         }
 
         return collection;
     }
 
-    private boolean isLegalMove(Piece pieceToMove, Coordinate origin, MovementPattern pattern) {
-        if (pattern.mustBeFirstMoveOfPiece() && pieceToMove.hasMoved()) {
+    public boolean isLegalMove(Piece pieceToMove, Coordinate origin, MovementPattern movementPattern, Gameboard gameboardToCheck) {
+        Coordinate destination = movementPattern.getDestinationFrom(origin);
+        if (destination == null) {
+            return false; // because the destination of that move is out of bounds
+        }
+        boolean isLegalIgnoringCheck = isLegalMoveIgnoringChecks(pieceToMove, origin, movementPattern, gameboardToCheck);
+
+        if (isLegalIgnoringCheck) {
+            boolean leavesKingInCheck = isInCheck(pieceToMove.getColor(), gameboardToCheck.getCopyWithMovementsApplied(origin, destination));
+
+            return !leavesKingInCheck;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isInCheck(ChessColor colorOfPlayerThatMightBeInCheck, Gameboard gameboardToCheck) {
+
+        final ChessColor threatColor = ChessColor.getOther(colorOfPlayerThatMightBeInCheck);
+        Piece tmpPiece;
+        Coordinate kingCoordinateToCheck = null;
+        for (Coordinate c : Coordinate.values()) {
+            tmpPiece = gameboardToCheck.getPieceAt(c);
+            if (tmpPiece != null && colorOfPlayerThatMightBeInCheck == tmpPiece.getColor() && tmpPiece.getType() == KING) {
+                kingCoordinateToCheck = c;
+                break;
+            }
+
+        }
+        if (kingCoordinateToCheck == null) {
+
+        }
+
+        for (Coordinate c : Coordinate.values()) {
+            tmpPiece = gameboardToCheck.getPieceAt(c);
+            if (tmpPiece != null && threatColor == tmpPiece.getColor()) {
+
+                for (MovementPattern pattern : tmpPiece.getMovementPatterns()) {
+                    if (pattern.getDestinationFrom(c) == kingCoordinateToCheck && isLegalMoveIgnoringChecks(tmpPiece, c, pattern, gameboardToCheck)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isLegalMoveIgnoringChecks(Piece pieceToMove, Coordinate origin, MovementPattern movementPattern, Gameboard gameboardToCheck) {
+
+        // if the move pattern requires the move be the first move of the piece and the piece has moved
+        if (movementPattern.mustBeFirstMoveOfPiece() && pieceToMove.hasMoved()) {
+            log(pieceToMove);
+            log(origin);
             return false;
         }
 
-        if (pattern instanceof CastleMovementPattern) {
+        if (movementPattern instanceof CastleMovementPattern) {
             return false; // FIXME all castle moves are considered illegal until fixed
 //            Piece king, rook;
 //            //TODO set the values of king and rook
 //            king = pieceToMove;
 //
 //            if (pattern.getKingwardOffset() > 0) {
-//                rook = gameboard.getPieceAt(null);//FIXME
+//                rook = gameboardToCheck.getPieceAt(null);//FIXME
 //            } else {
-//                rook = gameboard.getPieceAt(null);//FIXME
+//                rook = gameboardToCheck.getPieceAt(null);//FIXME
 //            }
 //
 //            if (king.hasMoved() || rook.hasMoved()) {
@@ -61,24 +130,19 @@ public class MoveExpert {
 
 
         } else {
-            Coordinate destination = Coordinate.getDestination(origin, pattern, pieceToMove.getColor());
+            Coordinate destination = movementPattern.getDestinationFrom(origin);
 
             // Check if the destination is on the board
             if (destination == null) {
                 return false; // because the destination would be off the board
             }
 
-            // Check if moving from origin to destination would put the king of the moving piece's color in check
-            // TODO check if move would leave the mover's king in check
-
-
-            //FIXME
 
             //Check if slide path is clear in the case that the pattern is a slide pattern.
-            if (pattern.isSlide()) {
+            if (movementPattern.isSlide()) {
 
-                final int x = ((SlidePattern) pattern).getKingwardSlideOffset();
-                final int y = (pieceToMove.getColor().equals(WHITE) ? -1 : 1) * ((SlidePattern) pattern).getForwardSlideOffset();
+                final int x = ((SlidePattern) movementPattern).getKingwardSlideOffset();
+                final int y = (pieceToMove.getColor().equals(WHITE) ? -1 : 1) * ((SlidePattern) movementPattern).getForwardSlideOffset();
 
                 Coordinate tmp = origin;
                 Coordinate next;
@@ -88,7 +152,7 @@ public class MoveExpert {
                     tmp = next;
                     next = Coordinate.getByColumnAndRow(tmp.getColumn() + x, tmp.getRow() + y);
 
-                    if (gameboard.getPieceAt(tmp) != null) {
+                    if (gameboardToCheck.getPieceAt(tmp) != null) {
                         return false; //  because the slide path is blocked.
                     }
                 }
@@ -96,27 +160,25 @@ public class MoveExpert {
 
 
             // check if the destination is occupied by a piece of the same color
-            Piece pieceAtDestination = gameboard.getPieceAt(destination);
+            Piece pieceAtDestination = gameboardToCheck.getPieceAt(destination);
             if (pieceAtDestination != null && pieceAtDestination.getColor().equals(pieceToMove.getColor())) {
                 return false; // because the destination would land on a piece of the same color
             }
 
             // check if the destination is a piece of the opposite color of the moving piece
-            else if (pieceAtDestination != null){
+            else if (pieceAtDestination != null) {
 
-                if(pattern.getCaptureType() == MovementPattern.CaptureType.CANNOT_CAPTURE){
-                    return  false; // because the destination has a piece of the opposite color
-                }
+                return movementPattern.getCaptureType() != CANNOT_CAPTURE; // because the destination has a piece of the opposite color
             }
 
             // check if there is no piece at destination and pattern must capture.
-            else if (pattern.getCaptureType() == MUST_CAPTURE){
-                return false; // because the the pattern requires capturing and there is no piece to capture at destination
-            }
+            else
+                return movementPattern.getCaptureType() != MUST_CAPTURE; // because the the pattern requires capturing and there is no piece to capture at destination
         }
 
-        return true;
     }
+
+
 
     private void log(Object msg) {
         Log.d("MoveExpert", msg.toString());

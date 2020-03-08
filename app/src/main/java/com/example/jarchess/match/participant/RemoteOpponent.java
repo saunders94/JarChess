@@ -8,11 +8,8 @@ import com.example.jarchess.match.resignation.ResignationEvent;
 import com.example.jarchess.match.resignation.ResignationEventManager;
 import com.example.jarchess.match.resignation.ResignationException;
 import com.example.jarchess.match.styles.AvatarStyle;
-import com.example.jarchess.match.move.Move;
-import com.example.jarchess.match.move.StandardMove;
 import com.example.jarchess.match.turn.Turn;
 
-import java.nio.ByteBuffer;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -197,14 +194,6 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
      */
     private class SignalReciever implements Runnable {
 
-        // the smallest signal lencth in bytes that should be expected.
-        private static final int TURN_SIGNAL_MIN_LENGTH = 3;
-
-        // constant byte patterns that can be used to flag different types of signals.
-        private static final byte RESIGNATION_SIGNAL_INDICATOR_BYTE = (byte) 0x00;
-        private static final byte CASTLE_TURN_SIGNAL_INDICATOR_BYTE = (byte) 0x01;
-        private static final byte STANDARD_TURN_SIGNAL_INDICATOR_BYTE = (byte) 0x02;
-
 
         /**
          * {@inheritDoc}
@@ -214,71 +203,10 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
             while (alive) {
                 synchronized (lock) {
 
-                    byte[] signal = getSignal();
-                    if (signalIsResignation(signal)) {
-                        resign();
-                        alive = false;
-                    } else {
-                        recievedTurns.add(toTurn(signal));
-                    }
+                    //TODO recieve Datapackages
 
                 }
             }
-        }
-
-        /**
-         * Converts a byte array to a turn.
-         *
-         * @param bytes the bytes that represent a turn
-         * @return the turn represented by the bytes
-         */
-        private Turn toTurn(byte[] bytes) { // TODO finish
-            if (bytes.length < TURN_SIGNAL_MIN_LENGTH) {
-                throw new IllegalArgumentException("signal too short to be a turn");
-            }
-            final long elapsedTime;
-            Move move = null;
-
-            ByteBuffer longByteBuffer = ByteBuffer.allocate(Long.BYTES);
-            longByteBuffer.put(bytes, 1, Long.BYTES);
-            elapsedTime = longByteBuffer.getLong();
-
-            int moveByteBufferSize = bytes.length - 1 - Long.BYTES;
-            ByteBuffer moveByteBuffer = ByteBuffer.allocate(moveByteBufferSize);
-            moveByteBuffer.put(bytes, 1 + Long.BYTES, moveByteBufferSize);
-
-            byte signal_indicator = bytes[0];
-
-            switch (signal_indicator) {
-                case CASTLE_TURN_SIGNAL_INDICATOR_BYTE:
-//                    move = new CastleMove(moveByteBuffer.array());//FIXME
-                    break;
-                case STANDARD_TURN_SIGNAL_INDICATOR_BYTE:
-                    move = new StandardMove(  null, null);//FIXME
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected signal indicator value: " + signal_indicator);
-            }
-            return new Turn(color, move, elapsedTime);
-        }
-
-        /**
-         * Checks to see if a signal is a resignation signal.
-         *
-         * @param signal the signal from the remote participant
-         * @return true if the signal is a resignation signal
-         */
-        private boolean signalIsResignation(byte[] signal) {
-            return false;//FIXME
-        }
-
-        /**
-         * Gets the next signal
-         *
-         * @return the signal
-         */
-        private byte[] getSignal() {
-            return null;//FIXME
         }
     }
 

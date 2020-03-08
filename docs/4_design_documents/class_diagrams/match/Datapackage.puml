@@ -1,0 +1,79 @@
+@startuml
+
+class Datapackage{
++Datapackage(turn:Turn)
++Datapackage(datapackageType:DatapackageType)
+}
+
+enum DatapackageType{
+        STANDARD_MOVE_TURN
+        CASTLE_MOVE_TURN
+        RESIGNATION
+        PAUSE_REQUEST
+        PAUSE_ACCEPT
+        PAUSE_REJECT
+}
+
+
+class Turn{
+-elapsedTime:long
++Turn(color:ChessColor, move:Move, elapsedTime:long)
+}
+
+
+enum ChessColor{
+BLACK
+WHITE
+{static} getOther(color:ChessColor):ChessColor
+{static} getRandom():ChessColor
+}
+
+
+interface Move{
++getOrigin():Coordinate
++getDestination():Coordinate
+}
+
+
+class StandardMove{
++ StandardMove(origin:Coordinate, destination:Coordinate)
+}
+
+class Coordinate{
+-file
+-rank
+-row
+-column
++ {static}getByColumnAndRow(column:int, row:int):Coordinate)
++ {static}getByFileAndRank(file:char, rank:int):Coordinate)
+}
+
+
+class CastleMove{
++ CastleMove(color:ChessColor, kingMovementDirection:KingMovementDirection)
++ getOtherOrigin():Coordinate
++ getOtherDestination():Coordinate
+}
+
+enum KingMovementDirection{
+QUEENWARD
+KINGWARD
+}
+
+
+DatapackageType "1" --lefto "*" Datapackage: datapackageType
+DatapackageType --+ Datapackage
+Datapackage "1" o-- "0..1" Turn: turn
+Turn "1" o-- "1" Move: move
+Move <|-down- StandardMove
+Move <|-down- CastleMove
+StandardMove "*" o-right- "1" Coordinate:origin
+StandardMove "*" o- "1" Coordinate:destination
+CastleMove "*" o-left- "2" Coordinate:origin
+CastleMove "*" o- "2" Coordinate:destination
+ChessColor "1" --o "*" Turn: color
+ChessColor "1" -o "*" CastleMove: color
+CastleMove +- KingMovementDirection
+KingMovementDirection"1" ---o "*"CastleMove:direction
+
+@enduml

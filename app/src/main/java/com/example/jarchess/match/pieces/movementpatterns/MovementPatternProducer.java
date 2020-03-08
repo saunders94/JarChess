@@ -1,5 +1,6 @@
 package com.example.jarchess.match.pieces.movementpatterns;
 
+import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.pieces.Rook;
 
 import java.util.Collection;
@@ -30,10 +31,11 @@ public class MovementPatternProducer {//TODO write unit tests
      *                               the movement pattern will shift the piece
      * @param captureType            the capturing type of the movement pattern
      * @param mustBeFirstMoveOfPiece if the movement pattern only applies to the first movement of the piece
+     * @param color                 the color of the piece this pattern if for
      * @return the created slide movement pattern
      */
-    public static MovementPattern getNewSlideMovementPattern(int kingwardOffset, int forwardOffset, MovementPattern.CaptureType captureType, boolean mustBeFirstMoveOfPiece) {
-        return new SlidePattern(kingwardOffset, forwardOffset, captureType, mustBeFirstMoveOfPiece);
+    public static MovementPattern getNewSlideMovementPattern(int kingwardOffset, int forwardOffset, MovementPattern.CaptureType captureType, boolean mustBeFirstMoveOfPiece, ChessColor color) {
+        return new SlidePattern(kingwardOffset, forwardOffset, captureType, mustBeFirstMoveOfPiece, color);
     }
 
     /**
@@ -47,8 +49,8 @@ public class MovementPatternProducer {//TODO write unit tests
      * @param mustBeFirstMoveOfPiece if the movement pattern only applies to the first movement of the piece
      * @return the created jump movement pattern
      */
-    public static MovementPattern getNewJumpMovementPattern(int kingwardOffset, int forwardOffset, MovementPattern.CaptureType captureType, boolean mustBeFirstMoveOfPiece) {
-        return new JumpPattern(kingwardOffset, forwardOffset, captureType, mustBeFirstMoveOfPiece);
+    public static MovementPattern getNewJumpMovementPattern(int kingwardOffset, int forwardOffset, MovementPattern.CaptureType captureType, boolean mustBeFirstMoveOfPiece, ChessColor color) {
+        return new JumpPattern(kingwardOffset, forwardOffset, captureType, mustBeFirstMoveOfPiece, color);
     }
 
     /**
@@ -56,17 +58,17 @@ public class MovementPatternProducer {//TODO write unit tests
      *
      * @return a collection of all straight slide movement patterns
      */
-    public static Collection<MovementPattern> getAllStraightSlideMovementPatterns() {
+    public static Collection<MovementPattern> getAllStraightSlideMovementPatterns(ChessColor color) {
         Collection<MovementPattern> collection = new LinkedList<MovementPattern>();
         MovementPattern tmp;
         for (int i = 1; i <= MovementPatternProducer.MAX_OFFSET; i++) {
-            tmp = new SlidePattern(0, i, MovementPattern.CaptureType.CAN_CAPTURE, false);
+            tmp = new SlidePattern(0, i, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
             collection.add(tmp);
-            tmp = new SlidePattern(i, 0, MovementPattern.CaptureType.CAN_CAPTURE, false);
+            tmp = new SlidePattern(i, 0, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
             collection.add(tmp);
-            tmp = new SlidePattern(0, -i, MovementPattern.CaptureType.CAN_CAPTURE, false);
+            tmp = new SlidePattern(0, -i, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
             collection.add(tmp);
-            tmp = new SlidePattern(-i, 0, MovementPattern.CaptureType.CAN_CAPTURE, false);
+            tmp = new SlidePattern(-i, 0, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
             collection.add(tmp);
         }
 
@@ -78,17 +80,17 @@ public class MovementPatternProducer {//TODO write unit tests
      *
      * @return a collection of all diagonal slide movement patterns
      */
-    public static Collection<MovementPattern> getAllDiagonalSlideMovementPatterns() {
+    public static Collection<MovementPattern> getAllDiagonalSlideMovementPatterns(ChessColor color) {
         Collection<MovementPattern> collection = new LinkedList<MovementPattern>();
         MovementPattern tmp;
         for (int i = 1; i <= MAX_OFFSET; i++) {
-            tmp = new SlidePattern(i, i, MovementPattern.CaptureType.CAN_CAPTURE, false);
+            tmp = new SlidePattern(i, i, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
             collection.add(tmp);
-            tmp = new SlidePattern(i, -i, MovementPattern.CaptureType.CAN_CAPTURE, false);
+            tmp = new SlidePattern(i, -i, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
             collection.add(tmp);
-            tmp = new SlidePattern(-i, i, MovementPattern.CaptureType.CAN_CAPTURE, false);
+            tmp = new SlidePattern(-i, i, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
             collection.add(tmp);
-            tmp = new SlidePattern(-i, -i, MovementPattern.CaptureType.CAN_CAPTURE, false);
+            tmp = new SlidePattern(-i, -i, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
             collection.add(tmp);
         }
 
@@ -97,18 +99,19 @@ public class MovementPatternProducer {//TODO write unit tests
 
     /**
      * gets all the king's castle movement patters.
+     * @param color                 the color of the piece this pattern if for
      *
      * @return a collection of all the king's castle movement patters
      */
-    public static Collection<MovementPattern> getAllKingCastleMovementPatterns() {
+    public static Collection<MovementPattern> getAllKingCastleMovementPatterns(ChessColor color) {
         Collection<MovementPattern> collection;
         collection = new LinkedList<MovementPattern>();
         CastleMovementPattern tmp;
 
-        tmp = new CastleMovementPattern(-KING_CASTLE_OFFSET_MAGNITUDE);
+        tmp = new CastleMovementPattern(-KING_CASTLE_OFFSET_MAGNITUDE, color);
         collection.add(tmp);
 
-        tmp = new CastleMovementPattern(KING_CASTLE_OFFSET_MAGNITUDE);
+        tmp = new CastleMovementPattern(KING_CASTLE_OFFSET_MAGNITUDE, color);
         collection.add(tmp);
 
         return collection;
@@ -118,9 +121,10 @@ public class MovementPatternProducer {//TODO write unit tests
      * Gets all the castle movement patterns for a rook at a specified file.
      *
      * @param file the file of the rook
+     * @param color                 the color of the piece this pattern if for
      * @return a collection of all the castle movement patterns for a rook at the specified file
      */
-    public static MovementPattern getRookCastleMovementPattern(char file) {
+    public static MovementPattern getRookCastleMovementPattern(char file, ChessColor color) {
         int offset;
         file = Character.toLowerCase(file);
 
@@ -135,6 +139,6 @@ public class MovementPatternProducer {//TODO write unit tests
                 throw new IllegalStateException("Unexpected value: " + file);
         }
 
-        return new CastleMovementPattern(offset);
+        return new CastleMovementPattern(offset, color);
     }
 }
