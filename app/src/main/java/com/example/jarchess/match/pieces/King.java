@@ -39,6 +39,15 @@ public class King extends Piece {//TODO write unit tests
     public King(ChessColor color) {
         super(color, TYPE, makeStartingCoordinate(color));
 
+        addAllMovementPatterns();
+
+    }
+
+    public King(King pieceToCopy) {
+        super(pieceToCopy);
+    }
+
+    private void addAllMovementPatterns() {
         MovementPattern tmp;
 
         for (int i = -1; i <= 1; i++) {
@@ -48,7 +57,8 @@ public class King extends Piece {//TODO write unit tests
                             i,
                             j,
                             MovementPattern.CaptureType.CAN_CAPTURE,
-                            false
+                            false,
+                            getColor()
                     );
 
                     add(tmp);
@@ -57,8 +67,7 @@ public class King extends Piece {//TODO write unit tests
             }
         }
 
-        add(MovementPatternProducer.getAllKingCastleMovementPatterns());
-
+        add(MovementPatternProducer.getAllKingCastleMovementPatterns(getColor()));
     }
 
     /**

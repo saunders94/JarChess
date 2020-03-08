@@ -26,10 +26,6 @@ public class Pawn extends Piece {//TODO write unit tests
     public final static int WHITE_STARTING_RANK = 2;
     public static final String NAME = "Pawn";
     public static final Type TYPE = Type.PAWN;
-    private final static MovementPattern PAWN_NORMAL_MOVMENT_PATTERN = MovementPatternProducer.getNewSlideMovementPattern(0, 1, MovementPattern.CaptureType.CANNOT_CAPTURE, false);
-    private final static MovementPattern PAWN_DOUBLE_MOVMENT_PATTERN = MovementPatternProducer.getNewSlideMovementPattern(0, 2, MovementPattern.CaptureType.CANNOT_CAPTURE, true);
-    private final static MovementPattern PAWN_CAPTURE_MOVMENT_PATTERN_QUEENWARD = MovementPatternProducer.getNewSlideMovementPattern(-1, 1, MovementPattern.CaptureType.MUST_CAPTURE, false);
-    private final static MovementPattern PAWN_CAPTURE_MOVMENT_PATTERN_KINGWARD = MovementPatternProducer.getNewSlideMovementPattern(1, 1, MovementPattern.CaptureType.MUST_CAPTURE, false);
 
     /**
      * Creates a Pawn
@@ -40,11 +36,20 @@ public class Pawn extends Piece {//TODO write unit tests
     public Pawn(ChessColor color, char startingFile) {
         super(color, TYPE, makeStartingCoordinate(color, startingFile));
 
-        // set up all movement patterns
-        add(PAWN_NORMAL_MOVMENT_PATTERN);
-        add(PAWN_DOUBLE_MOVMENT_PATTERN);
-        add(PAWN_CAPTURE_MOVMENT_PATTERN_QUEENWARD);
-        add(PAWN_CAPTURE_MOVMENT_PATTERN_KINGWARD);
+        addAllMovementPatterns();
+
+
+    }
+
+    public Pawn(Pawn pieceToCopy) {
+        super(pieceToCopy);
+    }
+
+    private void addAllMovementPatterns() {
+        add(MovementPatternProducer.getNewSlideMovementPattern(0, 1, MovementPattern.CaptureType.CANNOT_CAPTURE, false, getColor()));
+        add(MovementPatternProducer.getNewSlideMovementPattern(0, 2, MovementPattern.CaptureType.CANNOT_CAPTURE, true, getColor()));
+        add(MovementPatternProducer.getNewSlideMovementPattern(-1, 1, MovementPattern.CaptureType.MUST_CAPTURE, false, getColor()));
+        add(MovementPatternProducer.getNewSlideMovementPattern(1, 1, MovementPattern.CaptureType.MUST_CAPTURE, false, getColor()));
     }
 
     /**

@@ -3,6 +3,7 @@ package com.example.jarchess.match;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.pieces.Bishop;
 import com.example.jarchess.match.pieces.King;
 import com.example.jarchess.match.pieces.Knight;
@@ -10,6 +11,8 @@ import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.pieces.Queen;
 import com.example.jarchess.match.pieces.Rook;
+
+import java.util.Collection;
 
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
@@ -24,14 +27,14 @@ import static com.example.jarchess.match.ChessColor.WHITE;
 public class Gameboard {
     private static final int ROW_COUNT = 8;
     private static final int COLUMN_COUNT = 8;
-    private static Gameboard instance;
-    private final Piece[][] pieces = new Piece[COLUMN_COUNT][ROW_COUNT];
+    private final Piece[][] pieces;
+    private boolean isCopy;
 
     /**
      * Private constructor used to create the instance of gameboard
      */
-    private Gameboard() {
-
+    Gameboard() {
+        pieces = new Piece[COLUMN_COUNT][ROW_COUNT];
 
         Piece tmp;
 
@@ -54,19 +57,49 @@ public class Gameboard {
             add(new King(c));
         }
 
+        isCopy = false;
     }
 
-    /**
-     * Gets the instance of the gameboard
-     *
-     * @return the instance of the gameboard
-     */
-    public static Gameboard getInstance() {
-        if (instance == null) {
-            instance = new Gameboard();
+    private Gameboard(Gameboard gameboard) {
+        pieces = new Piece[COLUMN_COUNT][ROW_COUNT];
+        for (Coordinate coordinate : Coordinate.values()) {
+            int column = coordinate.getColumn();
+            int row = coordinate.getRow();
+
+            Piece original = gameboard.getPieceAt(coordinate);
+
+            if (original != null) {
+                try {
+                    pieces[column][row] = (Piece) original.clone();
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        return instance;
+        isCopy = true;
     }
+
+    public Gameboard getCopyWithMovementsApplied(Collection<PieceMovement> movements) {
+        Gameboard copy = new Gameboard(this);
+        for (PieceMovement movement : movements) {
+            copy.move(movement.getOrigin(), movement.getDestination());
+        }
+        return copy;
+    }
+
+    public Gameboard getCopyWithMovementsApplied(Coordinate origin, Coordinate destination) {
+        Gameboard copy = new Gameboard(this);
+        copy.move(origin, destination);
+        return copy;
+    }
+
+    public Gameboard getCopyWithMovementsApplied(Coordinate origin1, Coordinate destination1, Coordinate origin2, Coordinate destination2) {
+        Gameboard copy = new Gameboard(this);
+        copy.move(origin1, destination1);
+        copy.move(origin2, destination2);
+        return copy;
+    }
+
 
     /**
      * Adds a piece to the gameboard at starting position
@@ -95,9 +128,8 @@ public class Gameboard {
      *
      * @param piece      The piece to be added to the gameboard
      * @param coordinate on the gameboard that the piece will be added to
-     * @throws AlreadyOccupiedException if the coordinate provided already has a Piece in it
      */
-    private void add(@NonNull Piece piece, @NonNull Coordinate coordinate) throws AlreadyOccupiedException {
+    private void add(@NonNull Piece piece, @NonNull Coordinate coordinate) {
 
         //noinspection ConstantConditions
         if (piece == null) {
@@ -112,10 +144,6 @@ public class Gameboard {
         final int row = coordinate.getRow();
         final int column = coordinate.getColumn();
 
-        if (getPieceAt(coordinate) != null) {
-            throw new AlreadyOccupiedException(coordinate);
-        }
-
         pieces[column][row] = piece;
     }
 
@@ -125,18 +153,10 @@ public class Gameboard {
      *
      * @param originCoordinate      the coordinate of the piece to be moved
      * @param destinationCoordinate the coordinate of where the piece will be after the move
-     * @throws AlreadyOccupiedException if the destination is occupied
      */
-    public void move(Coordinate originCoordinate, Coordinate destinationCoordinate) throws AlreadyOccupiedException, AlreadyEmptyException {
-        if (!isEmptyAt(destinationCoordinate)) {
-            throw new AlreadyOccupiedException(destinationCoordinate);
-        }
+    public void move(Coordinate originCoordinate, Coordinate destinationCoordinate) {
 
         Piece piece = getPieceAt(originCoordinate);
-
-        if (piece == null) {
-            throw new AlreadyEmptyException(originCoordinate);
-        }
 
         add(piece, destinationCoordinate);
         remove(originCoordinate);
@@ -148,8 +168,8 @@ public class Gameboard {
      */
     public void reset() {
 
-        for(int column : Coordinate.COLUMNS){
-            for(int row : Coordinate.ROWS){
+        for (int column : Coordinate.COLUMNS) {
+            for (int row : Coordinate.ROWS) {
                 pieces[column][row] = null;
             }
         }
@@ -178,10 +198,8 @@ public class Gameboard {
     }
 
 
-    public Piece remove(Coordinate coordinate) throws AlreadyOccupiedException, AlreadyEmptyException {
-        if (isEmptyAt(coordinate)) {
-            throw new AlreadyEmptyException(coordinate);
-        }
+    public Piece remove(Coordinate coordinate) {
+
         Piece pieceRemoved = pieces[coordinate.getColumn()][coordinate.getRow()];
         pieces[coordinate.getColumn()][coordinate.getRow()] = null;
 
@@ -197,121 +215,5 @@ public class Gameboard {
      */
     public boolean isEmptyAt(Coordinate coordinate) {   //TODO need tests
         return getPieceAt(coordinate) == null;
-    }
-
-    /**
-     * An exception to be thrown when a piece is attempted to be added or moved to an occupied space
-     *
-     * @author Joshua Zierman
-     */
-    public static class AlreadyOccupiedException extends IllegalArgumentException {
-
-        private Coordinate coordinateThatWasAlreadyOccupied;
-
-        /**
-         * Creates an AlreadyOccupiedException object
-         *
-         * @param coordinate the coordinate that was already occupied
-         */
-        public AlreadyOccupiedException(@NonNull Coordinate coordinate) {
-            super(makeMessage(coordinate));
-
-            coordinateThatWasAlreadyOccupied = coordinate;
-        }
-
-        /**
-         * Makes an exception message that describes the problem
-         *
-         * @param coordinate the coordinate that was already occupied
-         * @return the String exception message describing what went wrong
-         * @throws IllegalArgumentException if an invalid or null coordinate is provided
-         */
-        private static String makeMessage(Coordinate coordinate) throws IllegalArgumentException {
-
-            if (coordinate == null) {
-                throw new IllegalArgumentException("AlreadyOccupiedException cannot be constructed with null coordinate");
-            }
-
-            final int column = coordinate.getColumn();
-            final int row = coordinate.getRow();
-
-            if (column < 0 || column >= COLUMN_COUNT) {
-                throw new IllegalArgumentException("AlreadyOccupiedException cannot be constructed with coordinate that returns column out of range [0, 8)");
-            }
-
-            if (row < 0 || row >= ROW_COUNT) {
-                throw new IllegalArgumentException("AlreadyOccupiedException cannot be constructed with coordinate that returns row out of range [0, 8)");
-            }
-
-            return coordinate.toString() + " is already occupied.";
-        }
-
-        /**
-         * Gets the coordinate that was already occupied, causing the exception to be thrown
-         *
-         * @return the coordinate that was already occupied
-         */
-        public Coordinate getCoordinateThatWasAlreadyOccupied() {
-            return coordinateThatWasAlreadyOccupied;
-        }
-    }
-
-    /**
-     * An exception to be thrown when a piece is attempted to be moved or removed from an empty space
-     *
-     * @author Joshua Zierman
-     */
-    public static class AlreadyEmptyException extends IllegalArgumentException {   //TODO needs tests
-
-        private Coordinate coordinateThatWasAlreadyEmpty;
-
-        /**
-         * Constructs an instance of a AlreadyEmptyException
-         *
-         * @param coordinate the coordinate that was already empty.
-         */
-        public AlreadyEmptyException(@NonNull Coordinate coordinate) {
-            super(makeMessage(coordinate));
-
-            coordinateThatWasAlreadyEmpty = coordinate;
-        }
-
-        /**
-         * Makes a exception message
-         *
-         * @param coordinate the coordinate that was empty
-         * @return the String exception message describing what went wrong
-         * @throws IllegalArgumentException if a invalid or null coordinate was detected
-         */
-        private static String makeMessage(Coordinate coordinate) throws IllegalArgumentException {
-
-            if (coordinate == null) {
-                throw new IllegalArgumentException("AlreadyEmptyException cannot be constructed with null coordinate");
-            }
-
-            final int column = coordinate.getColumn();
-            final int row = coordinate.getRow();
-
-            if (column < 0 || column >= COLUMN_COUNT) {
-                throw new IllegalArgumentException("AlreadyEmptyException cannot be constructed with coordinate that returns column out of range [0, 8)");
-            }
-
-            if (row < 0 || row >= ROW_COUNT) {
-                throw new IllegalArgumentException("AlreadyEmptyException cannot be constructed with coordinate that returns row out of range [0, 8)");
-            }
-
-            return coordinate.toString() + " is already empty.";
-        }
-
-        /**
-         * Gets the coordinate that was already empty, causing the exception to be thrown
-         *
-         * @return the coordinate that was already empty
-         */
-        public Coordinate getCoordinateThatWasAlreadyEmpty() {
-            return coordinateThatWasAlreadyEmpty;
-        }
-
-
     }
 }

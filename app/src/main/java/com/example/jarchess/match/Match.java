@@ -23,8 +23,6 @@ public abstract class Match implements ResignationListener {
     private final MatchParticipant blackPlayer;
     private final MatchParticipant whitePlayer;
     private final Gameboard gameboard;
-
-    private ChessColor resigningColor;
     private ChessColor winner;
     private boolean isDone;
     private Result matchResult = null;
@@ -39,13 +37,13 @@ public abstract class Match implements ResignationListener {
         resignationEventManager.addListener(participant2);
 
 
-        gameboard = Gameboard.getInstance();
+        gameboard = new Gameboard();
         gameboard.reset();
         this.blackPlayer = participant1.getColor() == BLACK ? participant1 : participant2;
         this.whitePlayer = participant1.getColor() == WHITE ? participant1 : participant2;
 
         matchHistory = new MatchHistory();
-        moveExpert = new MoveExpert(gameboard);
+        moveExpert = MoveExpert.getInstance();
     }
 
 
@@ -57,10 +55,6 @@ public abstract class Match implements ResignationListener {
             notifyAll();
         }
 
-    }
-
-    public LocalParticipantController getLocalParticipantController() {
-        return localParticipantController;
     }
 
     public void setLocalParticipantController(LocalParticipantController localParticipantController) {
@@ -118,7 +112,7 @@ public abstract class Match implements ResignationListener {
     }
 
     public Collection<Coordinate> getPossibleMoves(Coordinate origin) {
-        return moveExpert.getLegalDestinations(origin);
+        return moveExpert.getLegalDestinations(origin, gameboard);
     }
 
     public void move(Coordinate origin, Coordinate destination) {

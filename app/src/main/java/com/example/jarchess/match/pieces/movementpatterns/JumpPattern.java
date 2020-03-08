@@ -1,5 +1,7 @@
 package com.example.jarchess.match.pieces.movementpatterns;
 
+import com.example.jarchess.match.ChessColor;
+
 /**
  * A jump pattern is a movement pattern that is not blocked by any piece obstructing its jump path before reaching its destination.
  *
@@ -16,9 +18,10 @@ public class JumpPattern extends MovementPattern {//TODO write unit tests
      *                               the movement pattern will shift the piece
      * @param captureType            the capturing type of the movement pattern
      * @param mustBeFirstMoveOfPiece if the movement pattern only applies to the first movement of the piece
+     * @param color                 the color of the piece this pattern if for
      */
-    JumpPattern(int kingwardOffset, int forwardOffset, CaptureType captureType, boolean mustBeFirstMoveOfPiece) {
-        super(kingwardOffset, forwardOffset, captureType, mustBeFirstMoveOfPiece);
+    JumpPattern(int kingwardOffset, int forwardOffset, CaptureType captureType, boolean mustBeFirstMoveOfPiece, ChessColor color) {
+        super(kingwardOffset, forwardOffset, captureType, mustBeFirstMoveOfPiece, color);
     }
 
     /**

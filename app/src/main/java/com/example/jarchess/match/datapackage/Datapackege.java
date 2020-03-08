@@ -3,9 +3,7 @@ package com.example.jarchess.match.datapackage;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.jarchess.match.move.CastleMove;
 import com.example.jarchess.match.move.Move;
-import com.example.jarchess.match.move.StandardMove;
 import com.example.jarchess.match.turn.Turn;
 
 /**
@@ -22,6 +20,8 @@ import com.example.jarchess.match.turn.Turn;
  */
 public class Datapackege {
     private final DatapackageType datapackageType;
+    private final Turn turn;
+
 
     /**
      * Creates a Datapackage from a Turn object.
@@ -36,16 +36,8 @@ public class Datapackege {
         }
 
         Move move = turn.getMove();
-        if (move instanceof CastleMove) {
-            datapackageType = DatapackageType.CASTLE_MOVE_TURN;
-        } else if (move instanceof StandardMove) {
-            datapackageType = DatapackageType.STANDARD_MOVE_TURN;
-        } else {
-            throw new IllegalArgumentException("Unexpected move type in turn: " + move.getClass());
-        }
+        datapackageType = DatapackageType.TURN;
     }
-
-    private final Turn turn;
 
     /**
      * Gets the type of datapackage this is.
@@ -66,12 +58,11 @@ public class Datapackege {
     }
 
     public enum DatapackageType {
-        STANDARD_MOVE_TURN(0), // Do we need or want both of these Turn types or should we just have one called TURN? TODO
-        CASTLE_MOVE_TURN(1),
-        RESIGNATION(2),
-        PAUSE_REQUEST(3),
-        PAUSE_ACCEPT(4),
-        PAUSE_REJECT(5);
+        TURN(0),
+        RESIGNATION(1),
+        PAUSE_REQUEST(2),
+        PAUSE_ACCEPT(3),
+        PAUSE_REJECT(4);
 
         private final int intValue;
 
@@ -81,6 +72,10 @@ public class Datapackege {
 
         public int getIntValue() {
             return intValue;
+        }
+
+        public static DatapackageType getFromInt(int i) {
+            return DatapackageType.values()[i];
         }
     }
 }

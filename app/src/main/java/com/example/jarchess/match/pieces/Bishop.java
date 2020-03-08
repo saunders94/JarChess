@@ -34,8 +34,12 @@ public class Bishop extends Piece {//TODO write unit tests
     public Bishop(ChessColor color, char startingFile) {
         super(color, TYPE, makeStartingCoordinate(color, startingFile));
 
-        add(MovementPatternProducer.getAllDiagonalSlideMovementPatterns());
+        add(MovementPatternProducer.getAllDiagonalSlideMovementPatterns(getColor()));
 
+    }
+
+    public Bishop(Bishop pieceToCopy) {
+        super(pieceToCopy);
     }
 
     /**
@@ -51,7 +55,7 @@ public class Bishop extends Piece {//TODO write unit tests
                 TYPE,
                 pawnBeingPromoted.getStartingPosition()
         );
-        add(MovementPatternProducer.getAllDiagonalSlideMovementPatterns());
+        add(MovementPatternProducer.getAllDiagonalSlideMovementPatterns(getColor()));
     }
 
     /**

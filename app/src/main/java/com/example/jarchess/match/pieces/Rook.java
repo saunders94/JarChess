@@ -30,9 +30,13 @@ public class Rook extends Piece {//TODO write unit tests
     public Rook(ChessColor color, char startingFile) {
         super(color, TYPE, makeStartingCoordinate(color, startingFile));
 
-        add(MovementPatternProducer.getAllStraightSlideMovementPatterns());
-        add(MovementPatternProducer.getRookCastleMovementPattern(startingFile));
+        add(MovementPatternProducer.getAllStraightSlideMovementPatterns(getColor()));
+        add(MovementPatternProducer.getRookCastleMovementPattern(startingFile, getColor()));
 
+    }
+
+    public Rook(Rook pieceToCopy) {
+        super(pieceToCopy);
     }
 
     /**
@@ -49,7 +53,7 @@ public class Rook extends Piece {//TODO write unit tests
                 pawnBeingPromoted.getStartingPosition()
         );
         setAsMoved(); // this is so we don't need to do extra work when checking for castle eligibility.
-        add(MovementPatternProducer.getAllStraightSlideMovementPatterns());
+        add(MovementPatternProducer.getAllStraightSlideMovementPatterns(getColor()));
     }
 
 

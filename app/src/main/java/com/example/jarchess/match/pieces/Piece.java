@@ -1,5 +1,10 @@
 package com.example.jarchess.match.pieces;
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
@@ -12,7 +17,7 @@ import java.util.LinkedList;
  *
  * @author Joshua Zierman
  */
-public abstract class Piece { //TODO write unit tests
+public abstract class Piece implements Cloneable { //TODO write unit tests
 
     /*
      * The starting position of the piece is important when a piece is captured and made visible on the captured pieces view.
@@ -23,6 +28,7 @@ public abstract class Piece { //TODO write unit tests
     private final Type type;
     private final Collection<MovementPattern> movementPatterns;
     private boolean hasMoved;
+    private boolean isClone;
 
     /**
      * Creates a Piece
@@ -37,7 +43,15 @@ public abstract class Piece { //TODO write unit tests
         this.startingPosition = startingPosition;
         hasMoved = false;
         movementPatterns = new LinkedList<MovementPattern>();
+        isClone = false;
     }
+
+    public Piece(Piece pieceToCopy) {
+        this(pieceToCopy.color, pieceToCopy.type, pieceToCopy.startingPosition);
+        hasMoved = pieceToCopy.hasMoved;
+        movementPatterns.addAll(pieceToCopy.movementPatterns);
+    }
+
 
     /**
      * Gets the color of this piece
@@ -70,7 +84,10 @@ public abstract class Piece { //TODO write unit tests
      * Sets the piece as moved.
      */
     public void setAsMoved() {
-        this.hasMoved = true;
+        if (!hasMoved) {
+            this.hasMoved = true;
+            log(this + " has been set as moved.");
+        }
     }
 
     /**
@@ -111,6 +128,60 @@ public abstract class Piece { //TODO write unit tests
         return movementPatterns;
     }
 
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (this.getClass() == obj.getClass()) {
+            Piece that = (Piece) obj;
+
+            ChessColor c = this.getColor();
+
+            if (this.getColor() == null) {
+                throw new RuntimeException("hit");
+            }
+
+            boolean p1 = this.getColor().equals(that.getColor());
+            boolean p2 = this.getType().equals(that.getType());
+            boolean p3 = this.hasMoved == that.hasMoved;
+            boolean p4 = this.startingPosition.equals(that.startingPosition);
+
+            return p1
+                    && p2
+                    && p3
+                    && p4;
+        }
+
+        return false;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = type.hashCode();
+        hashCode ^= color.hashCode();
+        hashCode ^= startingPosition.hashCode();
+        hashCode ^= Boolean.valueOf(hasMoved).hashCode();
+        return hashCode;
+    }
+
+    private void log(String msg) {
+        if (!isClone) {
+            Log.d("Piece on " + Thread.currentThread().getName(), msg);
+        }
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return type.toString();
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        Piece clone = (Piece) super.clone();
+        clone.isClone = true;
+        return clone;
+    }
+
     /**
      * The types of chess pieces.
      */
@@ -140,6 +211,11 @@ public abstract class Piece { //TODO write unit tests
          */
         public int getIntValue() {
             return intValue;
+        }
+
+        @Override
+        public String toString() {
+            return this.name().substring(0, 1).toUpperCase() + this.name().substring(1);
         }
     }
 }

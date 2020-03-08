@@ -32,11 +32,13 @@ public class Queen extends Piece {
     public Queen(ChessColor color) {//TODO write unit tests
         super(color, TYPE, makeStartingCoordinate(color));
 
-        add(MovementPatternProducer.getAllDiagonalSlideMovementPatterns());
-        add(MovementPatternProducer.getAllStraightSlideMovementPatterns());
+        addAllMovementPatterns();
 
     }
 
+    public Queen(Queen pieceToCopy) {
+        super(pieceToCopy);
+    }
 
     /**
      * Creates a queen from a pawn that is being promoted.
@@ -53,9 +55,13 @@ public class Queen extends Piece {
         );
 
 
-        add(MovementPatternProducer.getAllDiagonalSlideMovementPatterns());
-        add(MovementPatternProducer.getAllStraightSlideMovementPatterns());
+        addAllMovementPatterns();
 
+    }
+
+    private void addAllMovementPatterns() {
+        add(MovementPatternProducer.getAllDiagonalSlideMovementPatterns(getColor()));
+        add(MovementPatternProducer.getAllStraightSlideMovementPatterns(getColor()));
     }
 
 

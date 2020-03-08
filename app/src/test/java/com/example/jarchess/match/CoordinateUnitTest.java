@@ -1,28 +1,113 @@
 package com.example.jarchess.match;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Suite;
+import org.junit.runners.Parameterized.Parameters;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 
 /**
  * @author Joshua Zierman
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-        CoordinateUnitTest.ValidTests.class,
-        CoordinateUnitTest.ValidFileInvalidRankTest.class,
-        CoordinateUnitTest.InvalidFileValidRankTest.class,
-        CoordinateUnitTest.InvalidFileInvalidRankTest.class
-})
+@RunWith(Enclosed.class)
 public class CoordinateUnitTest {
     private static Coordinate coordinate;
+
+    @RunWith(JUnit4.class)
+    public static class valuesMethodTests {
+
+        @Test
+        public void valuesMethod_isCorrect() {
+            Object[][] expected = {
+                    {0, 0},
+                    {1, 0},
+                    {2, 0},
+                    {3, 0},
+                    {4, 0},
+                    {5, 0},
+                    {6, 0},
+                    {7, 0},
+                    {0, 1},
+                    {1, 1},
+                    {2, 1},
+                    {3, 1},
+                    {4, 1},
+                    {5, 1},
+                    {6, 1},
+                    {7, 1},
+                    {0, 2},
+                    {1, 2},
+                    {2, 2},
+                    {3, 2},
+                    {4, 2},
+                    {5, 2},
+                    {6, 2},
+                    {7, 2},
+                    {0, 3},
+                    {1, 3},
+                    {2, 3},
+                    {3, 3},
+                    {4, 3},
+                    {5, 3},
+                    {6, 3},
+                    {7, 3},
+                    {0, 4},
+                    {1, 4},
+                    {2, 4},
+                    {3, 4},
+                    {4, 4},
+                    {5, 4},
+                    {6, 4},
+                    {7, 4},
+                    {0, 5},
+                    {1, 5},
+                    {2, 5},
+                    {3, 5},
+                    {4, 5},
+                    {5, 5},
+                    {6, 5},
+                    {7, 5},
+                    {0, 6},
+                    {1, 6},
+                    {2, 6},
+                    {3, 6},
+                    {4, 6},
+                    {5, 6},
+                    {6, 6},
+                    {7, 6},
+                    {0, 7},
+                    {1, 7},
+                    {2, 7},
+                    {3, 7},
+                    {4, 7},
+                    {5, 7},
+                    {6, 7},
+                    {7, 7}
+            };
+
+
+            final int EXPECTED_COLUMN = 0;
+            final int EXPECTED_ROW = 1;
+            int i = 0;
+
+
+            for (Coordinate coordinate : Coordinate.values()) {
+                Assert.assertEquals("column check for coordinate " + coordinate, expected[i][EXPECTED_COLUMN], coordinate.getColumn());
+                Assert.assertEquals("row check for coordinate " + coordinate, expected[i][EXPECTED_ROW], coordinate.getRow());
+                i++;
+            }
+
+            assertEquals("length check", expected.length, i);
+        }
+    }
 
     @RunWith(Parameterized.class)
     public static class ValidTests {
@@ -47,7 +132,7 @@ public class CoordinateUnitTest {
 
         @Before
         public void init(){
-            coordinate = new Coordinate(validFile, validRank);
+            coordinate = Coordinate.getByFileAndRank(validFile, validRank);
             expectedFile = Character.toLowerCase(validFile);
             expectedRank = validRank;
         }
@@ -209,6 +294,10 @@ public class CoordinateUnitTest {
             };
         }
 
+        @Test
+        public void getByColumnAndRow_isSameAs_getByFileAndRank() {
+            assertSame(Coordinate.getByFileAndRank(expectedFile, expectedRank), Coordinate.getByColumnAndRow(expectedColumn, expectedRow));
+        }
 
         @Test
         public void getFile_isCorrect(){
@@ -360,7 +449,7 @@ public class CoordinateUnitTest {
 
         @Test(expected = IllegalArgumentException.class)
         public void validFileInvalidRank_ShouldThrowIllegalArgumentException(){
-            new Coordinate(validFile, invalidRank);
+            Coordinate.getByFileAndRank(validFile, invalidRank);
         }
     }
     
@@ -452,7 +541,7 @@ public class CoordinateUnitTest {
 
         @Test(expected = IllegalArgumentException.class)
         public void validFileInvalidRank_ShouldThrowIllegalArgumentException(){
-            new Coordinate(invalidFile, validRank);
+            Coordinate.getByFileAndRank(invalidFile, validRank);
         }
     }
     
@@ -529,7 +618,7 @@ public class CoordinateUnitTest {
 
         @Test(expected = IllegalArgumentException.class)
         public void validFileInvalidRank_ShouldThrowIllegalArgumentException(){
-            new Coordinate(invalidFile, invalidRank);
+            Coordinate.getByFileAndRank(invalidFile, invalidRank);
         }
 
 
