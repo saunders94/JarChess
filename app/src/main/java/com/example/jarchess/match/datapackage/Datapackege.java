@@ -78,4 +78,16 @@ public class Datapackege {
             return DatapackageType.values()[i];
         }
     }
+
+    public SignalType getMoveType(){
+        return this.signalType;
+    }
+
+    public Move getMove(){
+        return turn.getMove();
+    }
+
+    public long getElapsedTime(){
+        return turn.getElapsedTime();
+    }
 }
