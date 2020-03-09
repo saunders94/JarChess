@@ -1,14 +1,22 @@
 package com.example.jarchess.match.participant;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
+import com.example.jarchess.RemoteOpponentAccount;
 import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.datapackage.DatapackageReceiver;
+import com.example.jarchess.match.datapackage.DatapackageSender;
+import com.example.jarchess.match.datapackage.MatchNetworkIO;
+import com.example.jarchess.match.resignation.Resignation;
 import com.example.jarchess.match.resignation.ResignationEvent;
 import com.example.jarchess.match.resignation.ResignationEventManager;
 import com.example.jarchess.match.resignation.ResignationException;
+import com.example.jarchess.match.resignation.ResignationReciever;
+import com.example.jarchess.match.resignation.ResignationSender;
 import com.example.jarchess.match.styles.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
+import com.example.jarchess.match.turn.TurnReceiver;
+import com.example.jarchess.match.turn.TurnSender;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -23,35 +31,38 @@ import static com.example.jarchess.match.ChessColor.WHITE;
  */
 public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
 
-    private final ResignationEventManager resignationEventManager;
+    private final AvatarStyle avatarStyle;
     private final ChessColor color;
-    private final ChessColor colorOfOtherParticipant;
-    private final Object lock;
+    //    private final Object lock; //FIXME
     private final String name;
+    private final ChessColor colorOfOtherParticipant;
+    private final TurnSender turnSender;
     private final Queue<Turn> recievedTurns = new ConcurrentLinkedQueue<Turn>();
 
     private boolean alive;
     private ResignationEvent resignationDetected = null;
+    private final TurnReceiver turnReceiver;
+    private final ResignationSender resignationSender;
+    private final ResignationReciever resignationReciever;
+    private ResignationEventManager resignationEventManager;
 
     /**
      * Creates a remote opponent.
      *
      * @param color                   the remote opponent's color
-     * @param name                    the remote opponent's name
-     * @param lockObject              is a object used for multi-thread synchronizing
-     * @param resignationEventManager is used to notify listeners when this participant resigns
+     * @param remoteOpponentAccount the remote opponent's account
      */
-    public RemoteOpponent(@NonNull ChessColor color, @NonNull String name, @Nullable Object lockObject, @NonNull ResignationEventManager resignationEventManager) {
+    public RemoteOpponent(@NonNull ChessColor color, @NonNull RemoteOpponentAccount remoteOpponentAccount, DatapackageSender sender, DatapackageReceiver receiver) {
 
-        this.name = name;
+        this.name = remoteOpponentAccount.getName();
+        this.avatarStyle = remoteOpponentAccount.getAvatarStyle();
         this.color = color;
-        this.resignationEventManager = resignationEventManager;
-
-        // setup the lock object
-        if (lockObject == null) {
-            lockObject = new Object();
-        }
-        lock = lockObject;
+        MatchNetworkIO.Sender mNIOSender = new MatchNetworkIO.Sender(sender);
+        MatchNetworkIO.Reciever mNIOReciever = new MatchNetworkIO.Reciever(receiver);
+        this.turnSender = mNIOSender;
+        this.turnReceiver = mNIOReciever;
+        this.resignationSender = mNIOSender;
+        this.resignationReciever = mNIOReciever;
 
 
         switch (color) {
@@ -87,7 +98,8 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
      */
     @Override
     public Turn takeFirstTurn() {
-        return null;//FIXME
+        return turnReceiver.receiveNextTurn();
+
     }
 
     /**
@@ -95,75 +107,20 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
      */
     @Override
     public Turn takeTurn(Turn lastTurnFromOtherParticipant) throws ResignationException {
-        Turn turn;
 
+        turnSender.send(lastTurnFromOtherParticipant);
 
-        send(lastTurnFromOtherParticipant);
-
-        try {
-            turn = recieveNextTurn();
-        } catch (InterruptedException e) {
-            return null;
-        }
-
-        return turn;
+        return turnReceiver.receiveNextTurn();
 
     }
 
-    /**
-     * Sends the turn that was just taken by the other participant on this device to the remote participant on another device.
-     *
-     * @param lastTurnFromOtherParticipant the turn that was just taken by the other participant on this device
-     */
-    private void send(Turn lastTurnFromOtherParticipant) {
-        //TODO
-    }
-
-    /**
-     * Sends a byte array signal to the remote participant on another device.
-     *
-     * @param signal the byte array signal to be sent
-     */
-    private void send(byte[] signal) {
-        //TODO
-    }
-
-    /**
-     * Recieve the next turn taken by the remote participant on another device.
-     *
-     * @return the turn that is received
-     * @throws InterruptedException if the thread is interrupted during the wait.
-     * @throws ResignationException if a resignation is detected.
-     */
-    private Turn recieveNextTurn() throws InterruptedException, ResignationException {
-        Turn turn = null;
-
-//        synchronized (lock) {
-//            resignationCheck();
-//            waitForTurn();
-//            turn = recievedTurn;
-//            recievedTurn = null;
-//            notifyAll();
-        return turn; // FIXME
-//        }
-    }
-
-    /**
-     * Checks for resignation
-     *
-     * @throws ResignationException if resignation is detected
-     */
-    private void resignationCheck() throws ResignationException {
-        if (resignationDetected != null) {
-            throw new ResignationException(resignationDetected);
-        }
-    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void resign() {
+        resignationSender.send(new Resignation());
         resignationEventManager.resign(this);
     }
 
@@ -172,7 +129,7 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
      */
     @Override
     public ChessColor getColor() {
-        return null;
+        return color;
     }
 
     /**
@@ -182,33 +139,9 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
      */
     @Override
     public AvatarStyle getAvatarStyle() {
-        return null;//FIXME
+        return avatarStyle;
     }
 
-    /**
-     * A signal receiver is a runnable that receives signals from the remote participant.
-     * <p>
-     * The signals can represent turns taken by the remote participant and resignations.
-     * <p>
-     * //TODO update this when we add pause request functionality.
-     */
-    private class SignalReciever implements Runnable {
-
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void run() {
-            while (alive) {
-                synchronized (lock) {
-
-                    //TODO recieve Datapackages
-
-                }
-            }
-        }
-    }
 
 
 }

@@ -1,26 +1,27 @@
 package com.example.jarchess.online.move;
 
-import com.example.jarchess.match.datapackage.Datapackege;
+import com.example.jarchess.match.datapackage.Datapackage;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MoveFormatter {
+public class DatapackageFormatter {
 
-    public MoveFormatter(){
+    public DatapackageFormatter() {
 
     }
 
     //todo User signon stuff here
-    public JSONObject dataPkgToJson(Datapackege datapackege) {
+    public JSONObject dataPkgToJson(Datapackage datapackage) {
 
 //        Coordinate origin = new Coordinate();
 //        Coordinate destination = new Coordinate();
 //
-//        Move move = datapackege.getMove();
-//        long elapsedTime = datapackege.getElapsedTime();
-//        Datapackege.DatapackageType type = datapackege.getDatapackageType();
+//        Move move = datapackage.getDatapackage();
+//        long elapsedTime = datapackage.getElapsedTime();
+//        Datapackage.DatapackageType type = datapackage.getDatapackageType();
 //
-//        Log.i("movetype", moveType);
+//        Log.i("datapackageType ", type.toString());
 //
 //        Object[] pieceMovements = move.toArray();
 //
@@ -52,18 +53,23 @@ public class MoveFormatter {
 //        jsonObject.put("username","MakeMove");
 //        jsonObject.put("signon_token","MakeMove");
 //        jsonObject.put("game_token","MakeMove");
-//        jsonObject.put("move_type","MakeMove");
+//        jsonObject.put("datapackage_type",strType);
 //        jsonObject.put("piece_origin",strOrigin);
 //        jsonObject.put("piece_destination",strDestination);
 //        jsonObject.put("piece_type","");
 //
 //        return jsonObject;
-//
 
-        return null;
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = Datapackage.JSON_CONVERTER.convertToJSONObject(datapackage);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
     }
 
-    public Datapackege jsonObjToDataPkg(JSONObject jsonObject){
+    public Datapackage jsonObjToDataPkg(JSONObject jsonObject) {
 //
 //        String strOrigin = null;
 //        String strDestination = null;
@@ -85,16 +91,25 @@ public class MoveFormatter {
 //        int destRow = 8 - destRankInt;
 //        int destColumn = destFile - 'a';
 //
-//        Coordinate origin = Coordinate.getByFileAndRank(originFile, originRank);
-//        Coordinate destination = Coordinate.getByFileAndRank(destFile, destRank);
+//        Coordinate origin1 = Coordinate.getByFileAndRank(originFile1, originRank1);
+//        Coordinate destination1 = Coordinate.getByFileAndRank(destFile1, destRank1);
+//        Coordinate origin2 = Coordinate.getByFileAndRank(originFile2, originRank2);
+//        Coordinate destination2 = Coordinate.getByFileAndRank(destFile2, destRank2);
 //
-//        //Move move = new StandardMove(origin, destination);
-//        //Turn turn = new Turn(null, move , null);
-//        //Datapackege datapackege = new Datapackege(turn);
+//        PieceMovement movement1 = new PieceMovement(origin1, destination1);
+//        PieceMovement movement2 = new PieceMovement(origin2, destination2);
+//        Turn turn = new Turn(null, move , null);
+//        Datapackage datapackage = new Datapackage(turn);
 //        return datapackage;
+//
+        Datapackage datapackage = null;
+        try {
+            datapackage = Datapackage.JSON_CONVERTER.convertFromJSONObject(jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-
-        return null;
+        return datapackage;
 
     }
 }

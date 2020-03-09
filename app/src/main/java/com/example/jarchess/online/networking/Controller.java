@@ -1,9 +1,7 @@
 package com.example.jarchess.online.networking;
 
-import com.example.jarchess.match.move.Move;
-import com.example.jarchess.online.move.MoveFormatter;
-import com.example.jarchess.online.move.MoveQueue;
-import com.example.jarchess.online.move.MoveQueue;
+import com.example.jarchess.online.move.DatapackageFormatter;
+import com.example.jarchess.online.move.DatapackageQueue;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,14 +15,14 @@ public class Controller {
     private int serverPort = 12345;
     //private NetworkReceiver receiver;
     private NetworkSender sender;
-    private MoveQueue moveQueue;
-    private MoveFormatter moveFormatter;
+    private DatapackageQueue moveQueue;
+    private DatapackageFormatter moveFormatter;
 
     public Controller(){
         //this.receiver = new NetworkReceiver();
         this.sender = new NetworkSender(testServer, testServer, serverPort);
-        this.moveQueue = new MoveQueue();
-        this.moveFormatter = new MoveFormatter();
+        this.moveQueue = new DatapackageQueue();
+        this.moveFormatter = new DatapackageFormatter();
     }
 
 

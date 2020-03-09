@@ -3,12 +3,18 @@ package com.example.jarchess.match.move;
 import androidx.annotation.NonNull;
 
 import com.example.jarchess.match.Coordinate;
+import com.example.jarchess.match.datapackage.JSONConvertable;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class Move implements Collection<PieceMovement> {
+public class Move implements Collection<PieceMovement>, JSONConvertable<Move> {
+    public static final String JSON_PROPERTY_NAME_MOVEMENTS = "movements";
     private final Collection<PieceMovement> movements;
 
     public Move(Coordinate origin, Coordinate destination) {
@@ -19,6 +25,13 @@ public class Move implements Collection<PieceMovement> {
     public Move(PieceMovement pieceMovement) {
         movements = new LinkedList<PieceMovement>();
         add(pieceMovement);
+    }
+
+    public Move(Collection<PieceMovement> pieceMovements) {
+        movements = new LinkedList<PieceMovement>();
+        for (PieceMovement movement : pieceMovements) {
+            add(movement);
+        }
     }
 
     @Override
@@ -110,5 +123,19 @@ public class Move implements Collection<PieceMovement> {
             s += movement.toString();
         }
         return s;
+    }
+
+    @Override
+    public JSONObject getJSONObject() throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+
+        for (PieceMovement movement : movements) {
+            jsonArray.put(movement.getJSONObject());
+        }
+
+        jsonObject.put(JSON_PROPERTY_NAME_MOVEMENTS, jsonArray);
+
+        return jsonObject;
     }
 }

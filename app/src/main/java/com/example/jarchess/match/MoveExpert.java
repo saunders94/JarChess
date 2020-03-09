@@ -103,8 +103,6 @@ public class MoveExpert {
 
         // if the move pattern requires the move be the first move of the piece and the piece has moved
         if (movementPattern.mustBeFirstMoveOfPiece() && pieceToMove.hasMoved()) {
-            log(pieceToMove);
-            log(origin);
             return false;
         }
 

@@ -2,11 +2,6 @@ package com.example.jarchess.online.networking;
 
 import android.util.Log;
 
-import com.example.jarchess.match.datapackage.Datapackege;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
