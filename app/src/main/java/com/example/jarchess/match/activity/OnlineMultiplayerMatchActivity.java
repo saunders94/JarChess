@@ -10,6 +10,6 @@ public class OnlineMultiplayerMatchActivity extends MatchActivity {
     public Match createMatch() {
         RemoteOpponentAccount remoteOpponentAccount = new RemoteOpponentAccount("Remote Opponent", YellowBlackYellowCircleAvatarStyle.getInstance());
 
-        return MatchStarter.getInstance().startRemoteMultiplayerMatch(remoteOpponentAccount);
+        return MatchStarter.getInstance().startRemoteMultiplayerMatch();
     }
 }
