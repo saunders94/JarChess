@@ -1,6 +1,7 @@
 package com.example.jarchess.match;
 
 import com.example.jarchess.match.datapackage.JSONConvertable;
+import com.example.jarchess.match.datapackage.JSONConverter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,9 +23,10 @@ public enum ChessColor implements JSONConvertable<ChessColor> {
 
     BLACK(0), WHITE(1);
 
-    private final static Random random = new Random();
+    public final static ChessColorJSONConverter JSON_CONVERTER = ChessColorJSONConverter.getInstance();
     public static final String JSON_PROPERTY_NAME_INT_VALUE = "intValue";
     public static final String JSON_PROPERTY_NAME_NAME = "name";
+    private final static Random random = new Random();
     private final int intValue;
 
     /**
@@ -80,5 +82,35 @@ public enum ChessColor implements JSONConvertable<ChessColor> {
         jsonObject.put(JSON_PROPERTY_NAME_INT_VALUE, intValue);
         jsonObject.put(JSON_PROPERTY_NAME_NAME, name());
         return jsonObject;
+    }
+
+    public static class ChessColorJSONConverter extends JSONConverter<ChessColor> {
+
+        private static ChessColorJSONConverter instance;
+
+        /**
+         * Creates an instance of <code>ChessColorJSONConverter</code> to construct a singleton instance
+         */
+        private ChessColorJSONConverter() {
+            //TODO
+        }
+
+        /**
+         * Gets the instance.
+         *
+         * @return the instance.
+         */
+        public static ChessColorJSONConverter getInstance() {
+            if (instance == null) {
+                instance = new ChessColorJSONConverter();
+            }
+
+            return instance;
+        }
+
+        @Override
+        public ChessColor convertFromJSONObject(JSONObject jsonObject) throws JSONException {
+            return ChessColor.getFromInt(jsonObject.getInt(JSON_PROPERTY_NAME_INT_VALUE));
+        }
     }
 }

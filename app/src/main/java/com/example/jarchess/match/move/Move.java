@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.datapackage.JSONConvertable;
+import com.example.jarchess.match.datapackage.JSONConverter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,6 +16,7 @@ import java.util.LinkedList;
 
 public class Move implements Collection<PieceMovement>, JSONConvertable<Move> {
     public static final String JSON_PROPERTY_NAME_MOVEMENTS = "movements";
+    public static final MoveJSONConverter JSON_CONVERTER = MoveJSONConverter.getInstance();
     private final Collection<PieceMovement> movements;
 
     public Move(Coordinate origin, Coordinate destination) {
@@ -137,5 +139,43 @@ public class Move implements Collection<PieceMovement>, JSONConvertable<Move> {
         jsonObject.put(JSON_PROPERTY_NAME_MOVEMENTS, jsonArray);
 
         return jsonObject;
+    }
+
+    public static class MoveJSONConverter extends JSONConverter<Move> {
+
+        private static MoveJSONConverter instance;
+
+        /**
+         * Creates an instance of <code>MoveJSONConverter</code> to construct a singleton instance
+         */
+        private MoveJSONConverter() {
+            //TODO
+        }
+
+        /**
+         * Gets the instance.
+         *
+         * @return the instance.
+         */
+        public static MoveJSONConverter getInstance() {
+            if (instance == null) {
+                instance = new MoveJSONConverter();
+            }
+
+            return instance;
+        }
+
+        @Override
+        public Move convertFromJSONObject(JSONObject jsonObject) throws JSONException {
+
+            Collection<PieceMovement> movements = new LinkedList<PieceMovement>();
+            JSONArray movementsJSON = jsonObject.getJSONArray(JSON_PROPERTY_NAME_MOVEMENTS);
+
+            for (int i = 0; i < movementsJSON.length(); i++) {
+                movements.add(PieceMovement.JSON_CONVERTER.convertFromJSONObject(movementsJSON.getJSONObject(i)));
+            }
+
+            return new Move(movements);
+        }
     }
 }

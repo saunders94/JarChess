@@ -3,19 +3,12 @@ package com.example.jarchess.match.datapackage;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.jarchess.match.ChessColor;
-import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.move.Move;
-import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.resignation.Resignation;
 import com.example.jarchess.match.turn.Turn;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.LinkedList;
-import java.util.Queue;
 
 
 /**
@@ -31,7 +24,7 @@ import java.util.Queue;
  * </ul>
  */
 public class Datapackage implements JSONConvertable<Datapackage> {
-    public static final DatapackageJSONConverter JSON_CONVERTER = new DatapackageJSONConverter();
+    public static final DatapackageJSONConverter JSON_CONVERTER = DatapackageJSONConverter.getInstance();
     public static final String JSON_PROPERTY_NAME_TYPE = "type";
     public static final String JSON_PROPERTY_NAME_TURN = "turn";
     private static final Resignation RESIGNATION = new Resignation();
@@ -120,13 +113,15 @@ public class Datapackage implements JSONConvertable<Datapackage> {
 
     }
 
-    public enum DatapackageType implements JSONConvertable {
+    public enum DatapackageType implements JSONConvertable<DatapackageType> {
         TURN(0),
         RESIGNATION(1),
         PAUSE_REQUEST(2),
         PAUSE_ACCEPT(3),
         PAUSE_REJECT(4);
 
+
+        private static final DatapackageTypeJSONConverter JSON_CONVERTER = DatapackageTypeJSONConverter.getInstance();
         public static final String JSON_PROPERTY_NAME_INT_VALUE = "intValue";
         public static final String JSON_PROPERTY_NAME_NAME = "name";
         private final int intValue;
@@ -152,22 +147,69 @@ public class Datapackage implements JSONConvertable<Datapackage> {
 
             return jsonObject;
         }
+
+        public static final class DatapackageTypeJSONConverter extends JSONConverter<DatapackageType> {
+
+            private static DatapackageTypeJSONConverter instance;
+
+            /**
+             * Creates an instance of <code>DatapackageTypeJSONConverter</code> to construct a singleton instance
+             */
+            private DatapackageTypeJSONConverter() {
+            }
+
+            /**
+             * Gets the instance.
+             *
+             * @return the instance.
+             */
+            public static DatapackageTypeJSONConverter getInstance() {
+                if (instance == null) {
+                    instance = new DatapackageTypeJSONConverter();
+                }
+
+                return instance;
+            }
+
+            @Override
+            public DatapackageType convertFromJSONObject(JSONObject jsonObject) throws JSONException {
+                return DatapackageType.getFromInt(jsonObject.getInt(JSON_PROPERTY_NAME_INT_VALUE));
+            }
+        }
     }
 
     public static class DatapackageJSONConverter extends JSONConverter<Datapackage> {
+
+
+        private static DatapackageJSONConverter instance;
+
+        /**
+         * Creates an instance of <code>DatapackageJSONConverter</code> to construct a singleton instance
+         */
+        private DatapackageJSONConverter() {
+        }
+
+        /**
+         * Gets the instance.
+         *
+         * @return the instance.
+         */
+        public static DatapackageJSONConverter getInstance() {
+            if (instance == null) {
+                instance = new DatapackageJSONConverter();
+            }
+
+            return instance;
+        }
         @Override
         public Datapackage convertFromJSONObject(JSONObject jsonObject) throws JSONException {
 
-
-            JSONObject turnJSON = jsonObject.getJSONObject(JSON_PROPERTY_NAME_TURN);
-            JSONObject typeJSON = jsonObject.getJSONObject(JSON_PROPERTY_NAME_TYPE);
-            int datapackageTypeInt = typeJSON.getInt(DatapackageType.JSON_PROPERTY_NAME_INT_VALUE);
-            DatapackageType type = DatapackageType.getFromInt(datapackageTypeInt);
+            DatapackageType type = DatapackageType.JSON_CONVERTER.convertFromJSONObject(jsonObject.getJSONObject(JSON_PROPERTY_NAME_TYPE));
 
             switch (type) {
 
                 case TURN:
-                    return getDatapackageFromJSONObjectOfTurn(turnJSON);
+                    return getDatapackageFromJSONObjectOfTurn(jsonObject.getJSONObject(JSON_PROPERTY_NAME_TURN));
 
                 default:
                     return new Datapackage(type);
@@ -175,38 +217,7 @@ public class Datapackage implements JSONConvertable<Datapackage> {
         }
 
         private Datapackage getDatapackageFromJSONObjectOfTurn(JSONObject turnJSON) throws JSONException {
-            JSONObject colorJSON = turnJSON.getJSONObject(Turn.JSON_PROPERTY_NAME_COLOR);
-            JSONObject moveJSON = turnJSON.getJSONObject(Turn.JSON_PROPERTY_NAME_MOVE);
-            long elapsedTime = turnJSON.getLong(Turn.JSON_PROPERTY_NAME_ELAPSED_TIME);
-            int colorInt = colorJSON.getInt(ChessColor.JSON_PROPERTY_NAME_INT_VALUE);
-            ChessColor turnColor = ChessColor.getFromInt(colorInt);
-
-            JSONArray movementsJSON = moveJSON.getJSONArray(Move.JSON_PROPERTY_NAME_MOVEMENTS);
-
-            Queue<PieceMovement> movements = new LinkedList<PieceMovement>();
-
-            for (int i = 0; i < movementsJSON.length(); i++) {
-                JSONObject movementJSON = movementsJSON.getJSONObject(i);
-                JSONObject originJSON = movementJSON.getJSONObject(PieceMovement.JSON_PROPERTY_NAME_ORIGIN);
-                JSONObject destinationJSON = movementJSON.getJSONObject(PieceMovement.JSON_PROPERTY_NAME_DESTINATION);
-
-                int column = originJSON.getInt(Coordinate.JSON_PROPERTY_NAME_COLUMN);
-                int row = originJSON.getInt(Coordinate.JSON_PROPERTY_NAME_ROW);
-
-                Coordinate origin = Coordinate.getByColumnAndRow(column, row);
-
-
-                column = destinationJSON.getInt(Coordinate.JSON_PROPERTY_NAME_COLUMN);
-                row = destinationJSON.getInt(Coordinate.JSON_PROPERTY_NAME_ROW);
-
-                Coordinate destination = Coordinate.getByColumnAndRow(column, row);
-
-                movements.add(new PieceMovement(origin, destination));
-
-            }
-
-            Turn turn = new Turn(turnColor, new Move(movements), elapsedTime);
-            return new Datapackage(turn);
+            return new Datapackage(Turn.JSON_CONVERTER.convertFromJSONObject(turnJSON.getJSONObject(JSON_PROPERTY_NAME_TURN)));
         }
     }
 
