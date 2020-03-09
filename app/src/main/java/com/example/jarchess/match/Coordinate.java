@@ -3,6 +3,7 @@ package com.example.jarchess.match;
 import androidx.annotation.NonNull;
 
 import com.example.jarchess.match.datapackage.JSONConvertable;
+import com.example.jarchess.match.datapackage.JSONConverter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -118,13 +119,20 @@ public class Coordinate implements JSONConvertable<Coordinate> {
     public static final int[] ROWS = new int[]{0, 1, 2, 3, 4, 5, 6, 7};
 
 
+    /**
+     * The number of valid values
+     */
     public static final int VALUE_COUNT = COLUMNS.length * ROWS.length;
 
+    /**
+     * The converter that can convert to and from JSON objects
+     */
+    public final static CoordinateJSONConverter JSON_CONVERTER = CoordinateJSONConverter.getInstance();
 
-    private static final Coordinate[][] coordinates = new Coordinate[COLUMNS.length][ROWS.length];
+
     public static final String JSON_PROPERTY_NAME_COLUMN = "column";
     public static final String JSON_PROPERTY_NAME_ROW = "row";
-
+    private static final Coordinate[][] coordinates = new Coordinate[COLUMNS.length][ROWS.length];
     private final char file;
     private final int rank;
     private final int row;
@@ -315,5 +323,39 @@ public class Coordinate implements JSONConvertable<Coordinate> {
         jsonObject.put(JSON_PROPERTY_NAME_ROW, row);
 
         return jsonObject;
+    }
+
+    public static class CoordinateJSONConverter extends JSONConverter<Coordinate> {
+
+
+        private static CoordinateJSONConverter instance;
+
+        /**
+         * Creates an instance of <code>CoordinateJSONConverter</code> to construct a singleton instance
+         */
+        private CoordinateJSONConverter() {
+        }
+
+        /**
+         * Gets the instance.
+         *
+         * @return the instance.
+         */
+        public static CoordinateJSONConverter getInstance() {
+            if (instance == null) {
+                instance = new CoordinateJSONConverter();
+            }
+
+            return instance;
+        }
+
+
+        @Override
+        public Coordinate convertFromJSONObject(JSONObject jsonObject) throws JSONException {
+
+            int column = jsonObject.getInt(JSON_PROPERTY_NAME_COLUMN);
+            int row = jsonObject.getInt(JSON_PROPERTY_NAME_ROW);
+            return Coordinate.getByColumnAndRow(column, row);
+        }
     }
 }

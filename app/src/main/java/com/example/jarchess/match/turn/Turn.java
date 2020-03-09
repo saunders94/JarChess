@@ -2,6 +2,7 @@ package com.example.jarchess.match.turn;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.datapackage.JSONConvertable;
+import com.example.jarchess.match.datapackage.JSONConverter;
 import com.example.jarchess.match.move.Move;
 
 import org.json.JSONException;
@@ -19,6 +20,7 @@ import org.json.JSONObject;
  * @author Joshua Zierman
  */
 public class Turn implements JSONConvertable<Turn> {
+    public static final TurnJSONConverter JSON_CONVERTER = TurnJSONConverter.getInstance();
     public static final String JSON_PROPERTY_NAME_COLOR = "color";
     public static final String JSON_PROPERTY_NAME_MOVE = "move";
     public static final String JSON_PROPERTY_NAME_ELAPSED_TIME = "elapsedTime";
@@ -75,5 +77,37 @@ public class Turn implements JSONConvertable<Turn> {
 
 
         return jsonObject;
+    }
+
+    public static class TurnJSONConverter extends JSONConverter<Turn> {
+
+        private static TurnJSONConverter instance;
+
+        /**
+         * Creates an instance of <code>TurnJSONConverter</code> to construct a singleton instance
+         */
+        private TurnJSONConverter() {
+        }
+
+        /**
+         * Gets the instance.
+         *
+         * @return the instance.
+         */
+        public static TurnJSONConverter getInstance() {
+            if (instance == null) {
+                instance = new TurnJSONConverter();
+            }
+
+            return instance;
+        }
+
+        @Override
+        public Turn convertFromJSONObject(JSONObject jsonObject) throws JSONException {
+            ChessColor color = ChessColor.JSON_CONVERTER.convertFromJSONObject(jsonObject.getJSONObject(JSON_PROPERTY_NAME_COLOR));
+            Move move = Move.JSON_CONVERTER.convertFromJSONObject(jsonObject.getJSONObject(JSON_PROPERTY_NAME_MOVE));
+            long elapsedTime = jsonObject.getLong(JSON_PROPERTY_NAME_ELAPSED_TIME);
+            return new Turn(color, move, elapsedTime);
+        }
     }
 }
