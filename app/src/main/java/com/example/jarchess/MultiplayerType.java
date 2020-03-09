@@ -8,8 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.example.jarchess.match.MatchStarter;
 import com.example.jarchess.match.activity.LocalMultiplayerMatchActivity;
 import com.example.jarchess.match.activity.OnlineMultiplayerMatchActivity;
+import com.example.jarchess.match.styles.YellowBlackYellowCircleAvatarStyle;
+import com.example.jarchess.online.move.DatapackageQueue;
 import com.example.jarchess.online.networking.Controller;
 
 
@@ -65,6 +68,13 @@ public class MultiplayerType extends Fragment {
                 //transaction.replace(R.id.fragmentHole, mainMenu);
                 //transaction.commit();
 
+                //TODO SETUP Multiplayer Stuff
+                DatapackageQueue queue = new DatapackageQueue();
+
+                RemoteOpponentAccount remoteOpponentAccount = new RemoteOpponentAccount("Remote Opponent",
+                        YellowBlackYellowCircleAvatarStyle.getInstance());
+
+                MatchStarter.getInstance().multiplayerSetup(queue, remoteOpponentAccount);
 
                 Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
                 startActivity(intent);

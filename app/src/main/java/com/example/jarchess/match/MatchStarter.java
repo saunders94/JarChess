@@ -16,6 +16,9 @@ import static com.example.jarchess.match.datapackage.MatchNetworkIO.DatapackageQ
 public class MatchStarter {
     private static MatchStarter instance = null;
     private final JarAccount account = JarAccount.getInstance();
+    private DatapackageQueue queue = null;
+    private RemoteOpponentAccount remoteOpponentAccount;
+
 
     private MatchStarter() {
     }
@@ -58,7 +61,13 @@ public class MatchStarter {
         return new PlayerMatch(player, opponent);
     }
 
-    public Match startRemoteMultiplayerMatch(RemoteOpponentAccount remoteOpponentAccount, DatapackageQueue queue) {
+    public Match startRemoteMultiplayerMatch() {
+
+        if (remoteOpponentAccount == null) {
+            throw new IllegalStateException("MatchStarter.multiplayerSetup method must be called before match is started");
+        }
+
+
         ChessColor playerColor = ChessColor.getRandom();
         Player player = new Player(playerColor);
         ChessColor opponentColor = ChessColor.getOther(playerColor);
@@ -69,6 +78,13 @@ public class MatchStarter {
 
         MatchParticipant opponent = new RemoteOpponent(opponentColor, remoteOpponentAccount, addapter, addapter);
 
+        remoteOpponentAccount = null;
         return new PlayerMatch(player, opponent);
+    }
+
+    public void multiplayerSetup(DatapackageQueue queue, RemoteOpponentAccount remoteOpponentAccount) {
+
+        this.queue = queue;
+        this.remoteOpponentAccount = remoteOpponentAccount;
     }
 }
