@@ -1,5 +1,10 @@
 package com.example.jarchess.match;
 
+import com.example.jarchess.match.datapackage.JSONConvertable;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Random;
 
 /**
@@ -13,11 +18,13 @@ import java.util.Random;
  *
  * @author Joshua Zierman
  */
-public enum ChessColor {
+public enum ChessColor implements JSONConvertable<ChessColor> {
 
     BLACK(0), WHITE(1);
 
     private final static Random random = new Random();
+    public static final String JSON_PROPERTY_NAME_INT_VALUE = "intValue";
+    public static final String JSON_PROPERTY_NAME_NAME = "name";
     private final int intValue;
 
     /**
@@ -57,12 +64,21 @@ public enum ChessColor {
         }
     }
 
-    /**
-     * Gets the integer value that represents this enum value.
-     *
-     * @return the integer representation of the enum, 0 for BLACK and 1 for WHITE
-     */
+    public static ChessColor getFromInt(int colorInt) {
+        return values()[colorInt];
+    }
+
     public int getIntValue() {
         return intValue;
+    }
+
+    @Override
+    public JSONObject getJSONObject() throws JSONException {
+
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put(JSON_PROPERTY_NAME_INT_VALUE, intValue);
+        jsonObject.put(JSON_PROPERTY_NAME_NAME, name());
+        return jsonObject;
     }
 }

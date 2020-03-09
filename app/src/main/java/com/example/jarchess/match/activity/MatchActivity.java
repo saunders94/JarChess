@@ -32,9 +32,9 @@ public abstract class MatchActivity extends AppCompatActivity
         implements LocalParticipantController,
         SquareClickHandler,
         CommitButtonClickHandler,
-        ResignationListener{
+        ResignationListener {
 
-    private final Collection <Coordinate> possibleDestinations;
+    private final Collection<Coordinate> possibleDestinations;
     // these are volatile, but need more robust synchronization
     private volatile ChessColor waitingForMove;
     private volatile Move move;
@@ -62,8 +62,6 @@ public abstract class MatchActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_match);
         matchView = new MatchView(match, this);
-
-
 
 
         Runnable runnable = new Runnable() {
@@ -122,11 +120,11 @@ public abstract class MatchActivity extends AppCompatActivity
      */
     private void clearOrigin() {
 
-        if(origin == null){
+        if (origin == null) {
             return;
         }
         matchView.clearOriginSelectionIndicator(origin);
-        for(Coordinate possibleDestination : possibleDestinations){
+        for (Coordinate possibleDestination : possibleDestinations) {
             matchView.clearPossibleDestinationIndicator(possibleDestination);
         }
 
@@ -140,7 +138,7 @@ public abstract class MatchActivity extends AppCompatActivity
      */
     private void clearDestination() {
 
-        if(destination == null){
+        if (destination == null) {
             return;
         }
 
@@ -162,7 +160,7 @@ public abstract class MatchActivity extends AppCompatActivity
         this.origin = origin;
         possibleDestinations.addAll(match.getPossibleMoves(origin));
         matchView.setOriginSelectionIndicator(origin);
-        for(Coordinate possibleDestination: possibleDestinations){
+        for (Coordinate possibleDestination : possibleDestinations) {
             matchView.setPossibleDestinationIndicator(possibleDestination);
         }
         log("set origin to " + this.origin);
@@ -176,7 +174,7 @@ public abstract class MatchActivity extends AppCompatActivity
      */
     private void setDestination(@NonNull Coordinate destination) {
 
-        if(this.destination != null){
+        if (this.destination != null) {
             matchView.setPossibleDestinationIndicator(this.destination);
         }
         this.destination = destination;
@@ -192,6 +190,12 @@ public abstract class MatchActivity extends AppCompatActivity
      */
     private void log(String msg) {
         Log.d("MatchActivity on " + Thread.currentThread().getName() + ": ", msg);
+    }
+
+    private void logError(String msg) {
+
+        Log.d("MatchActivity on " + Thread.currentThread().getName() + ": ", msg);
+
     }
 
 ////    TODO remove this if not needed
@@ -220,15 +224,15 @@ public abstract class MatchActivity extends AppCompatActivity
         // wait until move is made
         waitForMove();
 
-        log( color + " should receive move " + move);
+        log(color + " should receive move " + move);
         // return the move
         return move;
     }
 
     private synchronized void waitForMove() throws InterruptedException, ResignationException {
-        while(move == null){
+        while (move == null) {
             wait();
-            if(resignationDetected != null){
+            if (resignationDetected != null) {
                 throw new ResignationException(resignationDetected);
             }
         }
@@ -239,7 +243,6 @@ public abstract class MatchActivity extends AppCompatActivity
         resignationDetected = resignationDetected;
         this.notifyAll();
     }
-
 
 
     private void playGame() {
@@ -260,10 +263,11 @@ public abstract class MatchActivity extends AppCompatActivity
             }
         } catch (ResignationException e) {
             match.setIsDone(true);
-        } catch (InterruptedException e2){
+        } catch (InterruptedException e2) {
             match.setIsDone(true);
         }
     }
+
 
     private void updateView(Turn turn) {
         Move move = turn.getMove();
@@ -295,9 +299,9 @@ public abstract class MatchActivity extends AppCompatActivity
 
     @Override
     public synchronized void handleCommitButtonClick() {
-            if(origin != null && destination != null){
-                move = new Move(origin, destination);
-                log("handle click move = " + move);
+        if (origin != null && destination != null) {
+            move = new Move(origin, destination);
+            log("handle click move = " + move);
             waitingForMove = null;
             this.notifyAll();
             clearDestination();

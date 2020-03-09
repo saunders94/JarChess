@@ -2,6 +2,11 @@ package com.example.jarchess.match;
 
 import androidx.annotation.NonNull;
 
+import com.example.jarchess.match.datapackage.JSONConvertable;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Iterator;
 
 /**
@@ -25,7 +30,7 @@ import java.util.Iterator;
  *
  * @author Joshua Zierman
  */
-public class Coordinate {
+public class Coordinate implements JSONConvertable<Coordinate> {
 
     // File Constants
     /**
@@ -117,6 +122,8 @@ public class Coordinate {
 
 
     private static final Coordinate[][] coordinates = new Coordinate[COLUMNS.length][ROWS.length];
+    public static final String JSON_PROPERTY_NAME_COLUMN = "column";
+    public static final String JSON_PROPERTY_NAME_ROW = "row";
 
     private final char file;
     private final int rank;
@@ -297,5 +304,16 @@ public class Coordinate {
      */
     public boolean isBlackSquare() { //TODO write unit test
         return !isWhiteSquare();
+    }
+
+    @Override
+    public JSONObject getJSONObject() throws JSONException {
+
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put(JSON_PROPERTY_NAME_COLUMN, column);
+        jsonObject.put(JSON_PROPERTY_NAME_ROW, row);
+
+        return jsonObject;
     }
 }

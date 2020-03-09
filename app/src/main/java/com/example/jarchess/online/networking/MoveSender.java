@@ -1,21 +1,21 @@
 package com.example.jarchess.online.networking;
 
-import com.example.jarchess.match.datapackage.Datapackege;
-import com.example.jarchess.online.move.MoveFormatter;
-import com.example.jarchess.online.move.MoveQueue;
+import com.example.jarchess.match.datapackage.Datapackage;
+import com.example.jarchess.online.move.DatapackageFormatter;
+import com.example.jarchess.online.move.DatapackageQueue;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
 
 public class MoveSender {
-    private MoveQueue queue;
-    private MoveFormatter formatter;
+    private DatapackageQueue queue;
+    private DatapackageFormatter formatter;
     private NetworkSender sender;
 
-    public MoveSender(MoveQueue queue, NetworkSender sender){
+    public MoveSender(DatapackageQueue queue, NetworkSender sender) {
         this.queue = queue;
-        this.formatter = new MoveFormatter();
+        this.formatter = new DatapackageFormatter();
         this.sender = sender;
         Runnable r = new Runnable() {
             @Override
@@ -33,13 +33,13 @@ public class MoveSender {
     }
 
     private void processMoves() throws IOException{
-        Datapackege datapackege = this.queue.getMove();
+        Datapackage datapackage = this.queue.getDatapackage();
         //convert datapackage to JSONObject
-        JSONObject jsonObject = formatter.dataPkgToJson(datapackege);
+        JSONObject jsonObject = formatter.dataPkgToJson(datapackage);
         //call network.sendData with new JSONObject
         JSONObject rcvdMsg = sender.send(jsonObject);
-        Datapackege recvdPackage = formatter.jsonObjToDataPkg(rcvdMsg);
-        queue.insertMove(recvdPackage);
+        Datapackage recvdPackage = formatter.jsonObjToDataPkg(rcvdMsg);
+        queue.insertDatapackage(recvdPackage);
     }
 
 }

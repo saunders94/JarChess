@@ -216,4 +216,5 @@ public class Gameboard {
     public boolean isEmptyAt(Coordinate coordinate) {   //TODO need tests
         return getPieceAt(coordinate) == null;
     }
+
 }

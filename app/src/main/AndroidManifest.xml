@@ -21,6 +21,7 @@
         <activity android:name=".match.activity.EasyAIMatchActivity" />
         <activity android:name=".match.activity.HardAIMatchActivity" />
         <activity android:name=".match.activity.LocalMultiplayerMatchActivity" />
+        <activity android:name=".match.activity.OnlineMultiplayerMatchActivity" />
     </application>
 
 </manifest>

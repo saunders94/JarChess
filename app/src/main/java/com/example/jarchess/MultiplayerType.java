@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.jarchess.match.activity.LocalMultiplayerMatchActivity;
+import com.example.jarchess.match.activity.OnlineMultiplayerMatchActivity;
 import com.example.jarchess.online.networking.Controller;
 
 
@@ -63,6 +64,10 @@ public class MultiplayerType extends Fragment {
                 //MainMenu mainMenu = new MainMenu();
                 //transaction.replace(R.id.fragmentHole, mainMenu);
                 //transaction.commit();
+
+
+                Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
+                startActivity(intent);
             }
         });
     }

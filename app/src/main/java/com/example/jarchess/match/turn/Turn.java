@@ -1,7 +1,11 @@
 package com.example.jarchess.match.turn;
 
 import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.datapackage.JSONConvertable;
 import com.example.jarchess.match.move.Move;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * A turn is the encasilation of all basic elemnts of a turn in chess.
@@ -14,7 +18,10 @@ import com.example.jarchess.match.move.Move;
  *
  * @author Joshua Zierman
  */
-public class Turn {
+public class Turn implements JSONConvertable<Turn> {
+    public static final String JSON_PROPERTY_NAME_COLOR = "color";
+    public static final String JSON_PROPERTY_NAME_MOVE = "move";
+    public static final String JSON_PROPERTY_NAME_ELAPSED_TIME = "elapsedTime";
     private final ChessColor color;
     private final Move move;
     private final long elapsedTime;
@@ -57,5 +64,16 @@ public class Turn {
      */
     public long getElapsedTime() {
         return elapsedTime;
+    }
+
+    @Override
+    public JSONObject getJSONObject() throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(JSON_PROPERTY_NAME_COLOR, color.getJSONObject());
+        jsonObject.put(JSON_PROPERTY_NAME_MOVE, move.getJSONObject());
+        jsonObject.put(JSON_PROPERTY_NAME_ELAPSED_TIME, elapsedTime);
+
+
+        return jsonObject;
     }
 }
