@@ -260,6 +260,7 @@ public abstract class MatchActivity extends AppCompatActivity
                 validate(turn);
                 execute(turn);
                 updateView(turn);
+
             }
         } catch (ResignationException e) {
             match.setIsDone(true);
@@ -289,6 +290,7 @@ public abstract class MatchActivity extends AppCompatActivity
             }
             match.move(movement.getOrigin(), movement.getDestination());
         }
+        match.checkForGameEnd(ChessColor.getOther(turn.getColor()));
     }
 
     private void validate(Turn turn) {

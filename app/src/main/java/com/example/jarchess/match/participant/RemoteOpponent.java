@@ -98,8 +98,12 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
      */
     @Override
     public Turn takeFirstTurn() {
-        return turnReceiver.receiveNextTurn();
-
+        try {
+            return turnReceiver.receiveNextTurn();
+        } catch (InterruptedException e) {
+            // just get out
+        }
+        return null;
     }
 
     /**
@@ -110,7 +114,13 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
 
         turnSender.send(lastTurnFromOtherParticipant);
 
-        return turnReceiver.receiveNextTurn();
+        try {
+            return turnReceiver.receiveNextTurn();
+        } catch (InterruptedException e) {
+            // just get out
+        }
+
+        return null;
 
     }
 
