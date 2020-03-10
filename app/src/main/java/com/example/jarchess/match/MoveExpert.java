@@ -185,4 +185,16 @@ public class MoveExpert {
     private void log(String msg) {
         Log.d("MoveExpert", msg);
     }
+
+    public boolean hasMoves(ChessColor nextTurnColor, Gameboard gameboardToCheck) {
+        for (Coordinate originCoordinate : Coordinate.values()) {
+            Piece piece = gameboardToCheck.getPieceAt(originCoordinate);
+            if (piece != null && piece.getColor() == nextTurnColor)
+                if (!getLegalDestinations(originCoordinate, gameboardToCheck).isEmpty()) {
+                    return true;
+                }
+        }
+
+        return false;
+    }
 }
