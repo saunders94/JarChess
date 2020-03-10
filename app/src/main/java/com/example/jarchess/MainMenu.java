@@ -68,11 +68,11 @@ public class MainMenu extends Fragment {
         leaderboardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                //MainMenu mainMenu = new MainMenu();
-                //transaction.replace(R.id.fragmentHole, mainMenu);
-                //transaction.addToBackStack(null);
-                //transaction.commit();
+                FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
+                Leaderboard leaderboard = new Leaderboard();
+                transaction.replace(R.id.fragmentHole, leaderboard);
+                transaction.addToBackStack(null);
+                transaction.commit();
             }
         });
     }
