@@ -20,7 +20,7 @@ import java.util.Queue;
 import static com.example.jarchess.match.datapackage.Datapackage.DatapackageType.RESIGNATION;
 
 public class MatchNetworkIO {
-    private static void waitWhileEmpty(Collection<?> collection, Object lock) throws InterruptedException {
+    private static void waitWhileEmpty(Queue<?> collection, Object lock) throws InterruptedException {
         synchronized (lock) {
             while (collection.isEmpty()) {
                 lock.wait();
@@ -205,13 +205,21 @@ public class MatchNetworkIO {
         }
 
         @Override
-        public Resignation recieveNextResignation() {
-            return null;
+        public Resignation recieveNextResignation() throws InterruptedException {
+
+            synchronized (lock) {
+                waitWhileEmpty(incomingResignations, lock);
+                return incomingResignations.remove();
+            }
         }
 
         @Override
-        public Turn receiveNextTurn() {
-            return null;
+        public Turn receiveNextTurn() throws InterruptedException {
+
+            synchronized (lock) {
+                waitWhileEmpty(incomingTurns, lock);
+                return incomingTurns.remove();
+            }
         }
     }
 

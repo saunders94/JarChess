@@ -124,6 +124,10 @@ public abstract class Match implements ResignationListener {
         return gameboard.remove(destination);
     }
 
+    public void checkForGameEnd(ChessColor nextTurnColor) {
+        moveExpert.hasMoves(nextTurnColor, gameboard);
+    }
+
     public class Result {
         private final MatchParticipant blackParticipant;
         private final MatchParticipant whiteParticipant;

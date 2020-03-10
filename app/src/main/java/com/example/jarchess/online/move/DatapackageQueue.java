@@ -1,5 +1,7 @@
 package com.example.jarchess.online.move;
 
+import android.util.Log;
+
 import com.example.jarchess.match.datapackage.Datapackage;
 
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,11 +27,13 @@ public class DatapackageQueue {
 
     public Datapackage getDatapackage() {
         try {
-            return inboundDatapackage.take();
+            Datapackage datapackage = inboundDatapackage.take();
+            Log.d("DatapackageQueue", "getDatapackage: " + datapackage);
+            return datapackage;
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return null;//FIXME
+        return null;
     }
 
 }
