@@ -18,7 +18,8 @@
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="fill_parent">
+            android:layout_height="fill_parent"
+            android:layout_weight="1">
 
             <ImageView
                 android:id="@+id/leftPawn0"
@@ -156,7 +157,8 @@
 
         <TableRow
             android:layout_width="match_parent"
-            android:layout_height="fill_parent">
+            android:layout_height="fill_parent"
+            android:layout_weight="1">
 
             <ImageView
                 android:id="@+id/leftRook0"

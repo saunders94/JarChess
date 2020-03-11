@@ -18,22 +18,22 @@ import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
 
 /**
- * Gameboard is a container that holds Pieces
+ * Chessboard is a container that holds Pieces
  * <p>
- * No game rules logic is handled by Gameboard
+ * No game rules logic is handled by Chessboard
  *
  * @author Joshua Zierman
  */
-public class Gameboard {
+public class Chessboard {
     private static final int ROW_COUNT = 8;
     private static final int COLUMN_COUNT = 8;
     private final Piece[][] pieces;
     private boolean isCopy;
 
     /**
-     * Private constructor used to create the instance of gameboard
+     * Private constructor used to create the instance of chessboard
      */
-    Gameboard() {
+    Chessboard() {
         pieces = new Piece[COLUMN_COUNT][ROW_COUNT];
 
         Piece tmp;
@@ -60,13 +60,13 @@ public class Gameboard {
         isCopy = false;
     }
 
-    private Gameboard(Gameboard gameboard) {
+    private Chessboard(Chessboard chessboard) {
         pieces = new Piece[COLUMN_COUNT][ROW_COUNT];
         for (Coordinate coordinate : Coordinate.values()) {
             int column = coordinate.getColumn();
             int row = coordinate.getRow();
 
-            Piece original = gameboard.getPieceAt(coordinate);
+            Piece original = chessboard.getPieceAt(coordinate);
 
             if (original != null) {
                 try {
@@ -79,22 +79,22 @@ public class Gameboard {
         isCopy = true;
     }
 
-    public Gameboard getCopyWithMovementsApplied(Collection<PieceMovement> movements) {
-        Gameboard copy = new Gameboard(this);
+    public Chessboard getCopyWithMovementsApplied(Collection<PieceMovement> movements) {
+        Chessboard copy = new Chessboard(this);
         for (PieceMovement movement : movements) {
             copy.move(movement.getOrigin(), movement.getDestination());
         }
         return copy;
     }
 
-    public Gameboard getCopyWithMovementsApplied(Coordinate origin, Coordinate destination) {
-        Gameboard copy = new Gameboard(this);
+    public Chessboard getCopyWithMovementsApplied(Coordinate origin, Coordinate destination) {
+        Chessboard copy = new Chessboard(this);
         copy.move(origin, destination);
         return copy;
     }
 
-    public Gameboard getCopyWithMovementsApplied(Coordinate origin1, Coordinate destination1, Coordinate origin2, Coordinate destination2) {
-        Gameboard copy = new Gameboard(this);
+    public Chessboard getCopyWithMovementsApplied(Coordinate origin1, Coordinate destination1, Coordinate origin2, Coordinate destination2) {
+        Chessboard copy = new Chessboard(this);
         copy.move(origin1, destination1);
         copy.move(origin2, destination2);
         return copy;
@@ -102,7 +102,7 @@ public class Gameboard {
 
 
     /**
-     * Adds a piece to the gameboard at starting position
+     * Adds a piece to the chessboard at starting position
      *
      * @param piece the piece to add.
      */
@@ -124,10 +124,10 @@ public class Gameboard {
     }
 
     /**
-     * Adds a piece to a specified coordinate on the gameboard
+     * Adds a piece to a specified coordinate on the chessboard
      *
-     * @param piece      The piece to be added to the gameboard
-     * @param coordinate on the gameboard that the piece will be added to
+     * @param piece      The piece to be added to the chessboard
+     * @param coordinate on the chessboard that the piece will be added to
      */
     private void add(@NonNull Piece piece, @NonNull Coordinate coordinate) {
 
@@ -149,7 +149,7 @@ public class Gameboard {
 
 
     /**
-     * Moves a piece from one coordinate to another on the gameboard
+     * Moves a piece from one coordinate to another on the chessboard
      *
      * @param originCoordinate      the coordinate of the piece to be moved
      * @param destinationCoordinate the coordinate of where the piece will be after the move
@@ -164,7 +164,7 @@ public class Gameboard {
     }
 
     /**
-     * Resets the gameboard to stating positions.
+     * Resets the chessboard to stating positions.
      */
     public void reset() {
 
@@ -211,7 +211,7 @@ public class Gameboard {
      * Checks to see if the board is empty at a specified coordinate
      *
      * @param coordinate the coordinate to check
-     * @return true if the gameboard is empty at the specified coordinate
+     * @return true if the chessboard is empty at the specified coordinate
      */
     public boolean isEmptyAt(Coordinate coordinate) {   //TODO need tests
         return getPieceAt(coordinate) == null;

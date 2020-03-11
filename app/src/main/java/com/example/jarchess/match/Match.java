@@ -9,6 +9,9 @@ import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.resignation.ResignationEventManager;
 import com.example.jarchess.match.resignation.ResignationException;
 import com.example.jarchess.match.resignation.ResignationListener;
+import com.example.jarchess.match.result.CheckmateResult;
+import com.example.jarchess.match.result.Result;
+import com.example.jarchess.match.result.StalemateDrawResult;
 import com.example.jarchess.match.turn.Turn;
 
 import java.util.Collection;
@@ -22,12 +25,12 @@ public abstract class Match implements ResignationListener {
     private final MatchHistory matchHistory;
     private final MatchParticipant blackPlayer;
     private final MatchParticipant whitePlayer;
-    private final Gameboard gameboard;
+    private final Chessboard chessboard;
+    private final MoveExpert moveExpert;
     private ChessColor winner;
     private boolean isDone;
     private Result matchResult = null;
     private LocalParticipantController localParticipantController;
-    private final MoveExpert moveExpert;
 
     public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2) {
 
@@ -37,8 +40,8 @@ public abstract class Match implements ResignationListener {
         resignationEventManager.addListener(participant2);
 
 
-        gameboard = new Gameboard();
-        gameboard.reset();
+        chessboard = new Chessboard();
+        chessboard.reset();
         this.blackPlayer = participant1.getColor() == BLACK ? participant1 : participant2;
         this.whitePlayer = participant1.getColor() == WHITE ? participant1 : participant2;
 
@@ -83,7 +86,7 @@ public abstract class Match implements ResignationListener {
     }
 
     public Piece getPieceAt(@NonNull Coordinate coordinate) {
-        return gameboard.getPieceAt(coordinate);
+        return chessboard.getPieceAt(coordinate);
     }
 
     public Turn getFirstTurn() throws ResignationException, InterruptedException {
@@ -112,52 +115,38 @@ public abstract class Match implements ResignationListener {
     }
 
     public Collection<Coordinate> getPossibleMoves(Coordinate origin) {
-        return moveExpert.getLegalDestinations(origin, gameboard);
+        return moveExpert.getLegalDestinations(origin, chessboard);
     }
 
     public void move(Coordinate origin, Coordinate destination) {
-        gameboard.move(origin, destination);
+        chessboard.move(origin, destination);
     }
 
-    public Piece capture(Coordinate destination)
-    {
-        return gameboard.remove(destination);
+    public Piece capture(Coordinate destination) {
+        return chessboard.remove(destination);
     }
 
     public void checkForGameEnd(ChessColor nextTurnColor) {
-        moveExpert.hasMoves(nextTurnColor, gameboard);
-    }
-
-    public class Result {
-        private final MatchParticipant blackParticipant;
-        private final MatchParticipant whiteParticipant;
-        private final MatchParticipant winner = null;
-
-        public Result(Match match) {
-            if (!match.isDone()) {
-                throw new IllegalArgumentException("Cannot getRandom result of an in-progress match");
+        if (!moveExpert.hasMoves(nextTurnColor, chessboard)) {
+            if (moveExpert.isInCheck(nextTurnColor, chessboard)) {
+                isDone = true;
+                matchResult = new CheckmateResult(ChessColor.getOther(nextTurnColor));
+            } else {
+                isDone = true;
+                matchResult = new StalemateDrawResult();
             }
-            if (match.matchResult != null) {
-                throw new IllegalArgumentException("Cannot make a match result for a match who already has a result");
-            }
-            this.blackParticipant = match.blackPlayer;
-            this.whiteParticipant = match.whitePlayer;
-        }
+        } else {
+            // TODO handle our implementation of repeated board state draw
+            // I have a tendency to want to do the 5 time version that requires no
 
-        public MatchParticipant getBlackParticipant() {
-            return blackParticipant;
-        }
+            // TODO handle 50 move draw
 
-        public MatchParticipant getWhiteParticipant() {
-            return whiteParticipant;
-        }
+            // TODO imposibility of check draw handling
 
-        public boolean wasDraw() {
-            return winner == null;
         }
     }
 
-    public ResignationEventManager addResignationListener(ResignationListener listener) {
-        return resignationEventManager;
+    public Result getMatchResult() {
+        return matchResult;
     }
 }

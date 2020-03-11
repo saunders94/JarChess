@@ -17,6 +17,7 @@ import com.example.jarchess.match.activity.CommitButtonClickHandler;
 import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.result.Result;
 import com.example.jarchess.match.styles.ChessboardStyle;
 import com.example.jarchess.match.styles.ChesspieceStyle;
 
@@ -159,5 +160,9 @@ public class MatchView extends View {
 
     public void addCapturedPiece(Piece capturedPiece) {
         capturedPieceView.add(capturedPiece);
+    }
+
+    public void showMatchResutl(Result matchResult) {
+
     }
 }

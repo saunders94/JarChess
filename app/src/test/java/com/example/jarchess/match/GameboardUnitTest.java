@@ -20,11 +20,11 @@ public class GameboardUnitTest {
     @Mock
     public Coordinate mockCoordinate1 = mock(Coordinate.class);
 
-    Gameboard gameboardUnderTest;
+    Chessboard gameboardUnderTest;
 
     @Before
     public void setup() {
-        gameboardUnderTest = new Gameboard();
+        gameboardUnderTest = new Chessboard();
     }
 
     @Test

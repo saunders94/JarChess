@@ -58,7 +58,6 @@ public abstract class MatchActivity extends AppCompatActivity
         // set match to the current match
         match = createMatch();
         match.setLocalParticipantController(this);
-        match.addResignationListener(this);
 
         setContentView(R.layout.activity_match);
         matchView = new MatchView(match, this);
@@ -267,6 +266,15 @@ public abstract class MatchActivity extends AppCompatActivity
         } catch (InterruptedException e2) {
             match.setIsDone(true);
         }
+
+        showMatchResutl();
+    }
+
+    private void showMatchResutl() {
+        log("showMatchResult was called.");
+        log(match.getMatchResult().toString());
+
+        matchView.showMatchResutl(match.getMatchResult());
     }
 
 
@@ -290,6 +298,7 @@ public abstract class MatchActivity extends AppCompatActivity
             }
             match.move(movement.getOrigin(), movement.getDestination());
         }
+
         match.checkForGameEnd(ChessColor.getOther(turn.getColor()));
     }
 

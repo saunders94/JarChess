@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="fill"
+    android:background="@color/colorPrimaryDark"
+    tools:context=".match.activity.MatchActivity"
+    tools:showIn="@layout/activity_match">
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|fill_vertical"
+        android:gravity="center"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/resultTitleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:padding="15dp"
+            android:scrollHorizontally="false"
+            android:text="@string/match_result"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/primary_text_dark" />
+    </TableRow>
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|fill_vertical"
+        android:gravity="center"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/resultResultTextView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:padding="15dp"
+            android:text="Result Message"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@android:color/primary_text_dark" />
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|fill_vertical"
+        android:gravity="center"
+        android:padding="10dp">
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/custom_button"
+            android:text="@android:string/ok" />
+
+    </TableRow>
+
+</TableLayout>
