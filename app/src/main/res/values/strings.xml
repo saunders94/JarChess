@@ -6,4 +6,6 @@
     <string name="resign">Resign</string>
     <string name="pause">Pause</string>
     <string name="commit">Commit</string>
+    <string name="request_draw">Request Draw</string>
+    <string name="match_result">Match Result</string>
 </resources>

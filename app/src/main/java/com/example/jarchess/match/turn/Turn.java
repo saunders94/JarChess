@@ -4,6 +4,7 @@ import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.datapackage.JSONConvertable;
 import com.example.jarchess.match.datapackage.JSONConverter;
 import com.example.jarchess.match.move.Move;
+import com.example.jarchess.match.pieces.Piece;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,9 +25,19 @@ public class Turn implements JSONConvertable<Turn> {
     public static final String JSON_PROPERTY_NAME_COLOR = "color";
     public static final String JSON_PROPERTY_NAME_MOVE = "move";
     public static final String JSON_PROPERTY_NAME_ELAPSED_TIME = "elapsedTime";
+    public static final String JSON_PROPERTY_NAME_PROMOTION_CHOICE = "promotionChoice";
     private final ChessColor color;
     private final Move move;
     private final long elapsedTime;
+    private final Piece.PromotionChoice promotionChoice;
+
+
+    public Turn(ChessColor color, Move move, long elapsedTime, Piece.PromotionChoice promotionChoice) {
+        this.color = color;
+        this.move = move;
+        this.elapsedTime = elapsedTime;
+        this.promotionChoice = promotionChoice;
+    }
 
     /**
      * Creates a turn.
@@ -36,9 +47,7 @@ public class Turn implements JSONConvertable<Turn> {
      * @param elapsedTime the time in milliseconds that passed during the turn
      */
     public Turn(ChessColor color, Move move, long elapsedTime) {
-        this.color = color;
-        this.move = move;
-        this.elapsedTime = elapsedTime;
+        this(color, move, elapsedTime, null);
     }
 
     /**
@@ -71,12 +80,17 @@ public class Turn implements JSONConvertable<Turn> {
     @Override
     public JSONObject getJSONObject() throws JSONException {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(JSON_PROPERTY_NAME_COLOR, color.getJSONObject());
-        jsonObject.put(JSON_PROPERTY_NAME_MOVE, move.getJSONObject());
+        jsonObject.put(JSON_PROPERTY_NAME_COLOR, color == null ? JSONObject.NULL : color.getJSONObject());
+        jsonObject.put(JSON_PROPERTY_NAME_MOVE, move == null ? JSONObject.NULL : move.getJSONObject());
         jsonObject.put(JSON_PROPERTY_NAME_ELAPSED_TIME, elapsedTime);
+        jsonObject.put(JSON_PROPERTY_NAME_PROMOTION_CHOICE, promotionChoice == null ? JSONObject.NULL : promotionChoice.getJSONObject());
 
 
         return jsonObject;
+    }
+
+    public Piece.PromotionChoice getPromotionChoice() {
+        return promotionChoice;
     }
 
     public static class TurnJSONConverter extends JSONConverter<Turn> {
@@ -107,7 +121,13 @@ public class Turn implements JSONConvertable<Turn> {
             ChessColor color = ChessColor.JSON_CONVERTER.convertFromJSONObject(jsonObject.getJSONObject(JSON_PROPERTY_NAME_COLOR));
             Move move = Move.JSON_CONVERTER.convertFromJSONObject(jsonObject.getJSONObject(JSON_PROPERTY_NAME_MOVE));
             long elapsedTime = jsonObject.getLong(JSON_PROPERTY_NAME_ELAPSED_TIME);
-            return new Turn(color, move, elapsedTime);
+
+            Piece.PromotionChoice promotionChoice = null;
+            if (!jsonObject.isNull(JSON_PROPERTY_NAME_PROMOTION_CHOICE)) {
+                JSONObject promotionChoiceJSON = jsonObject.getJSONObject(JSON_PROPERTY_NAME_PROMOTION_CHOICE);
+                promotionChoice = Piece.PromotionChoice.JSON_CONVERTER.convertFromJSONObject(promotionChoiceJSON);
+            }
+            return new Turn(color, move, elapsedTime, promotionChoice);
         }
     }
 }

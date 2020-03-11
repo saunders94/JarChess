@@ -39,12 +39,12 @@ public class MoveExpert {
         return instance;
     }
 
-    public Collection<Coordinate> getLegalDestinations(Coordinate origin, Gameboard gameboardToCheck) {
+    public Collection<Coordinate> getLegalDestinations(Coordinate origin, Chessboard chessboardToCheck) {
         Collection<Coordinate> collection = new LinkedList<Coordinate>();
-        Piece pieceToMove = gameboardToCheck.getPieceAt(origin);
+        Piece pieceToMove = chessboardToCheck.getPieceAt(origin);
 
         for (MovementPattern pattern : pieceToMove.getMovementPatterns()) {
-            if (isLegalMove(pieceToMove, origin, pattern, gameboardToCheck)) {
+            if (isLegalMove(pieceToMove, origin, pattern, chessboardToCheck)) {
                 collection.add(pattern.getDestinationFrom(origin));
             }
         }
@@ -52,15 +52,15 @@ public class MoveExpert {
         return collection;
     }
 
-    public boolean isLegalMove(Piece pieceToMove, Coordinate origin, MovementPattern movementPattern, Gameboard gameboardToCheck) {
+    public boolean isLegalMove(Piece pieceToMove, Coordinate origin, MovementPattern movementPattern, Chessboard chessboardToCheck) {
         Coordinate destination = movementPattern.getDestinationFrom(origin);
         if (destination == null) {
             return false; // because the destination of that move is out of bounds
         }
-        boolean isLegalIgnoringCheck = isLegalMoveIgnoringChecks(pieceToMove, origin, movementPattern, gameboardToCheck);
+        boolean isLegalIgnoringCheck = isLegalMoveIgnoringChecks(pieceToMove, origin, movementPattern, chessboardToCheck);
 
         if (isLegalIgnoringCheck) {
-            boolean leavesKingInCheck = isInCheck(pieceToMove.getColor(), gameboardToCheck.getCopyWithMovementsApplied(origin, destination));
+            boolean leavesKingInCheck = isInCheck(pieceToMove.getColor(), chessboardToCheck.getCopyWithMovementsApplied(origin, destination));
 
             return !leavesKingInCheck; // you can't make a move that would leave your king in check
         } else {
@@ -68,13 +68,13 @@ public class MoveExpert {
         }
     }
 
-    public boolean isInCheck(ChessColor colorOfPlayerThatMightBeInCheck, Gameboard gameboardToCheck) {
+    public boolean isInCheck(ChessColor colorOfPlayerThatMightBeInCheck, Chessboard chessboardToCheck) {
 
         final ChessColor threatColor = ChessColor.getOther(colorOfPlayerThatMightBeInCheck);
         Piece tmpPiece;
         Coordinate kingCoordinateToCheck = null;
         for (Coordinate c : Coordinate.values()) {
-            tmpPiece = gameboardToCheck.getPieceAt(c);
+            tmpPiece = chessboardToCheck.getPieceAt(c);
             if (tmpPiece != null && colorOfPlayerThatMightBeInCheck == tmpPiece.getColor() && tmpPiece.getType() == KING) {
                 kingCoordinateToCheck = c;
                 break;
@@ -86,11 +86,11 @@ public class MoveExpert {
         }
 
         for (Coordinate c : Coordinate.values()) {
-            tmpPiece = gameboardToCheck.getPieceAt(c);
+            tmpPiece = chessboardToCheck.getPieceAt(c);
             if (tmpPiece != null && threatColor == tmpPiece.getColor()) {
 
                 for (MovementPattern pattern : tmpPiece.getMovementPatterns()) {
-                    if (pattern.getDestinationFrom(c) == kingCoordinateToCheck && isLegalMoveIgnoringChecks(tmpPiece, c, pattern, gameboardToCheck)) {
+                    if (pattern.getDestinationFrom(c) == kingCoordinateToCheck && isLegalMoveIgnoringChecks(tmpPiece, c, pattern, chessboardToCheck)) {
                         return true;
                     }
                 }
@@ -99,7 +99,7 @@ public class MoveExpert {
         return false;
     }
 
-    private boolean isLegalMoveIgnoringChecks(Piece pieceToMove, Coordinate origin, MovementPattern movementPattern, Gameboard gameboardToCheck) {
+    private boolean isLegalMoveIgnoringChecks(Piece pieceToMove, Coordinate origin, MovementPattern movementPattern, Chessboard chessboardToCheck) {
 
         // if the move pattern requires the move be the first move of the piece and the piece has moved
         if (movementPattern.mustBeFirstMoveOfPiece() && pieceToMove.hasMoved()) {
@@ -113,9 +113,9 @@ public class MoveExpert {
 //            king = pieceToMove;
 //
 //            if (pattern.getKingwardOffset() > 0) {
-//                rook = gameboardToCheck.getPieceAt(null);//FIXME
+//                rook = chessboardToCheck.getPieceAt(null);//FIXME
 //            } else {
-//                rook = gameboardToCheck.getPieceAt(null);//FIXME
+//                rook = chessboardToCheck.getPieceAt(null);//FIXME
 //            }
 //
 //            if (king.hasMoved() || rook.hasMoved()) {
@@ -150,7 +150,7 @@ public class MoveExpert {
                     tmp = next;
                     next = Coordinate.getByColumnAndRow(tmp.getColumn() + x, tmp.getRow() + y);
 
-                    if (gameboardToCheck.getPieceAt(tmp) != null) {
+                    if (chessboardToCheck.getPieceAt(tmp) != null) {
                         return false; //  because the slide path is blocked.
                     }
                 }
@@ -158,7 +158,7 @@ public class MoveExpert {
 
 
             // check if the destination is occupied by a piece of the same color
-            Piece pieceAtDestination = gameboardToCheck.getPieceAt(destination);
+            Piece pieceAtDestination = chessboardToCheck.getPieceAt(destination);
             if (pieceAtDestination != null && pieceAtDestination.getColor().equals(pieceToMove.getColor())) {
                 return false; // because the destination would land on a piece of the same color
             }
@@ -186,11 +186,11 @@ public class MoveExpert {
         Log.d("MoveExpert", msg);
     }
 
-    public boolean hasMoves(ChessColor nextTurnColor, Gameboard gameboardToCheck) {
+    public boolean hasMoves(ChessColor nextTurnColor, Chessboard chessboardToCheck) {
         for (Coordinate originCoordinate : Coordinate.values()) {
-            Piece piece = gameboardToCheck.getPieceAt(originCoordinate);
+            Piece piece = chessboardToCheck.getPieceAt(originCoordinate);
             if (piece != null && piece.getColor() == nextTurnColor)
-                if (!getLegalDestinations(originCoordinate, gameboardToCheck).isEmpty()) {
+                if (!getLegalDestinations(originCoordinate, chessboardToCheck).isEmpty()) {
                     return true;
                 }
         }

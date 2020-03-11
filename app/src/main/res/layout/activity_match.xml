@@ -35,4 +35,19 @@
 
     </LinearLayout>
 
+    <FrameLayout
+        android:id="@+id/matchResultFrameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <include
+            layout="@layout/match_result_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:visibility="invisible" />
+    </FrameLayout>
+
 </android.support.constraint.ConstraintLayout>
