@@ -1,11 +1,19 @@
 package com.example.jarchess.match;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
+import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.LocalParticipantController;
 import com.example.jarchess.match.participant.LocalPartipant;
 import com.example.jarchess.match.participant.MatchParticipant;
+import com.example.jarchess.match.pieces.Bishop;
+import com.example.jarchess.match.pieces.Knight;
+import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.pieces.Queen;
+import com.example.jarchess.match.pieces.Rook;
 import com.example.jarchess.match.resignation.ResignationEventManager;
 import com.example.jarchess.match.resignation.ResignationException;
 import com.example.jarchess.match.resignation.ResignationListener;
@@ -16,6 +24,7 @@ import com.example.jarchess.match.turn.Turn;
 
 import java.util.Collection;
 
+import static androidx.constraintlayout.widget.Constraints.TAG;
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
 
@@ -148,5 +157,40 @@ public abstract class Match implements ResignationListener {
 
     public Result getMatchResult() {
         return matchResult;
+    }
+
+    public Collection<? extends PieceMovement> getLegalCastleMovements(Coordinate origin, Coordinate destination) {
+        return moveExpert.getLegalCastleMovements(origin, destination, chessboard);
+    }
+
+    public void promote(Coordinate coordinate, Piece.PromotionChoice choice) {
+        Log.d(TAG, "promote is running on thread: " + Thread.currentThread().getName());
+        Log.d(TAG, "promote() called with: coordinate = [" + coordinate + "], choice = [" + choice + "]");
+        Piece oldPiece = chessboard.getPieceAt(coordinate);
+
+        if (oldPiece instanceof Pawn) {
+            Pawn pawn = (Pawn) oldPiece;
+            Piece newPiece;
+
+            switch (choice.getPieceType()) {
+                case ROOK:
+                    newPiece = new Rook(pawn);
+                    break;
+                case KNIGHT:
+                    newPiece = new Knight(pawn);
+                    break;
+                case BISHOP:
+                    newPiece = new Bishop(pawn);
+                    break;
+                case QUEEN:
+                    newPiece = new Queen(pawn);
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value piece type from promotion choice: " + choice.getPieceType());
+            }
+
+            chessboard.remove(coordinate);
+            chessboard.add(newPiece, coordinate);
+        }
     }
 }

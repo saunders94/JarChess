@@ -2,7 +2,12 @@ package com.example.jarchess.match;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.example.jarchess.match.move.PieceMovement;
+import com.example.jarchess.match.pieces.King;
 import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.pieces.Rook;
 import com.example.jarchess.match.pieces.movementpatterns.CastleMovementPattern;
 import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
 import com.example.jarchess.match.pieces.movementpatterns.SlidePattern;
@@ -10,6 +15,7 @@ import com.example.jarchess.match.pieces.movementpatterns.SlidePattern;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import static androidx.constraintlayout.widget.Constraints.TAG;
 import static com.example.jarchess.match.ChessColor.WHITE;
 import static com.example.jarchess.match.pieces.Piece.Type.KING;
 import static com.example.jarchess.match.pieces.movementpatterns.MovementPattern.CaptureType.CANNOT_CAPTURE;
@@ -107,24 +113,9 @@ public class MoveExpert {
         }
 
         if (movementPattern instanceof CastleMovementPattern) {
-            return false; // FIXME all castle moves are considered illegal until fixed
-//            Piece king, rook;
-//            //TODO set the values of king and rook
-//            king = pieceToMove;
-//
-//            if (pattern.getKingwardOffset() > 0) {
-//                rook = chessboardToCheck.getPieceAt(null);//FIXME
-//            } else {
-//                rook = chessboardToCheck.getPieceAt(null);//FIXME
-//            }
-//
-//            if (king.hasMoved() || rook.hasMoved()) {
-//                return false; //can't castle when king or rook has moved
-//            }
-//
-//            // TODO check that the king can slide to destination without being in danger before, during, or after the slide.
-//
-//            // TODO check that the rook can slide to destination.
+            Log.d(TAG, "isLegalMoveIgnoringChecks: was instance of CastleMovmentPattern");
+            return (getLegalCastleMovements(origin, movementPattern.getDestinationFrom(origin), chessboardToCheck).size() > 0);
+
 
 
         } else {
@@ -177,15 +168,6 @@ public class MoveExpert {
     }
 
 
-
-    private void log(Object msg) {
-        Log.d("MoveExpert", msg.toString());
-    }
-
-    private void log(String msg) {
-        Log.d("MoveExpert", msg);
-    }
-
     public boolean hasMoves(ChessColor nextTurnColor, Chessboard chessboardToCheck) {
         for (Coordinate originCoordinate : Coordinate.values()) {
             Piece piece = chessboardToCheck.getPieceAt(originCoordinate);
@@ -196,5 +178,110 @@ public class MoveExpert {
         }
 
         return false;
+    }
+
+    public Collection<PieceMovement> getLegalCastleMovements(@NonNull Coordinate kingOrigin, @NonNull Coordinate kingDestination, Chessboard chessboardToCheck) {
+        final Collection<PieceMovement> movements = new LinkedList<PieceMovement>();
+
+        Log.d(TAG, "getLegalCastleMovements() called with: kingOrigin = [" + kingOrigin + "], kingDestination = [" + kingDestination + "], chessboardToCheck = [" + chessboardToCheck + "]");
+        final King king;
+        final Rook rook;
+        final ChessColor color;
+        final int expectedRank;
+        final char expectedStartingFile = King.STARTING_FILE;
+        final Piece pieceAtOrigin = chessboardToCheck.getPieceAt(kingOrigin);
+
+        CastleMovementPattern pattern = null;
+
+        if (!(pieceAtOrigin instanceof King) || pieceAtOrigin.hasMoved()) {
+            Log.d(TAG, "getLegalCastleMovements: not instance of king or it has moved");
+            Log.d(TAG, "getLegalCastleMovements() returned: " + movements);
+            return movements;
+        }
+
+        king = (King) pieceAtOrigin;
+        color = king.getColor();
+        switch (color) {
+
+            case BLACK:
+                expectedRank = King.BLACK_STARTING_RANK;
+                break;
+            case WHITE:
+                expectedRank = King.WHITE_STARTING_RANK;
+                break;
+
+            default:
+                throw new IllegalStateException("Unexpected value: " + color);
+        }
+        if (kingOrigin.getFile() != expectedStartingFile || kingOrigin.getRank() != expectedRank || kingDestination.getRank() != expectedRank) {
+            Log.d(TAG, "getLegalCastleMovements: start coordinate check failed");
+            Log.d(TAG, "getLegalCastleMovements() returned: " + movements);
+            return movements;
+        }
+
+
+        for (CastleMovementPattern p : king.getCastleMovementPatterns()) {
+            if (p.getDestinationFrom(kingOrigin) == kingDestination) {
+                pattern = p;
+            }
+        }
+
+        if (pattern == null) {
+            Log.d(TAG, "getLegalCastleMovements: No pattern found");
+            Log.d(TAG, "getLegalCastleMovements() returned: " + movements);
+            return movements;
+        }
+
+        boolean kingMovesQueenward = kingDestination.getFile() < kingOrigin.getFile();
+
+        char expectedEndFile = (char) (kingMovesQueenward ? expectedStartingFile - 2 : expectedStartingFile + 2);
+        char rookStartingFile = kingMovesQueenward ? Rook.QUEENWARD_STARTING_FILE : Rook.KINGWARD_STARTING_FILE;
+        char rookEndingFile = (char) (kingMovesQueenward ? expectedEndFile + 1 : expectedEndFile - 1);
+        int rank = expectedRank;
+
+
+        {
+            Piece tmp = chessboardToCheck.getPieceAt(Coordinate.getByFileAndRank(rookStartingFile, rank));
+            if (tmp instanceof Rook && !tmp.hasMoved()) {
+                rook = (Rook) tmp;
+            } else {
+                Log.d(TAG, "getLegalCastleMovements: piece at " + Coordinate.getByFileAndRank(rookStartingFile, rank) + " was not a rook");
+                Log.d(TAG, "getLegalCastleMovements() returned: " + movements);
+                return movements;
+            }
+        }
+
+        // check for any pieces between king and rook
+        for (char file = expectedStartingFile; file != rookStartingFile; file += kingMovesQueenward ? -1 : 1) {
+            if (file != expectedStartingFile && !chessboardToCheck.isEmptyAt(Coordinate.getByFileAndRank(file, rank))) {
+                Log.d(TAG, "getLegalCastleMovements: piece was found between king and rook");
+                Log.d(TAG, "getLegalCastleMovements() returned: " + movements);
+                return movements;
+            }
+        }
+
+        //check if king would be in check before, during, and after king move
+        for (int i = 0; i <= 2; i++) {
+            int offset = kingMovesQueenward ? -i : i;
+            char f = (char) (expectedStartingFile + offset);
+            Coordinate newPosition = Coordinate.getByFileAndRank(f, rank);
+            Log.d(TAG, "getLegalCastleMovements: newPosition = " + newPosition);
+            Chessboard tmpChessboard = chessboardToCheck.getCopyWithMovementsApplied(kingOrigin, newPosition);
+            Log.d(TAG, "getLegalCastleMovements: tmpChessboard" + tmpChessboard);
+            if (isInCheck(color, tmpChessboard)) {
+                Log.d(TAG, "getLegalCastleMovements: king would be in danger before during or after move");
+                Log.d(TAG, "getLegalCastleMovements() returned: " + movements);
+                return movements;
+            }
+        }
+
+        movements.add(new PieceMovement(kingOrigin, kingDestination));
+        movements.add(new PieceMovement(Coordinate.getByFileAndRank(rookStartingFile, rank), Coordinate.getByFileAndRank(rookEndingFile, rank)));
+
+        for (Object o : movements) {
+            Log.d(TAG, "getLegalCastleMovements: added " + o + " to movements");
+        }
+        Log.d(TAG, "getLegalCastleMovements() returned: " + movements);
+        return movements;
     }
 }

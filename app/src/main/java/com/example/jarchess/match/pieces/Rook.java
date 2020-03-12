@@ -31,7 +31,7 @@ public class Rook extends Piece {//TODO write unit tests
         super(color, TYPE, makeStartingCoordinate(color, startingFile));
 
         add(MovementPatternProducer.getAllStraightSlideMovementPatterns(getColor()));
-        add(MovementPatternProducer.getRookCastleMovementPattern(startingFile, getColor()));
+//        add(MovementPatternProducer.getRookCastleMovementPattern(startingFile, getColor()));
 
     }
 

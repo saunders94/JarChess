@@ -1,4 +1,4 @@
-origin file	origin rank	destination file	destination rank	turn color	time	piece
+originInput file	originInput rank	destinationInput file	destinationInput rank	turn color	time	piece
 'h'	6	'g'	2	BLACK	0L	BISHOP
 'b'	2	'h'	1	WHITE	-1L	QUEEN
 'c'	3	'b'	1	BLACK	1L	KNIGHT

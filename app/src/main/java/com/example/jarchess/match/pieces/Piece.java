@@ -42,7 +42,7 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
      * @param type             the type of the piece
      * @param startingPosition the starting position of the piece
      */
-    public Piece(ChessColor color, Type type, Coordinate startingPosition) {
+    public Piece(@NonNull ChessColor color, @NonNull Type type, @NonNull Coordinate startingPosition) {
         this.color = color;
         this.type = type;
         this.startingPosition = startingPosition;
@@ -51,7 +51,7 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
         isClone = false;
     }
 
-    public Piece(Piece pieceToCopy) {
+    public Piece(@NonNull Piece pieceToCopy) {
         this(pieceToCopy.color, pieceToCopy.type, pieceToCopy.startingPosition);
         hasMoved = pieceToCopy.hasMoved;
         movementPatterns.addAll(pieceToCopy.movementPatterns);
@@ -72,6 +72,7 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
      *
      * @return the <code>Piece.Type</code> of this piece.
      */
+    @NonNull
     public Type getType() {
         return type;
     }
