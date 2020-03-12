@@ -55,7 +55,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/participant_info_bar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible">
+        tools:visibility="gone">
 
         <include
             layout="@layout/match_component_dialog_show_result"

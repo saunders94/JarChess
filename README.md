@@ -5,7 +5,7 @@ Currently the game is in development.
 
 ## Bug Reports
 
-If you want to report a bug, <<Put In Contact Instructions>>
+If you want to report a bug, <<TODO: Put In Contact Instructions>>
 
 ## Installing
 
@@ -15,5 +15,5 @@ After you finish installing Android Studio, go to the [JarChess master branch gi
 
 When you Launch android studio, choose "Check out project from version control" and select Git from the drop down menu. You will be asked for a URL, so paste the URL that was copied before. Check that the destination shown is where you want to save the project.
 
-Once you have the project loaded, we need to set up a test device. You can do this by opening the Tools menu and selecting the AVD Manager. Click the "+ Create virtual device..." button. Pick a device from the phone list and click "next". Choose an OS version 5.0 or higher and click next. 
+Once you have the project loaded, we need to set up a test device. You can do this by opening the Tools menu and selecting the AVD Manager. Click the "+ Create virtual device..." button. Pick a device from the phone list and click "next". Choose an OS version 5.0 or higher and click next. <<TODO: finish>>
 
