@@ -7,32 +7,92 @@
     android:background="@drawable/background_gray"
     tools:context=".match.activity.MatchActivity">
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+    <include
+        android:id="@+id/participant_info_bar"
+        layout="@layout/match_component_info_bar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/chessboard"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
+        android:id="@+id/chessboard"
+        layout="@layout/match_component_chessboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/capturedBar"
+        app:layout_constraintTop_toBottomOf="@id/participant_info_bar" />
+
+    <include
+        android:id="@+id/capturedBar"
+        layout="@layout/match_component_captured_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/chessboard" />
+
+    <FrameLayout
+        android:id="@+id/fadeFrameLayoutBottom"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/participant_info_bar"
+        tools:visibility="gone">
+
+        <ImageView
+            android:id="@+id/bottomFadeImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:srcCompat="@color/OutOfFocusFadeColor" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/matchResultFrameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/participant_info_bar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone">
+
+        <include
+            layout="@layout/match_component_dialog_show_result"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/promotionChoiceDialogFrameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/participant_info_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone">
+
+        <include
+            layout="@layout/match_component_dialog_promotion_choice"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/leaveMatchDialogFrameLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:visibility="invisible"
+        tools:visibility="gone">
 
         <include
-            android:id="@+id/participant_info_bar"
-            layout="@layout/fragment_match_info_bar"
+            layout="@layout/match_component_dialog_leave_match"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent" />
 
-        <include
-            android:id="@+id/chessboard"
-            layout="@layout/fragment_chessboard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <include
-            android:id="@+id/capturedBar"
-            layout="@layout/fragment_captured_bar"
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent" />
-
-    </LinearLayout>
+    </FrameLayout>
 
 </android.support.constraint.ConstraintLayout>

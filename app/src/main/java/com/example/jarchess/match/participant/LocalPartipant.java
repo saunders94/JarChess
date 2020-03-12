@@ -1,10 +1,11 @@
 package com.example.jarchess.match.participant;
 
 import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.move.Move;
+import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.resignation.ResignationEvent;
 import com.example.jarchess.match.resignation.ResignationException;
 import com.example.jarchess.match.styles.AvatarStyle;
-import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.testmode.TestableCurrentTime;
 
@@ -73,17 +74,20 @@ public abstract class LocalPartipant implements MatchParticipant {
         long start, end, elapsed;
         Move move;
 
-        if(controller == null) {
+        if (controller == null) {
             throw new IllegalStateException("controller is null when takeTurn is called");
         }
 
         start = TestableCurrentTime.currentTimeMillis();
-        move = controller.getMove(this.getColor()); // at the moment we assume the move is valid
+        move = controller.getMove(this.getColor());
+
+        Piece.PromotionChoice promotionChoice = controller.getPromotionChoice(move);
+
         end = TestableCurrentTime.currentTimeMillis();
 
         elapsed = end - start;
 
-        return new Turn(this.color, move, elapsed);
+        return new Turn(this.color, move, elapsed, promotionChoice);
     }
 
     /**

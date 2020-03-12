@@ -7,7 +7,12 @@ import androidx.annotation.Nullable;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
+import com.example.jarchess.match.datapackage.JSONConvertable;
+import com.example.jarchess.match.datapackage.JSONConverter;
 import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -37,7 +42,7 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
      * @param type             the type of the piece
      * @param startingPosition the starting position of the piece
      */
-    public Piece(ChessColor color, Type type, Coordinate startingPosition) {
+    public Piece(@NonNull ChessColor color, @NonNull Type type, @NonNull Coordinate startingPosition) {
         this.color = color;
         this.type = type;
         this.startingPosition = startingPosition;
@@ -46,7 +51,7 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
         isClone = false;
     }
 
-    public Piece(Piece pieceToCopy) {
+    public Piece(@NonNull Piece pieceToCopy) {
         this(pieceToCopy.color, pieceToCopy.type, pieceToCopy.startingPosition);
         hasMoved = pieceToCopy.hasMoved;
         movementPatterns.addAll(pieceToCopy.movementPatterns);
@@ -67,6 +72,7 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
      *
      * @return the <code>Piece.Type</code> of this piece.
      */
+    @NonNull
     public Type getType() {
         return type;
     }
@@ -182,6 +188,74 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
         return clone;
     }
 
+    public enum PromotionChoice implements JSONConvertable<PromotionChoice> {
+        PROMOTE_TO_ROOK(0, Type.ROOK),
+        PROMOTE_TO_KNIGHT(1, Type.KNIGHT),
+        PROMOTE_TO_BISHOP(2, Type.BISHOP),
+        PROMOTE_TO_QUEEN(3, Type.QUEEN),
+        ;
+
+        public static final JSONConverter<PromotionChoice> JSON_CONVERTER = PromotionChoice.PromotionChoiceJSONConverter.getInstance();
+        public static final String JSON_PROPERTY_NAME_NAME = "name";
+        public static final String JSON_PROPERTY_NAME_INT_VALUE = "intValue";
+
+        private final int intValue;
+        private final Type pieceType;
+
+        PromotionChoice(int intValue, Type pieceType) {
+            this.intValue = intValue;
+            this.pieceType = pieceType;
+        }
+
+        public static PromotionChoice getFromInt(int i) {
+            return values()[i];
+        }
+
+        public int getIntValue() {
+            return intValue;
+        }
+
+        public Type getPieceType() {
+            return pieceType;
+        }
+
+        @Override
+        public JSONObject getJSONObject() throws JSONException {
+            return new JSONObject().put(JSON_PROPERTY_NAME_NAME, toString()).put(JSON_PROPERTY_NAME_INT_VALUE, intValue);
+        }
+
+        public static class PromotionChoiceJSONConverter extends JSONConverter<PromotionChoice> {
+
+            private static PromotionChoiceJSONConverter instance;
+
+            /**
+             * Creates an instance of <code>PromotionChoiceJSONConverter</code> to construct a singleton instance
+             */
+            private PromotionChoiceJSONConverter() {
+
+            }
+
+            /**
+             * Gets the instance.
+             *
+             * @return the instance.
+             */
+            public static PromotionChoiceJSONConverter getInstance() {
+                if (instance == null) {
+                    instance = new PromotionChoiceJSONConverter();
+                }
+
+                return instance;
+            }
+
+
+            @Override
+            public PromotionChoice convertFromJSONObject(@NonNull JSONObject jsonObject) throws JSONException {
+                return PromotionChoice.getFromInt(jsonObject.getInt(JSON_PROPERTY_NAME_INT_VALUE));
+            }
+        }
+    }
+
     /**
      * The types of chess pieces.
      */
@@ -193,6 +267,9 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
         QUEEN(4),
         KING(5);
 
+
+        public static final String JSON_PROPERTY_NAME_NAME = "name";
+        public static final String JSON_PROPERTY_NAME_INT_VALUE = "intValue";
         int intValue;
 
         /**
@@ -202,6 +279,10 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
          */
         Type(int i) {
             intValue = i;
+        }
+
+        public static Type getFromInt(int i) {
+            return Type.values()[i];
         }
 
         /**

@@ -206,18 +206,19 @@ public class Datapackage implements JSONConvertable<Datapackage> {
 
             DatapackageType type = DatapackageType.JSON_CONVERTER.convertFromJSONObject(jsonObject.getJSONObject(JSON_PROPERTY_NAME_TYPE));
 
+            Turn turn = null;
+            if (!jsonObject.isNull(JSON_PROPERTY_NAME_TURN)) {
+                turn = Turn.JSON_CONVERTER.convertFromJSONObject(jsonObject.getJSONObject(JSON_PROPERTY_NAME_TURN));
+            }
+
             switch (type) {
 
                 case TURN:
-                    return getDatapackageFromJSONObjectOfTurn(jsonObject.getJSONObject(JSON_PROPERTY_NAME_TURN));
+                    return new Datapackage(turn);
 
                 default:
                     return new Datapackage(type);
             }
-        }
-
-        private Datapackage getDatapackageFromJSONObjectOfTurn(JSONObject turnJSON) throws JSONException {
-            return new Datapackage(Turn.JSON_CONVERTER.convertFromJSONObject(turnJSON.getJSONObject(JSON_PROPERTY_NAME_TURN)));
         }
     }
 

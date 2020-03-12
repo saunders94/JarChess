@@ -17,6 +17,7 @@ import com.example.jarchess.match.activity.CommitButtonClickHandler;
 import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.result.Result;
 import com.example.jarchess.match.styles.ChessboardStyle;
 import com.example.jarchess.match.styles.ChesspieceStyle;
 
@@ -43,8 +44,11 @@ public class MatchView extends View {
     private final int leftParticipantTextColor;
     private final int rightParticipantTextColor;
     private final Button commitButton;
+    private final LeaveMatchDialog leaveMatchDialog;
     private final CommitButtonClickHandler commitButtonClickHandler;
     private final CapturedPiecesView capturedPieceView;
+    private final MatchResultDialog matchResultDialog;
+    private final PawnPromotionChoiceDialog pawnPromotionChoiceDialog;
 
     public MatchView(Match match, MatchActivity activity) {
         super(activity.getBaseContext());
@@ -62,7 +66,9 @@ public class MatchView extends View {
         rightParticipantTimeTextView = rightParticipantInfoView.findViewById(R.id.timeTextView);
         rightParticipantAvatarImageView = rightParticipantInfoView.findViewById(R.id.avatarImageView);
         commitButton = participantInfoBarView.findViewById(R.id.commitButton);
-
+        leaveMatchDialog = new LeaveMatchDialog(activity);
+        matchResultDialog = new MatchResultDialog(activity);
+        pawnPromotionChoiceDialog = new PawnPromotionChoiceDialog(activity);
 
         commitButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -75,7 +81,6 @@ public class MatchView extends View {
         // update the view's style
         ChesspieceStyle chesspieceStyle = JarAccount.getInstance().getPieceStyle();
         ChessboardStyle chessboardStyle = JarAccount.getInstance().getBoardStyle();
-
 
         if (match instanceof PlayerMatch) {
 
@@ -160,4 +165,17 @@ public class MatchView extends View {
     public void addCapturedPiece(Piece capturedPiece) {
         capturedPieceView.add(capturedPiece);
     }
+
+    public void showMatchResultDialog(Result matchResult) {
+        matchResultDialog.show(matchResult);
+    }
+
+    public void showLeaveMatchDialog() {
+        leaveMatchDialog.show();
+    }
+
+    public void showPawnPromotionChoiceDialog() {
+        pawnPromotionChoiceDialog.show();
+    }
+
 }

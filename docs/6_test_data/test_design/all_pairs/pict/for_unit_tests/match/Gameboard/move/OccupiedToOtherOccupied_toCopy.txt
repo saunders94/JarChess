@@ -1,4 +1,4 @@
-start	origin color	origin piece	origin file-column	origin rank-row	destination color	destination piece	destination file-column	destination rank-row	end
+start	originInput color	originInput piece	originInput file-column	originInput rank-row	destinationInput color	destinationInput piece	destinationInput file-column	destinationInput rank-row	end
 {	Piece.Color.WHITE,	Pawn.class, Pawn.class.getSimpleName(),	'g', 6,	6, 2,	Piece.Color.BLACK,	King.class, King.class.getSimpleName(),	'e', 4,	6, 2,	},
 {	Piece.Color.BLACK,	King.class, King.class.getSimpleName(),	'g', 6,	5, 3,	Piece.Color.WHITE,	Rook.class, Rook.class.getSimpleName(),	'b', 1,	2, 6,	},
 {	Piece.Color.BLACK,	Rook.class, Rook.class.getSimpleName(),	'd', 3,	6, 2,	Piece.Color.WHITE,	Knight.class, Knight.class.getSimpleName(),	'h', 7,	4, 4,	},

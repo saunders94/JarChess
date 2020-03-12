@@ -1,0 +1,18 @@
+# Pict Model
+# com.example.jarchess.match.GameboardUnitTest.Move.OccupiedToOtherOccupied
+# occupied to other ocupied move
+
+originInput file: 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'
+originInput rank: 1, 2, 3, 4, 5, 6, 7, 8
+destinationInput file: 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'
+destinationInput rank: 1, 2, 3, 4, 5, 6, 7, 8
+turn color: BLACK, WHITE
+time: Long.MIN_VALUE, -1L, 0L, 1L, Long.MAX_VALUE
+piece: null, ROOK, KNIGHT, BISHOP, QUEEN
+
+#
+# for these tests we are not trying to move to the same space
+#
+IF [originInput file] = [destinationInput file]
+THEN [originInput rank] <> [destinationInput rank];
+

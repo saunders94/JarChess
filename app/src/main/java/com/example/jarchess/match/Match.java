@@ -1,18 +1,30 @@
 package com.example.jarchess.match;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
+import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.LocalParticipantController;
 import com.example.jarchess.match.participant.LocalPartipant;
 import com.example.jarchess.match.participant.MatchParticipant;
+import com.example.jarchess.match.pieces.Bishop;
+import com.example.jarchess.match.pieces.Knight;
+import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.pieces.Queen;
+import com.example.jarchess.match.pieces.Rook;
 import com.example.jarchess.match.resignation.ResignationEventManager;
 import com.example.jarchess.match.resignation.ResignationException;
 import com.example.jarchess.match.resignation.ResignationListener;
+import com.example.jarchess.match.result.CheckmateResult;
+import com.example.jarchess.match.result.Result;
+import com.example.jarchess.match.result.StalemateDrawResult;
 import com.example.jarchess.match.turn.Turn;
 
 import java.util.Collection;
 
+import static androidx.constraintlayout.widget.Constraints.TAG;
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
 
@@ -22,12 +34,12 @@ public abstract class Match implements ResignationListener {
     private final MatchHistory matchHistory;
     private final MatchParticipant blackPlayer;
     private final MatchParticipant whitePlayer;
-    private final Gameboard gameboard;
+    private final Chessboard chessboard;
+    private final MoveExpert moveExpert;
     private ChessColor winner;
     private boolean isDone;
     private Result matchResult = null;
     private LocalParticipantController localParticipantController;
-    private final MoveExpert moveExpert;
 
     public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2) {
 
@@ -37,8 +49,8 @@ public abstract class Match implements ResignationListener {
         resignationEventManager.addListener(participant2);
 
 
-        gameboard = new Gameboard();
-        gameboard.reset();
+        chessboard = new Chessboard();
+        chessboard.reset();
         this.blackPlayer = participant1.getColor() == BLACK ? participant1 : participant2;
         this.whitePlayer = participant1.getColor() == WHITE ? participant1 : participant2;
 
@@ -83,7 +95,7 @@ public abstract class Match implements ResignationListener {
     }
 
     public Piece getPieceAt(@NonNull Coordinate coordinate) {
-        return gameboard.getPieceAt(coordinate);
+        return chessboard.getPieceAt(coordinate);
     }
 
     public Turn getFirstTurn() throws ResignationException, InterruptedException {
@@ -112,52 +124,73 @@ public abstract class Match implements ResignationListener {
     }
 
     public Collection<Coordinate> getPossibleMoves(Coordinate origin) {
-        return moveExpert.getLegalDestinations(origin, gameboard);
+        return moveExpert.getLegalDestinations(origin, chessboard);
     }
 
     public void move(Coordinate origin, Coordinate destination) {
-        gameboard.move(origin, destination);
+        chessboard.move(origin, destination);
     }
 
-    public Piece capture(Coordinate destination)
-    {
-        return gameboard.remove(destination);
+    public Piece capture(Coordinate destination) {
+        return chessboard.remove(destination);
     }
 
     public void checkForGameEnd(ChessColor nextTurnColor) {
-        moveExpert.hasMoves(nextTurnColor, gameboard);
-    }
-
-    public class Result {
-        private final MatchParticipant blackParticipant;
-        private final MatchParticipant whiteParticipant;
-        private final MatchParticipant winner = null;
-
-        public Result(Match match) {
-            if (!match.isDone()) {
-                throw new IllegalArgumentException("Cannot getRandom result of an in-progress match");
+        if (!moveExpert.hasMoves(nextTurnColor, chessboard)) {
+            if (moveExpert.isInCheck(nextTurnColor, chessboard)) {
+                isDone = true;
+                matchResult = new CheckmateResult(ChessColor.getOther(nextTurnColor));
+            } else {
+                isDone = true;
+                matchResult = new StalemateDrawResult();
             }
-            if (match.matchResult != null) {
-                throw new IllegalArgumentException("Cannot make a match result for a match who already has a result");
-            }
-            this.blackParticipant = match.blackPlayer;
-            this.whiteParticipant = match.whitePlayer;
-        }
+        } else {
+            // TODO handle our implementation of repeated board state draw
+            // I have a tendency to want to do the 5 time version that requires no
 
-        public MatchParticipant getBlackParticipant() {
-            return blackParticipant;
-        }
+            // TODO handle 50 move draw
 
-        public MatchParticipant getWhiteParticipant() {
-            return whiteParticipant;
-        }
+            // TODO imposibility of check draw handling
 
-        public boolean wasDraw() {
-            return winner == null;
         }
     }
 
-    public ResignationEventManager addResignationListener(ResignationListener listener) {
-        return resignationEventManager;
+    public Result getMatchResult() {
+        return matchResult;
+    }
+
+    public Collection<? extends PieceMovement> getLegalCastleMovements(Coordinate origin, Coordinate destination) {
+        return moveExpert.getLegalCastleMovements(origin, destination, chessboard);
+    }
+
+    public void promote(Coordinate coordinate, Piece.PromotionChoice choice) {
+        Log.d(TAG, "promote is running on thread: " + Thread.currentThread().getName());
+        Log.d(TAG, "promote() called with: coordinate = [" + coordinate + "], choice = [" + choice + "]");
+        Piece oldPiece = chessboard.getPieceAt(coordinate);
+
+        if (oldPiece instanceof Pawn) {
+            Pawn pawn = (Pawn) oldPiece;
+            Piece newPiece;
+
+            switch (choice.getPieceType()) {
+                case ROOK:
+                    newPiece = new Rook(pawn);
+                    break;
+                case KNIGHT:
+                    newPiece = new Knight(pawn);
+                    break;
+                case BISHOP:
+                    newPiece = new Bishop(pawn);
+                    break;
+                case QUEEN:
+                    newPiece = new Queen(pawn);
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value piece type from promotion choice: " + choice.getPieceType());
+            }
+
+            chessboard.remove(coordinate);
+            chessboard.add(newPiece, coordinate);
+        }
     }
 }

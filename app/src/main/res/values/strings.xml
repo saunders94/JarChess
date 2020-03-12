@@ -6,4 +6,9 @@
     <string name="resign">Resign</string>
     <string name="pause">Pause</string>
     <string name="commit">Commit</string>
+    <string name="request_draw">Request Draw</string>
+    <string name="match_result">Match Result</string>
+    <string name="what_would_you_like_to_promote_the_pawn_to">What would you like to promote the pawn to?</string>
+    <string name="back_to_game">Back to Game</string>
+    <string name="pawn_promotion">Pawn Promotion</string>
 </resources>

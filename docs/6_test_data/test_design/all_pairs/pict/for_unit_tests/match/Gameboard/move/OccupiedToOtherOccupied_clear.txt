@@ -1,4 +1,4 @@
-origin color	origin piece	origin file	origin rank	destination color	destination piece	destination file	destination rank
+originInput color	originInput piece	originInput file	originInput rank	destinationInput color	destinationInput piece	destinationInput file	destinationInput rank
 WHITE	Knight	b	4	WHITE	Bishop	b	1
 BLACK	Rook	c	2	BLACK	Rook	a	5
 BLACK	Bishop	e	1	BLACK	Knight	b	6

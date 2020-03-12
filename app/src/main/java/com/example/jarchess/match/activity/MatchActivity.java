@@ -6,13 +6,16 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.jarchess.JarAccount;
 import com.example.jarchess.R;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
+import com.example.jarchess.match.MatchHistory;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.LocalParticipantController;
+import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.resignation.ResignationEvent;
 import com.example.jarchess.match.resignation.ResignationException;
@@ -22,6 +25,8 @@ import com.example.jarchess.match.view.MatchView;
 
 import java.util.Collection;
 import java.util.LinkedList;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
 
 /**
  * A match activity is an activity where two participants play a chess match with each other.
@@ -39,10 +44,13 @@ public abstract class MatchActivity extends AppCompatActivity
     private volatile ChessColor waitingForMove;
     private volatile Move move;
     private volatile ResignationEvent resignationDetected;
+    private volatile Piece.PromotionChoice promotionChoiceInput = null;
     private Match match;
-    private Coordinate origin;
-    private Coordinate destination;
+    private MatchHistory matchHistory;
+    private Coordinate originInput;
+    private Coordinate destinationInput;
     private MatchView matchView;
+    private boolean resultWasShown = false;
 
     public MatchActivity() {
         this.possibleDestinations = new LinkedList<Coordinate>();
@@ -58,7 +66,7 @@ public abstract class MatchActivity extends AppCompatActivity
         // set match to the current match
         match = createMatch();
         match.setLocalParticipantController(this);
-        match.addResignationListener(this);
+        matchHistory = match.getMatchHistory();
 
         setContentView(R.layout.activity_match);
         matchView = new MatchView(match, this);
@@ -75,143 +83,138 @@ public abstract class MatchActivity extends AppCompatActivity
         Log.d("MatchActivity", "created");
     }
 
+    @Override
+    public void onBackPressed() {
+        if (resultWasShown) {
+            super.onBackPressed();
+        } else {
+            matchView.showLeaveMatchDialog();
+        }
+    }
+
+
     /**
      * {@inheritDoc}
      */
     @Override
     public synchronized void observeSquareClick(Coordinate coordinateClicked) {
         // log the click
-        log("clicked " + coordinateClicked);
+        Log.d(TAG, "observeSquareClick() called with: coordinateClicked = [" + coordinateClicked + "]");
 
 
-        Piece piece = match.getPieceAt(coordinateClicked);
+        Piece clickedPiece = match.getPieceAt(coordinateClicked);
         if (waitingForMove != null) {
             // Than one of the participants is waiting for a move.
 
-            if (piece != null && piece.getColor() == waitingForMove && origin != coordinateClicked) {
+            if (clickedPiece != null && clickedPiece.getColor() == waitingForMove && originInput != coordinateClicked) {
                 // If the square has a piece and it is the color of the waiting participant
-                // and it is not already the current origin,
+                // and it is not already the current originInput,
                 //
-                // than we assume that the click indicates that the user intends to set that square as the new origin of the move
+                // than we assume that the click indicates that the user intends to set that square as the new originInput of the move
 
-                // set the origin
-                setOrigin(coordinateClicked);
+                // set the originInput
+                setOriginInput(coordinateClicked);
 
-                // clear any garbage destination.
+                // clear any garbage destinationInput.
                 clearDestination();
 
 
-            } else if (origin != null && possibleDestinations.contains(coordinateClicked)) {
-                // If the origin was already set
+            } else if (originInput != null && possibleDestinations.contains(coordinateClicked)) {
+
+                // If the originInput was already set
                 // and the square was empty or had a piece that was a different color than the participant waiting for a move to be input,
                 // and the square is in the set of possible destinations
                 //
-                // than we assume that the click indicates that the user intends to set that square as the destination of the move.
+                // than we assume that the click indicates that the user intends to set that square as the destinationInput of the move.
 
-                setDestination(coordinateClicked);
+                setDestinationInput(coordinateClicked);
+
+                if (!commitButtonClickRequired()) {
+                    handleCommitButtonClick();
+                }
 
             }
+
         }
 
     }
 
+    private boolean commitButtonClickRequired() {
+        return JarAccount.getInstance().getCommitButtonClickIsRequired();
+    }
+
     /**
-     * clears the origin
+     * clears the originInput
      */
     private void clearOrigin() {
+        Log.d(TAG, "clearOrigin() called");
 
-        if (origin == null) {
+        if (originInput == null) {
             return;
         }
-        matchView.clearOriginSelectionIndicator(origin);
+        matchView.clearOriginSelectionIndicator(originInput);
         for (Coordinate possibleDestination : possibleDestinations) {
             matchView.clearPossibleDestinationIndicator(possibleDestination);
         }
 
-        this.origin = null;
+        this.originInput = null;
         possibleDestinations.clear();
-        log("cleared origin");
     }
 
     /**
-     * clears the destination
+     * clears the destinationInput
      */
     private void clearDestination() {
+        Log.d(TAG, "clearDestination() called");
 
-        if (destination == null) {
+        if (destinationInput == null) {
             return;
         }
 
-        matchView.clearDestinationSelectionIndicator(destination);
+        matchView.clearDestinationSelectionIndicator(destinationInput);
 
-        this.destination = null;
-        log("cleared destination");
+        this.destinationInput = null;
     }
 
     /**
-     * Sets the origin.
+     * Sets the originInput.
      *
-     * @param origin the origin coordinate to set to, not null
+     * @param originInput the originInput coordinate to set to, not null
      */
-    private void setOrigin(@NonNull Coordinate origin) {
+    private void setOriginInput(@NonNull Coordinate originInput) {
+        Log.d(TAG, "setOriginInput() called with: originInput = [" + originInput + "]");
 
         clearOrigin();
         clearDestination();
-        this.origin = origin;
-        possibleDestinations.addAll(match.getPossibleMoves(origin));
-        matchView.setOriginSelectionIndicator(origin);
+        this.originInput = originInput;
+        possibleDestinations.addAll(match.getPossibleMoves(originInput));
+        matchView.setOriginSelectionIndicator(originInput);
         for (Coordinate possibleDestination : possibleDestinations) {
             matchView.setPossibleDestinationIndicator(possibleDestination);
         }
-        log("set origin to " + this.origin);
 
     }
 
     /**
-     * Sets the destination.
+     * Sets the destinationInput.
      *
-     * @param destination the destination coordinate to set to, not null
+     * @param destinationInput the destinationInput coordinate to set to, not null
      */
-    private void setDestination(@NonNull Coordinate destination) {
+    private void setDestinationInput(@NonNull Coordinate destinationInput) {
+        Log.d(TAG, "setDestinationInput() called with: destinationInput = [" + destinationInput + "]");
 
-        if (this.destination != null) {
-            matchView.setPossibleDestinationIndicator(this.destination);
+        if (this.destinationInput != null) {
+            matchView.setPossibleDestinationIndicator(this.destinationInput);
         }
-        this.destination = destination;
-        matchView.setDestinationSelectionIndicator(destination);
-        log("set destination to " + this.destination);
+        this.destinationInput = destinationInput;
+        matchView.setDestinationSelectionIndicator(destinationInput);
 
     }
 
-    /**
-     * Logs a message as a debug message.
-     *
-     * @param msg the message to log
-     */
-    private void log(String msg) {
-        Log.d("MatchActivity on " + Thread.currentThread().getName() + ": ", msg);
-    }
-
-    private void logError(String msg) {
-
-        Log.d("MatchActivity on " + Thread.currentThread().getName() + ": ", msg);
-
-    }
-
-////    TODO remove this if not needed
-//    /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    public synchronized void requestMove(ChessColor color) {
-//        log("move was requested by " + color.toString());
-//        waitingForMove = color;
-//    }
 
     @Override
     public synchronized Move getMove(ChessColor color) throws InterruptedException, ResignationException {
-
-        log(color + " is waiting for move");
+        Log.d(TAG, "getMove() called with: color = [" + color + "]");
 
         // clear all of the move related fields to make sure we start fresh.
         move = null;
@@ -224,7 +227,6 @@ public abstract class MatchActivity extends AppCompatActivity
         // wait until move is made
         waitForMove();
 
-        log(color + " should receive move " + move);
         // return the move
         return move;
     }
@@ -267,6 +269,16 @@ public abstract class MatchActivity extends AppCompatActivity
         } catch (InterruptedException e2) {
             match.setIsDone(true);
         }
+
+        showMatchResutl();
+    }
+
+    private void showMatchResutl() {
+        Log.d(TAG, "showMatchResutl() called");
+        Log.d(TAG, "showMatchResutl: " + match.getMatchResult());
+        resultWasShown = true;
+
+        matchView.showMatchResultDialog(match.getMatchResult());
     }
 
 
@@ -280,6 +292,7 @@ public abstract class MatchActivity extends AppCompatActivity
 
 
     private void execute(Turn turn) {
+        Log.d(TAG, "execute: Thread " + Thread.currentThread());
 
         Move move = turn.getMove();
         for (PieceMovement movement : move) {
@@ -289,7 +302,13 @@ public abstract class MatchActivity extends AppCompatActivity
                 matchView.addCapturedPiece(capturedPiece);
             }
             match.move(movement.getOrigin(), movement.getDestination());
+            Piece.PromotionChoice choice = turn.getPromotionChoice();
+            if (choice != null) {
+                match.promote(destination, choice);
+            }
         }
+
+        matchHistory.add(turn);
         match.checkForGameEnd(ChessColor.getOther(turn.getColor()));
     }
 
@@ -299,15 +318,68 @@ public abstract class MatchActivity extends AppCompatActivity
 
     public abstract Match createMatch();
 
-    @Override
-    public synchronized void handleCommitButtonClick() {
-        if (origin != null && destination != null) {
-            move = new Move(origin, destination);
-            log("handle click move = " + move);
+    private synchronized void commit() {
+        if (originInput != null && destinationInput != null) {
+
+            LinkedList<PieceMovement> movements = new LinkedList<PieceMovement>();
+
+            movements.addAll(match.getLegalCastleMovements(originInput, destinationInput));
+
+            if (movements.isEmpty()) {
+                movements.add(new PieceMovement(originInput, destinationInput));
+            }
+            move = new Move(movements);
+
             waitingForMove = null;
             this.notifyAll();
             clearDestination();
             clearOrigin();
         }
+    }
+
+    @Override
+    public void handleCommitButtonClick() {
+        commit();
+    }
+
+    public void observeResignButtonClick() {
+
+        // do anything we need to do before match activity ends
+
+        super.onBackPressed();
+    }
+
+    public void observeResultAcknowledgement() {
+        // do anything we need to do before match activity ends
+
+        super.onBackPressed();
+    }
+
+    @Override
+    public synchronized Piece.PromotionChoice getPromotionChoice(Move move) throws InterruptedException {
+
+        promotionChoiceInput = null;
+
+        Piece p;
+        for (PieceMovement movement : move) {
+            p = match.getPieceAt(movement.getOrigin());
+
+
+            if (p instanceof Pawn && (movement.getDestination().getRank() == 1 || movement.getDestination().getRank() == 8)) {
+
+                this.notifyAll();
+                matchView.showPawnPromotionChoiceDialog();
+                while (promotionChoiceInput == null) {
+                    this.wait();
+                }
+            }
+        }
+
+        return promotionChoiceInput;
+    }
+
+    public synchronized void setPromotionChoiceInput(Piece.PromotionChoice promoteToRook) {
+        promotionChoiceInput = promoteToRook;
+        this.notifyAll();
     }
 }

@@ -32,12 +32,12 @@ interface Collection<PieceMovement>{
 }
 
 class Move{
-+Move(origin:Coordinate, destination:Coordinate)
++Move(originInput:Coordinate, destinationInput:Coordinate)
 +Move(pieceMovement:PieceMovement)
 }
 
 class PieceMovement{
-+PieceMovement(origin:Coordinate, destination:Coordinate
++PieceMovement(originInput:Coordinate, destinationInput:Coordinate
 }
 
 
@@ -58,8 +58,8 @@ Datapackage "1" o-- "0..1" Turn: turn
 Turn "1" o- "1" Move: move
 Collection <|-down- Move
 Move "*" o-right- "*" PieceMovement:movements
-PieceMovement "*" o-right- "1" Coordinate:origin
-PieceMovement "*" o-right- "1" Coordinate:destination
+PieceMovement "*" o-right- "1" Coordinate:originInput
+PieceMovement "*" o-right- "1" Coordinate:destinationInput
 ChessColor "1" --o "*" Turn: color
 
 @enduml
