@@ -105,7 +105,7 @@ public class MatchView extends View {
 
         }
 
-        capturedPieceView = new CapturedPiecesView(activity.findViewById(R.id.capturedBar), chesspieceStyle, leftParticipant.getColor());
+        capturedPieceView = new CapturedPiecesView(activity, chesspieceStyle, leftParticipant.getColor());
 
         rightParticipant = leftParticipant.equals(match.getBlackPlayer()) ? match.getWhitePlayer() : match.getBlackPlayer();
         leftParticipantColor = leftParticipant.getColor() == BLACK ? android.graphics.Color.BLACK : android.graphics.Color.WHITE;

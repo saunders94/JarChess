@@ -6,11 +6,10 @@ import android.widget.ImageView;
 import com.example.jarchess.R;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
+import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.styles.ChesspieceStyle;
 
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
 import static com.example.jarchess.match.Coordinate.COLUMNS;
@@ -21,11 +20,14 @@ public class CapturedPiecesView {
     private final View view;
     private final ChesspieceStyle chesspieceStyle;
     private final ImageView[][][] capturedImageViews;
+    private final MatchActivity activity;
 
-    public CapturedPiecesView(View view, ChesspieceStyle chesspieceStyle, ChessColor leftParticipantColor) {
+    public CapturedPiecesView(MatchActivity matchActivity, ChesspieceStyle chesspieceStyle, ChessColor leftParticipantColor) {
 
-        this.view = view;
         this.chesspieceStyle = chesspieceStyle;
+        this.activity = matchActivity;
+        this.view = activity.findViewById(R.id.capturedBar);
+
 
         capturedImageViews = new ImageView[ChessColor.values().length][COLUMNS.length][CAPTURED_ROWS.length];
 
@@ -143,10 +145,15 @@ public class CapturedPiecesView {
         return (rowToConvert + 1) % 2;
     }
 
-    public void add(Piece pieceTOAadd){
-        ImageView imageView = getCapturedImageViewFor(pieceTOAadd.getColor(), pieceTOAadd.getStartingPosition());
+    public void add(final Piece pieceTOAadd) {
+        final ImageView imageView = getCapturedImageViewFor(pieceTOAadd.getColor(), pieceTOAadd.getStartingPosition());
 
-        imageView.setImageResource(chesspieceStyle.getResourceID(pieceTOAadd));
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                imageView.setImageResource(chesspieceStyle.getResourceID(pieceTOAadd));
+            }
+        });
     }
 
     private ImageView getCapturedImageViewFor(ChessColor color, Coordinate startingCoordinate){

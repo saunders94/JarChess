@@ -2,5 +2,8 @@
 <resources>
     <dimen name="text_margin">16dp</dimen>
     <dimen name="match_top_bar_height">150dp</dimen>
-    <dimen name="MatchDialogTitleSize">50dp</dimen>
+    <dimen name="MatchDialogTitleSize">32sp</dimen>
+    <dimen name="MatchDialogBodySize">20sp</dimen>
+    <dimen name="MatchDialogBodyPadding">15dp</dimen>
+    <dimen name="MatchDialogTitlePadding">5dp</dimen>
 </resources>
