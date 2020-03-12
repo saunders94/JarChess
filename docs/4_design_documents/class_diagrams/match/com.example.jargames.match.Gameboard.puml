@@ -16,7 +16,7 @@ class Gameboard{
 
 + remove(Coordinate):Piece
 + promote(Coordinate, Piece.Type)
-+ move(origin:Coordinate, destination:Coordinate):void
++ move(originInput:Coordinate, destinationInput:Coordinate):void
 + isEmptyAt(Coordinate):boolean
 + getPieceAt(Coordinate):Piece
 - add(Piece.Type, Color, Coordinate):void

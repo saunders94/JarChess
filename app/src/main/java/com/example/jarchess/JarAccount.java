@@ -13,12 +13,14 @@ public class JarAccount {
     private AvatarStyle avatarStyle;
     private ChessboardStyle boardStyle;
     private ChesspieceStyle pieceStyle;
+    private boolean commitButtonClickIsRequired;
 
     private JarAccount() {
         name = "Display Name";//FIXME needs to get this from account/preference file/database
         avatarStyle = LeopardPrintAvatarStyle.getInstance();//FIXME needs to get this from preference file/database
         boardStyle = MarbleChessboardStyle.getInstance();//FIXME needs to get this from preference file/database
         pieceStyle = NeonLetterChesspieceStyle.getInstance();//FIXME needs to get this from preference file/database
+        commitButtonClickIsRequired = false;//FIXME needs to get this from preference file/database
     }
 
     public static JarAccount getInstance() {
@@ -42,5 +44,9 @@ public class JarAccount {
 
     public ChesspieceStyle getPieceStyle() {
         return pieceStyle;
+    }
+
+    public boolean getCommitButtonClickIsRequired() {
+        return commitButtonClickIsRequired;
     }
 }

@@ -129,7 +129,7 @@ public class Chessboard {
      * @param piece      The piece to be added to the chessboard
      * @param coordinate on the chessboard that the piece will be added to
      */
-    private void add(@NonNull Piece piece, @NonNull Coordinate coordinate) {
+    public void add(@NonNull Piece piece, @NonNull Coordinate coordinate) {
 
         //noinspection ConstantConditions
         if (piece == null) {
@@ -156,11 +156,13 @@ public class Chessboard {
      */
     public void move(Coordinate originCoordinate, Coordinate destinationCoordinate) {
 
-        Piece piece = getPieceAt(originCoordinate);
+        if (originCoordinate != destinationCoordinate) {
+            Piece piece = getPieceAt(originCoordinate);
 
-        add(piece, destinationCoordinate);
-        remove(originCoordinate);
-        piece.setAsMoved();
+            add(piece, destinationCoordinate);
+            remove(originCoordinate);
+            piece.setAsMoved();
+        }
     }
 
     /**
@@ -217,4 +219,59 @@ public class Chessboard {
         return getPieceAt(coordinate) == null;
     }
 
+
+    @NonNull
+    @Override
+    public String toString() {
+
+        StringBuilder s = new StringBuilder();
+
+        s.append("\n");
+        for (int r : Coordinate.ROWS) {
+            for (int c : Coordinate.COLUMNS) {
+                Coordinate coordinate = Coordinate.getByColumnAndRow(c, r);
+                Piece p = getPieceAt(coordinate);
+
+                if (p == null) {
+                    s.append("[ ]");
+                } else {
+                    char ch;
+
+                    switch (p.getType()) {
+
+                        case PAWN:
+                            ch = 'p';
+                            break;
+                        case ROOK:
+                            ch = 'r';
+                            break;
+                        case KNIGHT:
+                            ch = 'n';
+                            break;
+                        case BISHOP:
+                            ch = 'b';
+                            break;
+                        case QUEEN:
+                            ch = 'q';
+                            break;
+                        case KING:
+                            ch = 'k';
+                            break;
+
+                        default:
+                            throw new IllegalStateException("Unexpected value: " + p.getType());
+                    }
+
+                    if (p.getColor() == BLACK) {
+                        ch = Character.toUpperCase(ch);
+                    }
+
+                    s.append("[" + ch + "]");
+                }
+            }
+            s.append("\n");
+        }
+
+        return s.toString();
+    }
 }

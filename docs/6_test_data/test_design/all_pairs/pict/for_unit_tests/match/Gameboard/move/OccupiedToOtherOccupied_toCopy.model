@@ -6,25 +6,25 @@
 # use "pict OccupiedToOtherOccupied_toCopy.model /d:\; > OccupiedToOtherOccupied_toCopy.txt"
 #
 start: {
-origin color: Piece.Color.BLACK,; Piece.Color.WHITE,
-origin piece: Pawn.class, Pawn.class.getSimpleName(),; Rook.class, Rook.class.getSimpleName(),; Knight.class, Knight.class.getSimpleName(),; Bishop.class, Bishop.class.getSimpleName(),; Queen.class, Queen.class.getSimpleName(),; King.class, King.class.getSimpleName(),
-origin file-column: 'a', 0,; 'b', 1,; 'c', 2,; 'd', 3,; 'e', 4,; 'f', 5,; 'g', 6,; 'h', 7,
-origin rank-row: 1, 7,; 2, 6,; 3, 5,; 4, 4,; 5, 3,; 6, 2,; 7, 1,; 8, 0,
-destination color: Piece.Color.BLACK,; Piece.Color.WHITE,
-destination piece: Pawn.class, Pawn.class.getSimpleName(),; Rook.class, Rook.class.getSimpleName(),; Knight.class, Knight.class.getSimpleName(),; Bishop.class, Bishop.class.getSimpleName(),; Queen.class, Queen.class.getSimpleName(),; King.class, King.class.getSimpleName(),
-destination file-column: 'a', 0,; 'b', 1,; 'c', 2,; 'd', 3,; 'e', 4,; 'f', 5,; 'g', 6,; 'h', 7,
-destination rank-row: 1, 7,; 2, 6,; 3, 5,; 4, 4,; 5, 3,; 6, 2,; 7, 1,; 8, 0,
+originInput color: Piece.Color.BLACK,; Piece.Color.WHITE,
+originInput piece: Pawn.class, Pawn.class.getSimpleName(),; Rook.class, Rook.class.getSimpleName(),; Knight.class, Knight.class.getSimpleName(),; Bishop.class, Bishop.class.getSimpleName(),; Queen.class, Queen.class.getSimpleName(),; King.class, King.class.getSimpleName(),
+originInput file-column: 'a', 0,; 'b', 1,; 'c', 2,; 'd', 3,; 'e', 4,; 'f', 5,; 'g', 6,; 'h', 7,
+originInput rank-row: 1, 7,; 2, 6,; 3, 5,; 4, 4,; 5, 3,; 6, 2,; 7, 1,; 8, 0,
+destinationInput color: Piece.Color.BLACK,; Piece.Color.WHITE,
+destinationInput piece: Pawn.class, Pawn.class.getSimpleName(),; Rook.class, Rook.class.getSimpleName(),; Knight.class, Knight.class.getSimpleName(),; Bishop.class, Bishop.class.getSimpleName(),; Queen.class, Queen.class.getSimpleName(),; King.class, King.class.getSimpleName(),
+destinationInput file-column: 'a', 0,; 'b', 1,; 'c', 2,; 'd', 3,; 'e', 4,; 'f', 5,; 'g', 6,; 'h', 7,
+destinationInput rank-row: 1, 7,; 2, 6,; 3, 5,; 4, 4,; 5, 3,; 6, 2,; 7, 1,; 8, 0,
 end: },
 
 #
 # for these tests we are not trying to move to the same space
 #
-IF [origin file-column] = [destination file-column]
-THEN [origin rank-row] <> [destination rank-row];
+IF [originInput file-column] = [destinationInput file-column]
+THEN [originInput rank-row] <> [destinationInput rank-row];
 
 #
 # there should never be 2 kings of the same color
 #
-IF [origin piece] = "King.class, King.class.getSimpleName()," and [destination piece] = "King.class, King.class.getSimpleName(),"
-THEN [origin color] <> [destination color];
+IF [originInput piece] = "King.class, King.class.getSimpleName()," and [destinationInput piece] = "King.class, King.class.getSimpleName(),"
+THEN [originInput color] <> [destinationInput color];
 

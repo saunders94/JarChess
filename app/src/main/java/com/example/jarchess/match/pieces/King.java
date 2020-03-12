@@ -1,9 +1,17 @@
 package com.example.jarchess.match.pieces;
 
+import android.util.Log;
+
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
+import com.example.jarchess.match.pieces.movementpatterns.CastleMovementPattern;
 import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
 import com.example.jarchess.match.pieces.movementpatterns.MovementPatternProducer;
+
+import java.util.Collection;
+import java.util.LinkedList;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
 
 /**
  * A king is a chess piece that can move 1 square in any direction.
@@ -30,6 +38,9 @@ public class King extends Piece {//TODO write unit tests
     public static final int WHITE_STARTING_RANK = 1;
     public static final String NAME = "King";
     public static final Type TYPE = Type.KING;
+
+
+    private final Collection<CastleMovementPattern> castleMovementPatterns = new LinkedList<CastleMovementPattern>();
 
     /**
      * Creates a king
@@ -70,6 +81,15 @@ public class King extends Piece {//TODO write unit tests
         add(MovementPatternProducer.getAllKingCastleMovementPatterns(getColor()));
     }
 
+
+    @Override
+    void add(MovementPattern pattern) {
+        Log.d(TAG, "add() called with: CastleMovementPattern pattern = [" + pattern + "]");
+        super.add(pattern);
+        if (pattern instanceof CastleMovementPattern)
+            castleMovementPatterns.add((CastleMovementPattern) pattern);
+    }
+
     /**
      * Makes the starting coordinate of a king of the given color.
      *
@@ -86,5 +106,9 @@ public class King extends Piece {//TODO write unit tests
         // create and return the coordinate.
         startingCoordinate = Coordinate.getByFileAndRank(STARTING_FILE, startingRank);
         return startingCoordinate;
+    }
+
+    public Collection<CastleMovementPattern> getCastleMovementPatterns() {
+        return castleMovementPatterns;
     }
 }

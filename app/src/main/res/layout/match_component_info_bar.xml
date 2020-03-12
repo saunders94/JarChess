@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/captureBarLayout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     tools:context=".match.activity.MatchActivity"
     tools:showIn="@layout/activity_match">
 
@@ -17,7 +17,7 @@
 
         <include
             android:id="@+id/player_info"
-            layout="@layout/fragment_match_info_bar_participant"
+            layout="@layout/match_component_info_bar_participant"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             tools:layout_conversion_absoluteHeight="147dp"
@@ -37,23 +37,11 @@
                 android:layout_weight="1" />
 
             <Button
-                android:id="@+id/resignButton"
+                android:id="@+id/pauseButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/custom_button"
-                android:text="@string/resign" />
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <Button
-                android:id="@+id/drawRequestButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/custom_button"
-                android:text="@string/request_draw" />
+                android:text="@string/pause" />
 
             <Space
                 android:layout_width="match_parent"
@@ -75,9 +63,9 @@
 
         <include
             android:id="@+id/opponent_info"
-            layout="@layout/fragment_match_info_bar_participant"
+            layout="@layout/match_component_info_bar_participant"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             tools:layout_conversion_absoluteHeight="147dp"
             tools:layout_conversion_absoluteWidth="128dp" />
 
