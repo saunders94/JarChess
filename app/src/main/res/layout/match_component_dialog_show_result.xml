@@ -21,8 +21,7 @@
             android:padding="15dp"
             android:scrollHorizontally="false"
             android:text="@string/match_result"
-            android:textColor="@android:color/primary_text_dark"
-            android:textSize="@dimen/MatchDialogTitleSize" />
+            android:textAppearance="@style/CustomDialogTitle" />
     </TableRow>
 
     <TableRow

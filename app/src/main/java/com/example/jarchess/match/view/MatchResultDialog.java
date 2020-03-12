@@ -1,6 +1,8 @@
 package com.example.jarchess.match.view;
 
+import android.support.constraint.ConstraintLayout;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -12,8 +14,9 @@ import com.example.jarchess.match.result.Result;
 
 class MatchResultDialog {
 
+    private static final int MINIMUM_HEIGHT = 120;
     private final MatchActivity activity;
-    private View view;
+    private ViewGroup viewGroup;
     private View backgroundFadeView;
     private TextView titleTextView;
     private TextView bodyTextView;
@@ -23,13 +26,13 @@ class MatchResultDialog {
         activity = matchActivity;
 
 
-        view = activity.findViewById(R.id.matchResultFrameLayout);
+        viewGroup = activity.findViewById(R.id.matchResultFrameLayout);
 
         backgroundFadeView = activity.findViewById(R.id.fadeFrameLayoutBottom);
-        titleTextView = view.findViewById(R.id.resultTitleTextView);
-        bodyTextView = view.findViewById(R.id.resultResultTextView);
+        titleTextView = viewGroup.findViewById(R.id.resultTitleTextView);
+        bodyTextView = viewGroup.findViewById(R.id.resultResultTextView);
 
-        okButton = view.findViewById(R.id.matchResultOKButton);
+        okButton = viewGroup.findViewById(R.id.matchResultOKButton);
 
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,7 +54,7 @@ class MatchResultDialog {
             @Override
             public void run() {
                 backgroundFadeView.setVisibility(View.INVISIBLE);
-                view.setVisibility(View.INVISIBLE);
+                viewGroup.setVisibility(View.INVISIBLE);
             }
         });
     }
@@ -64,7 +67,11 @@ class MatchResultDialog {
             public void run() {
                 bodyTextView.setText(msg);
                 backgroundFadeView.setVisibility(View.VISIBLE);
-                view.setVisibility(View.VISIBLE);
+
+                if (backgroundFadeView.getTop() < MINIMUM_HEIGHT) {
+                    viewGroup.setLayoutParams(new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT));
+                }
+                viewGroup.setVisibility(View.VISIBLE);
             }
         });
     }
