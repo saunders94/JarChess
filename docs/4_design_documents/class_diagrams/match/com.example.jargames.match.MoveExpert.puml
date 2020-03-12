@@ -1,0 +1,20 @@
+@startuml
+!include com.example.jargames.match.Move.puml
+!include com.example.jargames.match.MoveHistory.puml
+class MoveExpert{
+    +getDestinations(originCoordinate:Coordinate):Collection<Coordinate>
+    +getMoves(originCoordinate:Coordinate):Collection<Move>
+    +isValid(Move):boolean
+}
+
+class MoveHistory{
+}
+
+MoveExpert x--> Move
+MoveExpert x--> Gameboard
+MoveExpert x--> MoveHistory
+note on link #faa: Do we need access to move history?
+
+
+
+@enduml

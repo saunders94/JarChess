@@ -1,0 +1,65 @@
+@startuml
+
+class Datapackage{
++Datapackage(turn:Turn)
++Datapackage(datapackageType:DatapackageType)
+}
+
+enum DatapackageType{
+        TURN
+        RESIGNATION
+        PAUSE_REQUEST
+        PAUSE_ACCEPT
+        PAUSE_REJECT
+}
+
+
+class Turn{
+-elapsedTime:long
++Turn(color:ChessColor, move:Move, elapsedTime:long)
+}
+
+
+enum ChessColor{
+BLACK
+WHITE
+{static} getOther(color:ChessColor):ChessColor
+{static} getRandom():ChessColor
+}
+
+interface Collection<PieceMovement>{
+
+}
+
+class Move{
++Move(originInput:Coordinate, destinationInput:Coordinate)
++Move(pieceMovement:PieceMovement)
+}
+
+class PieceMovement{
++PieceMovement(originInput:Coordinate, destinationInput:Coordinate
+}
+
+
+
+class Coordinate{
+-file
+-rank
+-row
+-column
++ {static}getByColumnAndRow(column:int, row:int):Coordinate)
++ {static}getByFileAndRank(file:char, rank:int):Coordinate)
+}
+
+
+Datapackage --+ DatapackageType
+DatapackageType "1" --o "*" Datapackage: datapackageType
+Datapackage "1" o-- "0..1" Turn: turn
+Turn "1" o- "1" Move: move
+Collection <|-down- Move
+Move "*" o-right- "*" PieceMovement:movements
+PieceMovement "*" o-right- "1" Coordinate:originInput
+PieceMovement "*" o-right- "1" Coordinate:destinationInput
+ChessColor "1" --o "*" Turn: color
+
+@enduml

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/captureBarLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".match.activity.MatchActivity"
+    tools:showIn="@layout/activity_match">
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <include
+            android:id="@+id/player_info"
+            layout="@layout/match_component_info_bar_participant"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            tools:layout_conversion_absoluteHeight="147dp"
+            tools:layout_conversion_absoluteWidth="128dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp">
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/pauseButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/custom_button"
+                android:text="@string/pause" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/commitButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/custom_button"
+                android:text="@string/commit" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <include
+            android:id="@+id/opponent_info"
+            layout="@layout/match_component_info_bar_participant"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            tools:layout_conversion_absoluteHeight="147dp"
+            tools:layout_conversion_absoluteWidth="128dp" />
+
+    </LinearLayout>
+
+
+</android.support.constraint.ConstraintLayout>

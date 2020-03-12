@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <drawable name="chessboardDarkSquareImg">@drawable/chessboard_square_dark_marble</drawable>
+    <drawable name="chessboardLightSquareImg">@drawable/chessboard_square_light_marble</drawable>
+</resources>

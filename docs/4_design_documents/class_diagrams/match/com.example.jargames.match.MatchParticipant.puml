@@ -1,0 +1,47 @@
+@startuml
+hide empty members
+
+interface MatchParticipant{
+
+}
+
+class MatchParticipantController{
+
+}
+
+class Player{
+
+}
+
+class LocalOponent{
+
+}
+note bottom: Playing on same device as player
+
+class AIOpponent<<abstract>>{
+
+}
+
+class RemoteOpponent{
+
+}
+note top: may or may not be a friend
+
+class PlayerController{
+
+}
+note top: Connects the GUI to allow the player to perform actions.
+
+
+Player -up-|> MatchParticipant
+LocalOponent -up-|> MatchParticipant
+AIOpponent -up-|> MatchParticipant
+RemoteOpponent -up-|> MatchParticipant
+
+
+Player <--left--> PlayerController
+MatchParticipant <--right--> MatchParticipantController
+
+
+
+@enduml

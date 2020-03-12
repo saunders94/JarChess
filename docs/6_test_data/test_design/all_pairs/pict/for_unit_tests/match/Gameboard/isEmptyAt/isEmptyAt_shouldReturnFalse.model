@@ -1,0 +1,59 @@
+# Pict Model
+# com.example.jarchess.match.GameboardUnitTest.isEmptyAt
+# isEmptyAt
+
+color: Piece.Color.BLACK, Piece.Color.WHITE
+piece: Pawn.class, Rook.class, Knight.class, Bishop.class, Queen.class, King.class
+file: 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'
+rank: 1, 2, 3, 4, 5, 6, 7, 8
+column: 0, 1, 2, 3, 4, 5, 6, 7
+row: 0, 1, 2, 3, 4, 5, 6, 7
+
+
+If [file] = "'a'"
+THEN [column] = 0;
+
+If [file] = "'b'"
+THEN [column] = 1;
+
+If [file] = "'c'"
+THEN [column] = 2;
+
+If [file] = "'d'"
+THEN [column] = 3;
+
+If [file] = "'e'"
+THEN [column] = 4;
+
+If [file] = "'f'"
+THEN [column] = 5;
+
+If [file] = "'g'"
+THEN [column] = 6;
+
+If [file] = "'h'"
+THEN [column] = 7;
+
+If [rank] = 1
+THEN [row] = 7;
+
+If [rank] = 2
+THEN [row] = 6;
+
+If [rank] = 3
+THEN [row] = 5;
+
+If [rank] = 4
+THEN [row] = 4;
+
+If [rank] = 5
+THEN [row] = 3;
+
+If [rank] = 6
+THEN [row] = 2;
+
+If [rank] = 7
+THEN [row] = 1;
+
+If [rank] = 8
+THEN [row] = 0;

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.jarchess">
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -9,6 +10,7 @@
         android:roundIcon="@mipmap/ic_king_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".match.activity.MatchActivity"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -16,6 +18,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".match.activity.EasyAIMatchActivity" />
+        <activity android:name=".match.activity.HardAIMatchActivity" />
+        <activity android:name=".match.activity.LocalMultiplayerMatchActivity" />
+        <activity android:name=".match.activity.OnlineMultiplayerMatchActivity" />
     </application>
 
 </manifest>
