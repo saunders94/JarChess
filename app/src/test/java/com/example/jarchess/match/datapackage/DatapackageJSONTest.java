@@ -28,20 +28,26 @@ import static org.junit.Assert.assertSame;
 @RunWith(Enclosed.class)
 public class DatapackageJSONTest {
 
-    public static final int EXPECTED = 0;
-    public static final int ACTUAL = 1;
+    private static final int EXPECTED = 0;
+    private static final int ACTUAL = 1;
 
 
     @RunWith(Parameterized.class)
     public static class turnSingleMovement {
 
-        public final static int PARAM_VALUE_ORIGIN_FILE = 0;
-        public final static int PARAM_VALUE_ORIGIN_RANK = 1;
-        public final static int PARAM_VALUE_DESTINATION_FILE = 2;
-        public final static int PARAM_VALUE_DESTINATION_RANK = 3;
-        public final static int PARAM_VALUE_TURN_COLOR = 4;
-        public final static int PARAM_VALUE_ELAPSED_TIME = 5;
-        public final static int PARAM_VALUE_PROMOTION_CHOICE = 6;
+        /*
+         * Test case parameters where generated using Joshua Zierman's custom pict utility program
+         *
+         * This software runs [pict](https://github.com/microsoft/pict) on a model file and uses the results to generate a CSV file and a Java snippet text file.
+         */
+
+        final static int PARAM_VALUE_ORIGIN_FILE = 0;
+        final static int PARAM_VALUE_ORIGIN_RANK = 1;
+        final static int PARAM_VALUE_DESTINATION_FILE = 2;
+        final static int PARAM_VALUE_DESTINATION_RANK = 3;
+        final static int PARAM_VALUE_TURN_COLOR = 4;
+        final static int PARAM_VALUE_ELAPSED_TIME = 5;
+        final static int PARAM_VALUE_PROMOTION_CHOICE = 6;
 
 
         @Parameter(value = PARAM_VALUE_ORIGIN_FILE)
@@ -145,8 +151,7 @@ public class DatapackageJSONTest {
                     {/*originFile*/ 'b', /*originRank*/ 6, /*destinationFile*/ 'd', /*destinationRank*/ 4, /*turnColor*/ BLACK, /*elapsedTime*/ 1L, /*promotionChoice*/ PROMOTE_TO_ROOK},
                     {/*originFile*/ 'h', /*originRank*/ 2, /*destinationFile*/ 'e', /*destinationRank*/ 8, /*turnColor*/ WHITE, /*elapsedTime*/ Long.MAX_VALUE, /*promotionChoice*/ null},
                     {/*originFile*/ 'g', /*originRank*/ 7, /*destinationFile*/ 'e', /*destinationRank*/ 7, /*turnColor*/ BLACK, /*elapsedTime*/ -1L, /*promotionChoice*/ null},
-                    {/*originFile*/ 'c', /*originRank*/ 1, /*destinationFile*/ 'g', /*destinationRank*/ 7, /*turnColor*/ BLACK, /*elapsedTime*/ -1L, /*promotionChoice*/ PROMOTE_TO_QUEEN},
-
+                    {/*originFile*/ 'c', /*originRank*/ 1, /*destinationFile*/ 'g', /*destinationRank*/ 7, /*turnColor*/ BLACK, /*elapsedTime*/ -1L, /*promotionChoice*/ PROMOTE_TO_QUEEN}
             };
         }
 
