@@ -58,6 +58,32 @@ public class King extends Piece {//TODO write unit tests
         super(pieceToCopy);
     }
 
+    /**
+     * Makes the starting coordinate of a king of the given color.
+     *
+     * @param color the color of the king to get the starting coordinate of
+     * @return the starting coordinate of a king of the given color
+     */
+    private static Coordinate makeStartingCoordinate(ChessColor color) {
+        Coordinate startingCoordinate;
+        int startingRank;
+
+        // set the rank based on the color provided
+        startingRank = color.equals(ChessColor.BLACK) ? BLACK_STARTING_RANK : WHITE_STARTING_RANK;
+
+        // create and return the coordinate.
+        startingCoordinate = Coordinate.getByFileAndRank(STARTING_FILE, startingRank);
+        return startingCoordinate;
+    }
+
+    @Override
+    void add(MovementPattern pattern) {
+        Log.d(TAG, "add() called with: CastleMovementPattern pattern = [" + pattern + "]");
+        super.add(pattern);
+        if (pattern instanceof CastleMovementPattern)
+            castleMovementPatterns.add((CastleMovementPattern) pattern);
+    }
+
     private void addAllMovementPatterns() {
         MovementPattern tmp;
 
@@ -79,33 +105,6 @@ public class King extends Piece {//TODO write unit tests
         }
 
         add(MovementPatternProducer.getAllKingCastleMovementPatterns(getColor()));
-    }
-
-
-    @Override
-    void add(MovementPattern pattern) {
-        Log.d(TAG, "add() called with: CastleMovementPattern pattern = [" + pattern + "]");
-        super.add(pattern);
-        if (pattern instanceof CastleMovementPattern)
-            castleMovementPatterns.add((CastleMovementPattern) pattern);
-    }
-
-    /**
-     * Makes the starting coordinate of a king of the given color.
-     *
-     * @param color the color of the king to get the starting coordinate of
-     * @return the starting coordinate of a king of the given color
-     */
-    private static Coordinate makeStartingCoordinate(ChessColor color) {
-        Coordinate startingCoordinate;
-        int startingRank;
-
-        // set the rank based on the color provided
-        startingRank = color.equals(ChessColor.BLACK) ? BLACK_STARTING_RANK : WHITE_STARTING_RANK;
-
-        // create and return the coordinate.
-        startingCoordinate = Coordinate.getByFileAndRank(STARTING_FILE, startingRank);
-        return startingCoordinate;
     }
 
     public Collection<CastleMovementPattern> getCastleMovementPatterns() {

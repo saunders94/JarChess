@@ -18,9 +18,9 @@ public class MatchHistory implements Iterable<Turn> {
 
     private final LinkedList<Turn> turnList = new LinkedList<>();
 
-    public Turn getlastTurn() {
-        Log.d(TAG, "getlastTurn is running on thread: " + Thread.currentThread().getName());
-        return turnList.peekLast();
+    public void add(Turn turn) {
+        Log.d(TAG, "add is running on thread: " + Thread.currentThread().getName());
+        turnList.addLast(turn);
     }
 
     public Move getLastMove() {
@@ -28,9 +28,9 @@ public class MatchHistory implements Iterable<Turn> {
         return turnList.peekLast().getMove();
     }
 
-    public void add(Turn turn) {
-        Log.d(TAG, "add is running on thread: " + Thread.currentThread().getName());
-        turnList.addLast(turn);
+    public Turn getlastTurn() {
+        Log.d(TAG, "getlastTurn is running on thread: " + Thread.currentThread().getName());
+        return turnList.peekLast();
     }
 
     @NonNull

@@ -14,33 +14,11 @@ import com.example.jarchess.match.turn.Turn;
 public interface MatchParticipant extends ResignationListener {//TODO write unit tests
 
     /**
-     * Gets the name of this participant.
+     * Gets the avatar style for this participant
      *
-     * @return the name of this participant
+     * @return the avatar style for this participant
      */
-    String getName();
-
-    /**
-     * Takes the first turn from stating position.
-     *
-     * @return the turn that this participant takes
-     * @throws ResignationException if a resignation was detected.
-     */
-    Turn takeFirstTurn() throws ResignationException, InterruptedException;
-
-    /**
-     * Takes a turn in response to the last turn from the other participant.
-     *
-     * @param lastTurnFromOtherParticipant the turn that happened immediately before by the other participant
-     * @return the turn that this participant takes
-     * @throws ResignationException if a resignation was detected.
-     */
-    Turn takeTurn(Turn lastTurnFromOtherParticipant) throws ResignationException, InterruptedException;
-
-    /**
-     * Resigns from the match.
-     */
-    void resign();
+    AvatarStyle getAvatarStyle();
 
     /**
      * Gets the color of this participant.
@@ -50,9 +28,31 @@ public interface MatchParticipant extends ResignationListener {//TODO write unit
     ChessColor getColor();
 
     /**
-     * Gets the avatar style for this participant
+     * Takes the first turn from stating position.
      *
-     * @return the avatar style for this participant
+     * @return the turn that this participant takes
+     * @throws ResignationException if a resignation was detected.
      */
-    AvatarStyle getAvatarStyle();
+    Turn getFirstTurn() throws ResignationException, InterruptedException;
+
+    /**
+     * Gets the name of this participant.
+     *
+     * @return the name of this participant
+     */
+    String getName();
+
+    /**
+     * Resigns from the match.
+     */
+    void resign();
+
+    /**
+     * Takes a turn in response to the last turn from the other participant.
+     *
+     * @param lastTurnFromOtherParticipant the turn that happened immediately before by the other participant
+     * @return the turn that this participant takes
+     * @throws ResignationException if a resignation was detected.
+     */
+    Turn takeTurn(Turn lastTurnFromOtherParticipant) throws ResignationException, InterruptedException;
 }

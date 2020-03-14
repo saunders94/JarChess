@@ -21,10 +21,6 @@ public class PieceMovement implements JSONConvertable<PieceMovement> {
         this.destination = destination;
     }
 
-    public Coordinate getOrigin() {
-        return origin;
-    }
-
     public Coordinate getDestination() {
         return destination;
     }
@@ -37,6 +33,10 @@ public class PieceMovement implements JSONConvertable<PieceMovement> {
         jsonObject.put(JSON_PROPERTY_NAME_DESTINATION, destination.getJSONObject());
 
         return jsonObject;
+    }
+
+    public Coordinate getOrigin() {
+        return origin;
     }
 
     @NonNull

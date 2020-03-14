@@ -11,9 +11,7 @@ public abstract class Result {
         this.winnerColor = winnerColor;
     }
 
-    public boolean wasDraw() {
-        return winnerColor == null;
-    }
+    protected abstract String getMessage();
 
     @NonNull
     @Override
@@ -21,5 +19,7 @@ public abstract class Result {
         return getMessage();
     }
 
-    protected abstract String getMessage();
+    public boolean wasDraw() {
+        return winnerColor == null;
+    }
 }

@@ -68,20 +68,6 @@ public class Datapackage implements JSONConvertable<Datapackage> {
         return datapackageType;
     }
 
-    /**
-     * Gets the turn packaged in this.
-     *
-     * @return the turn packaged in this, may be null.
-     */
-    @Nullable
-    public Turn getTurn() {
-        return turn;
-    }
-
-    public Move getMove() {
-        return turn.getMove();
-    }
-
     public long getElapsedTime() {
         return turn.getElapsedTime();
     }
@@ -94,8 +80,22 @@ public class Datapackage implements JSONConvertable<Datapackage> {
         return jsonObject;
     }
 
+    public Move getMove() {
+        return turn.getMove();
+    }
+
     public Resignation getResignation() {
         return RESIGNATION;
+    }
+
+    /**
+     * Gets the turn packaged in this.
+     *
+     * @return the turn packaged in this, may be null.
+     */
+    @Nullable
+    public Turn getTurn() {
+        return turn;
     }
 
     @NonNull
@@ -121,9 +121,9 @@ public class Datapackage implements JSONConvertable<Datapackage> {
         PAUSE_REJECT(4);
 
 
-        private static final DatapackageTypeJSONConverter JSON_CONVERTER = DatapackageTypeJSONConverter.getInstance();
         public static final String JSON_PROPERTY_NAME_INT_VALUE = "intValue";
         public static final String JSON_PROPERTY_NAME_NAME = "name";
+        private static final DatapackageTypeJSONConverter JSON_CONVERTER = DatapackageTypeJSONConverter.getInstance();
         private final int intValue;
 
         DatapackageType(int i) {

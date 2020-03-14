@@ -141,10 +141,6 @@ public class CapturedPiecesView {
 
     }
 
-    private int convertRowToCapturedRow(int rowToConvert) {
-        return (rowToConvert + 1) % 2;
-    }
-
     public void add(final Piece pieceTOAadd) {
         final ImageView imageView = getCapturedImageViewFor(pieceTOAadd.getColor(), pieceTOAadd.getStartingPosition());
 
@@ -154,6 +150,10 @@ public class CapturedPiecesView {
                 imageView.setImageResource(chesspieceStyle.getResourceID(pieceTOAadd));
             }
         });
+    }
+
+    private int convertRowToCapturedRow(int rowToConvert) {
+        return (rowToConvert + 1) % 2;
     }
 
     private ImageView getCapturedImageViewFor(ChessColor color, Coordinate startingCoordinate){

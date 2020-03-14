@@ -36,6 +36,13 @@ public class ResignationEventManager { //TODO write unit tests
         }
     }
 
+    private synchronized void notifyListeners(@NonNull ResignationEvent resignationEvent) {
+
+        for (ResignationListener listener : listeners) {
+            listener.observeResignationEvent(resignationEvent);
+        }
+    }
+
     /**
      * Removes a listener if it is present in the listener collection.
      *
@@ -56,13 +63,6 @@ public class ResignationEventManager { //TODO write unit tests
         if (resignationEvent == null) {
             resignationEvent = new ResignationEvent(resigningParticipant);
             notifyListeners(resignationEvent);
-        }
-    }
-
-    private synchronized void notifyListeners(@NonNull ResignationEvent resignationEvent) {
-
-        for (ResignationListener listener : listeners) {
-            listener.observeResignationEvent(resignationEvent);
         }
     }
 }

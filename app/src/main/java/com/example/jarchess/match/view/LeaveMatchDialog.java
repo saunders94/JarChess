@@ -45,12 +45,12 @@ class LeaveMatchDialog {
         });
     }
 
+    public void hide() {
+        view.setVisibility(View.INVISIBLE);
+    }
+
     public void show() {
         view.setVisibility(View.VISIBLE);
         Log.d(TAG, "show: should be visible");
-    }
-
-    public void hide() {
-        view.setVisibility(View.INVISIBLE);
     }
 }

@@ -28,14 +28,6 @@ public abstract class AIOpponent implements MatchParticipant {//TODO write unit 
      * {@inheritDoc}
      */
     @Override
-    public ChessColor getColor() {
-        return color;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String getName() {
         return name;
     }
@@ -46,6 +38,14 @@ public abstract class AIOpponent implements MatchParticipant {//TODO write unit 
     @Override
     public void resign() {
         //TODO
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ChessColor getColor() {
+        return color;
     }
 
     /**

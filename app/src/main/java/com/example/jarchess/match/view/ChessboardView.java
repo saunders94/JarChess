@@ -10,9 +10,12 @@ import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
 import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.styles.ChessboardStyle;
 import com.example.jarchess.match.styles.ChesspieceStyle;
+
+import java.util.Collection;
 
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
@@ -32,7 +35,7 @@ class ChessboardView {
 
     private ChessColor currentPerspective;
 
-    public ChessboardView(View view, ChesspieceStyle chesspieceStyle, ChessboardStyle chessboardStyle, ChessColor perspective, Match match, MatchActivity matchActivity) {
+    ChessboardView(View view, ChesspieceStyle chesspieceStyle, ChessboardStyle chessboardStyle, ChessColor perspective, Match match, MatchActivity matchActivity) {
         this.view = view;
         this.chesspieceStyle = chesspieceStyle;
         this.chessboardStyle = chessboardStyle;
@@ -42,28 +45,39 @@ class ChessboardView {
         setPerspective(perspective);
     }
 
-    public void setPerspective(ChessColor perspectiveColor) {
-        switch (perspectiveColor) {
+    void clearDestinationSelectionIndicator(@NonNull Coordinate coordinate) {
+        squareAt(coordinate).clearDestinationSelectionIndicator();
+    }
 
-            case BLACK:
-                if (currentPerspective == null) {
-                    setViewOrientationBlackPerspective();
-                } else if (currentPerspective != BLACK) {
-                    rotateOrientation();
-                }
-                break;
-            case WHITE:
-                if (currentPerspective == null) {
-                    setViewOrientationWhitePerspective();
-                } else if (currentPerspective != WHITE) {
-                    rotateOrientation();
-                }
-                break;
+    void clearOriginSelectionIndicator(@NonNull Coordinate coordinate) {
+        squareAt(coordinate).clearOriginSelectionIndicator();
+    }
 
-
-            default:
-                throw new IllegalStateException("Unexpected color value: " + perspectiveColor);
+    void clearPossibleDestinationIndicator(@NonNull Collection<Coordinate> coordinates) {
+        for (Coordinate coordinate : coordinates) {
+            if (coordinate != null) {
+                squareAt(coordinate).clearPossibleDestinationIndicator();
+            }
         }
+    }
+
+    public void clearPromotionIndicator(PieceMovement movement) {
+        squareAt(movement.getDestination()).clearPromotionIndicator();
+    }
+
+    public void previewMovement(PieceMovement movement) {
+
+        // set the destination's image to the image of the piece at origin
+        Piece piece = match.getPieceAt(movement.getOrigin());
+        ChessboardViewSquare s = squareAt(movement.getDestination());
+        s.setCoordinate(movement.getDestination());
+        s.setPieceImageResource(chesspieceStyle.getResourceID(piece));
+
+        // clear the origin square's image
+        piece = null;
+        s = squareAt(movement.getOrigin());
+        s.setCoordinate(movement.getOrigin());
+        s.setPieceImageResource(chesspieceStyle.getResourceID(piece));
     }
 
     private void rotateOrientation() {
@@ -104,31 +118,45 @@ class ChessboardView {
 
     }
 
-    private void updateAllSquares() {
-        for (int row : Coordinate.ROWS) {
-            for (int column : COLUMNS) {
+    void setDestinationSelectionIndicator(@NonNull Coordinate coordinate) {
+        squareAt(coordinate).setDestinationSelectionIndicator();
+    }
 
-                Coordinate coordinate = Coordinate.getByColumnAndRow(column, row);
-                Piece piece = match.getPieceAt(coordinate);
-                ChessboardViewSquare s = squares[column][row];
+    void setOriginSelectionIndicator(@NonNull Coordinate coordinate) {
+        squareAt(coordinate).setOriginSelectionIndicator();
+    }
 
-                s.setCoordinate(coordinate);
+    private void setPerspective(ChessColor perspectiveColor) {
+        switch (perspectiveColor) {
 
-                // update background images
-                s.setSquareImageResource(chessboardStyle.getSquareResourceID(coordinate));
+            case BLACK:
+                if (currentPerspective == null) {
+                    setViewOrientationBlackPerspective();
+                } else if (currentPerspective != BLACK) {
+                    rotateOrientation();
+                }
+                break;
+            case WHITE:
+                if (currentPerspective == null) {
+                    setViewOrientationWhitePerspective();
+                } else if (currentPerspective != WHITE) {
+                    rotateOrientation();
+                }
+                break;
 
-                // update piece images
-                s.setPieceImageResource(chesspieceStyle.getResourceID(piece));
-//
-//                if(piece == null){
-//                    s.setIsClickable(false);
-//                }else{
-//                    s.setIsClickable(true);
-//                }
-            }
+
+            default:
+                throw new IllegalStateException("Unexpected color value: " + perspectiveColor);
         }
     }
 
+    void setPossibleDestinationIndicator(@NonNull Coordinate coordinate) {
+        squareAt(coordinate).setPossibleDestinationIndicator();
+    }
+
+    void setPromotionIndicator(Coordinate coordinate) {
+        squareAt(coordinate).setPromotionIndicator();
+    }
 
     private void setViewOrientationBlackPerspective() {
 
@@ -317,35 +345,36 @@ class ChessboardView {
 
     }
 
-    public void clearOriginSelectionIndicator(@NonNull Coordinate coordinate) {
-        squareAt(coordinate).clearOriginSelectionIndicator();
-    }
-
-    public void setOriginSelectionIndicator(@NonNull Coordinate coordinate) {
-        squareAt(coordinate).setOriginSelectionIndicator();
-    }
-
-    public void clearPossibleDestinationIndicator(@NonNull Coordinate coordinate) {
-        squareAt(coordinate).clearPossibleDestinationIndicator();
-    }
-
-    public void setPossibleDestinationIndicator(@NonNull Coordinate coordinate) {
-        squareAt(coordinate).setPossibleDestinationIndicator();
-    }
-
-    public void clearDestinationSelectionIndicator(@NonNull Coordinate coordinate) {
-        squareAt(coordinate).clearDestinationSelectionIndicator();
-    }
-
-    public void setDestinationSelectionIndicator(@NonNull Coordinate coordinate) {
-        squareAt(coordinate).setDestinationSelectionIndicator();
-    }
-
     private ChessboardViewSquare squareAt(@NonNull Coordinate coordinate) {
         return squares[coordinate.getColumn()][coordinate.getRow()];
     }
 
-    public void updatePiece(@NonNull Coordinate coordinate) {
+    private void updateAllSquares() {
+        for (int row : Coordinate.ROWS) {
+            for (int column : COLUMNS) {
+
+                Coordinate coordinate = Coordinate.getByColumnAndRow(column, row);
+                Piece piece = match.getPieceAt(coordinate);
+                ChessboardViewSquare s = squares[column][row];
+
+                s.setCoordinate(coordinate);
+
+                // update background images
+                s.setSquareImageResource(chessboardStyle.getSquareResourceID(coordinate));
+
+                // update piece images
+                s.setPieceImageResource(chesspieceStyle.getResourceID(piece));
+//
+//                if(piece == null){
+//                    s.setIsClickable(false);
+//                }else{
+//                    s.setIsClickable(true);
+//                }
+            }
+        }
+    }
+
+    void updatePiece(@NonNull Coordinate coordinate) {
         Piece piece = match.getPieceAt(coordinate);
         ChessboardViewSquare s = squareAt(coordinate);
 

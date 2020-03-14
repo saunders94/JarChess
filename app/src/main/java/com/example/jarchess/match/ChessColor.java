@@ -38,18 +38,8 @@ public enum ChessColor implements JSONConvertable<ChessColor> {
         intValue = i;
     }
 
-
-    /**
-     * Gets a random color
-     *
-     * @return BLACK or WHITE
-     */
-    public static ChessColor getRandom() {
-        if (random.nextBoolean()) {
-            return WHITE;
-        } else {
-            return BLACK;
-        }
+    public static ChessColor getFromInt(int colorInt) {
+        return values()[colorInt];
     }
 
     /**
@@ -66,8 +56,17 @@ public enum ChessColor implements JSONConvertable<ChessColor> {
         }
     }
 
-    public static ChessColor getFromInt(int colorInt) {
-        return values()[colorInt];
+    /**
+     * Gets a random color
+     *
+     * @return BLACK or WHITE
+     */
+    public static ChessColor getRandom() {
+        if (random.nextBoolean()) {
+            return WHITE;
+        } else {
+            return BLACK;
+        }
     }
 
     public int getIntValue() {

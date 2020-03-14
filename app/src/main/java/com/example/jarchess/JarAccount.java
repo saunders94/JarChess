@@ -30,10 +30,6 @@ public class JarAccount {
         return instance;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public AvatarStyle getAvatarStyle() {
         return avatarStyle;
     }
@@ -42,11 +38,15 @@ public class JarAccount {
         return boardStyle;
     }
 
-    public ChesspieceStyle getPieceStyle() {
-        return pieceStyle;
-    }
-
     public boolean getCommitButtonClickIsRequired() {
         return commitButtonClickIsRequired;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public ChesspieceStyle getPieceStyle() {
+        return pieceStyle;
     }
 }
