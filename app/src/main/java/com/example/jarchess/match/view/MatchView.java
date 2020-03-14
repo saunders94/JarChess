@@ -15,11 +15,17 @@ import com.example.jarchess.match.Match;
 import com.example.jarchess.match.PlayerMatch;
 import com.example.jarchess.match.activity.CommitButtonClickHandler;
 import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.move.Move;
+import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
 import com.example.jarchess.match.result.Result;
 import com.example.jarchess.match.styles.ChessboardStyle;
 import com.example.jarchess.match.styles.ChesspieceStyle;
+import com.example.jarchess.match.turn.Turn;
+
+import java.util.Collection;
 
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
@@ -134,28 +140,48 @@ public class MatchView extends View {
 
     }
 
-    public void clearOriginSelectionIndicator(@NonNull Coordinate coordinate) {
+
+    public void clearOriginSelectionIndicator(Coordinate coordinate) {
+        if(coordinate == null){
+            return;
+        }
         chessboardView.clearOriginSelectionIndicator(coordinate);
     }
 
-    public void setOriginSelectionIndicator(@NonNull Coordinate coordinate) {
-        chessboardView.setOriginSelectionIndicator(coordinate);
+    public void clearPossibleDestinationIndicators(Collection<Coordinate> coordinates) {
+        if(coordinates == null || coordinates.isEmpty()){
+            return;
+        }
+        chessboardView.clearPossibleDestinationIndicator(coordinates);
     }
 
-    public void clearPossibleDestinationIndicator(@NonNull Coordinate coordinate) {
-        chessboardView.clearPossibleDestinationIndicator(coordinate);
-    }
-
-    public void setPossibleDestinationIndicator(@NonNull Coordinate coordinate) {
-        chessboardView.setPossibleDestinationIndicator(coordinate);
-    }
-
-    public void clearDestinationSelectionIndicator(@NonNull Coordinate coordinate) {
+    public void clearDestinationSelectionIndicator(Coordinate coordinate) {
+        if(coordinate == null){
+            return;
+        }
         chessboardView.clearDestinationSelectionIndicator(coordinate);
+    }
+
+    public void clearPromotionIndicator(PieceMovement movement) {
+        if(movement == null || movement.getDestination() == null){
+            return;
+        }
+        chessboardView.clearDestinationSelectionIndicator(movement.getDestination());
     }
 
     public void setDestinationSelectionIndicator(@NonNull Coordinate coordinate) {
         chessboardView.setDestinationSelectionIndicator(coordinate);
+    }
+
+    public void setPromotionIndicator(Coordinate coordinate) {
+        chessboardView.setPromotionIndicator(coordinate);
+    }
+
+    public void updateAfterSettingPossibleDestinations(Collection<Coordinate> possibleDestinations) {
+        //TODO optimize
+        for (Coordinate possibleDestination : possibleDestinations) {
+            chessboardView.setPossibleDestinationIndicator(possibleDestination);
+        }
     }
 
     public void updatePiece(@NonNull Coordinate coordinate) {
@@ -178,4 +204,41 @@ public class MatchView extends View {
         pawnPromotionChoiceDialog.show();
     }
 
+    public void updateAfterSettingOrigin(Coordinate origin) {
+
+        chessboardView.setOriginSelectionIndicator(origin);
+    }
+
+    public void updateViewAfter(Turn turn) {
+        Move move = turn.getMove();
+        updateViewAfter(move);
+    }
+
+    public void updateViewAfter(Move move) {
+        for (PieceMovement movement : move) {
+            updateViewAfter(movement);
+        }
+    }
+
+    public void updateViewAfter(PieceMovement movement) {
+        updatePiece(movement.getOrigin());
+        updatePiece(movement.getDestination());
+    }
+
+
+
+    public void updateViewBefore(Turn turn) {
+        Move move = turn.getMove();
+        updateViewBefore(move);
+    }
+
+    public void updateViewBefore(Move move) {
+        for (PieceMovement movement : move) {
+            updateViewBefore(movement);
+        }
+    }
+
+    public void updateViewBefore(PieceMovement movement) {
+        chessboardView.previewMovement(movement);
+    }
 }

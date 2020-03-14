@@ -2,11 +2,14 @@ package com.example.jarchess.match.view;
 
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.activity.MatchActivity;
+
+import static android.support.constraint.Constraints.TAG;
 
 
 /**
@@ -20,6 +23,7 @@ class ChessboardViewSquare {
     private static final int ORIGIN_TINT_COLOR = Color.argb(100, 255, 255, 0);
     private static final int POSIBLE_DESTINATION_TINT_COLOR = Color.argb(50, 0, 255, 0);
     private static final int CHOSEN_DESTINATION_TINT_COLOR = Color.argb(100, 0, 255, 0);
+    private static final int PROMOTION_TINT_COLOR = Color.argb(150, 255, 255, 0);
     private final ImageView squareImageView;
     private Coordinate coordinate;
     private MatchActivity activity;
@@ -37,6 +41,24 @@ class ChessboardViewSquare {
             @Override
             public void onClick(View v) {
                 matchActivity.observeSquareClick(coordinate);
+            }
+        });
+    }
+
+    public void clearPromotionIndicator() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                squareImageView.clearColorFilter();
+            }
+        });
+    }
+
+    public void setPromotionIndicator() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                squareImageView.setColorFilter(PROMOTION_TINT_COLOR, SCREEN);
             }
         });
     }

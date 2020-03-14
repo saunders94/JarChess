@@ -97,7 +97,7 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
      * {@inheritDoc}
      */
     @Override
-    public Turn takeFirstTurn() {
+    public Turn getFirstTurn() {
         try {
             return turnReceiver.receiveNextTurn();
         } catch (InterruptedException e) {
