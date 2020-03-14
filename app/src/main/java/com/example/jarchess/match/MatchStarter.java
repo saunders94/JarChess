@@ -31,6 +31,12 @@ public class MatchStarter {
         return instance;
     }
 
+    public void multiplayerSetup(DatapackageQueue queue, RemoteOpponentAccount remoteOpponentAccount) {
+
+        this.queue = queue;
+        this.remoteOpponentAccount = remoteOpponentAccount;
+    }
+
     public Match startEasyAIMatch() {
         ChessColor playerColor = ChessColor.getRandom();
         Player player = new Player(playerColor);
@@ -80,11 +86,5 @@ public class MatchStarter {
 
         remoteOpponentAccount = null;
         return new PlayerMatch(player, opponent);
-    }
-
-    public void multiplayerSetup(DatapackageQueue queue, RemoteOpponentAccount remoteOpponentAccount) {
-
-        this.queue = queue;
-        this.remoteOpponentAccount = remoteOpponentAccount;
     }
 }

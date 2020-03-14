@@ -79,28 +79,6 @@ public class Chessboard {
         isCopy = true;
     }
 
-    public Chessboard getCopyWithMovementsApplied(Collection<PieceMovement> movements) {
-        Chessboard copy = new Chessboard(this);
-        for (PieceMovement movement : movements) {
-            copy.move(movement.getOrigin(), movement.getDestination());
-        }
-        return copy;
-    }
-
-    public Chessboard getCopyWithMovementsApplied(Coordinate origin, Coordinate destination) {
-        Chessboard copy = new Chessboard(this);
-        copy.move(origin, destination);
-        return copy;
-    }
-
-    public Chessboard getCopyWithMovementsApplied(Coordinate origin1, Coordinate destination1, Coordinate origin2, Coordinate destination2) {
-        Chessboard copy = new Chessboard(this);
-        copy.move(origin1, destination1);
-        copy.move(origin2, destination2);
-        return copy;
-    }
-
-
     /**
      * Adds a piece to the chessboard at starting position
      *
@@ -108,19 +86,6 @@ public class Chessboard {
      */
     private void add(Piece piece) {
         add(piece, piece.getStartingPosition());
-    }
-
-    /**
-     * Gets the Piece at a specified coordinate or null if there is no piece at that position
-     *
-     * @param coordinate of the location on the board that the piece will be returned
-     * @return Piece at the specified coordinate
-     */
-    @Nullable
-    public Piece getPieceAt(@NonNull Coordinate coordinate) {
-        final int row = coordinate.getRow();
-        final int column = coordinate.getColumn();
-        return pieces[column][row];
     }
 
     /**
@@ -147,6 +112,49 @@ public class Chessboard {
         pieces[column][row] = piece;
     }
 
+    public Chessboard getCopyWithMovementsApplied(Collection<PieceMovement> movements) {
+        Chessboard copy = new Chessboard(this);
+        for (PieceMovement movement : movements) {
+            copy.move(movement.getOrigin(), movement.getDestination());
+        }
+        return copy;
+    }
+
+    public Chessboard getCopyWithMovementsApplied(Coordinate origin, Coordinate destination) {
+        Chessboard copy = new Chessboard(this);
+        copy.move(origin, destination);
+        return copy;
+    }
+
+    public Chessboard getCopyWithMovementsApplied(Coordinate origin1, Coordinate destination1, Coordinate origin2, Coordinate destination2) {
+        Chessboard copy = new Chessboard(this);
+        copy.move(origin1, destination1);
+        copy.move(origin2, destination2);
+        return copy;
+    }
+
+    /**
+     * Gets the Piece at a specified coordinate or null if there is no piece at that position
+     *
+     * @param coordinate of the location on the board that the piece will be returned
+     * @return Piece at the specified coordinate
+     */
+    @Nullable
+    public Piece getPieceAt(@NonNull Coordinate coordinate) {
+        final int row = coordinate.getRow();
+        final int column = coordinate.getColumn();
+        return pieces[column][row];
+    }
+
+    /**
+     * Checks to see if the board is empty at a specified coordinate
+     *
+     * @param coordinate the coordinate to check
+     * @return true if the chessboard is empty at the specified coordinate
+     */
+    public boolean isEmptyAt(Coordinate coordinate) {   //TODO need tests
+        return getPieceAt(coordinate) == null;
+    }
 
     /**
      * Moves a piece from one coordinate to another on the chessboard
@@ -163,6 +171,14 @@ public class Chessboard {
             remove(originCoordinate);
             piece.setAsMoved();
         }
+    }
+
+    public Piece remove(Coordinate coordinate) {
+
+        Piece pieceRemoved = pieces[coordinate.getColumn()][coordinate.getRow()];
+        pieces[coordinate.getColumn()][coordinate.getRow()] = null;
+
+        return pieceRemoved;
     }
 
     /**
@@ -198,27 +214,6 @@ public class Chessboard {
             add(new King(c));
         }
     }
-
-
-    public Piece remove(Coordinate coordinate) {
-
-        Piece pieceRemoved = pieces[coordinate.getColumn()][coordinate.getRow()];
-        pieces[coordinate.getColumn()][coordinate.getRow()] = null;
-
-        return pieceRemoved;
-    }
-
-
-    /**
-     * Checks to see if the board is empty at a specified coordinate
-     *
-     * @param coordinate the coordinate to check
-     * @return true if the chessboard is empty at the specified coordinate
-     */
-    public boolean isEmptyAt(Coordinate coordinate) {   //TODO need tests
-        return getPieceAt(coordinate) == null;
-    }
-
 
     @NonNull
     @Override

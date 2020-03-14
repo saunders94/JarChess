@@ -46,8 +46,8 @@ public abstract class LocalPartipant implements MatchParticipant {
      * @throws InterruptedException if the thread is interrupted during the turn.
      */
     @Override
-    public Turn takeFirstTurn() throws ResignationException, InterruptedException {
-        return takeTurn();
+    public Turn getFirstTurn() throws ResignationException, InterruptedException {
+        return getTurn();
     }
 
     /**
@@ -60,43 +60,17 @@ public abstract class LocalPartipant implements MatchParticipant {
      */
     @Override
     public Turn takeTurn(Turn lastTurnFromOtherParticipant) throws ResignationException, InterruptedException {
-        return takeTurn();
+        return getTurn();
     }
 
     /**
-     * Takes a turn.
+     * Gets the avatar resource id for this participant
      *
-     * @return the turn that this participant takes
-     * @throws ResignationException if a resignation is observed during the turn
-     * @throws InterruptedException if the thread is interupted during the turn
-     */
-    private Turn takeTurn() throws ResignationException, InterruptedException {
-        long start, end, elapsed;
-        Move move;
-
-        if (controller == null) {
-            throw new IllegalStateException("controller is null when takeTurn is called");
-        }
-
-        start = TestableCurrentTime.currentTimeMillis();
-        move = controller.getMove(this.getColor());
-
-        Piece.PromotionChoice promotionChoice = controller.getPromotionChoice(move);
-
-        end = TestableCurrentTime.currentTimeMillis();
-
-        elapsed = end - start;
-
-        return new Turn(this.color, move, elapsed, promotionChoice);
-    }
-
-    /**
-     * Resigns from the match.
+     * @return the avatar resource id for this participant
      */
     @Override
-    public void resign() {
-
-        //TODO
+    public AvatarStyle getAvatarStyle() {
+        return avatarStyle;
     }
 
     /**
@@ -110,13 +84,38 @@ public abstract class LocalPartipant implements MatchParticipant {
     }
 
     /**
-     * Gets the avatar resource id for this participant
-     *
-     * @return the avatar resource id for this participant
+     * Resigns from the match.
      */
     @Override
-    public AvatarStyle getAvatarStyle() {
-        return avatarStyle;
+    public void resign() {
+
+        //TODO
+    }
+
+    /**
+     * Takes a turn.
+     *
+     * @return the turn that this participant takes
+     * @throws ResignationException if a resignation is observed during the turn
+     * @throws InterruptedException if the thread is interupted during the turn
+     */
+    private Turn getTurn() throws ResignationException, InterruptedException {
+        long start, end, elapsed;
+        Move move;
+
+        if (controller == null) {
+            throw new IllegalStateException("controller is null when takeTurn is called");
+        }
+
+        start = TestableCurrentTime.currentTimeMillis();
+        move = controller.getMove(color);
+        Piece.PromotionChoice promotionChoice = controller.getPromotionChoice(move);
+
+        end = TestableCurrentTime.currentTimeMillis();
+
+        elapsed = end - start;
+
+        return new Turn(this.color, move, elapsed, promotionChoice);
     }
 
     /**

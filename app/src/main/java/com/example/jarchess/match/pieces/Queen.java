@@ -59,12 +59,6 @@ public class Queen extends Piece {
 
     }
 
-    private void addAllMovementPatterns() {
-        add(MovementPatternProducer.getAllDiagonalSlideMovementPatterns(getColor()));
-        add(MovementPatternProducer.getAllStraightSlideMovementPatterns(getColor()));
-    }
-
-
     /**
      * Makes the starting coordinate of a queen of the given color.
      *
@@ -81,5 +75,10 @@ public class Queen extends Piece {
         // create and return the coordinate.
         startingCoordinate = Coordinate.getByFileAndRank(STARTING_FILE, startingRank);
         return startingCoordinate;
+    }
+
+    private void addAllMovementPatterns() {
+        add(MovementPatternProducer.getAllDiagonalSlideMovementPatterns(getColor()));
+        add(MovementPatternProducer.getAllStraightSlideMovementPatterns(getColor()));
     }
 }

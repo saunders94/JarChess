@@ -38,12 +38,11 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
     private final ChessColor colorOfOtherParticipant;
     private final TurnSender turnSender;
     private final Queue<Turn> recievedTurns = new ConcurrentLinkedQueue<Turn>();
-
-    private boolean alive;
-    private ResignationEvent resignationDetected = null;
     private final TurnReceiver turnReceiver;
     private final ResignationSender resignationSender;
     private final ResignationReciever resignationReciever;
+    private boolean alive;
+    private ResignationEvent resignationDetected = null;
     private ResignationEventManager resignationEventManager;
 
     /**
@@ -79,10 +78,33 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
 
     /**
      * {@inheritDoc}
+     *
+     * @return
      */
     @Override
-    public void observeResignationEvent(ResignationEvent resignationEvent) {
-        resignationDetected = resignationEvent;
+    public AvatarStyle getAvatarStyle() {
+        return avatarStyle;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ChessColor getColor() {
+        return color;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Turn getFirstTurn() {
+        try {
+            return turnReceiver.receiveNextTurn();
+        } catch (InterruptedException e) {
+            // just get out
+        }
+        return null;
     }
 
     /**
@@ -97,13 +119,9 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
      * {@inheritDoc}
      */
     @Override
-    public Turn takeFirstTurn() {
-        try {
-            return turnReceiver.receiveNextTurn();
-        } catch (InterruptedException e) {
-            // just get out
-        }
-        return null;
+    public void resign() {
+        resignationSender.send(new Resignation());
+        resignationEventManager.resign(this);
     }
 
     /**
@@ -124,32 +142,12 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
 
     }
 
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public void resign() {
-        resignationSender.send(new Resignation());
-        resignationEventManager.resign(this);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ChessColor getColor() {
-        return color;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return
-     */
-    @Override
-    public AvatarStyle getAvatarStyle() {
-        return avatarStyle;
+    public void observeResignationEvent(ResignationEvent resignationEvent) {
+        resignationDetected = resignationEvent;
     }
 
 

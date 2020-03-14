@@ -1,6 +1,8 @@
 package com.example.jarchess.match.view;
 
+import android.support.constraint.ConstraintLayout;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
@@ -10,8 +12,9 @@ import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.pieces.Piece;
 
 class PawnPromotionChoiceDialog {
+    private static final int MINIMUM_HEIGHT = 120;
     private final MatchActivity activity;
-    private View view;
+    private ViewGroup viewGroup;
     private View backgroundFadeView;
     private Button queen, knight, rook, bishop;
 
@@ -19,14 +22,14 @@ class PawnPromotionChoiceDialog {
         activity = matchActivity;
 
 
-        view = activity.findViewById(R.id.promotionChoiceDialogFrameLayout);
+        viewGroup = activity.findViewById(R.id.promotionChoiceDialogFrameLayout);
 
         backgroundFadeView = activity.findViewById(R.id.fadeFrameLayoutBottom);
 
-        queen = view.findViewById(R.id.promotionChoiceQueenButton);
-        knight = view.findViewById(R.id.promotionChoiceKnightButton);
-        bishop = view.findViewById(R.id.promotionChoiceBishopButton);
-        rook = view.findViewById(R.id.promotionChoiceRookButton);
+        queen = viewGroup.findViewById(R.id.promotionChoiceQueenButton);
+        knight = viewGroup.findViewById(R.id.promotionChoiceKnightButton);
+        bishop = viewGroup.findViewById(R.id.promotionChoiceBishopButton);
+        rook = viewGroup.findViewById(R.id.promotionChoiceRookButton);
 
         backgroundFadeView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,7 +78,7 @@ class PawnPromotionChoiceDialog {
             @Override
             public void run() {
                 backgroundFadeView.setVisibility(View.INVISIBLE);
-                view.setVisibility(View.INVISIBLE);
+                viewGroup.setVisibility(View.INVISIBLE);
             }
         });
     }
@@ -86,7 +89,10 @@ class PawnPromotionChoiceDialog {
             @Override
             public void run() {
                 backgroundFadeView.setVisibility(View.VISIBLE);
-                view.setVisibility(View.VISIBLE);
+                if (backgroundFadeView.getTop() < MINIMUM_HEIGHT) {
+                    viewGroup.setLayoutParams(new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT));
+                }
+                viewGroup.setVisibility(View.VISIBLE);
             }
         });
     }

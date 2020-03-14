@@ -74,13 +74,6 @@ public class MatchNetworkIO {
         }
 
         @Override
-        public void send(Turn turn) {
-            synchronized (lock) {
-                outGoingDatapackages.add(new Datapackage(turn));
-            }
-        }
-
-        @Override
         public void close() throws IOException {
             Queue<IOException> ioExceptions = new LinkedList<IOException>();
 
@@ -102,6 +95,13 @@ public class MatchNetworkIO {
 
             for (IOException e : ioExceptions) {
                 throw e;
+            }
+        }
+
+        @Override
+        public void send(Turn turn) {
+            synchronized (lock) {
+                outGoingDatapackages.add(new Datapackage(turn));
             }
         }
 
@@ -205,20 +205,20 @@ public class MatchNetworkIO {
         }
 
         @Override
-        public Resignation recieveNextResignation() throws InterruptedException {
-
-            synchronized (lock) {
-                waitWhileEmpty(incomingResignations, lock);
-                return incomingResignations.remove();
-            }
-        }
-
-        @Override
         public Turn receiveNextTurn() throws InterruptedException {
 
             synchronized (lock) {
                 waitWhileEmpty(incomingTurns, lock);
                 return incomingTurns.remove();
+            }
+        }
+
+        @Override
+        public Resignation recieveNextResignation() throws InterruptedException {
+
+            synchronized (lock) {
+                waitWhileEmpty(incomingResignations, lock);
+                return incomingResignations.remove();
             }
         }
     }
