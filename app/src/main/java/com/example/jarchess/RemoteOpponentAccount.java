@@ -11,11 +11,11 @@ public class RemoteOpponentAccount {
         this.avatarStyle = avatarStyle;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public AvatarStyle getAvatarStyle() {
         return avatarStyle;
+    }
+
+    public String getName() {
+        return name;
     }
 }

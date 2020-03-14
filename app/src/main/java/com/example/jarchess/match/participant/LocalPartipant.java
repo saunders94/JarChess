@@ -64,6 +64,35 @@ public abstract class LocalPartipant implements MatchParticipant {
     }
 
     /**
+     * Gets the avatar resource id for this participant
+     *
+     * @return the avatar resource id for this participant
+     */
+    @Override
+    public AvatarStyle getAvatarStyle() {
+        return avatarStyle;
+    }
+
+    /**
+     * Gets the color of this participant.
+     *
+     * @return the color of this participant
+     */
+    @Override
+    public ChessColor getColor() {
+        return color;
+    }
+
+    /**
+     * Resigns from the match.
+     */
+    @Override
+    public void resign() {
+
+        //TODO
+    }
+
+    /**
      * Takes a turn.
      *
      * @return the turn that this participant takes
@@ -87,35 +116,6 @@ public abstract class LocalPartipant implements MatchParticipant {
         elapsed = end - start;
 
         return new Turn(this.color, move, elapsed, promotionChoice);
-    }
-
-    /**
-     * Resigns from the match.
-     */
-    @Override
-    public void resign() {
-
-        //TODO
-    }
-
-    /**
-     * Gets the color of this participant.
-     *
-     * @return the color of this participant
-     */
-    @Override
-    public ChessColor getColor() {
-        return color;
-    }
-
-    /**
-     * Gets the avatar resource id for this participant
-     *
-     * @return the avatar resource id for this participant
-     */
-    @Override
-    public AvatarStyle getAvatarStyle() {
-        return avatarStyle;
     }
 
     /**

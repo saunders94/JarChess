@@ -37,6 +37,46 @@ public class Move implements Collection<PieceMovement>, JSONConvertable<Move> {
     }
 
     @Override
+    public JSONObject getJSONObject() throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+
+        for (PieceMovement movement : movements) {
+            jsonArray.put(movement.getJSONObject());
+        }
+
+        jsonObject.put(JSON_PROPERTY_NAME_MOVEMENTS, jsonArray);
+
+        return jsonObject;
+    }
+
+    @Override
+    public int hashCode() {
+        return movements.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return movements.equals(o);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        String s = "";
+        boolean first = true;
+        for (PieceMovement movement : movements) {
+            if (first) {
+                first = false;
+            } else {
+                s += ", ";
+            }
+            s += movement.toString();
+        }
+        return s;
+    }
+
+    @Override
     public int size() {
         return movements.size();
     }
@@ -99,46 +139,6 @@ public class Move implements Collection<PieceMovement>, JSONConvertable<Move> {
     @Override
     public void clear() {
         movements.clear();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return movements.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return movements.hashCode();
-    }
-
-    @NonNull
-    @Override
-    public String toString() {
-        String s = "";
-        boolean first = true;
-        for (PieceMovement movement : movements) {
-            if (first) {
-                first = false;
-            } else {
-                s += ", ";
-            }
-            s += movement.toString();
-        }
-        return s;
-    }
-
-    @Override
-    public JSONObject getJSONObject() throws JSONException {
-        JSONObject jsonObject = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
-
-        for (PieceMovement movement : movements) {
-            jsonArray.put(movement.getJSONObject());
-        }
-
-        jsonObject.put(JSON_PROPERTY_NAME_MOVEMENTS, jsonArray);
-
-        return jsonObject;
     }
 
     public static class MoveJSONConverter extends JSONConverter<Move> {

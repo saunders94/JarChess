@@ -60,15 +60,6 @@ public class Turn implements JSONConvertable<Turn> {
     }
 
     /**
-     * Gets the move that was made during this turn.
-     *
-     * @return the move that was made during this turn.
-     */
-    public Move getMove() {
-        return move;
-    }
-
-    /**
      * Gets the amount of time that elapsed during this turn in milliseconds.
      *
      * @return the amount of milliseconds that passed during this turn.
@@ -87,6 +78,15 @@ public class Turn implements JSONConvertable<Turn> {
 
 
         return jsonObject;
+    }
+
+    /**
+     * Gets the move that was made during this turn.
+     *
+     * @return the move that was made during this turn.
+     */
+    public Move getMove() {
+        return move;
     }
 
     public Piece.PromotionChoice getPromotionChoice() {

@@ -57,45 +57,6 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
         movementPatterns.addAll(pieceToCopy.movementPatterns);
     }
 
-
-    /**
-     * Gets the color of this piece
-     *
-     * @return the color of this piece
-     */
-    public ChessColor getColor() {
-        return color;
-    }
-
-    /**
-     * Gets the type of this piece.
-     *
-     * @return the <code>Piece.Type</code> of this piece.
-     */
-    @NonNull
-    public Type getType() {
-        return type;
-    }
-
-    /**
-     * Gets the starting position of this piece, or in the event of a promoted piece, the starting position of the pawn this piece was promoted from.
-     *
-     * @return the starting position of this piece
-     */
-    public Coordinate getStartingPosition() {
-        return startingPosition;
-    }
-
-    /**
-     * Sets the piece as moved.
-     */
-    public void setAsMoved() {
-        if (!hasMoved) {
-            this.hasMoved = true;
-            log(this + " has been set as moved.");
-        }
-    }
-
     /**
      * adds a movement pattern to the piece's collection of movement patterns.
      *
@@ -117,12 +78,12 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
     }
 
     /**
-     * Checks to see if this piece has moved
+     * Gets the color of this piece
      *
-     * @return true if this piece has moved, otherwise returns false
+     * @return the color of this piece
      */
-    public boolean hasMoved() {
-        return hasMoved;
+    public ChessColor getColor() {
+        return color;
     }
 
     /**
@@ -132,6 +93,43 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
      */
     public Collection<MovementPattern> getMovementPatterns() {
         return movementPatterns;
+    }
+
+    /**
+     * Gets the starting position of this piece, or in the event of a promoted piece, the starting position of the pawn this piece was promoted from.
+     *
+     * @return the starting position of this piece
+     */
+    public Coordinate getStartingPosition() {
+        return startingPosition;
+    }
+
+    /**
+     * Gets the type of this piece.
+     *
+     * @return the <code>Piece.Type</code> of this piece.
+     */
+    @NonNull
+    public Type getType() {
+        return type;
+    }
+
+    /**
+     * Checks to see if this piece has moved
+     *
+     * @return true if this piece has moved, otherwise returns false
+     */
+    public boolean hasMoved() {
+        return hasMoved;
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = type.hashCode();
+        hashCode ^= color.hashCode();
+        hashCode ^= startingPosition.hashCode();
+        hashCode ^= Boolean.valueOf(hasMoved).hashCode();
+        return hashCode;
     }
 
     @Override
@@ -161,18 +159,10 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
     }
 
     @Override
-    public int hashCode() {
-        int hashCode = type.hashCode();
-        hashCode ^= color.hashCode();
-        hashCode ^= startingPosition.hashCode();
-        hashCode ^= Boolean.valueOf(hasMoved).hashCode();
-        return hashCode;
-    }
-
-    private void log(String msg) {
-        if (!isClone) {
-            Log.d("Piece on " + Thread.currentThread().getName(), msg);
-        }
+    public Object clone() throws CloneNotSupportedException {
+        Piece clone = (Piece) super.clone();
+        clone.isClone = true;
+        return clone;
     }
 
     @NonNull
@@ -181,11 +171,20 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
         return type.toString();
     }
 
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        Piece clone = (Piece) super.clone();
-        clone.isClone = true;
-        return clone;
+    private void log(String msg) {
+        if (!isClone) {
+            Log.d("Piece on " + Thread.currentThread().getName(), msg);
+        }
+    }
+
+    /**
+     * Sets the piece as moved.
+     */
+    public void setAsMoved() {
+        if (!hasMoved) {
+            this.hasMoved = true;
+            log(this + " has been set as moved.");
+        }
     }
 
     public enum PromotionChoice implements JSONConvertable<PromotionChoice> {
@@ -215,13 +214,13 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
             return intValue;
         }
 
-        public Type getPieceType() {
-            return pieceType;
-        }
-
         @Override
         public JSONObject getJSONObject() throws JSONException {
             return new JSONObject().put(JSON_PROPERTY_NAME_NAME, toString()).put(JSON_PROPERTY_NAME_INT_VALUE, intValue);
+        }
+
+        public Type getPieceType() {
+            return pieceType;
         }
 
         public static class PromotionChoiceJSONConverter extends JSONConverter<PromotionChoice> {

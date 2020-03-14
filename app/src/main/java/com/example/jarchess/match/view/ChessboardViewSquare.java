@@ -45,11 +45,88 @@ class ChessboardViewSquare {
         });
     }
 
+    public void clearDestinationSelectionIndicator() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                squareImageView.clearColorFilter();
+            }
+        });
+    }
+
+    public void clearOriginSelectionIndicator() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                squareImageView.clearColorFilter();
+            }
+        });
+    }
+
+    public void clearPossibleDestinationIndicator() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                squareImageView.clearColorFilter();
+            }
+        });
+    }
+
     public void clearPromotionIndicator() {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 squareImageView.clearColorFilter();
+            }
+        });
+    }
+
+    public void setCoordinate(Coordinate coordinate) {
+        this.coordinate = coordinate;
+    }
+
+    public void setDestinationSelectionIndicator() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                squareImageView.setColorFilter(CHOSEN_DESTINATION_TINT_COLOR, SCREEN);
+            }
+        });
+    }
+
+    public void setIsClickable(final boolean isClickable) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                squareImageView.setClickable(isClickable);
+            }
+        });
+    }
+
+    public void setOriginSelectionIndicator() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                squareImageView.setColorFilter(ORIGIN_TINT_COLOR, SCREEN);
+            }
+        });
+    }
+
+    public void setPieceImageResource(final int pieceImageResourceID) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                squareImageView.setImageResource(pieceImageResourceID);
+            }
+        });
+
+    }
+
+    public void setPossibleDestinationIndicator() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                squareImageView.setColorFilter(POSIBLE_DESTINATION_TINT_COLOR, SCREEN);
             }
         });
     }
@@ -73,83 +150,6 @@ class ChessboardViewSquare {
             public void run() {
                 squareImageView.setBackgroundResource(squareResourceID);
 
-            }
-        });
-    }
-
-    public void setPieceImageResource(final int pieceImageResourceID) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                squareImageView.setImageResource(pieceImageResourceID);
-            }
-        });
-
-    }
-
-    public void setCoordinate(Coordinate coordinate) {
-        this.coordinate = coordinate;
-    }
-
-    public void setIsClickable(final boolean isClickable) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                squareImageView.setClickable(isClickable);
-            }
-        });
-    }
-
-    public void clearOriginSelectionIndicator() {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                squareImageView.clearColorFilter();
-            }
-        });
-    }
-
-    public void setOriginSelectionIndicator() {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                squareImageView.setColorFilter(ORIGIN_TINT_COLOR, SCREEN);
-            }
-        });
-    }
-
-    public void clearPossibleDestinationIndicator() {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                squareImageView.clearColorFilter();
-            }
-        });
-    }
-
-    public void setPossibleDestinationIndicator() {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                squareImageView.setColorFilter(POSIBLE_DESTINATION_TINT_COLOR, SCREEN);
-            }
-        });
-    }
-
-    public void clearDestinationSelectionIndicator() {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                squareImageView.clearColorFilter();
-            }
-        });
-    }
-
-    public void setDestinationSelectionIndicator() {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                squareImageView.setColorFilter(CHOSEN_DESTINATION_TINT_COLOR, SCREEN);
             }
         });
     }

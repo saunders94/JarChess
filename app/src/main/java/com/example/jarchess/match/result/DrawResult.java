@@ -5,10 +5,10 @@ public abstract class DrawResult extends Result {
         super(null);
     }
 
+    protected abstract String getDrawTypeString();
+
     @Override
     protected String getMessage() {
         return "The match resulted in a " + getDrawTypeString() + " draw";
     }
-
-    protected abstract String getDrawTypeString();
 }

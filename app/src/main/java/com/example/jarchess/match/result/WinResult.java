@@ -7,10 +7,6 @@ abstract class WinResult extends Result {
         super(winnerColor);
     }
 
-    public ChessColor getWinnerColor() {
-        return winnerColor;
-    }
-
     public ChessColor getLoserColor() {
         return ChessColor.getOther(winnerColor);
     }
@@ -18,6 +14,10 @@ abstract class WinResult extends Result {
     @Override
     protected String getMessage() {
         return winnerColor.toString() + " wins by " + winTypeString() + ".";
+    }
+
+    public ChessColor getWinnerColor() {
+        return winnerColor;
     }
 
     protected abstract String winTypeString();

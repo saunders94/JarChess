@@ -58,79 +58,6 @@ public abstract class Match implements ResignationListener {
         moveExpert = MoveExpert.getInstance();
     }
 
-
-    public void setWinner(ChessColor color) {
-
-        if (winner == null) {
-
-            winner = color;
-            notifyAll();
-        }
-
-    }
-
-    public void setLocalParticipantController(LocalParticipantController localParticipantController) {
-        if (blackPlayer instanceof LocalPartipant) {
-            ((LocalPartipant) blackPlayer).setController(localParticipantController);
-        }
-        if (whitePlayer instanceof LocalPartipant) {
-            ((LocalPartipant) whitePlayer).setController(localParticipantController);
-        }
-    }
-
-    public boolean isDone() {
-        return isDone;
-    }
-
-    public MatchHistory getMatchHistory() {
-        return matchHistory;
-    }
-
-    public MatchParticipant getBlackPlayer() {
-        return blackPlayer;
-    }
-
-    public MatchParticipant getWhitePlayer() {
-        return whitePlayer;
-    }
-
-    public Piece getPieceAt(@NonNull Coordinate coordinate) {
-        return chessboard.getPieceAt(coordinate);
-    }
-
-    public Turn getFirstTurn() throws ResignationException, InterruptedException {
-        return whitePlayer.getFirstTurn();
-    }
-
-
-    public Turn getTurn(@NonNull Turn turn) throws ResignationException, InterruptedException {
-        return getParticipant(ChessColor.getOther(turn.getColor())).takeTurn(turn);
-    }
-
-    public MatchParticipant getParticipant(ChessColor color) {
-        switch (color) {
-
-            case BLACK:
-                return blackPlayer;
-            case WHITE:
-                return whitePlayer;
-            default:
-                throw new IllegalStateException("Unexpected color value: " + color);
-        }
-    }
-
-    public void setIsDone(boolean isDone) {
-        this.isDone = isDone;
-    }
-
-    public Collection<Coordinate> getPossibleMoves(Coordinate origin) {
-        return moveExpert.getLegalDestinations(origin, chessboard);
-    }
-
-    public void move(Coordinate origin, Coordinate destination) {
-        chessboard.move(origin, destination);
-    }
-
     public Piece capture(Coordinate destination) {
         return chessboard.remove(destination);
     }
@@ -155,12 +82,60 @@ public abstract class Match implements ResignationListener {
         }
     }
 
-    public Result getMatchResult() {
-        return matchResult;
+    public MatchParticipant getBlackPlayer() {
+        return blackPlayer;
+    }
+
+    public Turn getFirstTurn() throws ResignationException, InterruptedException {
+        return whitePlayer.getFirstTurn();
     }
 
     public Collection<? extends PieceMovement> getLegalCastleMovements(Coordinate origin, Coordinate destination) {
         return moveExpert.getLegalCastleMovements(origin, destination, chessboard);
+    }
+
+    public MatchHistory getMatchHistory() {
+        return matchHistory;
+    }
+
+    public Result getMatchResult() {
+        return matchResult;
+    }
+
+    public MatchParticipant getParticipant(ChessColor color) {
+        switch (color) {
+
+            case BLACK:
+                return blackPlayer;
+            case WHITE:
+                return whitePlayer;
+            default:
+                throw new IllegalStateException("Unexpected color value: " + color);
+        }
+    }
+
+    public Piece getPieceAt(@NonNull Coordinate coordinate) {
+        return chessboard.getPieceAt(coordinate);
+    }
+
+    public Collection<Coordinate> getPossibleMoves(Coordinate origin) {
+        return moveExpert.getLegalDestinations(origin, chessboard);
+    }
+
+    public Turn getTurn(@NonNull Turn turn) throws ResignationException, InterruptedException {
+        return getParticipant(ChessColor.getOther(turn.getColor())).takeTurn(turn);
+    }
+
+    public MatchParticipant getWhitePlayer() {
+        return whitePlayer;
+    }
+
+    public boolean isDone() {
+        return isDone;
+    }
+
+    public void move(Coordinate origin, Coordinate destination) {
+        chessboard.move(origin, destination);
     }
 
     public void promote(Coordinate coordinate, Piece.PromotionChoice choice) {
@@ -192,5 +167,28 @@ public abstract class Match implements ResignationListener {
             chessboard.remove(coordinate);
             chessboard.add(newPiece, coordinate);
         }
+    }
+
+    public void setIsDone(boolean isDone) {
+        this.isDone = isDone;
+    }
+
+    public void setLocalParticipantController(LocalParticipantController localParticipantController) {
+        if (blackPlayer instanceof LocalPartipant) {
+            ((LocalPartipant) blackPlayer).setController(localParticipantController);
+        }
+        if (whitePlayer instanceof LocalPartipant) {
+            ((LocalPartipant) whitePlayer).setController(localParticipantController);
+        }
+    }
+
+    public void setWinner(ChessColor color) {
+
+        if (winner == null) {
+
+            winner = color;
+            notifyAll();
+        }
+
     }
 }

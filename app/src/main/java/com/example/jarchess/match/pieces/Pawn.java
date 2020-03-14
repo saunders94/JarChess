@@ -45,13 +45,6 @@ public class Pawn extends Piece {//TODO write unit tests
         super(pieceToCopy);
     }
 
-    private void addAllMovementPatterns() {
-        add(MovementPatternProducer.getNewSlideMovementPattern(0, 1, MovementPattern.CaptureType.CANNOT_CAPTURE, false, getColor()));
-        add(MovementPatternProducer.getNewSlideMovementPattern(0, 2, MovementPattern.CaptureType.CANNOT_CAPTURE, true, getColor()));
-        add(MovementPatternProducer.getNewSlideMovementPattern(-1, 1, MovementPattern.CaptureType.MUST_CAPTURE, false, getColor()));
-        add(MovementPatternProducer.getNewSlideMovementPattern(1, 1, MovementPattern.CaptureType.MUST_CAPTURE, false, getColor()));
-    }
-
     /**
      * Makes a starting coordinate for a Pawn of a given color and starting file.
      *
@@ -79,6 +72,13 @@ public class Pawn extends Piece {//TODO write unit tests
         // create and return the coordinate.
         startingCoordinate = Coordinate.getByFileAndRank(startingFile, startingRank);
         return startingCoordinate;
+    }
+
+    private void addAllMovementPatterns() {
+        add(MovementPatternProducer.getNewSlideMovementPattern(0, 1, MovementPattern.CaptureType.CANNOT_CAPTURE, false, getColor()));
+        add(MovementPatternProducer.getNewSlideMovementPattern(0, 2, MovementPattern.CaptureType.CANNOT_CAPTURE, true, getColor()));
+        add(MovementPatternProducer.getNewSlideMovementPattern(-1, 1, MovementPattern.CaptureType.MUST_CAPTURE, false, getColor()));
+        add(MovementPatternProducer.getNewSlideMovementPattern(1, 1, MovementPattern.CaptureType.MUST_CAPTURE, false, getColor()));
     }
 
 }

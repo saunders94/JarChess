@@ -140,6 +140,16 @@ public class MatchView extends View {
 
     }
 
+    public void addCapturedPiece(Piece capturedPiece) {
+        capturedPieceView.add(capturedPiece);
+    }
+
+    public void clearDestinationSelectionIndicator(Coordinate coordinate) {
+        if (coordinate == null) {
+            return;
+        }
+        chessboardView.clearDestinationSelectionIndicator(coordinate);
+    }
 
     public void clearOriginSelectionIndicator(Coordinate coordinate) {
         if(coordinate == null){
@@ -153,13 +163,6 @@ public class MatchView extends View {
             return;
         }
         chessboardView.clearPossibleDestinationIndicator(coordinates);
-    }
-
-    public void clearDestinationSelectionIndicator(Coordinate coordinate) {
-        if(coordinate == null){
-            return;
-        }
-        chessboardView.clearDestinationSelectionIndicator(coordinate);
     }
 
     public void clearPromotionIndicator(PieceMovement movement) {
@@ -177,27 +180,12 @@ public class MatchView extends View {
         chessboardView.setPromotionIndicator(coordinate);
     }
 
-    public void updateAfterSettingPossibleDestinations(Collection<Coordinate> possibleDestinations) {
-        //TODO optimize
-        for (Coordinate possibleDestination : possibleDestinations) {
-            chessboardView.setPossibleDestinationIndicator(possibleDestination);
-        }
-    }
-
-    public void updatePiece(@NonNull Coordinate coordinate) {
-        chessboardView.updatePiece(coordinate);
-    }
-
-    public void addCapturedPiece(Piece capturedPiece) {
-        capturedPieceView.add(capturedPiece);
+    public void showLeaveMatchDialog() {
+        leaveMatchDialog.show();
     }
 
     public void showMatchResultDialog(Result matchResult) {
         matchResultDialog.show(matchResult);
-    }
-
-    public void showLeaveMatchDialog() {
-        leaveMatchDialog.show();
     }
 
     public void showPawnPromotionChoiceDialog() {
@@ -207,6 +195,17 @@ public class MatchView extends View {
     public void updateAfterSettingOrigin(Coordinate origin) {
 
         chessboardView.setOriginSelectionIndicator(origin);
+    }
+
+    public void updateAfterSettingPossibleDestinations(Collection<Coordinate> possibleDestinations) {
+        //TODO optimize
+        for (Coordinate possibleDestination : possibleDestinations) {
+            chessboardView.setPossibleDestinationIndicator(possibleDestination);
+        }
+    }
+
+    public void updatePiece(@NonNull Coordinate coordinate) {
+        chessboardView.updatePiece(coordinate);
     }
 
     public void updateViewAfter(Turn turn) {
