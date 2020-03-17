@@ -12,7 +12,7 @@ import com.example.jarchess.match.resignation.ResignationException;
  * @author Joshua Zierman
  */
 public interface LocalParticipantController {
-    Move getMove(ChessColor color) throws InterruptedException, ResignationException;
+    Move getMoveInput(ChessColor color) throws InterruptedException, ResignationException;
 
     Piece.PromotionChoice getPromotionChoice(Move move) throws InterruptedException;
 }

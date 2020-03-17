@@ -123,7 +123,7 @@ public abstract class Match implements ResignationListener {
     }
 
     public Turn getTurn(@NonNull Turn turn) throws ResignationException, InterruptedException {
-        return getParticipant(ChessColor.getOther(turn.getColor())).takeTurn(turn);
+        return getParticipant(ChessColor.getOther(turn.getColor())).getNextTurn(turn);
     }
 
     public MatchParticipant getWhitePlayer() {
