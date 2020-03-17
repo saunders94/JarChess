@@ -33,7 +33,7 @@ public class EasyAIOpponent extends AIOpponent {//TODO write unit tests
      * {@inheritDoc}
      */
     @Override
-    public Turn takeTurn(Turn lastTurnFromOtherParticipant) throws ResignationException {
+    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws ResignationException {
         return null;//TODO
     }
 

@@ -47,7 +47,7 @@ public abstract class LocalPartipant implements MatchParticipant {
      */
     @Override
     public Turn getFirstTurn() throws ResignationException, InterruptedException {
-        return getTurn();
+        return getTurnFromInput();
     }
 
     /**
@@ -59,8 +59,8 @@ public abstract class LocalPartipant implements MatchParticipant {
      * @throws InterruptedException if the thread is interrupted during the turn.
      */
     @Override
-    public Turn takeTurn(Turn lastTurnFromOtherParticipant) throws ResignationException, InterruptedException {
-        return getTurn();
+    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws ResignationException, InterruptedException {
+        return getTurnFromInput();
     }
 
     /**
@@ -99,7 +99,7 @@ public abstract class LocalPartipant implements MatchParticipant {
      * @throws ResignationException if a resignation is observed during the turn
      * @throws InterruptedException if the thread is interupted during the turn
      */
-    private Turn getTurn() throws ResignationException, InterruptedException {
+    private Turn getTurnFromInput() throws ResignationException, InterruptedException {
         long start, end, elapsed;
         Move move;
 
@@ -108,7 +108,8 @@ public abstract class LocalPartipant implements MatchParticipant {
         }
 
         start = TestableCurrentTime.currentTimeMillis();
-        move = controller.getMove(color);
+        move = controller.getMoveInput(color);
+
         Piece.PromotionChoice promotionChoice = controller.getPromotionChoice(move);
 
         end = TestableCurrentTime.currentTimeMillis();

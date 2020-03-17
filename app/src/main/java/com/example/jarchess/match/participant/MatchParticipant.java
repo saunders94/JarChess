@@ -54,5 +54,5 @@ public interface MatchParticipant extends ResignationListener {//TODO write unit
      * @return the turn that this participant takes
      * @throws ResignationException if a resignation was detected.
      */
-    Turn takeTurn(Turn lastTurnFromOtherParticipant) throws ResignationException, InterruptedException;
+    Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws ResignationException, InterruptedException;
 }
