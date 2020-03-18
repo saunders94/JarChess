@@ -1,5 +1,19 @@
 @startuml
 
+interface JSONConvertible<Datapackage>{
++getJSONObject():JSONObject
+}
+
+abstract class JSONConverter<Datapackage>{
+    +{abstract} convertFromJSONObject(jsonObject:JSONObject):Datapackage
+    +convertToJSONObject(Datapackage jsonConvertable):JSONObject
+}
+
+JSONConvertible <|-- Datapackage
+JSONConvertible <- JSONConverter:uses
+Datapackage <-> JSONConverter
+
+
 class Datapackage{
 +Datapackage(turn:Turn)
 +Datapackage(datapackageType:DatapackageType)
@@ -8,6 +22,9 @@ class Datapackage{
 enum DatapackageType{
         TURN
         RESIGNATION
+        DRAW_REQUEST
+        DRAW_ACCEPT
+        DRAW_REJECT
         PAUSE_REQUEST
         PAUSE_ACCEPT
         PAUSE_REJECT
@@ -18,6 +35,17 @@ class Turn{
 -elapsedTime:long
 +Turn(color:ChessColor, move:Move, elapsedTime:long)
 }
+
+enum PromotionChoice{
+PROMOTE_TO_ROOK
+PROMOTE_TO_KNIGHT
+PROMOTE_TO_BISHOP
+PROMOTE_TO_QUEEN
+
++{static} getFromInt(i:int):PromotionChoice
++getIntValue():int
+}
+
 
 
 enum ChessColor{
@@ -51,7 +79,12 @@ class Coordinate{
 + {static}getByFileAndRank(file:char, rank:int):Coordinate)
 }
 
+abstract class Piece{
 
+}
+
+Turn"*" --o "1" PromotionChoice: promotionChoice
+PromotionChoice --+ Piece
 Datapackage --+ DatapackageType
 DatapackageType "1" --o "*" Datapackage: datapackageType
 Datapackage "1" o-- "0..1" Turn: turn

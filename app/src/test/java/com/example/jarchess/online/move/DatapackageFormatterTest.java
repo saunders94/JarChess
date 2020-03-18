@@ -1,6 +1,5 @@
 package com.example.jarchess.online.move;
 
-import com.example.jarchess.TestClass;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.datapackage.Datapackage;
@@ -14,7 +13,6 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
-import org.junit.experimental.theories.DataPoint;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
@@ -25,24 +23,14 @@ import static com.example.jarchess.match.pieces.Piece.PromotionChoice.PROMOTE_TO
 import static com.example.jarchess.match.pieces.Piece.PromotionChoice.PROMOTE_TO_KNIGHT;
 import static com.example.jarchess.match.pieces.Piece.PromotionChoice.PROMOTE_TO_QUEEN;
 import static com.example.jarchess.match.pieces.Piece.PromotionChoice.PROMOTE_TO_ROOK;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 @RunWith(Enclosed.class)
 public class DatapackageFormatterTest {
 
     @RunWith(Parameterized.class)
     public static class SingleMovementTurn {
-
-        final static int PARAM_VALUE_ORIGIN_FILE = 0;
-        final static int PARAM_VALUE_ORIGIN_RANK = 1;
-        final static int PARAM_VALUE_DESTINATION_FILE = 2;
-        final static int PARAM_VALUE_DESTINATION_RANK = 3;
-        final static int PARAM_VALUE_TURN_COLOR = 4;
-        final static int PARAM_VALUE_ELAPSED_TIME = 5;
-        final static int PARAM_VALUE_PROMOTION_CHOICE = 6;
-        final static int PARAM_VALUE_EXPECTED_STRING = 7;
-        private static final int EXPECTED = 0;
-
         /*
          * Test case parameters where partly generated using Joshua Zierman's custom pict utility program
          *
@@ -52,6 +40,16 @@ public class DatapackageFormatterTest {
          *
          * -Joshua Zierman
          */
+
+        private final static int PARAM_VALUE_ORIGIN_FILE = 0;
+        private final static int PARAM_VALUE_ORIGIN_RANK = 1;
+        private final static int PARAM_VALUE_DESTINATION_FILE = 2;
+        private final static int PARAM_VALUE_DESTINATION_RANK = 3;
+        private final static int PARAM_VALUE_TURN_COLOR = 4;
+        private final static int PARAM_VALUE_ELAPSED_TIME = 5;
+        private final static int PARAM_VALUE_PROMOTION_CHOICE = 6;
+        private final static int PARAM_VALUE_EXPECTED_STRING = 7;
+        private static final int EXPECTED = 0;
         private static final int ACTUAL = 1;
         @Parameter(value = PARAM_VALUE_ORIGIN_FILE)
         public char originFileParameter;

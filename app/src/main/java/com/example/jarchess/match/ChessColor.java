@@ -1,7 +1,7 @@
 package com.example.jarchess.match;
 
-import com.example.jarchess.match.datapackage.JSONConvertable;
 import com.example.jarchess.match.datapackage.JSONConverter;
+import com.example.jarchess.match.datapackage.JSONConvertible;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,7 +19,7 @@ import java.util.Random;
  *
  * @author Joshua Zierman
  */
-public enum ChessColor implements JSONConvertable<ChessColor> {
+public enum ChessColor implements JSONConvertible<ChessColor> {
 
     BLACK(0), WHITE(1);
 

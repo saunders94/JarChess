@@ -3,8 +3,8 @@ package com.example.jarchess.match.move;
 import androidx.annotation.NonNull;
 
 import com.example.jarchess.match.Coordinate;
-import com.example.jarchess.match.datapackage.JSONConvertable;
 import com.example.jarchess.match.datapackage.JSONConverter;
+import com.example.jarchess.match.datapackage.JSONConvertible;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class Move implements Collection<PieceMovement>, JSONConvertable<Move> {
+public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
     public static final String JSON_PROPERTY_NAME_MOVEMENTS = "movements";
     public static final MoveJSONConverter JSON_CONVERTER = MoveJSONConverter.getInstance();
     private final Collection<PieceMovement> movements;

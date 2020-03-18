@@ -7,8 +7,8 @@ import androidx.annotation.Nullable;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
-import com.example.jarchess.match.datapackage.JSONConvertable;
 import com.example.jarchess.match.datapackage.JSONConverter;
+import com.example.jarchess.match.datapackage.JSONConvertible;
 import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
 
 import org.json.JSONException;
@@ -187,7 +187,7 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
         }
     }
 
-    public enum PromotionChoice implements JSONConvertable<PromotionChoice> {
+    public enum PromotionChoice implements JSONConvertible<PromotionChoice> {
         PROMOTE_TO_ROOK(0, Type.ROOK),
         PROMOTE_TO_KNIGHT(1, Type.KNIGHT),
         PROMOTE_TO_BISHOP(2, Type.BISHOP),
