@@ -1,7 +1,7 @@
 package com.example.jarchess.match;
 
-import com.example.jarchess.match.datapackage.JSONConverter;
-import com.example.jarchess.match.datapackage.JSONConvertible;
+import com.example.jarchess.online.datapackage.JSONConverter;
+import com.example.jarchess.online.datapackage.JSONConvertible;
 
 import org.json.JSONException;
 import org.json.JSONObject;

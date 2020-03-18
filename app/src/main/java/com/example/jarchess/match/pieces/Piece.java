@@ -7,9 +7,9 @@ import androidx.annotation.Nullable;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
-import com.example.jarchess.match.datapackage.JSONConverter;
-import com.example.jarchess.match.datapackage.JSONConvertible;
 import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
+import com.example.jarchess.online.datapackage.JSONConverter;
+import com.example.jarchess.online.datapackage.JSONConvertible;
 
 import org.json.JSONException;
 import org.json.JSONObject;

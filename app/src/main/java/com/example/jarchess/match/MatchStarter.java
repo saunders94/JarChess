@@ -10,7 +10,7 @@ import com.example.jarchess.match.participant.Player;
 import com.example.jarchess.match.participant.RemoteOpponent;
 import com.example.jarchess.online.move.DatapackageQueue;
 
-import static com.example.jarchess.match.datapackage.MatchNetworkIO.DatapackageQueueAddapter;
+import static com.example.jarchess.online.datapackage.MatchNetworkIO.DatapackageQueueAddapter;
 
 //TODO javadocs
 public class MatchStarter {

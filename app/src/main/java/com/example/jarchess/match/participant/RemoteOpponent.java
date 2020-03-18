@@ -4,9 +4,6 @@ import androidx.annotation.NonNull;
 
 import com.example.jarchess.RemoteOpponentAccount;
 import com.example.jarchess.match.ChessColor;
-import com.example.jarchess.match.datapackage.DatapackageReceiver;
-import com.example.jarchess.match.datapackage.DatapackageSender;
-import com.example.jarchess.match.datapackage.MatchNetworkIO;
 import com.example.jarchess.match.resignation.Resignation;
 import com.example.jarchess.match.resignation.ResignationEvent;
 import com.example.jarchess.match.resignation.ResignationEventManager;
@@ -17,6 +14,9 @@ import com.example.jarchess.match.styles.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.turn.TurnReceiver;
 import com.example.jarchess.match.turn.TurnSender;
+import com.example.jarchess.online.datapackage.DatapackageReceiver;
+import com.example.jarchess.online.datapackage.DatapackageSender;
+import com.example.jarchess.online.datapackage.MatchNetworkIO;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;

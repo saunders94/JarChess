@@ -1,6 +1,6 @@
 package com.example.jarchess.online.networking;
 
-import com.example.jarchess.match.datapackage.Datapackage;
+import com.example.jarchess.online.datapackage.UnsignedDatapackage;
 import com.example.jarchess.online.move.DatapackageFormatter;
 import com.example.jarchess.online.move.DatapackageQueue;
 
@@ -33,12 +33,12 @@ public class MoveSender {
     }
 
     private void processMoves() throws IOException{
-        Datapackage datapackage = this.queue.getDatapackage();
-        //convert datapackage to JSONObject
-        JSONObject jsonObject = formatter.dataPkgToJson(datapackage);
+        UnsignedDatapackage unsignedDatapackage = this.queue.getDatapackage();
+        //convert unsignedDatapackage to JSONObject
+        JSONObject jsonObject = formatter.dataPkgToJson(unsignedDatapackage);
         //call network.sendData with new JSONObject
         JSONObject rcvdMsg = sender.send(jsonObject);
-        Datapackage recvdPackage = formatter.jsonObjToDataPkg(rcvdMsg);
+        UnsignedDatapackage recvdPackage = formatter.jsonObjToDataPkg(rcvdMsg);
         queue.insertDatapackage(recvdPackage);
     }
 

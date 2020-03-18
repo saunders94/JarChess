@@ -2,38 +2,37 @@ package com.example.jarchess.online.move;
 
 import android.util.Log;
 
-import com.example.jarchess.match.datapackage.Datapackage;
+import com.example.jarchess.online.datapackage.UnsignedDatapackage;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class DatapackageQueue {
-    private LinkedBlockingQueue<Datapackage> inboundDatapackage;
-    private LinkedBlockingQueue<Datapackage> outboundDatapackage;
+    private LinkedBlockingQueue<UnsignedDatapackage> inboundUnsignedDatapackage;
+    private LinkedBlockingQueue<UnsignedDatapackage> outboundUnsignedDatapackage;
     private String gameId;
 
     public DatapackageQueue() {
-        this.inboundDatapackage = new LinkedBlockingQueue<Datapackage>();
-        this.outboundDatapackage = new LinkedBlockingQueue<Datapackage>();
+        this.inboundUnsignedDatapackage = new LinkedBlockingQueue<UnsignedDatapackage>();
+        this.outboundUnsignedDatapackage = new LinkedBlockingQueue<UnsignedDatapackage>();
     }
 
-    public void insertDatapackage(Datapackage datapackage) {
+    public UnsignedDatapackage getDatapackage() {
         try {
-            outboundDatapackage.put(datapackage);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public Datapackage getDatapackage() {
-        try {
-            Datapackage datapackage = inboundDatapackage.take();
-            Log.d("DatapackageQueue", "getDatapackage: " + datapackage);
-            return datapackage;
+            UnsignedDatapackage unsignedDatapackage = inboundUnsignedDatapackage.take();
+            Log.d("DatapackageQueue", "getDatapackage: " + unsignedDatapackage);
+            return unsignedDatapackage;
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void insertDatapackage(UnsignedDatapackage unsignedDatapackage) {
+        try {
+            outboundUnsignedDatapackage.put(unsignedDatapackage);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 }
