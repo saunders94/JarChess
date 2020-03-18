@@ -1,6 +1,6 @@
 # JarChess
 
-Thanks for checking out JAR Games' first game, JarChess.
+Thanks for checking out JarChess.
 Currently the game is in development.
 
 ## Bug Reports
