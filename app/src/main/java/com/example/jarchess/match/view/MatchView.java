@@ -13,13 +13,12 @@ import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
 import com.example.jarchess.match.PlayerMatch;
-import com.example.jarchess.match.activity.CommitButtonClickHandler;
+import com.example.jarchess.match.activity.CommitButtonClickObserver;
 import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.pieces.Piece;
-import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
 import com.example.jarchess.match.result.Result;
 import com.example.jarchess.match.styles.ChessboardStyle;
 import com.example.jarchess.match.styles.ChesspieceStyle;
@@ -51,14 +50,14 @@ public class MatchView extends View {
     private final int rightParticipantTextColor;
     private final Button commitButton;
     private final LeaveMatchDialog leaveMatchDialog;
-    private final CommitButtonClickHandler commitButtonClickHandler;
+    private final CommitButtonClickObserver commitButtonClickObserver;
     private final CapturedPiecesView capturedPieceView;
     private final MatchResultDialog matchResultDialog;
     private final PawnPromotionChoiceDialog pawnPromotionChoiceDialog;
 
     public MatchView(Match match, MatchActivity activity) {
         super(activity.getBaseContext());
-        commitButtonClickHandler = activity;
+        commitButtonClickObserver = activity;
 
         participantInfoBarView = activity.findViewById(R.id.participant_info_bar);
         leftParticipantInfoView = participantInfoBarView.findViewById(R.id.player_info);
@@ -79,7 +78,7 @@ public class MatchView extends View {
         commitButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                commitButtonClickHandler.handleCommitButtonClick();
+                commitButtonClickObserver.observeCommitButtonClick();
             }
         });
 

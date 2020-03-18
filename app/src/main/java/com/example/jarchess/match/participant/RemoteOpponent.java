@@ -128,7 +128,7 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
      * {@inheritDoc}
      */
     @Override
-    public Turn takeTurn(Turn lastTurnFromOtherParticipant) throws ResignationException {
+    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws ResignationException {
 
         turnSender.send(lastTurnFromOtherParticipant);
 
