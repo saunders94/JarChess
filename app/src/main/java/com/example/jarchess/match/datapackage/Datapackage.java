@@ -23,7 +23,7 @@ import org.json.JSONObject;
  * <li>A pause rejection
  * </ul>
  */
-public class Datapackage implements JSONConvertable<Datapackage> {
+public class Datapackage implements JSONConvertible<Datapackage> {
     public static final DatapackageJSONConverter JSON_CONVERTER = DatapackageJSONConverter.getInstance();
     public static final String JSON_PROPERTY_NAME_TYPE = "type";
     public static final String JSON_PROPERTY_NAME_TURN = "turn";
@@ -113,7 +113,7 @@ public class Datapackage implements JSONConvertable<Datapackage> {
 
     }
 
-    public enum DatapackageType implements JSONConvertable<DatapackageType> {
+    public enum DatapackageType implements JSONConvertible<DatapackageType> {
         TURN(0),
         RESIGNATION(1),
         PAUSE_REQUEST(2),

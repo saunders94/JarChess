@@ -2,8 +2,8 @@ package com.example.jarchess.match;
 
 import androidx.annotation.NonNull;
 
-import com.example.jarchess.match.datapackage.JSONConvertable;
 import com.example.jarchess.match.datapackage.JSONConverter;
+import com.example.jarchess.match.datapackage.JSONConvertible;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,7 +31,7 @@ import java.util.Iterator;
  *
  * @author Joshua Zierman
  */
-public class Coordinate implements JSONConvertable<Coordinate> {
+public class Coordinate implements JSONConvertible<Coordinate> {
 
     // File Constants
     /**
