@@ -9,12 +9,23 @@ abstract class JSONConverter<Datapackage>{
     +convertToJSONObject(Datapackage jsonConvertable):JSONObject
 }
 
+abstract class JSONConverter<Datapackage>{
+    +{abstract} convertFromJSONObject(jsonObject:JSONObject):Datapackage
+    +convertToJSONObject(Datapackage jsonConvertable):JSONObject
+}
+
+class DatapackageJSONConverter{
+
+}
+JSONConverter <|-- DatapackageJSONConverter
 JSONConvertible <|-- Datapackage
-JSONConvertible <- JSONConverter:uses
-Datapackage <-> JSONConverter
+JSONConvertible <-- JSONConverter:<<uses>>
+Datapackage -left> DatapackageJSONConverter
+Datapackage +-left DatapackageJSONConverter
 
 
 class Datapackage{
++{static}JSON_CONVERTER:DatapackageJSONConverter
 +Datapackage(turn:Turn)
 +Datapackage(datapackageType:DatapackageType)
 }
@@ -83,11 +94,11 @@ abstract class Piece{
 
 }
 
-Turn"*" --o "1" PromotionChoice: promotionChoice
+Turn"*" o-- "1" PromotionChoice: promotionChoice
 PromotionChoice --+ Piece
 Datapackage --+ DatapackageType
 DatapackageType "1" --o "*" Datapackage: datapackageType
-Datapackage "1" o-- "0..1" Turn: turn
+Datapackage "1" o-right- "0..1" Turn: turn
 Turn "1" o- "1" Move: move
 Collection <|-down- Move
 Move "*" o-right- "*" PieceMovement:movements
