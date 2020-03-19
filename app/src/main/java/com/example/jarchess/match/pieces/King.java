@@ -1,7 +1,5 @@
 package com.example.jarchess.match.pieces;
 
-import android.util.Log;
-
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.pieces.movementpatterns.CastleMovementPattern;
@@ -10,8 +8,6 @@ import com.example.jarchess.match.pieces.movementpatterns.MovementPatternProduce
 
 import java.util.Collection;
 import java.util.LinkedList;
-
-import static androidx.constraintlayout.widget.Constraints.TAG;
 
 /**
  * A king is a chess piece that can move 1 square in any direction.
@@ -78,7 +74,6 @@ public class King extends Piece {//TODO write unit tests
 
     @Override
     void add(MovementPattern pattern) {
-        Log.d(TAG, "add() called with: CastleMovementPattern pattern = [" + pattern + "]");
         super.add(pattern);
         if (pattern instanceof CastleMovementPattern)
             castleMovementPatterns.add((CastleMovementPattern) pattern);

@@ -2,11 +2,11 @@ package com.example.jarchess.online.move;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
-import com.example.jarchess.match.datapackage.Datapackage;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.turn.Turn;
+import com.example.jarchess.online.datapackage.UnsignedDatapackage;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 @RunWith(Enclosed.class)
-public class DatapackageFormatterTest {
+public class UnsignedSignedDatapackageFormatterTest {
 
     @RunWith(Parameterized.class)
     public static class SingleMovementTurn {
@@ -74,7 +74,7 @@ public class DatapackageFormatterTest {
         private long[] elapsedTime = new long[2];
         private Piece.PromotionChoice[] chosenPromotion = new Piece.PromotionChoice[2];
         private DatapackageFormatter datapackageFormatterUnderTest = new DatapackageFormatter();
-        private Datapackage expectedDataPackage;
+        private UnsignedDatapackage expectedDataPackage;
 
         @Parameterized.Parameters(name = "{index} | originFile = {" + PARAM_VALUE_ORIGIN_FILE + "}, originRank = {" + PARAM_VALUE_ORIGIN_RANK + "}, destinationFile = {" + PARAM_VALUE_DESTINATION_FILE + "}, destinationRank = {" + PARAM_VALUE_DESTINATION_RANK + "}, turnColor = {" + PARAM_VALUE_TURN_COLOR + "}, elapsedTime = {" + PARAM_VALUE_ELAPSED_TIME + "}, promotionChoice = {" + PARAM_VALUE_PROMOTION_CHOICE + "}")
         public static Object[][] data() {
@@ -178,8 +178,8 @@ public class DatapackageFormatterTest {
             // make the JSONObject from the provided string
             JSONObject jsonObject = new JSONObject(expectedString);
 
-            // use the datapackageFormatter that we are trying to test to convert that JSONObject to a Datapackage
-            Datapackage actualDataPackage = datapackageFormatterUnderTest.jsonObjToDataPkg(jsonObject);
+            // use the datapackageFormatter that we are trying to test to convert that JSONObject to a UnsignedDatapackage
+            UnsignedDatapackage actualDataPackage = datapackageFormatterUnderTest.jsonObjToDataPkg(jsonObject);
 
             // check that everything is as expected
             Turn resultingTurn = actualDataPackage.getTurn();
@@ -217,7 +217,7 @@ public class DatapackageFormatterTest {
 
             Turn turnExpected = new Turn(color, move, time, pieceType);
 
-            expectedDataPackage = new Datapackage(turnExpected);
+            expectedDataPackage = new UnsignedDatapackage(turnExpected);
         }
     }
 }

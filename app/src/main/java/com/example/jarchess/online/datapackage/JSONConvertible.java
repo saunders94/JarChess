@@ -1,4 +1,4 @@
-package com.example.jarchess.match.datapackage;
+package com.example.jarchess.online.datapackage;
 
 import org.json.JSONException;
 import org.json.JSONObject;

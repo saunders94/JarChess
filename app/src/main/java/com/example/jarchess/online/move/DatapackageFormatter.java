@@ -1,6 +1,6 @@
 package com.example.jarchess.online.move;
 
-import com.example.jarchess.match.datapackage.Datapackage;
+import com.example.jarchess.online.datapackage.UnsignedDatapackage;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,14 +12,14 @@ public class DatapackageFormatter {
     }
 
     //todo User signon stuff here
-    public JSONObject dataPkgToJson(Datapackage datapackage) {
+    public JSONObject dataPkgToJson(UnsignedDatapackage unsignedDatapackage) {
 
 //        Coordinate origin = new Coordinate();
 //        Coordinate destination = new Coordinate();
 //
-//        Move move = datapackage.getDatapackage();
-//        long elapsedTime = datapackage.getElapsedTime();
-//        Datapackage.DatapackageType type = datapackage.getDatapackageType();
+//        Move move = unsignedDatapackage.getDatapackage();
+//        long elapsedTime = unsignedDatapackage.getElapsedTime();
+//        UnsignedDatapackage.DatapackageType type = unsignedDatapackage.getDatapackageType();
 //
 //        Log.i("datapackageType ", type.toString());
 //
@@ -62,14 +62,14 @@ public class DatapackageFormatter {
 
         JSONObject jsonObject = null;
         try {
-            jsonObject = Datapackage.JSON_CONVERTER.convertToJSONObject(datapackage);
+            jsonObject = UnsignedDatapackage.JSON_CONVERTER.convertToJSONObject(unsignedDatapackage);
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return jsonObject;
     }
 
-    public Datapackage jsonObjToDataPkg(JSONObject jsonObject) {
+    public UnsignedDatapackage jsonObjToDataPkg(JSONObject jsonObject) {
 //
 //        String strOrigin = null;
 //        String strDestination = null;
@@ -99,17 +99,17 @@ public class DatapackageFormatter {
 //        PieceMovement movement1 = new PieceMovement(origin1, destination1);
 //        PieceMovement movement2 = new PieceMovement(origin2, destination2);
 //        Turn turn = new Turn(null, move , null);
-//        Datapackage datapackage = new Datapackage(turn);
-//        return datapackage;
+//        UnsignedDatapackage unsignedDatapackage = new UnsignedDatapackage(turn);
+//        return unsignedDatapackage;
 //
-        Datapackage datapackage = null;
+        UnsignedDatapackage unsignedDatapackage = null;
         try {
-            datapackage = Datapackage.JSON_CONVERTER.convertFromJSONObject(jsonObject);
+            unsignedDatapackage = UnsignedDatapackage.JSON_CONVERTER.convertFromJSONObject(jsonObject);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        return datapackage;
+        return unsignedDatapackage;
 
     }
 }
