@@ -5,6 +5,8 @@ import com.example.jarchess.match.turn.Turn;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.InetAddress;
+
 public class SignedDatapackage implements Datapackage<SignedDatapackage> {
 
     public static final SignedDatapackageJSONConverter JSON_CONVERTER = SignedDatapackageJSONConverter.getInstance();
@@ -13,22 +15,26 @@ public class SignedDatapackage implements Datapackage<SignedDatapackage> {
     public static final String JSON_PROPERTY_NAME_SIGNING_TOKEN = "signingToken";
     public static final String JSON_PROPERTY_NAME_GAME_TOKEN = "gameToken";
     UnsignedDatapackage unsignedDatapackage;
-    Object signingToken;
-    Object gameToken;
+    String signingToken;
+    String gameToken;
 
-    public SignedDatapackage(Turn turn, Object signingToken, Object gameToken) {
+
+    //network address string
+    //port int
+
+    public SignedDatapackage(Turn turn, String signingToken, String gameToken) {
         unsignedDatapackage = new UnsignedDatapackage(turn);
         this.signingToken = signingToken;
         this.gameToken = gameToken;
     }
 
-    public SignedDatapackage(DatapackageType type, Object signingToken, Object gameToken) {
+    public SignedDatapackage(DatapackageType type, String signingToken, String gameToken) {
         unsignedDatapackage = new UnsignedDatapackage(type);
         this.signingToken = signingToken;
         this.gameToken = gameToken;
     }
 
-    public SignedDatapackage(UnsignedDatapackage unsignedDatapackage, Object signingToken, Object gameToken) {
+    public SignedDatapackage(UnsignedDatapackage unsignedDatapackage, String signingToken, String gameToken) {
         this.unsignedDatapackage = unsignedDatapackage;
         this.signingToken = signingToken;
         this.gameToken = gameToken;
@@ -80,8 +86,8 @@ public class SignedDatapackage implements Datapackage<SignedDatapackage> {
         public SignedDatapackage convertFromJSONObject(JSONObject jsonObject) throws JSONException {
 
             DatapackageType type = DatapackageType.JSON_CONVERTER.convertFromJSONObject(jsonObject.getJSONObject(JSON_PROPERTY_NAME_TYPE));
-            Object signingToken = getSigningTokenFromJSON(jsonObject.getJSONObject(JSON_PROPERTY_NAME_SIGNING_TOKEN));
-            Object gameToken = getGameTokenFromJSON(jsonObject.getJSONObject(JSON_PROPERTY_NAME_GAME_TOKEN));
+            String signingToken = getSigningTokenFromJSON(jsonObject.getJSONObject(JSON_PROPERTY_NAME_SIGNING_TOKEN));
+            String gameToken = getGameTokenFromJSON(jsonObject.getJSONObject(JSON_PROPERTY_NAME_GAME_TOKEN));
 
             Turn turn = null;
             if (!jsonObject.isNull(JSON_PROPERTY_NAME_TURN)) {
@@ -99,19 +105,19 @@ public class SignedDatapackage implements Datapackage<SignedDatapackage> {
             }
         }
 
-        private Object getGameTokenFromJSON(JSONObject jsonObject) {
+        private String getGameTokenFromJSON(JSONObject jsonObject) {
             return null;//FIXME
         }
 
-        private JSONObject getJSONFromGameToken(Object gameToken) {
+        private JSONObject getJSONFromGameToken(String gameToken) {
             return null;//FIXME
         }
 
-        private JSONObject getJSONFromSigningToken(Object signingToken) {
+        private JSONObject getJSONFromSigningToken(String signingToken) {
             return null;//FIXME
         }
 
-        private Object getSigningTokenFromJSON(JSONObject jsonObject) {
+        private String getSigningTokenFromJSON(JSONObject jsonObject) {
             return null;//FIXME
         }
     }
