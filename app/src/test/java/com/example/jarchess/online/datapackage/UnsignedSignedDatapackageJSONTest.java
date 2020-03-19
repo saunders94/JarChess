@@ -1,4 +1,4 @@
-package com.example.jarchess.match.datapackage;
+package com.example.jarchess.online.datapackage;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 @RunWith(Enclosed.class)
-public class DatapackageJSONTest {
+public class UnsignedSignedDatapackageJSONTest {
 
     private static final int EXPECTED = 0;
     private static final int ACTUAL = 1;
@@ -176,11 +176,11 @@ public class DatapackageJSONTest {
 
             Turn turnExpected = new Turn(color, move, time, pieceType);
 
-            Datapackage datapackageUnderTest = new Datapackage(turnExpected);
-            JSONObject jsonObject = datapackageUnderTest.getJSONObject();
+            UnsignedDatapackage unsignedDatapackageUnderTest = new UnsignedDatapackage(turnExpected);
+            JSONObject jsonObject = unsignedDatapackageUnderTest.getJSONObject();
 
-            Datapackage resultingDatapackage = Datapackage.JSON_CONVERTER.convertFromJSONObject(jsonObject);
-            Turn resultingTurn = resultingDatapackage.getTurn();
+            UnsignedDatapackage resultingUnsignedDatapackage = UnsignedDatapackage.JSON_CONVERTER.convertFromJSONObject(jsonObject);
+            Turn resultingTurn = resultingUnsignedDatapackage.getTurn();
             Move resultingMove = resultingTurn.getMove();
             PieceMovement[] resultingMoments = new PieceMovement[0];
             resultingMoments = resultingMove.toArray(resultingMoments);

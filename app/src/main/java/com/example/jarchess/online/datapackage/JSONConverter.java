@@ -1,11 +1,11 @@
-package com.example.jarchess.match.datapackage;
+package com.example.jarchess.online.datapackage;
 
 import androidx.annotation.NonNull;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public abstract class JSONConverter<T extends JSONConvertable<T>> {
+public abstract class JSONConverter<T extends JSONConvertible<T>> {
 
     public abstract T convertFromJSONObject(@NonNull JSONObject jsonObject) throws JSONException;
 

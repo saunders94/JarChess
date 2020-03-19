@@ -1,4 +1,4 @@
-package com.example.jarchess.match.datapackage;
+package com.example.jarchess.online.datapackage;
 
 import android.util.Log;
 
@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import static com.example.jarchess.match.datapackage.Datapackage.DatapackageType.RESIGNATION;
+import static com.example.jarchess.online.datapackage.DatapackageType.RESIGNATION;
 
 public class MatchNetworkIO {
     private static void waitWhileEmpty(Queue<?> collection, Object lock) throws InterruptedException {
@@ -33,7 +33,7 @@ public class MatchNetworkIO {
         private static final String TAG = "MatchNetworkIO.Sender";
         private final Collection<Closeable> closeables = new LinkedList<Closeable>();
         private final DatapackageSender datapackageSender;
-        private final Queue<Datapackage> outGoingDatapackages = new LinkedList<Datapackage>();
+        private final Queue<UnsignedDatapackage> outGoingUnsignedDatapackages = new LinkedList<UnsignedDatapackage>();
         private final Object lock = new Object();
 
         private boolean isAlive;
@@ -53,8 +53,8 @@ public class MatchNetworkIO {
                     try {
                         synchronized (lock) {
                             while (isAlive) {
-                                waitWhileEmpty(outGoingDatapackages, lock);
-                                datapackageSender.send(outGoingDatapackages.remove());
+                                waitWhileEmpty(outGoingUnsignedDatapackages, lock);
+                                datapackageSender.send(outGoingUnsignedDatapackages.remove());
                             }
                         }
                     } catch (InterruptedException e1) {
@@ -101,15 +101,15 @@ public class MatchNetworkIO {
         @Override
         public void send(Turn turn) {
             synchronized (lock) {
-                outGoingDatapackages.add(new Datapackage(turn));
+                outGoingUnsignedDatapackages.add(new UnsignedDatapackage(turn));
             }
         }
 
         @Override
         public void send(Resignation resignation) {
             synchronized (lock) {
-                Datapackage datapackage = new Datapackage(RESIGNATION);
-                outGoingDatapackages.add(datapackage);
+                UnsignedDatapackage unsignedDatapackage = new UnsignedDatapackage(RESIGNATION);
+                outGoingUnsignedDatapackages.add(unsignedDatapackage);
             }
         }
     }
@@ -137,31 +137,31 @@ public class MatchNetworkIO {
                     isAlive = true;
                     try {
                         while (isAlive) {
-                            Datapackage datapackage = datapackageReceiver.recieveNextDatapackage();
+                            UnsignedDatapackage unsignedDatapackage = datapackageReceiver.recieveNextDatapackage();
 
-                            switch (datapackage.getDatapackageType()) {
+                            switch (unsignedDatapackage.getDatapackageType()) {
 
                                 case TURN:
-                                    incomingTurns.add(datapackage.getTurn());
+                                    incomingTurns.add(unsignedDatapackage.getTurn());
                                     break;
                                 case RESIGNATION:
-                                    incomingResignations.add(datapackage.getResignation());
+                                    incomingResignations.add(unsignedDatapackage.getResignation());
                                     break;
                                 case PAUSE_REQUEST:
-//                                    incomingPauseRequest.add(datapackage.getPauseRequest());
+//                                    incomingPauseRequest.add(unsignedDatapackage.getPauseRequest());
 //                                    break;
                                     throw new RuntimeException("Pause Request not implemented");
                                 case PAUSE_ACCEPT:
-//                                    incomingPauseAccept.add(datapackage.getPauseAccept());
+//                                    incomingPauseAccept.add(unsignedDatapackage.getPauseAccept());
 //                                    break;
                                     throw new RuntimeException("Pause Accept not implemented");
                                 case PAUSE_REJECT:
-//                                    incomingPauseReject.add(datapackage.getPauseReject());
+//                                    incomingPauseReject.add(unsignedDatapackage.getPauseReject());
 //                                    break;
                                     throw new RuntimeException("Pause Reject not implemented");
 
                                 default:
-                                    throw new IllegalStateException("Unexpected datapackage type: " + datapackage.getDatapackageType());
+                                    throw new IllegalStateException("Unexpected unsignedDatapackage type: " + unsignedDatapackage.getDatapackageType());
                             }
                         }
                     } catch (InterruptedException e1) {
@@ -231,13 +231,13 @@ public class MatchNetworkIO {
         }
 
         @Override
-        public Datapackage recieveNextDatapackage() throws InterruptedException {
+        public UnsignedDatapackage recieveNextDatapackage() throws InterruptedException {
             return queue.getDatapackage();
         }
 
         @Override
-        public void send(Datapackage datapackage) {
-            queue.insertDatapackage(datapackage);
+        public void send(UnsignedDatapackage unsignedDatapackage) {
+            queue.insertDatapackage(unsignedDatapackage);
         }
     }
 }
