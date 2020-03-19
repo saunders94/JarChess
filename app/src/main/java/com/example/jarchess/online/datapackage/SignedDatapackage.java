@@ -5,7 +5,7 @@ import com.example.jarchess.match.turn.Turn;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class SignedDatapackage implements JSONConvertible<SignedDatapackage> {
+public class SignedDatapackage implements Datapackage<SignedDatapackage> {
 
     public static final SignedDatapackageJSONConverter JSON_CONVERTER = SignedDatapackageJSONConverter.getInstance();
     public static final String JSON_PROPERTY_NAME_TYPE = "type";
@@ -26,6 +26,21 @@ public class SignedDatapackage implements JSONConvertible<SignedDatapackage> {
         unsignedDatapackage = new UnsignedDatapackage(type);
         this.signingToken = signingToken;
         this.gameToken = gameToken;
+    }
+
+    public SignedDatapackage(UnsignedDatapackage unsignedDatapackage, Object signingToken, Object gameToken) {
+        this.unsignedDatapackage = unsignedDatapackage;
+        this.signingToken = signingToken;
+        this.gameToken = gameToken;
+    }
+
+    @Override
+    public DatapackageType getDatapackageType() {
+        return unsignedDatapackage.getDatapackageType();
+    }
+
+    public UnsignedDatapackage getUnsignedDatapackage() {
+        return unsignedDatapackage;
     }
 
 
