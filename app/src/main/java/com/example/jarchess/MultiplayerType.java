@@ -69,6 +69,15 @@ public class MultiplayerType extends Fragment {
                 //transaction.commit();
 
                 //TODO SETUP Multiplayer Stuff
+
+                // Username
+                // IP Address
+                // Port
+                // Chosen Avatar Style (int 1)
+                // Starting color
+                // OnlineMatch onlineMatch = SomeClass.instance().getOnlineMatch();
+
+
                 DatapackageQueue queue = new DatapackageQueue();
 
                 RemoteOpponentAccount remoteOpponentAccount = new RemoteOpponentAccount("Remote Opponent",
