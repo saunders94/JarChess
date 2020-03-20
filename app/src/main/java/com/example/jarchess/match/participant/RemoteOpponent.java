@@ -2,7 +2,7 @@ package com.example.jarchess.match.participant;
 
 import androidx.annotation.NonNull;
 
-import com.example.jarchess.RemoteOpponentAccount;
+import com.example.jarchess.RemoteOpponentInfoBundle;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.resignation.Resignation;
 import com.example.jarchess.match.resignation.ResignationEvent;
@@ -49,19 +49,19 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
      * Creates a remote opponent.
      *
      * @param color                   the remote opponent's color
-     * @param remoteOpponentAccount the remote opponent's account
+     * @param remoteOpponentInfoBundle the remote opponent's account
      */
-    public RemoteOpponent(@NonNull ChessColor color, @NonNull RemoteOpponentAccount remoteOpponentAccount, DatapackageSender sender, DatapackageReceiver receiver) {
+    public RemoteOpponent(@NonNull ChessColor color, @NonNull RemoteOpponentInfoBundle remoteOpponentInfoBundle, DatapackageSender sender, DatapackageReceiver receiver) {
 
-        this.name = remoteOpponentAccount.getName();
-        this.avatarStyle = remoteOpponentAccount.getAvatarStyle();
+        this.name = remoteOpponentInfoBundle.getName();
+        this.avatarStyle = remoteOpponentInfoBundle.getAvatarStyle();
         this.color = color;
-        MatchNetworkIO.Sender mNIOSender = new MatchNetworkIO.Sender(sender);
-        MatchNetworkIO.Reciever mNIOReciever = new MatchNetworkIO.Reciever(receiver);
+        MatchNetworkIO.Sender mNIOSender = new MatchNetworkIO.Sender(sender, remoteOpponentInfoBundle.getIP(), remoteOpponentInfoBundle.getPort());
+        MatchNetworkIO.Receiver mNIOReceiver = new MatchNetworkIO.Receiver(receiver);
         this.turnSender = mNIOSender;
-        this.turnReceiver = mNIOReciever;
+        this.turnReceiver = mNIOReceiver;
         this.resignationSender = mNIOSender;
-        this.resignationReciever = mNIOReciever;
+        this.resignationReciever = mNIOReceiver;
 
 
         switch (color) {

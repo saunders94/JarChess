@@ -2,7 +2,11 @@ package com.example.jarchess;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +15,13 @@ import android.widget.Button;
 import com.example.jarchess.match.MatchStarter;
 import com.example.jarchess.match.activity.LocalMultiplayerMatchActivity;
 import com.example.jarchess.match.activity.OnlineMultiplayerMatchActivity;
-import com.example.jarchess.match.styles.YellowBlackYellowCircleAvatarStyle;
-import com.example.jarchess.online.move.DatapackageQueue;
+import com.example.jarchess.online.OnlineMatch;
+import com.example.jarchess.online.OnlineMatchMaker;
 import com.example.jarchess.online.networking.Controller;
+
+import java.io.IOException;
+
+import static android.support.constraint.Constraints.TAG;
 
 
 public class MultiplayerType extends Fragment {
@@ -68,26 +76,85 @@ public class MultiplayerType extends Fragment {
                 //transaction.replace(R.id.fragmentHole, mainMenu);
                 //transaction.commit();
 
-                //TODO SETUP Multiplayer Stuff
+                FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
+                MatchMakerLauncher matchMakerLauncher = new MatchMakerLauncher();
+                transaction.replace(R.id.fragmentHole, matchMakerLauncher);
+                transaction.addToBackStack(null);
+                transaction.commit();
+
+                //TODO show waiting for match dialog with a cancel button that will end the search
+
+
 
                 // Username
                 // IP Address
                 // Port
                 // Chosen Avatar Style (int 1)
                 // Starting color
-                // OnlineMatch onlineMatch = SomeClass.instance().getOnlineMatch();
+                Object lock = new Object();
+                OnlineMatch onlineMatch = null;
+                boolean canceled = false;
 
-
-                DatapackageQueue queue = new DatapackageQueue();
-
-                RemoteOpponentAccount remoteOpponentAccount = new RemoteOpponentAccount("Remote Opponent",
-                        YellowBlackYellowCircleAvatarStyle.getInstance());
-
-                MatchStarter.getInstance().multiplayerSetup(queue, remoteOpponentAccount);
-
-                Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
-                startActivity(intent);
             }
         });
+    }
+
+    public static class MatchMakerLauncher extends Fragment {
+
+        private OnlineMatch onlineMatch;
+        private Button cancelMatchMakingButton;
+
+        public MatchMakerLauncher() {
+        }
+
+        public void cancel() {
+            OnlineMatchMaker.getInstance().cancel();
+        }
+
+        @Override
+        public void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+        }
+
+        @Nullable
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+            // start a new thread to launch the online match maker.
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        OnlineMatchMaker.getInstance().getOnlineMatch();
+                        MatchStarter.getInstance().multiplayerSetup(onlineMatch);
+
+                        Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
+                        startActivity(intent);
+                    } catch (OnlineMatchMaker.SearchCanceledException e) {
+                        Log.d(TAG, "onCreateView's run: online match maker was cancled");
+                    } catch (IOException e) {
+                        Log.e(TAG, "onCreateView's run: ", e);
+                    } catch (InterruptedException e) {
+                        Log.e(TAG, "onCreateView's run: ", e);
+                    }
+                }
+            }, "matchMakerLauncherThread").start();
+
+            // Inflate the layout for this fragment
+
+            View view = inflater.inflate(R.layout.fragment_match_maker_launcher, container, false);
+            cancelMatchMakingButton = view.findViewById(R.id.cancel_match_making_button);
+
+            cancelMatchMakingButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    cancel();
+                    getActivity().onBackPressed();
+                }
+            });
+
+
+            return view;
+        }
     }
 }

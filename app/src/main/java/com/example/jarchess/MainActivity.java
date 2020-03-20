@@ -1,11 +1,8 @@
 package com.example.jarchess;
 
 
-import android.app.Activity;
-import android.support.v4.app.Fragment;
-
 import android.os.Bundle;
-
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +11,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
+import com.example.jarchess.online.OnlineMatchMaker;
 
 public class MainActivity extends AppCompatActivity implements ProfileSignIn.signInCommunicator{
 
@@ -24,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
     private MenuItem notificationItem;
     private TextView usernameLabel;
     private TextView unseenNotificationView;
+
 
 
 
@@ -163,5 +163,13 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
         //} else {
         //return false;
         //}
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        // cancel matchmaking
+        OnlineMatchMaker.getInstance().cancel();
     }
 }
