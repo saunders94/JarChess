@@ -40,6 +40,9 @@ public abstract class Match implements ResignationListener {
     private boolean isDone;
     private Result matchResult = null;
     private LocalParticipantController localParticipantController;
+    private String gameToken;
+
+    // TODO send the username of the winner in result
 
     public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2) {
 

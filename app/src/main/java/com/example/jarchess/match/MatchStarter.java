@@ -33,6 +33,13 @@ public class MatchStarter {
 
     public void multiplayerSetup(DatapackageQueue queue, RemoteOpponentAccount remoteOpponentAccount) {
 
+
+        // Username
+        // IP Address
+        // Port
+        // Chosen Avatar Style (int 1)
+        // Starting color
+
         this.queue = queue;
         this.remoteOpponentAccount = remoteOpponentAccount;
     }
@@ -74,6 +81,7 @@ public class MatchStarter {
         }
 
 
+        // TODO remove the color randomization
         ChessColor playerColor = ChessColor.getRandom();
         Player player = new Player(playerColor);
         ChessColor opponentColor = ChessColor.getOther(playerColor);
