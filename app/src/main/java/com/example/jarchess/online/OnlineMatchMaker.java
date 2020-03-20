@@ -112,14 +112,13 @@ public class OnlineMatchMaker {
 
         if (wasCanceled) {
             throw new SearchCanceledException();
+        } else if (ioException != null) {
+            try {
+                throw ioException;
+            } finally {
+                ioException = null;
+            }
         }
-//        else if (ioException != null) {
-//            try {
-//                throw ioException;
-//            } finally {
-//                ioException = null;
-//            }
-//        }
 
         return onlineMatch;
     }
