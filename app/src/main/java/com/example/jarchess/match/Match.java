@@ -40,6 +40,9 @@ public abstract class Match implements ResignationListener {
     private boolean isDone;
     private Result matchResult = null;
     private LocalParticipantController localParticipantController;
+    private String gameToken;
+
+    // TODO send the username of the winner in result
 
     public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2) {
 
@@ -54,8 +57,9 @@ public abstract class Match implements ResignationListener {
         this.blackPlayer = participant1.getColor() == BLACK ? participant1 : participant2;
         this.whitePlayer = participant1.getColor() == WHITE ? participant1 : participant2;
 
-        matchHistory = new MatchHistory();
+        matchHistory = new MatchHistory(whitePlayer, blackPlayer);
         moveExpert = MoveExpert.getInstance();
+        moveExpert.setMatchHistory(matchHistory);
     }
 
     public Piece capture(Coordinate destination) {

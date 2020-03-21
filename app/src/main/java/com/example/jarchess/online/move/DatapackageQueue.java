@@ -2,37 +2,55 @@ package com.example.jarchess.online.move;
 
 import android.util.Log;
 
-import com.example.jarchess.online.datapackage.UnsignedDatapackage;
+import com.example.jarchess.online.datapackage.Datapackage;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class DatapackageQueue {
-    private LinkedBlockingQueue<UnsignedDatapackage> inboundUnsignedDatapackage;
-    private LinkedBlockingQueue<UnsignedDatapackage> outboundUnsignedDatapackage;
+    private LinkedBlockingQueue<Datapackage> inboundDatapackage;
+    private LinkedBlockingQueue<Datapackage> outboundDatapackage;
     private String gameId;
 
     public DatapackageQueue() {
-        this.inboundUnsignedDatapackage = new LinkedBlockingQueue<UnsignedDatapackage>();
-        this.outboundUnsignedDatapackage = new LinkedBlockingQueue<UnsignedDatapackage>();
+        this.inboundDatapackage = new LinkedBlockingQueue<Datapackage>();
+        this.outboundDatapackage = new LinkedBlockingQueue<Datapackage>();
     }
 
-    public UnsignedDatapackage getDatapackage() {
+    public Datapackage getInboundDatapackage() {
         try {
-            UnsignedDatapackage unsignedDatapackage = inboundUnsignedDatapackage.take();
-            Log.d("DatapackageQueue", "getDatapackage: " + unsignedDatapackage);
-            return unsignedDatapackage;
+            Datapackage datapackage = inboundDatapackage.take();
+            Log.d("DatapackageQueue", "getInboundDatapackage: " + datapackage);
+            return datapackage;
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public void insertDatapackage(UnsignedDatapackage unsignedDatapackage) {
+    public Datapackage getOutboundDatapackage() {
         try {
-            outboundUnsignedDatapackage.put(unsignedDatapackage);
+            Datapackage datapackage = outboundDatapackage.take();
+            Log.d("DatapackageQueue", "getOutboundDatapackage: " + datapackage);
+            return datapackage;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void insertInboundDatapackage(Datapackage datapackage) {
+        try {
+            inboundDatapackage.put(datapackage);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
+    public void insertOutboundDatapackage(Datapackage datapackage) {
+        try {
+            outboundDatapackage.put(datapackage);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

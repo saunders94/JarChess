@@ -1,23 +1,22 @@
 package com.example.jarchess.match;
 
 import com.example.jarchess.JarAccount;
-import com.example.jarchess.RemoteOpponentAccount;
+import com.example.jarchess.RemoteOpponentInfoBundle;
 import com.example.jarchess.match.participant.EasyAIOpponent;
 import com.example.jarchess.match.participant.HardAIOpponent;
 import com.example.jarchess.match.participant.LocalOpponent;
 import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.participant.Player;
 import com.example.jarchess.match.participant.RemoteOpponent;
-import com.example.jarchess.online.move.DatapackageQueue;
+import com.example.jarchess.online.OnlineMatch;
 
-import static com.example.jarchess.online.datapackage.MatchNetworkIO.DatapackageQueueAddapter;
+import static com.example.jarchess.online.datapackage.MatchNetworkIO.DatapackageQueueAdapter;
 
 //TODO javadocs
 public class MatchStarter {
     private static MatchStarter instance = null;
     private final JarAccount account = JarAccount.getInstance();
-    private DatapackageQueue queue = null;
-    private RemoteOpponentAccount remoteOpponentAccount;
+    private OnlineMatch onlineMatch;
 
 
     private MatchStarter() {
@@ -31,10 +30,8 @@ public class MatchStarter {
         return instance;
     }
 
-    public void multiplayerSetup(DatapackageQueue queue, RemoteOpponentAccount remoteOpponentAccount) {
-
-        this.queue = queue;
-        this.remoteOpponentAccount = remoteOpponentAccount;
+    public void multiplayerSetup(OnlineMatch onlineMatch) {
+        this.onlineMatch = onlineMatch;
     }
 
     public Match startEasyAIMatch() {
@@ -69,22 +66,32 @@ public class MatchStarter {
 
     public Match startRemoteMultiplayerMatch() {
 
-        if (remoteOpponentAccount == null) {
+        if (onlineMatch == null) {
             throw new IllegalStateException("MatchStarter.multiplayerSetup method must be called before match is started");
         }
 
+        // adapts the queue to act as a sender and as a receiver of Datapackages
+        DatapackageQueueAdapter addapter = new DatapackageQueueAdapter(onlineMatch.getDatapackageQueue());
 
-        ChessColor playerColor = ChessColor.getRandom();
-        Player player = new Player(playerColor);
-        ChessColor opponentColor = ChessColor.getOther(playerColor);
+        RemoteOpponentInfoBundle remoteOpponentInfoBundle = null;
+        ChessColor opponentColor = null;
 
-        // addapts the queue to act as a sender and as a receiver of Datapackages
-        DatapackageQueueAddapter addapter = new DatapackageQueueAddapter(queue);
+        if (onlineMatch.getBlackOpponentInfoBundle().getName().equals(JarAccount.getInstance().getName())) {
+            remoteOpponentInfoBundle = onlineMatch.getWhiteOpponentInfoBundle();
+            opponentColor = ChessColor.WHITE;
+        } else if (onlineMatch.getWhiteOpponentInfoBundle().getName().equals(JarAccount.getInstance().getName())) {
+            remoteOpponentInfoBundle = onlineMatch.getBlackOpponentInfoBundle();
+            opponentColor = ChessColor.BLACK;
+        } else {
+            throw new RuntimeException("Expecting one of the onlineMatch bundles to have an opponent " +
+                    "info bundle with a name matching this account's name of " + JarAccount.getInstance().getName() +
+                    ", but found " + onlineMatch.getWhiteOpponentInfoBundle().getName() + " and " +
+                    onlineMatch.getBlackOpponentInfoBundle().getName());
+        }
 
 
-        MatchParticipant opponent = new RemoteOpponent(opponentColor, remoteOpponentAccount, addapter, addapter);
-
-        remoteOpponentAccount = null;
+        MatchParticipant opponent = new RemoteOpponent(opponentColor, remoteOpponentInfoBundle, addapter, addapter);
+        Player player = new Player(ChessColor.getOther(opponentColor));
         return new PlayerMatch(player, opponent);
     }
 }

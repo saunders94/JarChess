@@ -14,6 +14,43 @@ public class JarAccount {
     private ChessboardStyle boardStyle;
     private ChesspieceStyle pieceStyle;
     private boolean commitButtonClickIsRequired;
+    private String signonToken;
+
+    public static void setInstance(JarAccount instance) {
+        JarAccount.instance = instance;
+    }
+
+    public String getSignonToken() {
+        return signonToken;
+    }
+
+    public void setSignonToken(String signonToken) {
+        this.signonToken = signonToken;
+    }
+
+    public boolean isCommitButtonClickIsRequired() {
+        return commitButtonClickIsRequired;
+    }
+
+    public void setCommitButtonClickIsRequired(boolean commitButtonClickIsRequired) {
+        this.commitButtonClickIsRequired = commitButtonClickIsRequired;
+    }
+
+    public void setAvatarStyle(AvatarStyle avatarStyle) {
+        this.avatarStyle = avatarStyle;
+    }
+
+    public void setBoardStyle(ChessboardStyle boardStyle) {
+        this.boardStyle = boardStyle;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPieceStyle(ChesspieceStyle pieceStyle) {
+        this.pieceStyle = pieceStyle;
+    }
 
     private JarAccount() {
         name = "Display Name";//FIXME needs to get this from account/preference file/database

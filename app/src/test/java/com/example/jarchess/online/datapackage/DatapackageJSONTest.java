@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 @RunWith(Enclosed.class)
-public class UnsignedSignedDatapackageJSONTest {
+public class DatapackageJSONTest {
 
     private static final int EXPECTED = 0;
     private static final int ACTUAL = 1;
@@ -176,11 +176,11 @@ public class UnsignedSignedDatapackageJSONTest {
 
             Turn turnExpected = new Turn(color, move, time, pieceType);
 
-            UnsignedDatapackage unsignedDatapackageUnderTest = new UnsignedDatapackage(turnExpected);
-            JSONObject jsonObject = unsignedDatapackageUnderTest.getJSONObject();
+            Datapackage datapackageUnderTest = new Datapackage(turnExpected, "1.2.3.4", 1111);
+            JSONObject jsonObject = datapackageUnderTest.getJSONObject();
 
-            UnsignedDatapackage resultingUnsignedDatapackage = UnsignedDatapackage.JSON_CONVERTER.convertFromJSONObject(jsonObject);
-            Turn resultingTurn = resultingUnsignedDatapackage.getTurn();
+            Datapackage resultingDatapackage = Datapackage.JSON_CONVERTER.convertFromJSONObject(jsonObject);
+            Turn resultingTurn = resultingDatapackage.getTurn();
             Move resultingMove = resultingTurn.getMove();
             PieceMovement[] resultingMoments = new PieceMovement[0];
             resultingMoments = resultingMove.toArray(resultingMoments);
