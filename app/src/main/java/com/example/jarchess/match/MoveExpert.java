@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.pieces.King;
+import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.pieces.Rook;
 import com.example.jarchess.match.pieces.movementpatterns.CastleMovementPattern;
@@ -25,6 +26,7 @@ import static com.example.jarchess.match.pieces.movementpatterns.MovementPattern
 public class MoveExpert {
 
     private static MoveExpert instance;
+    private MatchHistory matchHistory;
 
     /**
      * Creates an instance of <code>MoveExpert</code> to construct a singleton instance
@@ -43,6 +45,76 @@ public class MoveExpert {
         }
 
         return instance;
+    }
+
+    private boolean isLegalMoveIgnoringChecks(Piece pieceToMove, Coordinate origin, MovementPattern movementPattern, Chessboard chessboardToCheck) {
+
+        if (matchHistory == null) {
+            throw new IllegalStateException("matchHistory must be set for MoveExpert before calling isLegalMoveIgnoringChecks");
+        }
+
+        // if the move pattern requires the move be the first move of the piece and the piece has moved
+        if (movementPattern.mustBeFirstMoveOfPiece() && pieceToMove.hasMoved()) {
+            return false;
+        }
+
+        if (movementPattern instanceof CastleMovementPattern) {
+            Log.d(TAG, "isLegalMoveIgnoringChecks: was instance of CastleMovmentPattern");
+            return (getLegalCastleMovements(origin, movementPattern.getDestinationFrom(origin), chessboardToCheck).size() > 0);
+
+
+        } else {
+            Coordinate destination = movementPattern.getDestinationFrom(origin);
+
+            // Check if the destination is on the board
+            if (destination == null) {
+                return false; // because the destination would be off the board
+            }
+
+
+            //Check if slide path is clear in the case that the pattern is a slide pattern.
+            if (movementPattern.isSlide()) {
+
+                final int x = ((SlidePattern) movementPattern).getKingwardSlideOffset();
+                final int y = (pieceToMove.getColor().equals(WHITE) ? -1 : 1) * ((SlidePattern) movementPattern).getForwardSlideOffset();
+
+                Coordinate tmp = origin;
+                Coordinate next;
+                next = Coordinate.getByColumnAndRow(tmp.getColumn() + x, tmp.getRow() + y);
+
+                while (next != destination) {
+                    tmp = next;
+                    next = Coordinate.getByColumnAndRow(tmp.getColumn() + x, tmp.getRow() + y);
+
+                    if (chessboardToCheck.getPieceAt(tmp) != null) {
+                        return false; //  because the slide path is blocked.
+                    }
+                }
+            }
+
+
+            // check if the destination is occupied by a piece of the same color
+            Piece pieceAtDestination = chessboardToCheck.getPieceAt(destination);
+            if (pieceAtDestination != null && pieceAtDestination.getColor().equals(pieceToMove.getColor())) {
+                return false; // because the destination would land on a piece of the same color
+            }
+
+            // check if the destination is a piece of the opposite color of the moving piece
+            else if (pieceAtDestination != null) {
+
+                return movementPattern.getCaptureType() != CANNOT_CAPTURE; // because the destination has a piece of the opposite color
+            }
+
+            // check if there is no piece at destination and pattern must capture.
+            else {
+                // check if en passant capture is possible at the coordinate
+                if (matchHistory.getEnPassantVulnerableCoordinate() == destination && pieceToMove instanceof Pawn) {
+                    return true;
+                }
+                return movementPattern.getCaptureType() != MUST_CAPTURE; // because the the pattern requires capturing and there is no piece to capture at destination
+            }
+        }
+
     }
 
     public Collection<PieceMovement> getLegalCastleMovements(@NonNull Coordinate kingOrigin, @NonNull Coordinate kingDestination, Chessboard chessboardToCheck) {
@@ -222,64 +294,7 @@ public class MoveExpert {
         }
     }
 
-    private boolean isLegalMoveIgnoringChecks(Piece pieceToMove, Coordinate origin, MovementPattern movementPattern, Chessboard chessboardToCheck) {
-
-        // if the move pattern requires the move be the first move of the piece and the piece has moved
-        if (movementPattern.mustBeFirstMoveOfPiece() && pieceToMove.hasMoved()) {
-            return false;
-        }
-
-        if (movementPattern instanceof CastleMovementPattern) {
-            Log.d(TAG, "isLegalMoveIgnoringChecks: was instance of CastleMovmentPattern");
-            return (getLegalCastleMovements(origin, movementPattern.getDestinationFrom(origin), chessboardToCheck).size() > 0);
-
-
-        } else {
-            Coordinate destination = movementPattern.getDestinationFrom(origin);
-
-            // Check if the destination is on the board
-            if (destination == null) {
-                return false; // because the destination would be off the board
-            }
-
-
-            //Check if slide path is clear in the case that the pattern is a slide pattern.
-            if (movementPattern.isSlide()) {
-
-                final int x = ((SlidePattern) movementPattern).getKingwardSlideOffset();
-                final int y = (pieceToMove.getColor().equals(WHITE) ? -1 : 1) * ((SlidePattern) movementPattern).getForwardSlideOffset();
-
-                Coordinate tmp = origin;
-                Coordinate next;
-                next = Coordinate.getByColumnAndRow(tmp.getColumn() + x, tmp.getRow() + y);
-
-                while (next != destination) {
-                    tmp = next;
-                    next = Coordinate.getByColumnAndRow(tmp.getColumn() + x, tmp.getRow() + y);
-
-                    if (chessboardToCheck.getPieceAt(tmp) != null) {
-                        return false; //  because the slide path is blocked.
-                    }
-                }
-            }
-
-
-            // check if the destination is occupied by a piece of the same color
-            Piece pieceAtDestination = chessboardToCheck.getPieceAt(destination);
-            if (pieceAtDestination != null && pieceAtDestination.getColor().equals(pieceToMove.getColor())) {
-                return false; // because the destination would land on a piece of the same color
-            }
-
-            // check if the destination is a piece of the opposite color of the moving piece
-            else if (pieceAtDestination != null) {
-
-                return movementPattern.getCaptureType() != CANNOT_CAPTURE; // because the destination has a piece of the opposite color
-            }
-
-            // check if there is no piece at destination and pattern must capture.
-            else
-                return movementPattern.getCaptureType() != MUST_CAPTURE; // because the the pattern requires capturing and there is no piece to capture at destination
-        }
-
+    public void setMatchHistory(MatchHistory matchHistory) {
+        this.matchHistory = matchHistory;
     }
 }

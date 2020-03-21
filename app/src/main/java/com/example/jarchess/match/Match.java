@@ -57,8 +57,9 @@ public abstract class Match implements ResignationListener {
         this.blackPlayer = participant1.getColor() == BLACK ? participant1 : participant2;
         this.whitePlayer = participant1.getColor() == WHITE ? participant1 : participant2;
 
-        matchHistory = new MatchHistory();
+        matchHistory = new MatchHistory(whitePlayer, blackPlayer);
         moveExpert = MoveExpert.getInstance();
+        moveExpert.setMatchHistory(matchHistory);
     }
 
     public Piece capture(Coordinate destination) {

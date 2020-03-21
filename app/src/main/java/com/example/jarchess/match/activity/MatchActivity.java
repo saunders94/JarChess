@@ -135,10 +135,19 @@ public abstract class MatchActivity extends AppCompatActivity
 
         Move move = turn.getMove();
         for (PieceMovement movement : move) {
+
+            Coordinate origin = movement.getOrigin();
             Coordinate destination = movement.getDestination();
+
             if (match.getPieceAt(destination) != null) {
+                //perform normal capture
                 Piece capturedPiece = match.capture(destination);
                 matchView.addCapturedPiece(capturedPiece);
+            } else if (matchHistory.getEnPassantVulnerableCoordinate() == destination && match.getPieceAt(origin) instanceof Pawn) {
+                // perform en passant capture
+                Piece capturedPiece = match.capture(matchHistory.getEnPassentRiskedPieceLocation());
+                matchView.addCapturedPiece(capturedPiece);
+                matchView.updatePiece(matchHistory.getEnPassentRiskedPieceLocation());
             }
             match.move(movement.getOrigin(), movement.getDestination());
             Piece.PromotionChoice choice = turn.getPromotionChoice();
