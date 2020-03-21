@@ -2,6 +2,7 @@
   <dictionary name="joshua">
     <words>
       <w>gameboard</w>
+      <w>passant</w>
     </words>
   </dictionary>
 </component>
