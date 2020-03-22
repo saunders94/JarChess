@@ -8,7 +8,7 @@ import com.example.jarchess.match.styles.GuestAvatarStyle;
  *
  * @author Joshua Zierman
  */
-public class LocalOpponent extends LocalPartipant {
+public class LocalOpponent extends LocalParticipant {
 
 
     /**

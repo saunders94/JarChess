@@ -1,4 +1,4 @@
-package com.example.jarchess.match.activity;
+package com.example.jarchess.match.view;
 
 import com.example.jarchess.match.Coordinate;
 

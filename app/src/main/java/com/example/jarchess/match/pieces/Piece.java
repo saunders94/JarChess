@@ -1,7 +1,5 @@
 package com.example.jarchess.match.pieces;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -171,11 +169,6 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
         return type.toString();
     }
 
-    private void log(String msg) {
-        if (!isClone) {
-            Log.d("Piece on " + Thread.currentThread().getName(), msg);
-        }
-    }
 
     /**
      * Sets the piece as moved.
@@ -183,7 +176,6 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
     public void setAsMoved() {
         if (!hasMoved) {
             this.hasMoved = true;
-            log(this + " has been set as moved.");
         }
     }
 

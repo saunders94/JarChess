@@ -1,11 +1,14 @@
 package com.example.jarchess;
 
+import com.example.jarchess.match.clock.MatchClockChoice;
 import com.example.jarchess.match.styles.AvatarStyle;
 import com.example.jarchess.match.styles.ChessboardStyle;
 import com.example.jarchess.match.styles.ChesspieceStyle;
 import com.example.jarchess.match.styles.LeopardPrintAvatarStyle;
 import com.example.jarchess.match.styles.MarbleChessboardStyle;
 import com.example.jarchess.match.styles.NeonLetterChesspieceStyle;
+
+import static com.example.jarchess.match.clock.MatchClockChoice.CASUAL_MATCH_CLOCK;
 
 public class JarAccount {
     private static JarAccount instance = null;
@@ -18,6 +21,14 @@ public class JarAccount {
 
     public static void setInstance(JarAccount instance) {
         JarAccount.instance = instance;
+    }
+
+    private JarAccount() {
+        name = "Display Name";//FIXME needs to getDisplayedTimeMillis this from account/preference file/database
+        avatarStyle = LeopardPrintAvatarStyle.getInstance();//FIXME needs to getDisplayedTimeMillis this from preference file/database
+        boardStyle = MarbleChessboardStyle.getInstance();//FIXME needs to getDisplayedTimeMillis this from preference file/database
+        pieceStyle = NeonLetterChesspieceStyle.getInstance();//FIXME needs to getDisplayedTimeMillis this from preference file/database
+        commitButtonClickIsRequired = false;//FIXME needs to getDisplayedTimeMillis this from preference file/database
     }
 
     public String getSignonToken() {
@@ -52,12 +63,8 @@ public class JarAccount {
         this.pieceStyle = pieceStyle;
     }
 
-    private JarAccount() {
-        name = "Display Name";//FIXME needs to get this from account/preference file/database
-        avatarStyle = LeopardPrintAvatarStyle.getInstance();//FIXME needs to get this from preference file/database
-        boardStyle = MarbleChessboardStyle.getInstance();//FIXME needs to get this from preference file/database
-        pieceStyle = NeonLetterChesspieceStyle.getInstance();//FIXME needs to get this from preference file/database
-        commitButtonClickIsRequired = false;//FIXME needs to get this from preference file/database
+    public MatchClockChoice getPreferedMatchClock() {
+        return CASUAL_MATCH_CLOCK;
     }
 
     public static JarAccount getInstance() {

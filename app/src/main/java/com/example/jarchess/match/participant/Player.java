@@ -8,7 +8,7 @@ import com.example.jarchess.match.ChessColor;
  *
  * @author Joshua Zierman
  */
-public class Player extends LocalPartipant {
+public class Player extends LocalParticipant {
 
     /**
      * Creates a player.

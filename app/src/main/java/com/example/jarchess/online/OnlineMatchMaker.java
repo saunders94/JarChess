@@ -2,6 +2,8 @@ package com.example.jarchess.online;
 
 import android.util.Log;
 
+import androidx.constraintlayout.widget.Constraints;
+
 import java.io.IOException;
 import java.net.Socket;
 
@@ -75,34 +77,37 @@ public class OnlineMatchMaker {
         new Thread(new Runnable() {
             @Override
             public void run() {
-
-                String host = ""; //FIXME
-                int port = 0;//FIXME
-
+                Log.d(TAG, "run is running on thread: " + Thread.currentThread().getName());
                 try {
+                    String host = ""; //FIXME
+                    int port = 0;//FIXME
 
-                    //create and bind socket to server
-                    socket = new Socket(host, port);
+                    try {
 
-                    //send a request to the server to find a match for an online game
-                    //TODO
+                        //create and bind socket to server
+                        socket = new Socket(host, port);
+
+                        //send a request to the server to find a match for an online game
+                        //TODO
 
 
-                    //receive a response from the server with all the needed match information (or a failure notification)
-                    //TODO
+                        //receive a response from the server with all the needed match information (or a failure notification)
+                        //TODO
 
-                    //use the received information to create an online match
-                    synchronized (lock) {
-                        onlineMatch = new OnlineMatch();//FIXME
-                        Log.d(TAG, "run: set online match: " + onlineMatch);
+                        //use the received information to create an online match
+                        synchronized (lock) {
+                            onlineMatch = new OnlineMatch();//FIXME
+                            Log.d(TAG, "run: set online match: " + onlineMatch);
+                        }
+                        lock.notifyAll();
+
+
+                    } catch (IOException e1) { // if an I/O exception is experienced
+                        ioException = e1; //record the exception
                     }
-                    lock.notifyAll();
-
-
-                } catch (IOException e1) { // if an I/O exception is experienced
-                    ioException = e1; //record the exception
+                } finally {
+                    Log.d(Constraints.TAG, "thread is done running: " + Thread.currentThread().getName());
                 }
-
             }
         }, "onlineMatchMakerThread");
 

@@ -4,10 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.example.jarchess.RemoteOpponentInfoBundle;
 import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.resignation.Resignation;
-import com.example.jarchess.match.resignation.ResignationEvent;
-import com.example.jarchess.match.resignation.ResignationEventManager;
-import com.example.jarchess.match.resignation.ResignationException;
 import com.example.jarchess.match.resignation.ResignationReciever;
 import com.example.jarchess.match.resignation.ResignationSender;
 import com.example.jarchess.match.styles.AvatarStyle;
@@ -42,8 +40,6 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
     private final ResignationSender resignationSender;
     private final ResignationReciever resignationReciever;
     private boolean alive;
-    private ResignationEvent resignationDetected = null;
-    private ResignationEventManager resignationEventManager;
 
     /**
      * Creates a remote opponent.
@@ -102,7 +98,7 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
         try {
             return turnReceiver.receiveNextTurn();
         } catch (InterruptedException e) {
-            // just get out
+            // just getDisplayedTimeMillis out
         }
         return null;
     }
@@ -121,34 +117,26 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
     @Override
     public void resign() {
         resignationSender.send(new Resignation());
-        resignationEventManager.resign(this);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws ResignationException {
+    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws MatchActivity.MatchOverException {
 
         turnSender.send(lastTurnFromOtherParticipant);
 
         try {
             return turnReceiver.receiveNextTurn();
         } catch (InterruptedException e) {
-            // just get out
+            // just getDisplayedTimeMillis out
         }
 
         return null;
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void observeResignationEvent(ResignationEvent resignationEvent) {
-        resignationDetected = resignationEvent;
-    }
 
 
 

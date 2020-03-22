@@ -141,7 +141,8 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
     }
 
 
-    @Override//use this method to get login details, return true if login succeeded
+    @Override
+//use this method to getDisplayedTimeMillis login details, return true if login succeeded
     public boolean onLogin(CharSequence username, CharSequence password) {
 
         //if(call to method that does logging in) {
@@ -154,7 +155,8 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
         //}
     }
 
-    @Override//use this method to get registration details, return true if registration succeeded
+    @Override
+//use this method to getDisplayedTimeMillis registration details, return true if registration succeeded
     public boolean onRegister(CharSequence username, CharSequence password) {
 
         //if(call to method that does registration) {
