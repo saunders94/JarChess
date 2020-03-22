@@ -32,7 +32,6 @@ public class Account {
         JSONObject jsonObject =  jsonAccount.signin(username, password);
         try {
             JSONObject jsonResponse = logonIO.send(jsonObject);
-            Log.i("Account","JSON response object: " + jsonResponse.toString());
             String statusResp = (String) jsonResponse.get("status");
             if(statusResp.equals("succes")){
                 status = true;

@@ -4,6 +4,7 @@ import android.util.Log;
 
 
 import com.example.jarchess.JarAccount;
+import com.example.jarchess.match.MatchStarter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -127,18 +128,19 @@ public class OnlineMatchMaker {
                         int response = in.read(buffer);
                         String respString = new String(buffer).trim();
                         socket.close();
-                        Log.i("OnlineMatchmakerResp", respString);
-                        JSONObject jsonObject = null;
+
+
                         try {
-                            jsonObject = new JSONObject(respString);
+                            JSONObject jsonResp = new JSONObject(respString);
+                            Log.i("Match Creation Response", jsonResp.toString());
+                            onlineMatch = new OnlineMatch(jsonResp);
+                            MatchStarter.getInstance().multiplayerSetup(onlineMatch);
+                            Log.d(TAG, "run: set online match: " + onlineMatch);
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            Log.i("OnlineMatchmakerResp", "Error");
                         }
                         //use the received information to create an online match
-                        synchronized (lock) {
-                            onlineMatch = new OnlineMatch(jsonObject);
-                            Log.d(TAG, "run: set online match: " + onlineMatch);
-                        }
                         lock.notifyAll();
 
 
@@ -147,20 +149,12 @@ public class OnlineMatchMaker {
                     }
 
                 }
-
-
-                    } catch (IOException e1) { // if an I/O exception is experienced
-                        ioException = e1; //record the exception
-                    }
-                } finally {
-                    Log.d(Constraints.TAG, "thread is done running: " + Thread.currentThread().getName());
-                }
             }
         }, "onlineMatchMakerThread");
 
         t.start();
         while (onlineMatch == null && !wasCanceled) {
-            lock.wait();
+            lock.wait(1000);
         }
 
         if (wasCanceled) {
