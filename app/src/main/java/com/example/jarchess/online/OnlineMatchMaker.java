@@ -149,14 +149,6 @@ public class OnlineMatchMaker {
                     }
 
                 }
-
-
-                    } catch (IOException e1) { // if an I/O exception is experienced
-                        ioException = e1; //record the exception
-                    }
-                } finally {
-                    Log.d(Constraints.TAG, "thread is done running: " + Thread.currentThread().getName());
-                }
             }
         }, "onlineMatchMakerThread");
 
