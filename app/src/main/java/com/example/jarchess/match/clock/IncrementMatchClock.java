@@ -8,7 +8,7 @@ import com.example.jarchess.testmode.TestableCurrentTime;
 import static android.support.constraint.Constraints.TAG;
 import static java.lang.Math.abs;
 
-public class IncrementMatchClock implements MatchClock {
+public abstract class IncrementMatchClock implements MatchClock {
 
     private static final int WHITE_INT = ChessColor.WHITE.getIntValue();
     private static final int BLACK_INT = ChessColor.BLACK.getIntValue();

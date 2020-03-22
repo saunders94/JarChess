@@ -8,8 +8,6 @@ import com.example.jarchess.match.styles.LeopardPrintAvatarStyle;
 import com.example.jarchess.match.styles.MarbleChessboardStyle;
 import com.example.jarchess.match.styles.NeonLetterChesspieceStyle;
 
-import static com.example.jarchess.match.clock.MatchClockChoice.CASUAL_MATCH_CLOCK;
-
 public class JarAccount {
     private static JarAccount instance = null;
     private String name;
@@ -18,6 +16,7 @@ public class JarAccount {
     private ChesspieceStyle pieceStyle;
     private boolean commitButtonClickIsRequired;
     private String signonToken;
+    private MatchClockChoice preferedMatchClock;
 
     public static void setInstance(JarAccount instance) {
         JarAccount.instance = instance;
@@ -25,10 +24,11 @@ public class JarAccount {
 
     private JarAccount() {
         name = "Display Name";//FIXME needs to getDisplayedTimeMillis this from account/preference file/database
-        avatarStyle = LeopardPrintAvatarStyle.getInstance();//FIXME needs to getDisplayedTimeMillis this from preference file/database
-        boardStyle = MarbleChessboardStyle.getInstance();//FIXME needs to getDisplayedTimeMillis this from preference file/database
-        pieceStyle = NeonLetterChesspieceStyle.getInstance();//FIXME needs to getDisplayedTimeMillis this from preference file/database
-        commitButtonClickIsRequired = false;//FIXME needs to getDisplayedTimeMillis this from preference file/database
+        avatarStyle = LeopardPrintAvatarStyle.getInstance();//FIXME needs to get this from preference file/database
+        boardStyle = MarbleChessboardStyle.getInstance();//FIXME needs to get this from preference file/database
+        pieceStyle = NeonLetterChesspieceStyle.getInstance();//FIXME needs to get this from preference file/database
+        commitButtonClickIsRequired = false;//FIXME needs to get this from preference file/database
+        preferedMatchClock = MatchClockChoice.CLASSIC_FIDE_MATCH_CLOCK;//FIXME needs to get this from file/database
     }
 
     public String getSignonToken() {
@@ -64,7 +64,7 @@ public class JarAccount {
     }
 
     public MatchClockChoice getPreferedMatchClock() {
-        return CASUAL_MATCH_CLOCK;
+        return preferedMatchClock;
     }
 
     public static JarAccount getInstance() {
