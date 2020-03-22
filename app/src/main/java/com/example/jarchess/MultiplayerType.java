@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.constraintlayout.widget.Constraints;
+
 import com.example.jarchess.match.MatchStarter;
 import com.example.jarchess.match.activity.LocalMultiplayerMatchActivity;
 import com.example.jarchess.match.activity.OnlineMultiplayerMatchActivity;
@@ -60,6 +62,7 @@ public class MultiplayerType extends Fragment {
                 //transaction.replace(R.id.fragmentHole, mainMenu);
                 //transaction.commit();
 
+                MatchStarter.getInstance().setMatchClockChoice(JarAccount.getInstance().getPreferedMatchClock());
 
                 Intent intent = new Intent(getActivity(), LocalMultiplayerMatchActivity.class);
                 startActivity(intent);
@@ -83,7 +86,6 @@ public class MultiplayerType extends Fragment {
                 transaction.commit();
 
                 //TODO show waiting for match dialog with a cancel button that will end the search
-
 
 
                 // Username
@@ -125,17 +127,22 @@ public class MultiplayerType extends Fragment {
                 @Override
                 public void run() {
                     try {
-                        OnlineMatchMaker.getInstance().getOnlineMatch();
-                        MatchStarter.getInstance().multiplayerSetup(onlineMatch);
+                        Log.d(TAG, "run is running on thread: " + Thread.currentThread().getName());
+                        try {
+                            OnlineMatchMaker.getInstance().getOnlineMatch();
+                            MatchStarter.getInstance().multiplayerSetup(onlineMatch);
 
-                        Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
-                        startActivity(intent);
-                    } catch (OnlineMatchMaker.SearchCanceledException e) {
-                        Log.d(TAG, "onCreateView's run: online match maker was cancled");
-                    } catch (IOException e) {
-                        Log.e(TAG, "onCreateView's run: ", e);
-                    } catch (InterruptedException e) {
-                        Log.e(TAG, "onCreateView's run: ", e);
+                            Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
+                            startActivity(intent);
+                        } catch (OnlineMatchMaker.SearchCanceledException e) {
+                            Log.d(TAG, "onCreateView's run: online match maker was cancled");
+                        } catch (IOException e) {
+                            Log.e(TAG, "onCreateView's run: ", e);
+                        } catch (InterruptedException e) {
+                            Log.e(TAG, "onCreateView's run: ", e);
+                        }
+                    } finally {
+                        Log.d(Constraints.TAG, "thread is done running: " + Thread.currentThread().getName());
                     }
                 }
             }, "matchMakerLauncherThread").start();

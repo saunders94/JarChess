@@ -1,8 +1,7 @@
 package com.example.jarchess.match.participant;
 
 import com.example.jarchess.match.ChessColor;
-import com.example.jarchess.match.resignation.ResignationException;
-import com.example.jarchess.match.resignation.ResignationListener;
+import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.styles.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 
@@ -11,7 +10,7 @@ import com.example.jarchess.match.turn.Turn;
  *
  * @author Joshua Zierman
  */
-public interface MatchParticipant extends ResignationListener {//TODO write unit tests
+public interface MatchParticipant {//TODO write unit tests
 
     /**
      * Gets the avatar style for this participant
@@ -31,9 +30,8 @@ public interface MatchParticipant extends ResignationListener {//TODO write unit
      * Takes the first turn from stating position.
      *
      * @return the turn that this participant takes
-     * @throws ResignationException if a resignation was detected.
      */
-    Turn getFirstTurn() throws ResignationException, InterruptedException;
+    Turn getFirstTurn() throws InterruptedException, MatchActivity.MatchOverException;
 
     /**
      * Gets the name of this participant.
@@ -52,7 +50,6 @@ public interface MatchParticipant extends ResignationListener {//TODO write unit
      *
      * @param lastTurnFromOtherParticipant the turn that happened immediately before by the other participant
      * @return the turn that this participant takes
-     * @throws ResignationException if a resignation was detected.
      */
-    Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws ResignationException, InterruptedException;
+    Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws InterruptedException, MatchActivity.MatchOverException;
 }
