@@ -1,15 +1,14 @@
 package com.example.jarchess.match.participant;
 
 import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.pieces.Piece;
-import com.example.jarchess.match.resignation.ResignationEvent;
-import com.example.jarchess.match.resignation.ResignationException;
 import com.example.jarchess.match.styles.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.testmode.TestableCurrentTime;
 
-public abstract class LocalPartipant implements MatchParticipant {
+public abstract class LocalParticipant implements MatchParticipant {
     private final String name;
     private final ChessColor color;
     private final AvatarStyle avatarStyle;
@@ -22,7 +21,7 @@ public abstract class LocalPartipant implements MatchParticipant {
      * @param color       the color of the participant
      * @param avatarStyle the style of the avatar for this participant
      */
-    public LocalPartipant(String name, ChessColor color, AvatarStyle avatarStyle) {
+    public LocalParticipant(String name, ChessColor color, AvatarStyle avatarStyle) {
         this.name = name;
         this.color = color;
         this.avatarStyle = avatarStyle;
@@ -38,28 +37,13 @@ public abstract class LocalPartipant implements MatchParticipant {
         return name;
     }
 
-    /**
-     * Takes the first turn from stating position.
-     *
-     * @return the turn that this participant takes
-     * @throws ResignationException if a resignation was detected.
-     * @throws InterruptedException if the thread is interrupted during the turn.
-     */
     @Override
-    public Turn getFirstTurn() throws ResignationException, InterruptedException {
+    public Turn getFirstTurn() throws MatchActivity.MatchOverException, InterruptedException {
         return getTurnFromInput();
     }
 
-    /**
-     * Takes a turn in response to the last turn from the other participant.
-     *
-     * @param lastTurnFromOtherParticipant the turn that happened immediately before by the other participant
-     * @return the turn that this participant takes
-     * @throws ResignationException if a resignation was detected.
-     * @throws InterruptedException if the thread is interrupted during the turn.
-     */
     @Override
-    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws ResignationException, InterruptedException {
+    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws MatchActivity.MatchOverException, InterruptedException {
         return getTurnFromInput();
     }
 
@@ -99,7 +83,7 @@ public abstract class LocalPartipant implements MatchParticipant {
      * @throws ResignationException if a resignation is observed during the turn
      * @throws InterruptedException if the thread is interupted during the turn
      */
-    private Turn getTurnFromInput() throws ResignationException, InterruptedException {
+    private Turn getTurnFromInput() throws MatchActivity.MatchOverException, InterruptedException {
         long start, end, elapsed;
         Move move;
 
@@ -117,14 +101,6 @@ public abstract class LocalPartipant implements MatchParticipant {
         elapsed = end - start;
 
         return new Turn(this.color, move, elapsed, promotionChoice);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void observeResignationEvent(ResignationEvent resignationEvent) {
-        //TODO
     }
 
     /**

@@ -35,7 +35,7 @@ public class MatchHistory implements Iterable<Turn> {
     }
 
     public void add(Turn turn) {
-        Log.d(TAG, "add is running on thread: " + Thread.currentThread().getName());
+        Log.v(TAG, "add is running on thread: " + Thread.currentThread().getName());
         chessboardBeforeLastMove = chessboardAfterLastMove;
         chessboardAfterLastMove = chessboardBeforeLastMove.getCopyWithMovementsApplied(turn.getMove());
         turnList.addLast(turn);
@@ -52,8 +52,8 @@ public class MatchHistory implements Iterable<Turn> {
                 if (destinationRow != singleMoveRow) { // the move was a double forward move
                     enPassantVulnerableCoordinate = Coordinate.getByColumnAndRow(originColumn, singleMoveRow);
                     enPassentRiskedPieceLocation = Coordinate.getByColumnAndRow(originColumn, destinationRow);
-                    Log.d(TAG, "add: enPassantVulnerableCoordinate = " + enPassantVulnerableCoordinate);
-                    Log.d(TAG, "add: enPassantRiskedCoordinate = " + enPassentRiskedPieceLocation);
+                    Log.v(TAG, "add: enPassantVulnerableCoordinate = " + enPassantVulnerableCoordinate);
+                    Log.v(TAG, "add: enPassantRiskedCoordinate = " + enPassentRiskedPieceLocation);
                 } else {
                     enPassantVulnerableCoordinate = null;
                     enPassentRiskedPieceLocation = null;
@@ -71,19 +71,19 @@ public class MatchHistory implements Iterable<Turn> {
     }
 
     public Move getLastMove() {
-        Log.d(TAG, "getLastMove is running on thread: " + Thread.currentThread().getName());
+        Log.v(TAG, "getLastMove is running on thread: " + Thread.currentThread().getName());
         return turnList.peekLast().getMove();
     }
 
     public Turn getlastTurn() {
-        Log.d(TAG, "getlastTurn is running on thread: " + Thread.currentThread().getName());
+        Log.v(TAG, "getlastTurn is running on thread: " + Thread.currentThread().getName());
         return turnList.peekLast();
     }
 
     @NonNull
     @Override
     public Iterator<Turn> iterator() {
-        Log.d(TAG, "iterator is running on thread: " + Thread.currentThread().getName());
+        Log.v(TAG, "iterator is running on thread: " + Thread.currentThread().getName());
         return turnList.iterator();
     }
 }

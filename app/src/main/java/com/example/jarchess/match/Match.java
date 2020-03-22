@@ -4,9 +4,13 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.clock.MatchClock;
+import com.example.jarchess.match.clock.MatchClockChoice;
+import com.example.jarchess.match.clock.MatchClockObserver;
 import com.example.jarchess.match.move.PieceMovement;
+import com.example.jarchess.match.participant.LocalParticipant;
 import com.example.jarchess.match.participant.LocalParticipantController;
-import com.example.jarchess.match.participant.LocalPartipant;
 import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.pieces.Bishop;
 import com.example.jarchess.match.pieces.Knight;
@@ -14,12 +18,10 @@ import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.pieces.Queen;
 import com.example.jarchess.match.pieces.Rook;
-import com.example.jarchess.match.resignation.ResignationEventManager;
-import com.example.jarchess.match.resignation.ResignationException;
-import com.example.jarchess.match.resignation.ResignationListener;
 import com.example.jarchess.match.result.CheckmateResult;
 import com.example.jarchess.match.result.Result;
 import com.example.jarchess.match.result.StalemateDrawResult;
+import com.example.jarchess.match.result.TimeoutResult;
 import com.example.jarchess.match.turn.Turn;
 
 import java.util.Collection;
@@ -29,8 +31,7 @@ import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
 
 //TODO javadocs
-public abstract class Match implements ResignationListener {
-    private final ResignationEventManager resignationEventManager;
+public abstract class Match {
     private final MatchHistory matchHistory;
     private final MatchParticipant blackPlayer;
     private final MatchParticipant whitePlayer;
@@ -39,18 +40,13 @@ public abstract class Match implements ResignationListener {
     private ChessColor winner;
     private boolean isDone;
     private Result matchResult = null;
-    private LocalParticipantController localParticipantController;
+    private final MatchClock matchClock;
+    //    private LocalParticipantController localParticipantController;
     private String gameToken;
 
     // TODO send the username of the winner in result
 
-    public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2) {
-
-        resignationEventManager = new ResignationEventManager();
-        resignationEventManager.addListener(this);
-        resignationEventManager.addListener(participant1);
-        resignationEventManager.addListener(participant2);
-
+    public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2, MatchClockChoice matchClockChoice, MatchClockObserver matchClockObserver) {
 
         chessboard = new Chessboard();
         chessboard.reset();
@@ -60,6 +56,7 @@ public abstract class Match implements ResignationListener {
         matchHistory = new MatchHistory(whitePlayer, blackPlayer);
         moveExpert = MoveExpert.getInstance();
         moveExpert.setMatchHistory(matchHistory);
+        matchClock = matchClockChoice.makeMatchClock(matchClockObserver);
     }
 
     public Piece capture(Coordinate destination) {
@@ -67,22 +64,60 @@ public abstract class Match implements ResignationListener {
     }
 
     public void checkForGameEnd(ChessColor nextTurnColor) {
-        if (!moveExpert.hasMoves(nextTurnColor, chessboard)) {
-            if (moveExpert.isInCheck(nextTurnColor, chessboard)) {
-                isDone = true;
-                matchResult = new CheckmateResult(ChessColor.getOther(nextTurnColor));
-            } else {
-                isDone = true;
-                matchResult = new StalemateDrawResult();
+
+        if (matchResult == null) {
+
+            checkForTimeout();
+            if (matchResult == null) {
+
+
+                if (matchClock.flagHasFallen()) {
+                    ChessColor colorOfWinner;
+                    if (matchClock.getDisplayedTimeMillis(WHITE) <= 0L) {
+                        colorOfWinner = BLACK;
+                    } else if (matchClock.getDisplayedTimeMillis(BLACK) <= 0L) {
+                        colorOfWinner = WHITE;
+                    } else {
+                        String msg = "checkForGameEnd: clock flag has fallen, but neither color is at 0";
+                        Log.wtf(TAG, msg);
+                        throw new IllegalStateException(msg);
+                    }
+                    matchResult = new TimeoutResult(colorOfWinner);
+                } else if (!moveExpert.hasMoves(nextTurnColor, chessboard)) {
+                    if (moveExpert.isInCheck(nextTurnColor, chessboard)) {
+                        isDone = true;
+                        matchResult = new CheckmateResult(ChessColor.getOther(nextTurnColor));
+                    } else {
+                        isDone = true;
+                        matchResult = new StalemateDrawResult();
+                    }
+                } else {
+                    // TODO handle our implementation of repeated board state draw
+                    // I have a tendency to want to do the 5 time version that requires no
+
+                    // TODO handle 50 move draw
+
+                    // TODO imposibility of check draw handling
+
+                }
             }
-        } else {
-            // TODO handle our implementation of repeated board state draw
-            // I have a tendency to want to do the 5 time version that requires no
+        }
+    }
 
-            // TODO handle 50 move draw
-
-            // TODO imposibility of check draw handling
-
+    public void checkForTimeout() {
+        if (matchClock.flagHasFallen()) {
+            isDone = true;
+            ChessColor colorOfWinner;
+            if (matchClock.getDisplayedTimeMillis(WHITE) <= 0L) {
+                colorOfWinner = BLACK;
+            } else if (matchClock.getDisplayedTimeMillis(BLACK) <= 0L) {
+                colorOfWinner = WHITE;
+            } else {
+                String msg = "checkForGameEnd: clock flag has fallen, but neither color is at 0";
+                Log.wtf(TAG, msg);
+                throw new IllegalStateException(msg);
+            }
+            matchResult = new TimeoutResult(colorOfWinner);
         }
     }
 
@@ -90,12 +125,16 @@ public abstract class Match implements ResignationListener {
         return blackPlayer;
     }
 
-    public Turn getFirstTurn() throws ResignationException, InterruptedException {
+    public Turn getFirstTurn() throws MatchActivity.MatchOverException, InterruptedException {
         return whitePlayer.getFirstTurn();
     }
 
     public Collection<? extends PieceMovement> getLegalCastleMovements(Coordinate origin, Coordinate destination) {
         return moveExpert.getLegalCastleMovements(origin, destination, chessboard);
+    }
+
+    public MatchClock getMatchClock() {
+        return matchClock;
     }
 
     public MatchHistory getMatchHistory() {
@@ -126,7 +165,7 @@ public abstract class Match implements ResignationListener {
         return moveExpert.getLegalDestinations(origin, chessboard);
     }
 
-    public Turn getTurn(@NonNull Turn turn) throws ResignationException, InterruptedException {
+    public Turn getTurn(@NonNull Turn turn) throws MatchActivity.MatchOverException, InterruptedException {
         return getParticipant(ChessColor.getOther(turn.getColor())).getNextTurn(turn);
     }
 
@@ -178,11 +217,11 @@ public abstract class Match implements ResignationListener {
     }
 
     public void setLocalParticipantController(LocalParticipantController localParticipantController) {
-        if (blackPlayer instanceof LocalPartipant) {
-            ((LocalPartipant) blackPlayer).setController(localParticipantController);
+        if (blackPlayer instanceof LocalParticipant) {
+            ((LocalParticipant) blackPlayer).setController(localParticipantController);
         }
-        if (whitePlayer instanceof LocalPartipant) {
-            ((LocalPartipant) whitePlayer).setController(localParticipantController);
+        if (whitePlayer instanceof LocalParticipant) {
+            ((LocalParticipant) whitePlayer).setController(localParticipantController);
         }
     }
 

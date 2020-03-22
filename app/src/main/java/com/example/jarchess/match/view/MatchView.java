@@ -1,5 +1,6 @@
 package com.example.jarchess.match.view;
 
+import android.app.Activity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -13,8 +14,8 @@ import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
 import com.example.jarchess.match.PlayerMatch;
-import com.example.jarchess.match.activity.CommitButtonClickObserver;
 import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.clock.MatchClock;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.MatchParticipant;
@@ -25,6 +26,7 @@ import com.example.jarchess.match.styles.ChesspieceStyle;
 import com.example.jarchess.match.turn.Turn;
 
 import java.util.Collection;
+import java.util.Locale;
 
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
@@ -54,11 +56,12 @@ public class MatchView extends View {
     private final CapturedPiecesView capturedPieceView;
     private final MatchResultDialog matchResultDialog;
     private final PawnPromotionChoiceDialog pawnPromotionChoiceDialog;
+    private final Activity activity;
 
     public MatchView(Match match, MatchActivity activity) {
         super(activity.getBaseContext());
         commitButtonClickObserver = activity;
-
+        this.activity = activity;
         participantInfoBarView = activity.findViewById(R.id.participant_info_bar);
         leftParticipantInfoView = participantInfoBarView.findViewById(R.id.player_info);
         leftParticipantNameTextView = leftParticipantInfoView.findViewById(R.id.nameTextView);
@@ -205,6 +208,29 @@ public class MatchView extends View {
 
     public void updatePiece(@NonNull Coordinate coordinate) {
         chessboardView.updatePiece(coordinate);
+    }
+
+    private void updateParticipantTime(final TextView participantTimeTextView, final long displayedTimeMillis) {
+        long seconds = displayedTimeMillis / 1000;
+        final long minutes = seconds / 60;
+        final long secondsRemaining = seconds % 60;
+
+        final String secondsRemainingString = String.format(Locale.US, "%02d", secondsRemaining);
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                participantTimeTextView.setText(minutes + ":" + secondsRemainingString);
+            }
+        });
+
+
+    }
+
+    public void updateTimes(MatchClock matchClock) {
+        updateParticipantTime(leftParticipantTimeTextView, matchClock.getDisplayedTimeMillis(leftParticipant.getColor()));
+        updateParticipantTime(rightParticipantTimeTextView, matchClock.getDisplayedTimeMillis(rightParticipant.getColor()));
+
     }
 
     public void updateViewAfter(Turn turn) {
