@@ -2,6 +2,7 @@ package com.example.jarchess.online;
 
 import android.util.Log;
 
+
 import com.example.jarchess.JarAccount;
 import com.example.jarchess.match.MatchStarter;
 
@@ -12,6 +13,10 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+
+import androidx.constraintlayout.widget.Constraints;
+
+
 import java.io.IOException;
 import java.net.Socket;
 
@@ -88,12 +93,15 @@ public class OnlineMatchMaker {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
+
                 synchronized (lock){
                     byte[] buffer = new byte[1024];
+
 
                     try {
 
                         //create and bind socket to server
+
                         socket = new Socket(gameServer, serverPort);
 
                         //send a request to the server to find a match for an online game
@@ -142,6 +150,13 @@ public class OnlineMatchMaker {
 
                 }
 
+
+                    } catch (IOException e1) { // if an I/O exception is experienced
+                        ioException = e1; //record the exception
+                    }
+                } finally {
+                    Log.d(Constraints.TAG, "thread is done running: " + Thread.currentThread().getName());
+                }
             }
         }, "onlineMatchMakerThread");
 

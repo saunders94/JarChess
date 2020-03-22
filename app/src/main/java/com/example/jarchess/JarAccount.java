@@ -1,5 +1,6 @@
 package com.example.jarchess;
 
+import com.example.jarchess.match.clock.MatchClockChoice;
 import com.example.jarchess.match.styles.AvatarStyle;
 import com.example.jarchess.match.styles.ChessboardStyle;
 import com.example.jarchess.match.styles.ChesspieceStyle;
@@ -15,9 +16,19 @@ public class JarAccount {
     private ChesspieceStyle pieceStyle;
     private boolean commitButtonClickIsRequired;
     private String signonToken;
+    private MatchClockChoice preferedMatchClock;
 
     public static void setInstance(JarAccount instance) {
         JarAccount.instance = instance;
+    }
+
+    private JarAccount() {
+        name = "Display Name";//FIXME needs to getDisplayedTimeMillis this from account/preference file/database
+        avatarStyle = LeopardPrintAvatarStyle.getInstance();//FIXME needs to get this from preference file/database
+        boardStyle = MarbleChessboardStyle.getInstance();//FIXME needs to get this from preference file/database
+        pieceStyle = NeonLetterChesspieceStyle.getInstance();//FIXME needs to get this from preference file/database
+        commitButtonClickIsRequired = false;//FIXME needs to get this from preference file/database
+        preferedMatchClock = MatchClockChoice.CLASSIC_FIDE_MATCH_CLOCK;//FIXME needs to get this from file/database
     }
 
     public String getSignonToken() {
@@ -52,12 +63,8 @@ public class JarAccount {
         this.pieceStyle = pieceStyle;
     }
 
-    private JarAccount() {
-        name = "Display Name";//FIXME needs to get this from account/preference file/database
-        avatarStyle = LeopardPrintAvatarStyle.getInstance();//FIXME needs to get this from preference file/database
-        boardStyle = MarbleChessboardStyle.getInstance();//FIXME needs to get this from preference file/database
-        pieceStyle = NeonLetterChesspieceStyle.getInstance();//FIXME needs to get this from preference file/database
-        commitButtonClickIsRequired = false;//FIXME needs to get this from preference file/database
+    public MatchClockChoice getPreferedMatchClock() {
+        return preferedMatchClock;
     }
 
     public static JarAccount getInstance() {
