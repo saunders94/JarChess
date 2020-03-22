@@ -43,7 +43,7 @@ public class MultiplayerType extends Fragment {
         onlineButton = view.findViewById(R.id.button_online);
 
         Controller networkController = new Controller();
-        networkController.testSend();
+        //networkController.testSend();
         setupListeners();
 
 
@@ -93,6 +93,7 @@ public class MultiplayerType extends Fragment {
                 // Starting color
                 Object lock = new Object();
                 OnlineMatch onlineMatch = null;
+
                 boolean canceled = false;
 
             }

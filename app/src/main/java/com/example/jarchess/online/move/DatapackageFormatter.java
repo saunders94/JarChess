@@ -17,9 +17,9 @@ public class DatapackageFormatter {
 //        Coordinate origin = new Coordinate();
 //        Coordinate destination = new Coordinate();
 //
-//        Move move = datapackage.getDatapackage();
-//        long elapsedTime = datapackage.getElapsedTime();
-//        Datapackage.DatapackageType type = datapackage.getDatapackageType();
+//        Move move = unsignedDatapackage.getDatapackage();
+//        long elapsedTime = unsignedDatapackage.getElapsedTime();
+//        UnsignedDatapackage.DatapackageType type = unsignedDatapackage.getDatapackageType();
 //
 //        Log.i("datapackageType ", type.toString());
 //
@@ -62,7 +62,7 @@ public class DatapackageFormatter {
 
         JSONObject jsonObject = null;
         try {
-            jsonObject = Datapackage.JSON_CONVERTER.convertToJSONObject(datapackage);
+            jsonObject = datapackage.JSON_CONVERTER.convertToJSONObject(datapackage);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -99,10 +99,10 @@ public class DatapackageFormatter {
 //        PieceMovement movement1 = new PieceMovement(origin1, destination1);
 //        PieceMovement movement2 = new PieceMovement(origin2, destination2);
 //        Turn turn = new Turn(null, move , null);
-//        Datapackage datapackage = new Datapackage(turn);
-//        return datapackage;
+//        UnsignedDatapackage unsignedDatapackage = new UnsignedDatapackage(turn);
+//        return unsignedDatapackage;
 //
-        Datapackage datapackage = null;
+       Datapackage datapackage = null;
         try {
             datapackage = Datapackage.JSON_CONVERTER.convertFromJSONObject(jsonObject);
         } catch (JSONException e) {

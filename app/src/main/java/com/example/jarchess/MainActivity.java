@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.jarchess.online.OnlineMatchMaker;
+import com.example.jarchess.online.usermanagement.Account;
 
 public class MainActivity extends AppCompatActivity implements ProfileSignIn.signInCommunicator{
 
@@ -145,13 +146,14 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
     public boolean onLogin(CharSequence username, CharSequence password) {
 
         //if(call to method that does logging in) {
-        usernameLabel.setText(username);
-        loggedIn = true;
-        return true;
-        //} else {
-        //loggedIn = false;
-        //return false;
-        //}
+        boolean signonStatus = new Account().signin(String.valueOf(username),
+                String.valueOf(password));
+        if(signonStatus){
+            usernameLabel.setText(username);
+            loggedIn = true;
+            return true;
+        }
+        return false;
     }
 
     @Override//use this method to get registration details, return true if registration succeeded
@@ -159,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
 
         //if(call to method that does registration) {
         onLogin(username, password);
+
         return true;
         //} else {
         //return false;
