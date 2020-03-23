@@ -2,7 +2,20 @@ package com.example.jarchess.online;
 
 import android.util.Log;
 
+
+import com.example.jarchess.JarAccount;
+import com.example.jarchess.match.MatchStarter;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+
 import androidx.constraintlayout.widget.Constraints;
+
 
 import java.io.IOException;
 import java.net.Socket;
@@ -15,9 +28,13 @@ public class OnlineMatchMaker {
     private static OnlineMatchMaker instance;
     private final Object lock;
     private boolean wasCanceled = false;
-    private Socket socket = null;
     private IOException ioException = null;
     private OnlineMatch onlineMatch = null;
+    private String gameServer = "AppLB-f1eb9121f64bbd52.elb.us-east-2.amazonaws.com";
+    private int serverPort = 12345;
+    private DataInputStream in;
+    private DataOutputStream out;
+    private Socket socket;
 
     /**
      * Creates an instance of <code>OnlineMatchMaker</code> to construct a singleton instance
@@ -38,6 +55,8 @@ public class OnlineMatchMaker {
 
         return instance;
     }
+
+
 
     public synchronized void cancel() {
         Log.d(TAG, "cancel() called");
@@ -68,51 +87,74 @@ public class OnlineMatchMaker {
         Log.d(TAG, "getOnlineMatch() called");
         Log.d(TAG, "getOnlineMatch is running on thread: " + Thread.currentThread().getName());
         wasCanceled = false;
-        socket = null;
-        ioException = null;
-        onlineMatch = null;
 
 
         // start the search
-        new Thread(new Runnable() {
+        Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "run is running on thread: " + Thread.currentThread().getName());
-                try {
-                    String host = ""; //FIXME
-                    int port = 0;//FIXME
+
+                synchronized (lock){
+                    byte[] buffer = new byte[1024];
+
 
                     try {
 
                         //create and bind socket to server
-                        socket = new Socket(host, port);
+
+                        socket = new Socket(gameServer, serverPort);
 
                         //send a request to the server to find a match for an online game
-                        //TODO
+                        JSONObject jsonObj = new JSONObject();
+                        try {
+                            jsonObj.put("requestType","RequestGame");
+                            jsonObj.put("username",JarAccount.getInstance().getName());
+                            jsonObj.put("signon_token", JarAccount.getInstance().getSignonToken());
+                            Log.i("reqString",jsonObj.toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
 
+                        in = new DataInputStream(
+                                new BufferedInputStream(
+                                        socket.getInputStream()));
+                        out = new DataOutputStream(
+                                new BufferedOutputStream(
+                                        socket.getOutputStream()));
+                        out.writeUTF(jsonObj.toString());
+                        out.flush();
 
                         //receive a response from the server with all the needed match information (or a failure notification)
-                        //TODO
+                        int response = in.read(buffer);
+                        String respString = new String(buffer).trim();
+                        socket.close();
 
-                        //use the received information to create an online match
-                        synchronized (lock) {
-                            onlineMatch = new OnlineMatch();//FIXME
+
+                        try {
+                            JSONObject jsonResp = new JSONObject(respString);
+                            Log.i("Match Creation Response", jsonResp.toString());
+                            onlineMatch = new OnlineMatch(jsonResp);
+                            MatchStarter.getInstance().multiplayerSetup(onlineMatch);
                             Log.d(TAG, "run: set online match: " + onlineMatch);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Log.i("OnlineMatchmakerResp", "Error");
                         }
+                        //use the received information to create an online match
                         lock.notifyAll();
 
 
                     } catch (IOException e1) { // if an I/O exception is experienced
                         ioException = e1; //record the exception
                     }
-                } finally {
-                    Log.d(Constraints.TAG, "thread is done running: " + Thread.currentThread().getName());
+
                 }
             }
         }, "onlineMatchMakerThread");
 
+        t.start();
         while (onlineMatch == null && !wasCanceled) {
-            wait();
+            lock.wait(1000);
         }
 
         if (wasCanceled) {
