@@ -20,13 +20,7 @@ import java.util.Queue;
 import static com.example.jarchess.online.datapackage.DatapackageType.RESIGNATION;
 
 public class MatchNetworkIO {
-    private static void waitWhileEmpty(Queue<?> queue, Object lock) throws InterruptedException {
-        synchronized (lock) {
-            while (queue.isEmpty()) {
-                lock.wait();
-            }
-        }
-    }
+
 
     public static class Sender implements TurnSender, ResignationSender, Closeable {
 
@@ -48,6 +42,7 @@ public class MatchNetworkIO {
                 closeables.add((Closeable) datapackageSender);
             }
 
+
             final Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
@@ -57,7 +52,7 @@ public class MatchNetworkIO {
                     try {
                         synchronized (lock) {
                             while (isAlive) {
-                                waitWhileEmpty(outGoingDatapackages, lock);
+                                waitWhileEmpty(outGoingDatapackages);
                                 datapackageSender.send(outGoingDatapackages.remove());
                             }
                         }
@@ -114,6 +109,14 @@ public class MatchNetworkIO {
             synchronized (lock) {
                 Datapackage datapackage = new Datapackage(RESIGNATION, destinationIP, destinationPort);
                 outGoingDatapackages.add(datapackage);
+            }
+        }
+
+        private synchronized void waitWhileEmpty(Queue<?> queue) throws InterruptedException {
+            synchronized (lock) {
+                while (queue.isEmpty()) {
+                    lock.wait();
+                }
             }
         }
     }
@@ -212,7 +215,7 @@ public class MatchNetworkIO {
         public Turn receiveNextTurn() throws InterruptedException {
 
             synchronized (lock) {
-                waitWhileEmpty(incomingTurns, lock);
+                waitWhileEmpty(incomingTurns);
                 return incomingTurns.remove();
             }
         }
@@ -221,8 +224,17 @@ public class MatchNetworkIO {
         public Resignation recieveNextResignation() throws InterruptedException {
 
             synchronized (lock) {
-                waitWhileEmpty(incomingResignations, lock);
+                waitWhileEmpty(incomingResignations);
                 return incomingResignations.remove();
+            }
+        }
+
+
+        private synchronized void waitWhileEmpty(Queue<?> queue) throws InterruptedException {
+            synchronized (lock) {
+                while (queue.isEmpty()) {
+                    lock.wait();
+                }
             }
         }
     }
