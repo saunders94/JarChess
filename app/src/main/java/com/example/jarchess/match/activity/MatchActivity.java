@@ -43,7 +43,6 @@ public abstract class MatchActivity extends AppCompatActivity
 
     private static final long MATCH_CLOCK_TOLERANCE_MILLIS = 1000L;
     private final Collection<Coordinate> possibleDestinations;
-    // these are volatile, but need more robust synchronization
     private volatile ChessColor waitingForMove;
     private volatile Move move;
     private volatile Piece.PromotionChoice promotionChoiceInput = null;
@@ -56,7 +55,6 @@ public abstract class MatchActivity extends AppCompatActivity
     private MatchView matchView;
     private boolean resultWasShown = false;
     private MatchClock matchClock;
-    private boolean timeOut = false;
 
     public MatchActivity() {
         this.possibleDestinations = new LinkedList<Coordinate>();
