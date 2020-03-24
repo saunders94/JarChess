@@ -84,20 +84,6 @@ public class MultiplayerType extends Fragment {
                 transaction.replace(R.id.fragmentHole, matchMakerLauncher);
                 transaction.addToBackStack(null);
                 transaction.commit();
-
-                //TODO show waiting for match dialog with a cancel button that will end the search
-
-
-                // Username
-                // IP Address
-                // Port
-                // Chosen Avatar Style (int 1)
-                // Starting color
-                Object lock = new Object();
-                OnlineMatch onlineMatch = null;
-
-                boolean canceled = false;
-
             }
         });
     }
@@ -130,7 +116,7 @@ public class MultiplayerType extends Fragment {
                     try {
                         Log.d(TAG, "run is running on thread: " + Thread.currentThread().getName());
                         try {
-                            OnlineMatchMaker.getInstance().getOnlineMatch();
+                            onlineMatch = OnlineMatchMaker.getInstance().getOnlineMatch();
                             MatchStarter.getInstance().multiplayerSetup(onlineMatch);
 
                             Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
