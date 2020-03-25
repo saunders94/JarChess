@@ -13,27 +13,26 @@ public abstract class IncrementMatchClock implements MatchClock {
     private static final int WHITE_INT = ChessColor.WHITE.getIntValue();
     private static final int BLACK_INT = ChessColor.BLACK.getIntValue();
     private static final String THREAD_NAME = "incrementMatchClockThread";
+    private static final long MILLISECOND_INTERVAL_BETWEEN_TICKS = 100;// updates approximately every tenth of a second.
     private final int[] incrementSeconds;
     private final int[] turnsForIncrementBracket;
     private final int[] mainTimeMinutes;
     private final int[] turnsForMainTimeBracket;
     private final long[] currentDisplayTimeMillis = new long[2];
     private final int[] turn = new int[2];
-    private final MatchClockObserver observer;
     private final Object lock;
     private ChessColor runningColor = null;
     private long startTimeMillis;
-    private boolean flagHasFallen;
+    private ChessColor flagFallen;
     private boolean stopHasBeenCalled = false;
 
-    public IncrementMatchClock(int[] incrementSeconds, int[] turnsForIncrementBracket, int[] mainTimeMinutes, int[] turnsForMainTimeBracket, MatchClockObserver observer) {
-        Log.v(TAG, "IncrementMatchClock() called with: incrementSeconds = [" + incrementSeconds + "], turnsForIncrementBracket = [" + turnsForIncrementBracket + "], mainTimeSeconds = [" + mainTimeMinutes + "], turnsForMainTimeBracket = [" + turnsForMainTimeBracket + "], observer = [" + observer + "]");
+    public IncrementMatchClock(int[] incrementSeconds, int[] turnsForIncrementBracket, int[] mainTimeMinutes, int[] turnsForMainTimeBracket) {
+        Log.v(TAG, "IncrementMatchClock() called with: incrementSeconds = [" + incrementSeconds + "], turnsForIncrementBracket = [" + turnsForIncrementBracket + "], mainTimeSeconds = [" + mainTimeMinutes + "], turnsForMainTimeBracket = [" + turnsForMainTimeBracket + "]");
 
         this.incrementSeconds = incrementSeconds;
         this.turnsForIncrementBracket = turnsForIncrementBracket;
         this.mainTimeMinutes = mainTimeMinutes;
         this.turnsForMainTimeBracket = turnsForMainTimeBracket;
-        this.observer = observer;
         this.lock = this;
 
         for (int i : new int[]{0, 1}) {
@@ -41,24 +40,47 @@ public abstract class IncrementMatchClock implements MatchClock {
         }
     }
 
-    public int getIncrementSeconds(int turn) {
-        Log.v(TAG, "getIncrementSeconds() called with: turn = [" + turn + "]");
-        for (int i = 0; i < turnsForIncrementBracket.length; i++) {
-            if (turnsForIncrementBracket[i] > turn) {
-                return incrementSeconds[i];
-            }
-        }
-        return incrementSeconds[incrementSeconds.length - 1];
+    private static void notifyClockTickListeners(MatchClock matchClock) {
+        ClockTickEventManager.getInstance().notifyAllListeners(new ClockTickEvent(new long[]{matchClock.getDisplayedTimeMillis(ChessColor.getFromInt(0)), matchClock.getDisplayedTimeMillis(ChessColor.getFromInt(1))}));
     }
 
-    public int getMainTimeSeconds(int turn) {
-        Log.v(TAG, "getMainTimeSeconds() called with: turn = [" + turn + "]");
-        for (int i = 0; i < turnsForMainTimeBracket.length; i++) {
-            if (turnsForMainTimeBracket[i] > turn) {
-                return mainTimeMinutes[i];
-            }
+    @Override
+    public boolean flagHasFallen() {
+        return flagFallen != null;
+    }
+
+    @Override
+    public synchronized ChessColor getFallenFlag() {
+        long elapsed = startTimeMillis - TestableCurrentTime.currentTimeMillis();
+        if (runningColor != null && currentDisplayTimeMillis[runningColor.getIntValue()] - elapsed <= 0) {
+            flagFallen = runningColor;
+            currentDisplayTimeMillis[runningColor.getIntValue()] = 0L;
+            runningColor = null;
+            stop();
         }
-        return mainTimeMinutes[mainTimeMinutes.length - 1];
+        return flagFallen;
+    }
+
+    @Override
+    public synchronized long getDisplayedTimeMillis(ChessColor colorTimeToGet) {
+        if (runningColor != null) {
+
+            long elapsed = TestableCurrentTime.currentTimeMillis() - startTimeMillis;
+            long updatedCurrent = currentDisplayTimeMillis[runningColor.getIntValue()] - elapsed;
+            if (updatedCurrent <= 0L) {
+                flagFallen = runningColor;
+                currentDisplayTimeMillis[runningColor.getIntValue()] = 0L;
+                stop();
+            }
+            return colorTimeToGet == runningColor ? updatedCurrent : currentDisplayTimeMillis[colorTimeToGet.getIntValue()];
+        } else {
+            return currentDisplayTimeMillis[colorTimeToGet.getIntValue()];
+        }
+    }
+
+    @Override
+    public Object getLock() {
+        return lock;
     }
 
     @Override
@@ -82,7 +104,7 @@ public abstract class IncrementMatchClock implements MatchClock {
     @Override
     public synchronized void start(ChessColor colorStartingTurn) {
         Log.v(TAG, "startTimeMillis() called with: colorStartingTurn = [" + colorStartingTurn + "]");
-        if (!flagHasFallen && runningColor == null) {
+        if (flagFallen == null && runningColor == null) {
             runningColor = colorStartingTurn;
             turn[colorStartingTurn.getIntValue()] += 1;
             startTimeMillis = TestableCurrentTime.currentTimeMillis();
@@ -96,8 +118,8 @@ public abstract class IncrementMatchClock implements MatchClock {
                         synchronized (lock) {
                             while (!stopHasBeenCalled) {
                                 {
-                                    observer.observeMatchClock(matchClock);
-                                    lock.wait(100); // updates approximately every tenth of a second.
+                                    notifyClockTickListeners(matchClock);
+                                    lock.wait(MILLISECOND_INTERVAL_BETWEEN_TICKS);
                                 }
                             }
                         }
@@ -112,10 +134,20 @@ public abstract class IncrementMatchClock implements MatchClock {
     }
 
     @Override
+    public synchronized void stop() {
+        if (!stopHasBeenCalled) {
+            stopHasBeenCalled = true;
+            notifyClockTickListeners(this);
+            runningColor = null;
+        }
+
+    }
+
+    @Override
     public synchronized void syncEnd(ChessColor colorEndingTurn, long reportedElapsedTimeMillis, long toleranceMillis) throws ClockSyncException {
         Log.v(TAG, "syncEnd() called with: colorEndingTurn = [" + colorEndingTurn + "], reportedElapsedTimeMillis = [" + reportedElapsedTimeMillis + "], toleranceMillis = [" + toleranceMillis + "]");
         Log.v(TAG, "syncEnd: TURN=" + turn[colorEndingTurn.getIntValue()]);
-        if (!flagHasFallen) {
+        if (flagFallen == null) {
             long measuredElapsedTime = TestableCurrentTime.currentTimeMillis() - startTimeMillis;
             if (colorEndingTurn == runningColor) {
                 if (toleranceMillis >= 0 && abs(reportedElapsedTimeMillis - measuredElapsedTime) > toleranceMillis) {
@@ -127,7 +159,7 @@ public abstract class IncrementMatchClock implements MatchClock {
 
                 //handle timeout
                 if (currentDisplayTimeMillis[colorEndingTurn.getIntValue()] <= 0L) {
-                    flagHasFallen = true;
+                    flagFallen = colorEndingTurn;
                     currentDisplayTimeMillis[colorEndingTurn.getIntValue()] = 0L;
                     stop();
                 } else {
@@ -162,48 +194,24 @@ public abstract class IncrementMatchClock implements MatchClock {
         }
     }
 
-    @Override
-    public synchronized long getDisplayedTimeMillis(ChessColor colorTimeToGet) {
-        if (runningColor != null) {
-
-            long elapsed = TestableCurrentTime.currentTimeMillis() - startTimeMillis;
-            long updatedCurrent = currentDisplayTimeMillis[runningColor.getIntValue()] - elapsed;
-            if (updatedCurrent <= 0L) {
-                flagHasFallen = true;
-                currentDisplayTimeMillis[runningColor.getIntValue()] = 0L;
-                stop();
+    public int getIncrementSeconds(int turn) {
+        Log.v(TAG, "getIncrementSeconds() called with: turn = [" + turn + "]");
+        for (int i = 0; i < turnsForIncrementBracket.length; i++) {
+            if (turnsForIncrementBracket[i] > turn) {
+                return incrementSeconds[i];
             }
-            return colorTimeToGet == runningColor ? updatedCurrent : currentDisplayTimeMillis[colorTimeToGet.getIntValue()];
-        } else {
-            return currentDisplayTimeMillis[colorTimeToGet.getIntValue()];
         }
+        return incrementSeconds[incrementSeconds.length - 1];
     }
 
-    @Override
-    public synchronized boolean flagHasFallen() {
-        long elapsed = startTimeMillis - TestableCurrentTime.currentTimeMillis();
-        if (runningColor != null && currentDisplayTimeMillis[runningColor.getIntValue()] - elapsed <= 0) {
-            flagHasFallen = true;
-            currentDisplayTimeMillis[runningColor.getIntValue()] = 0L;
-            runningColor = null;
-            stop();
+    public int getMainTimeSeconds(int turn) {
+        Log.v(TAG, "getMainTimeSeconds() called with: turn = [" + turn + "]");
+        for (int i = 0; i < turnsForMainTimeBracket.length; i++) {
+            if (turnsForMainTimeBracket[i] > turn) {
+                return mainTimeMinutes[i];
+            }
         }
-        return flagHasFallen;
-    }
-
-    @Override
-    public synchronized void stop() {
-        if (!stopHasBeenCalled) {
-            stopHasBeenCalled = true;
-            observer.observeMatchClock(this);
-            runningColor = null;
-        }
-
-    }
-
-    @Override
-    public Object getLock() {
-        return lock;
+        return mainTimeMinutes[mainTimeMinutes.length - 1];
     }
 
     private synchronized void updateCurrentTimeFromTurnBracket(int colorInt) {
@@ -216,6 +224,4 @@ public abstract class IncrementMatchClock implements MatchClock {
         }
 
     }
-
-
 }

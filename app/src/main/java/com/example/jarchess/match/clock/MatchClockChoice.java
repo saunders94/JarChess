@@ -4,14 +4,14 @@ public enum MatchClockChoice {
     CASUAL_MATCH_CLOCK,
     CLASSIC_FIDE_MATCH_CLOCK;
 
-    public MatchClock makeMatchClock(MatchClockObserver observer) {
+    public MatchClock makeMatchClock() {
         switch (this) {
 
             case CASUAL_MATCH_CLOCK:
-                return new CasualMatchClock(observer);
+                return new CasualMatchClock();
 
             case CLASSIC_FIDE_MATCH_CLOCK:
-                return new ClassicFIDEMatchClock(observer);
+                return new ClassicFIDEMatchClock();
 
             default:
                 throw new IllegalStateException("Unexpected MatchClockChoice value: " + this);

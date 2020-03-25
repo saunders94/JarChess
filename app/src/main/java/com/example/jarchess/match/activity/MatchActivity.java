@@ -340,7 +340,6 @@ public abstract class MatchActivity extends AppCompatActivity
 
         // set match to the current match
         match = createMatch();
-        match.setLocalParticipantController(this);
         matchHistory = match.getMatchHistory();
 
         setContentView(R.layout.activity_match);
@@ -393,7 +392,7 @@ public abstract class MatchActivity extends AppCompatActivity
 
         matchClock.stop();
 
-        showMatchResutl();
+        showMatchResult();
     }
 
     private void processNextInput() throws MatchOverException, InterruptedException {
@@ -474,9 +473,9 @@ public abstract class MatchActivity extends AppCompatActivity
         //TODO
     }
 
-    private void showMatchResutl() {
-        Log.v(TAG, "showMatchResutl() called");
-        Log.v(TAG, "showMatchResutl: " + match.getMatchResult());
+    private void showMatchResult() {
+        Log.v(TAG, "showMatchResult() called");
+        Log.v(TAG, "showMatchResult: " + match.getMatchResult());
         resultWasShown = true;
 
         matchView.showMatchResultDialog(match.getMatchResult());

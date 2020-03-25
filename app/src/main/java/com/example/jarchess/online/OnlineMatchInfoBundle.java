@@ -5,11 +5,11 @@ import com.example.jarchess.online.move.DatapackageQueue;
 
 import org.json.JSONObject;
 
-public class OnlineMatch {
+public class OnlineMatchInfoBundle {
     private RemoteOpponentInfoBundle remoteOpponentInfoBundle;
     private JSONObject responseObject;
 
-    public OnlineMatch(JSONObject responseObject){
+    public OnlineMatchInfoBundle(JSONObject responseObject) {
         this.responseObject = responseObject;
     }
 

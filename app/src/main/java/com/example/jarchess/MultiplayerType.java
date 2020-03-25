@@ -17,7 +17,7 @@ import androidx.constraintlayout.widget.Constraints;
 import com.example.jarchess.match.MatchStarter;
 import com.example.jarchess.match.activity.LocalMultiplayerMatchActivity;
 import com.example.jarchess.match.activity.OnlineMultiplayerMatchActivity;
-import com.example.jarchess.online.OnlineMatch;
+import com.example.jarchess.online.OnlineMatchInfoBundle;
 import com.example.jarchess.online.OnlineMatchMaker;
 import com.example.jarchess.online.networking.Controller;
 
@@ -90,7 +90,7 @@ public class MultiplayerType extends Fragment {
 
     public static class MatchMakerLauncher extends Fragment {
 
-        private OnlineMatch onlineMatch;
+        private OnlineMatchInfoBundle onlineMatchInfoBundle;
         private Button cancelMatchMakingButton;
 
         public MatchMakerLauncher() {
@@ -116,8 +116,8 @@ public class MultiplayerType extends Fragment {
                     try {
                         Log.d(TAG, "run is running on thread: " + Thread.currentThread().getName());
                         try {
-                            onlineMatch = OnlineMatchMaker.getInstance().getOnlineMatch();
-                            MatchStarter.getInstance().multiplayerSetup(onlineMatch);
+                            onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle();
+                            MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
 
                             Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
                             startActivity(intent);

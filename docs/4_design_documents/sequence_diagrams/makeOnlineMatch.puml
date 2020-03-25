@@ -5,11 +5,11 @@ actor player
  OnlineButton -> MatchMakerLauncher:<<creates>>
  MatchMakerLauncher -> OnlineMatchMaker:getOnlineMatch()
  OnlineMatchMaker -> OnlineMatch: <<create>>
- OnlineMatchMaker <-- OnlineMatch: onlineMatch
- MatchMakerLauncher <-- OnlineMatchMaker:onlineMatch
- MatchMakerLauncher -> MatchStarter: muliplayerSetup(onlineMatch)
+ OnlineMatchMaker <-- OnlineMatch: onlineMatchInfoBundle
+ MatchMakerLauncher <-- OnlineMatchMaker:onlineMatchInfoBundle
+ MatchMakerLauncher -> MatchStarter: muliplayerSetup(onlineMatchInfoBundle)
  MatchMakerLauncher -> OnlineMultiplayerMatchActivity: <<create and start>>
- OnlineMultiplayerMatchActivity -> MatchStarter: startRemoteMultiplayerMatch(onlineMatch)
+ OnlineMultiplayerMatchActivity -> MatchStarter: startRemoteMultiplayerMatch(onlineMatchInfoBundle)
  MatchStarter -> Player:<<create>>
  MatchStarter <-- Player: player
  MatchStarter -> RemoteOpponent:<<create>>

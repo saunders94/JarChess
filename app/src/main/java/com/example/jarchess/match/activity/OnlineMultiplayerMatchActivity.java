@@ -7,6 +7,6 @@ public class OnlineMultiplayerMatchActivity extends MatchActivity {
     @Override
     public Match createMatch() {
 
-        return MatchStarter.getInstance().startRemoteMultiplayerMatch(this);
+        return MatchStarter.getInstance().startRemoteMultiplayerMatch(this, this);
     }
 }

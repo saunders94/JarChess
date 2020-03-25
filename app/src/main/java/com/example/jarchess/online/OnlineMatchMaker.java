@@ -2,7 +2,6 @@ package com.example.jarchess.online;
 
 import android.util.Log;
 
-
 import com.example.jarchess.JarAccount;
 import com.example.jarchess.match.MatchStarter;
 
@@ -13,10 +12,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-
-import androidx.constraintlayout.widget.Constraints;
-
-
 import java.io.IOException;
 import java.net.Socket;
 
@@ -29,7 +24,7 @@ public class OnlineMatchMaker {
     private final Object lock;
     private boolean wasCanceled = false;
     private IOException ioException = null;
-    private OnlineMatch onlineMatch = null;
+    private OnlineMatchInfoBundle onlineMatchInfoBundle = null;
     private String gameServer = "AppLB-f1eb9121f64bbd52.elb.us-east-2.amazonaws.com";
     private int serverPort = 12345;
     private DataInputStream in;
@@ -83,9 +78,9 @@ public class OnlineMatchMaker {
 
     }
 
-    public synchronized OnlineMatch getOnlineMatch() throws SearchCanceledException, IOException, InterruptedException {
-        Log.d(TAG, "getOnlineMatch() called");
-        Log.d(TAG, "getOnlineMatch is running on thread: " + Thread.currentThread().getName());
+    public synchronized OnlineMatchInfoBundle getOnlineMatchInfoBundle() throws SearchCanceledException, IOException, InterruptedException {
+        Log.d(TAG, "getOnlineMatchInfoBundle() called");
+        Log.d(TAG, "getOnlineMatchInfoBundle is running on thread: " + Thread.currentThread().getName());
         wasCanceled = false;
 
 
@@ -127,15 +122,16 @@ public class OnlineMatchMaker {
                         //receive a response from the server with all the needed match information (or a failure notification)
                         int response = in.read(buffer);
                         String respString = new String(buffer).trim();
+                        Log.i(TAG, "response: \"" + respString + "\"");
                         socket.close();
 
 
                         try {
                             JSONObject jsonResp = new JSONObject(respString);
                             Log.i("Match Creation Response", jsonResp.toString());
-                            onlineMatch = new OnlineMatch(jsonResp);
-                            MatchStarter.getInstance().multiplayerSetup(onlineMatch);
-                            Log.d(TAG, "run: set online match: " + onlineMatch);
+                            onlineMatchInfoBundle = new OnlineMatchInfoBundle(jsonResp);
+                            MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
+                            Log.d(TAG, "run: set online match: " + onlineMatchInfoBundle);
                         } catch (JSONException e) {
                             e.printStackTrace();
                             Log.i("OnlineMatchmakerResp", "Error");
@@ -153,7 +149,7 @@ public class OnlineMatchMaker {
         }, "onlineMatchMakerThread");
 
         t.start();
-        while (onlineMatch == null && !wasCanceled) {
+        while (onlineMatchInfoBundle == null && !wasCanceled) {
             lock.wait(1000);
         }
 
@@ -167,7 +163,7 @@ public class OnlineMatchMaker {
             }
         }
 
-        return onlineMatch;
+        return onlineMatchInfoBundle;
     }
 
     public class SearchCanceledException extends Exception {
