@@ -13,7 +13,6 @@ import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
 import com.example.jarchess.match.MatchHistory;
 import com.example.jarchess.match.clock.MatchClock;
-import com.example.jarchess.match.clock.MatchClockObserver;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.LocalParticipantController;
@@ -38,8 +37,7 @@ import static androidx.constraintlayout.widget.Constraints.TAG;
 public abstract class MatchActivity extends AppCompatActivity
         implements LocalParticipantController,
         SquareClickHandler,
-        CommitButtonClickObserver,
-        MatchClockObserver {
+        CommitButtonClickObserver {
 
     private static final long MATCH_CLOCK_TOLERANCE_MILLIS = 1000L;
     private final Collection<Coordinate> possibleDestinations;
@@ -281,17 +279,6 @@ public abstract class MatchActivity extends AppCompatActivity
         conditionallyThrowMatchOverException();
     }
 
-    @Override
-    public synchronized void observeMatchClock(MatchClock matchClock) {
-        if (matchClock.flagHasFallen()) {
-            if (match.getMatchResult() == null) {
-                match.checkForTimeout();
-            }
-            this.notifyAll();
-        }
-
-        matchView.updateTimes(matchClock);
-    }
 
     public void observeResignButtonClick() {
 

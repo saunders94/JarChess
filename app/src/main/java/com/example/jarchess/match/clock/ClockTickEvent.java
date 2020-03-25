@@ -2,7 +2,7 @@ package com.example.jarchess.match.clock;
 
 import com.example.jarchess.match.ChessColor;
 
-class ClockTickEvent {
+public class ClockTickEvent {
     private final long[] displayedTimeMillis;
 
     ClockTickEvent(long[] displayedTimeMillis) {
