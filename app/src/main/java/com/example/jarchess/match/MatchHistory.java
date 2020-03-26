@@ -35,6 +35,8 @@ public class MatchHistory implements Iterable<Turn> {
     }
 
     public void add(Turn turn) {
+        enPassantVulnerableCoordinate = null;
+        enPassentRiskedPieceLocation = null;
         Log.v(TAG, "add is running on thread: " + Thread.currentThread().getName());
         chessboardBeforeLastMove = chessboardAfterLastMove;
         chessboardAfterLastMove = chessboardBeforeLastMove.getCopyWithMovementsApplied(turn.getMove());
@@ -54,9 +56,6 @@ public class MatchHistory implements Iterable<Turn> {
                     enPassentRiskedPieceLocation = Coordinate.getByColumnAndRow(originColumn, destinationRow);
                     Log.v(TAG, "add: enPassantVulnerableCoordinate = " + enPassantVulnerableCoordinate);
                     Log.v(TAG, "add: enPassantRiskedCoordinate = " + enPassentRiskedPieceLocation);
-                } else {
-                    enPassantVulnerableCoordinate = null;
-                    enPassentRiskedPieceLocation = null;
                 }
             }
         }
