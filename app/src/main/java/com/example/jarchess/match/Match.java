@@ -7,10 +7,7 @@ import androidx.annotation.NonNull;
 import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.clock.MatchClock;
 import com.example.jarchess.match.clock.MatchClockChoice;
-import com.example.jarchess.match.clock.MatchClockObserver;
 import com.example.jarchess.match.move.PieceMovement;
-import com.example.jarchess.match.participant.LocalParticipant;
-import com.example.jarchess.match.participant.LocalParticipantController;
 import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.pieces.Bishop;
 import com.example.jarchess.match.pieces.Knight;
@@ -37,16 +34,12 @@ public abstract class Match {
     private final MatchParticipant whitePlayer;
     private final Chessboard chessboard;
     private final MoveExpert moveExpert;
-    private ChessColor winner;
+    private final MatchClock matchClock;
     private boolean isDone;
     private Result matchResult = null;
-    private final MatchClock matchClock;
-    //    private LocalParticipantController localParticipantController;
     private String gameToken;
 
-    // TODO send the username of the winner in result
-
-    public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2, MatchClockChoice matchClockChoice, MatchClockObserver matchClockObserver) {
+    public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2, MatchClockChoice matchClockChoice) {
 
         chessboard = new Chessboard();
         chessboard.reset();
@@ -56,7 +49,7 @@ public abstract class Match {
         matchHistory = new MatchHistory(whitePlayer, blackPlayer);
         moveExpert = MoveExpert.getInstance();
         moveExpert.setMatchHistory(matchHistory);
-        matchClock = matchClockChoice.makeMatchClock(matchClockObserver);
+        matchClock = matchClockChoice.makeMatchClock();
     }
 
     public Piece capture(Coordinate destination) {
@@ -216,22 +209,5 @@ public abstract class Match {
         this.isDone = isDone;
     }
 
-    public void setLocalParticipantController(LocalParticipantController localParticipantController) {
-        if (blackPlayer instanceof LocalParticipant) {
-            ((LocalParticipant) blackPlayer).setController(localParticipantController);
-        }
-        if (whitePlayer instanceof LocalParticipant) {
-            ((LocalParticipant) whitePlayer).setController(localParticipantController);
-        }
-    }
 
-    public void setWinner(ChessColor color) {
-
-        if (winner == null) {
-
-            winner = color;
-            notifyAll();
-        }
-
-    }
 }

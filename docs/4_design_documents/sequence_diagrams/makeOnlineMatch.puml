@@ -1,0 +1,29 @@
+@startuml
+
+actor player
+ player -> OnlineButton:click
+ OnlineButton -> MatchMakerLauncher:<<creates>>
+ MatchMakerLauncher -> OnlineMatchMaker:getOnlineMatch()
+ OnlineMatchMaker -> OnlineMatch: <<create>>
+ OnlineMatchMaker <-- OnlineMatch: onlineMatchInfoBundle
+ MatchMakerLauncher <-- OnlineMatchMaker:onlineMatchInfoBundle
+ MatchMakerLauncher -> MatchStarter: muliplayerSetup(onlineMatchInfoBundle)
+ MatchMakerLauncher -> OnlineMultiplayerMatchActivity: <<create and start>>
+ OnlineMultiplayerMatchActivity -> MatchStarter: startRemoteMultiplayerMatch(onlineMatchInfoBundle)
+ MatchStarter -> Player:<<create>>
+ MatchStarter <-- Player: player
+ MatchStarter -> RemoteOpponent:<<create>>
+ MatchStarter <-- RemoteOpponent: opponent
+ MatchStarter -> PlayerMatch:<<create>>
+ MatchStarter <-- PlayerMatch: match
+ OnlineMultiplayerMatchActivity <-- MatchStarter: match
+ OnlineMultiplayerMatchActivity -> OnlineMultiplayerMatchActivity:<<play match>>
+
+/'
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+
+Alice -> Bob: Another authentication Request
+Alice <-- Bob: another authentication Response
+'/
+@enduml

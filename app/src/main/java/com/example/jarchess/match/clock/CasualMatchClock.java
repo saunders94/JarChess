@@ -11,16 +11,15 @@ import static java.lang.Math.abs;
 public class CasualMatchClock implements MatchClock {
 
     public static final long IGNORE_TOLERANCE = -1L;
+    private static final long MILLISECOND_INTERVAL_BETWEEN_TICKS = 100;// updates approximately every tenth of a second.
     private final long[] currentDisplayTimeMillis = new long[]{0L, 0L};
     private final Object lock;
-    private final MatchClockObserver observer;
     private ChessColor runningColor;
     private long startTimeMillis;
     private boolean stopHasBeenCalled;
 
-    public CasualMatchClock(MatchClockObserver observer) {
+    public CasualMatchClock() {
         this.lock = this;
-        this.observer = observer;
     }
 
     @Override
@@ -28,34 +27,8 @@ public class CasualMatchClock implements MatchClock {
         start(ChessColor.WHITE);
     }
 
-    @Override
-    public void start(ChessColor colorStartingTurn) {
-        runningColor = colorStartingTurn;
-        startTimeMillis = TestableCurrentTime.currentTimeMillis();
-        final MatchClock matchClock = this;
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    Log.d(TAG, "MatchClock's anonymous runnable is running on thread: " + Thread.currentThread().getName());
-
-                    synchronized (lock) {
-                        while (!stopHasBeenCalled) {
-                            {
-                                observer.observeMatchClock(matchClock);
-                                lock.wait(100); // updates approximately every tenth of a second.
-                            }
-                        }
-                    }
-                } catch (InterruptedException e) {
-                    // get out
-                } finally {
-                    Log.d(TAG, "done running thread: " + Thread.currentThread().getName());
-                }
-            }
-        }, "casualClockThread").start();
+    private static void notifyClockTickListeners(MatchClock matchClock) {
+        ClockTickEventManager.getInstance().notifyAllListeners(new ClockTickEvent(new long[]{matchClock.getDisplayedTimeMillis(ChessColor.getFromInt(0)), matchClock.getDisplayedTimeMillis(ChessColor.getFromInt(1))}));
     }
 
     @Override
@@ -121,10 +94,46 @@ public class CasualMatchClock implements MatchClock {
     }
 
     @Override
+    public ChessColor getFallenFlag() {
+        // flag never falls
+        return null;
+    }
+
+    @Override
+    public void start(ChessColor colorStartingTurn) {
+        runningColor = colorStartingTurn;
+        startTimeMillis = TestableCurrentTime.currentTimeMillis();
+        final MatchClock matchClock = this;
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    Log.d(TAG, "MatchClock's anonymous runnable is running on thread: " + Thread.currentThread().getName());
+
+                    synchronized (lock) {
+                        while (!stopHasBeenCalled) {
+                            {
+                                notifyClockTickListeners(matchClock);
+                                lock.wait(MILLISECOND_INTERVAL_BETWEEN_TICKS);
+                            }
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    // get out
+                } finally {
+                    Log.d(TAG, "done running thread: " + Thread.currentThread().getName());
+                }
+            }
+        }, "casualClockThread").start();
+    }
+
+    @Override
     public void stop() {
         if (!stopHasBeenCalled) {
             stopHasBeenCalled = true;
-            observer.observeMatchClock(this);
+            notifyClockTickListeners(this);
             runningColor = null;
         }
     }
