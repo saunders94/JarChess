@@ -15,7 +15,9 @@ import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
 import com.example.jarchess.match.PlayerMatch;
 import com.example.jarchess.match.activity.MatchActivity;
-import com.example.jarchess.match.clock.MatchClock;
+import com.example.jarchess.match.clock.ClockTickEvent;
+import com.example.jarchess.match.clock.ClockTickEventManager;
+import com.example.jarchess.match.clock.ClockTickListener;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.MatchParticipant;
@@ -31,7 +33,7 @@ import java.util.Locale;
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
 
-public class MatchView extends View {
+public class MatchView extends View implements ClockTickListener {
     private final MatchParticipant leftParticipant;
     private final MatchParticipant rightParticipant;
     private final View participantInfoBarView;
@@ -139,7 +141,7 @@ public class MatchView extends View {
         rightParticipantAvatarImageView.setImageResource(rightParticipant.getAvatarStyle().getAvatarResourceID());
         rightParticipantInfoView.setBackgroundColor(rightParticipantColor);
 
-
+        ClockTickEventManager.getInstance().add(this);
     }
 
     public void addCapturedPiece(Piece capturedPiece) {
@@ -172,6 +174,12 @@ public class MatchView extends View {
             return;
         }
         chessboardView.clearDestinationSelectionIndicator(movement.getDestination());
+    }
+
+    @Override
+    public void observe(ClockTickEvent clockTickEvent) {
+        updateParticipantTime(leftParticipantTimeTextView, clockTickEvent.getDisplayedTimeMillis(leftParticipant.getColor()));
+        updateParticipantTime(rightParticipantTimeTextView, clockTickEvent.getDisplayedTimeMillis(rightParticipant.getColor()));
     }
 
     public void setDestinationSelectionIndicator(@NonNull Coordinate coordinate) {
@@ -227,11 +235,13 @@ public class MatchView extends View {
 
     }
 
-    public void updateTimes(MatchClock matchClock) {
-        updateParticipantTime(leftParticipantTimeTextView, matchClock.getDisplayedTimeMillis(leftParticipant.getColor()));
-        updateParticipantTime(rightParticipantTimeTextView, matchClock.getDisplayedTimeMillis(rightParticipant.getColor()));
+//TODO remove
 
-    }
+//    public void updateTimes(MatchClock matchClock) {
+//        updateParticipantTime(leftParticipantTimeTextView, matchClock.getDisplayedTimeMillis(leftParticipant.getColor()));
+//        updateParticipantTime(rightParticipantTimeTextView, matchClock.getDisplayedTimeMillis(rightParticipant.getColor()));
+//
+//    }
 
     public void updateViewAfter(Turn turn) {
         Move move = turn.getMove();

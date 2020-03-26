@@ -17,18 +17,17 @@ import androidx.constraintlayout.widget.Constraints;
 import com.example.jarchess.match.MatchStarter;
 import com.example.jarchess.match.activity.LocalMultiplayerMatchActivity;
 import com.example.jarchess.match.activity.OnlineMultiplayerMatchActivity;
-import com.example.jarchess.online.OnlineMatch;
+import com.example.jarchess.online.OnlineMatchInfoBundle;
 import com.example.jarchess.online.OnlineMatchMaker;
 import com.example.jarchess.online.networking.Controller;
 
 import java.io.IOException;
 
-import static android.support.constraint.Constraints.TAG;
-
 
 public class MultiplayerType extends Fragment {
     private Button localButton;
     private Button onlineButton;
+    private static final String TAG = "MultiplayerType";
 
     public MultiplayerType() {
         // Required empty public constructor
@@ -84,33 +83,21 @@ public class MultiplayerType extends Fragment {
                 transaction.replace(R.id.fragmentHole, matchMakerLauncher);
                 transaction.addToBackStack(null);
                 transaction.commit();
-
-                //TODO show waiting for match dialog with a cancel button that will end the search
-
-
-                // Username
-                // IP Address
-                // Port
-                // Chosen Avatar Style (int 1)
-                // Starting color
-                Object lock = new Object();
-                OnlineMatch onlineMatch = null;
-
-                boolean canceled = false;
-
             }
         });
     }
 
     public static class MatchMakerLauncher extends Fragment {
 
-        private OnlineMatch onlineMatch;
+        private OnlineMatchInfoBundle onlineMatchInfoBundle;
         private Button cancelMatchMakingButton;
 
         public MatchMakerLauncher() {
         }
 
         public void cancel() {
+            Log.d(TAG, "cancel() called");
+            Log.d(TAG, "cancel is running on thread: " + Thread.currentThread().getName());
             OnlineMatchMaker.getInstance().cancel();
         }
 
@@ -130,8 +117,8 @@ public class MultiplayerType extends Fragment {
                     try {
                         Log.d(TAG, "run is running on thread: " + Thread.currentThread().getName());
                         try {
-                            OnlineMatchMaker.getInstance().getOnlineMatch();
-                            MatchStarter.getInstance().multiplayerSetup(onlineMatch);
+                            onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle();
+                            MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
 
                             Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
                             startActivity(intent);
@@ -156,6 +143,8 @@ public class MultiplayerType extends Fragment {
             cancelMatchMakingButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Log.d(TAG, "onClick() called with: v = [" + v + "]");
+                    Log.d(TAG, "onClick is running on thread: " + Thread.currentThread().getName());
                     cancel();
                     getActivity().onBackPressed();
                 }

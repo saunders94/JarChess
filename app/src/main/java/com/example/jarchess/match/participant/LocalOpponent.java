@@ -16,7 +16,7 @@ public class LocalOpponent extends LocalParticipant {
      *
      * @param color the color of the participant
      */
-    public LocalOpponent(ChessColor color) {
-        super("Guest", color, GuestAvatarStyle.getInstance());
+    public LocalOpponent(ChessColor color, LocalParticipantController localParticipantController) {
+        super("Guest", color, GuestAvatarStyle.getInstance(), localParticipantController);
     }
 }

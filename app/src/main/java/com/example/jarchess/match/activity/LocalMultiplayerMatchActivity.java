@@ -6,6 +6,6 @@ import com.example.jarchess.match.MatchStarter;
 public class LocalMultiplayerMatchActivity extends MatchActivity {
     @Override
     public Match createMatch() {
-        return MatchStarter.getInstance().startLocalMultiplayerMatch(this);
+        return MatchStarter.getInstance().startLocalMultiplayerMatch(this, this);
     }
 }
