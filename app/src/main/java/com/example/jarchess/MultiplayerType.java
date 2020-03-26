@@ -23,12 +23,11 @@ import com.example.jarchess.online.networking.Controller;
 
 import java.io.IOException;
 
-import static android.support.constraint.Constraints.TAG;
-
 
 public class MultiplayerType extends Fragment {
     private Button localButton;
     private Button onlineButton;
+    private static final String TAG = "MultiplayerType";
 
     public MultiplayerType() {
         // Required empty public constructor
@@ -97,6 +96,8 @@ public class MultiplayerType extends Fragment {
         }
 
         public void cancel() {
+            Log.d(TAG, "cancel() called");
+            Log.d(TAG, "cancel is running on thread: " + Thread.currentThread().getName());
             OnlineMatchMaker.getInstance().cancel();
         }
 
@@ -142,6 +143,8 @@ public class MultiplayerType extends Fragment {
             cancelMatchMakingButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Log.d(TAG, "onClick() called with: v = [" + v + "]");
+                    Log.d(TAG, "onClick is running on thread: " + Thread.currentThread().getName());
                     cancel();
                     getActivity().onBackPressed();
                 }

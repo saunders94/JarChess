@@ -23,7 +23,7 @@ public class MatchStarter {
     private final JarAccount account = JarAccount.getInstance();
     private OnlineMatchInfoBundle onlineMatchInfoBundle;
     private MatchClockChoice matchClockChoice = MatchClockChoice.CLASSIC_FIDE_MATCH_CLOCK;
-
+    private static final String TAG = "MatchStarter";
 
     private MatchStarter() {
     }
