@@ -9,7 +9,7 @@ import static android.support.constraint.Constraints.TAG;
 import static java.lang.Math.abs;
 
 public abstract class IncrementMatchClock implements MatchClock {
-
+    public static final long IGNORE_TOLERANCE = -1L;
     private static final int WHITE_INT = ChessColor.WHITE.getIntValue();
     private static final int BLACK_INT = ChessColor.BLACK.getIntValue();
     private static final String THREAD_NAME = "incrementMatchClockThread";
@@ -20,45 +20,45 @@ public abstract class IncrementMatchClock implements MatchClock {
     private final int[] turnsForMainTimeBracket;
     private final long[] currentDisplayTimeMillis = new long[2];
     private final int[] turn = new int[2];
-    private final Object lock;
-    private ChessColor runningColor = null;
+    private final long toleranceMillis;
+    private ChessColor colorOfFallenFlag;
+    private ChessColor runningColor;
+    private ChessColor stoppedColor;
     private long startTimeMillis;
-    private ChessColor flagFallen;
-    private boolean stopHasBeenCalled = false;
+    private Thread thread;
+    private boolean threadNeedsToDie;
 
-    public IncrementMatchClock(int[] incrementSeconds, int[] turnsForIncrementBracket, int[] mainTimeMinutes, int[] turnsForMainTimeBracket) {
-        Log.v(TAG, "IncrementMatchClock() called with: incrementSeconds = [" + incrementSeconds + "], turnsForIncrementBracket = [" + turnsForIncrementBracket + "], mainTimeSeconds = [" + mainTimeMinutes + "], turnsForMainTimeBracket = [" + turnsForMainTimeBracket + "]");
+    public IncrementMatchClock(int[] incrementSeconds, int[] turnsForIncrementBracket, int[] mainTimeMinutes, int[] turnsForMainTimeBracket, long toleranceMillis) {
+        Log.d(TAG, "IncrementMatchClock() called with: incrementSeconds = [" + incrementSeconds + "], turnsForIncrementBracket = [" + turnsForIncrementBracket + "], mainTimeMinutes = [" + mainTimeMinutes + "], turnsForMainTimeBracket = [" + turnsForMainTimeBracket + "], toleranceMillis = [" + toleranceMillis + "]");
+        Log.d(TAG, "IncrementMatchClock is running on thread: " + Thread.currentThread().getName());
+
+        this.toleranceMillis = toleranceMillis;
 
         this.incrementSeconds = incrementSeconds;
         this.turnsForIncrementBracket = turnsForIncrementBracket;
         this.mainTimeMinutes = mainTimeMinutes;
         this.turnsForMainTimeBracket = turnsForMainTimeBracket;
-        this.lock = this;
 
         for (int i : new int[]{0, 1}) {
             currentDisplayTimeMillis[i] = mainTimeMinutes[0] * 1000 * 60;
         }
     }
 
-    private static void notifyClockTickListeners(MatchClock matchClock) {
-        ClockTickEventManager.getInstance().notifyAllListeners(new ClockTickEvent(new long[]{matchClock.getDisplayedTimeMillis(ChessColor.getFromInt(0)), matchClock.getDisplayedTimeMillis(ChessColor.getFromInt(1))}));
-    }
-
     @Override
-    public boolean flagHasFallen() {
-        return flagFallen != null;
+    public synchronized boolean flagHasFallen() {
+        return colorOfFallenFlag != null;
     }
 
     @Override
     public synchronized ChessColor getFallenFlag() {
         long elapsed = startTimeMillis - TestableCurrentTime.currentTimeMillis();
         if (runningColor != null && currentDisplayTimeMillis[runningColor.getIntValue()] - elapsed <= 0) {
-            flagFallen = runningColor;
+            colorOfFallenFlag = runningColor;
             currentDisplayTimeMillis[runningColor.getIntValue()] = 0L;
             runningColor = null;
             stop();
         }
-        return flagFallen;
+        return colorOfFallenFlag;
     }
 
     @Override
@@ -68,7 +68,7 @@ public abstract class IncrementMatchClock implements MatchClock {
             long elapsed = TestableCurrentTime.currentTimeMillis() - startTimeMillis;
             long updatedCurrent = currentDisplayTimeMillis[runningColor.getIntValue()] - elapsed;
             if (updatedCurrent <= 0L) {
-                flagFallen = runningColor;
+                colorOfFallenFlag = runningColor;
                 currentDisplayTimeMillis[runningColor.getIntValue()] = 0L;
                 stop();
             }
@@ -79,8 +79,8 @@ public abstract class IncrementMatchClock implements MatchClock {
     }
 
     @Override
-    public Object getLock() {
-        return lock;
+    public ChessColor getStoppedColor() {
+        return stoppedColor;
     }
 
     @Override
@@ -90,64 +90,103 @@ public abstract class IncrementMatchClock implements MatchClock {
     }
 
     @Override
+    public long getToleranceMillis() {
+        return toleranceMillis;
+    }
+
+    @Override
+    public synchronized void start() {
+        if (thread != null) {
+            resume();
+        } else {
+            stoppedColor = null;
+            runningColor = ChessColor.WHITE;
+            startTimeMillis = TestableCurrentTime.currentTimeMillis();
+            final MatchClock matchClock = this;
+
+            thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (matchClock) {
+                        threadNeedsToDie = false;
+                        try {
+                            Log.d(TAG, "MatchClock's anonymous runnable is running on thread: " + Thread.currentThread().getName());
+
+                            while (!threadNeedsToDie) {
+                                {
+                                    while (runningColor == null) {
+                                        matchClock.wait();
+                                    }
+                                    notifyClockTickListeners();
+                                    matchClock.wait(MILLISECOND_INTERVAL_BETWEEN_TICKS);
+                                }
+                            }
+
+                        } catch (InterruptedException e) {
+                            // get out
+                        } finally {
+                            Log.d(TAG, "done running thread: " + Thread.currentThread().getName());
+                        }
+                    }
+                }
+            }, THREAD_NAME);
+
+            thread.start();
+        }
+    }
+
+    @Override
     public synchronized boolean isRunning() {
         Log.v(TAG, "isRunning() called");
         return runningColor != null;
     }
 
     @Override
-    public synchronized void start() {
-        Log.v(TAG, "startTimeMillis() called");
-        start(ChessColor.WHITE);
-    }
-
-    @Override
-    public synchronized void start(ChessColor colorStartingTurn) {
-        Log.v(TAG, "startTimeMillis() called with: colorStartingTurn = [" + colorStartingTurn + "]");
-        if (flagFallen == null && runningColor == null) {
-            runningColor = colorStartingTurn;
-            turn[colorStartingTurn.getIntValue()] += 1;
-            startTimeMillis = TestableCurrentTime.currentTimeMillis();
-            final MatchClock matchClock = this;
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Log.v(TAG, "MatchClock's anonymous runnable is running on thread: " + Thread.currentThread().getName());
-
-                        synchronized (lock) {
-                            while (!stopHasBeenCalled) {
-                                {
-                                    notifyClockTickListeners(matchClock);
-                                    lock.wait(MILLISECOND_INTERVAL_BETWEEN_TICKS);
-                                }
-                            }
-                        }
-                    } catch (InterruptedException e) {
-                        // get out
-                    } finally {
-                        Log.v(TAG, "done running thread: " + Thread.currentThread().getName());
-                    }
-                }
-            }, THREAD_NAME).start();
-        }
-    }
-
-    @Override
     public synchronized void stop() {
-        if (!stopHasBeenCalled) {
-            stopHasBeenCalled = true;
-            notifyClockTickListeners(this);
+
+        long current = TestableCurrentTime.currentTimeMillis();
+        if (thread != null && runningColor != null) {
+            long elapsed = current - startTimeMillis;
+            currentDisplayTimeMillis[runningColor.getIntValue()] += elapsed;
+            stoppedColor = runningColor;
             runningColor = null;
+            notifyClockTickListeners();
         }
+    }
+
+    @Override
+    public synchronized void resume() {
+        if (thread != null && stoppedColor != null) {
+            runningColor = stoppedColor;
+            stoppedColor = null;
+            notifyAll();
+            startTimeMillis = TestableCurrentTime.currentTimeMillis();
+        }
+    }
+
+    @Override
+    public synchronized void reset() {
+        threadNeedsToDie = true;
+        thread = null;
+        notifyAll();
+
+        while (threadNeedsToDie) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                Log.e(TAG, "reset: ", e);
+            }
+        }
+
+        start();
 
     }
 
     @Override
-    public synchronized void syncEnd(ChessColor colorEndingTurn, long reportedElapsedTimeMillis, long toleranceMillis) throws ClockSyncException {
+    public synchronized void syncEnd(ChessColor colorEndingTurn, long reportedElapsedTimeMillis) throws ClockSyncException {
         Log.v(TAG, "syncEnd() called with: colorEndingTurn = [" + colorEndingTurn + "], reportedElapsedTimeMillis = [" + reportedElapsedTimeMillis + "], toleranceMillis = [" + toleranceMillis + "]");
         Log.v(TAG, "syncEnd: TURN=" + turn[colorEndingTurn.getIntValue()]);
-        if (flagFallen == null) {
+        if (colorOfFallenFlag == null) {
             long measuredElapsedTime = TestableCurrentTime.currentTimeMillis() - startTimeMillis;
             if (colorEndingTurn == runningColor) {
                 if (toleranceMillis >= 0 && abs(reportedElapsedTimeMillis - measuredElapsedTime) > toleranceMillis) {
@@ -159,7 +198,7 @@ public abstract class IncrementMatchClock implements MatchClock {
 
                 //handle timeout
                 if (currentDisplayTimeMillis[colorEndingTurn.getIntValue()] <= 0L) {
-                    flagFallen = colorEndingTurn;
+                    colorOfFallenFlag = colorEndingTurn;
                     currentDisplayTimeMillis[colorEndingTurn.getIntValue()] = 0L;
                     stop();
                 } else {
@@ -183,15 +222,8 @@ public abstract class IncrementMatchClock implements MatchClock {
 
     }
 
-    @Override
-    public synchronized void syncEnd(ChessColor colorEndingTurn, long reportedElapsedTimeMillis) {
-        Log.v(TAG, "syncEnd() called with: colorEndingTurn = [" + colorEndingTurn + "], reportedElapsedTimeMillis = [" + reportedElapsedTimeMillis + "]");
-        try {
-            syncEnd(colorEndingTurn, reportedElapsedTimeMillis, -1L);
-        } catch (ClockSyncException e) {
-            Log.wtf(TAG, "syncEnd: SyncEnd with negative tolerance threw a clock sync exception instead of syncing any reported value. ", e);
-            e.printStackTrace();
-        }
+    private synchronized void notifyClockTickListeners() {
+        ClockTickEventManager.getInstance().notifyAllListeners(new ClockTickEvent(new long[]{getDisplayedTimeMillis(ChessColor.getFromInt(0)), getDisplayedTimeMillis(ChessColor.getFromInt(1))}));
     }
 
     public int getIncrementSeconds(int turn) {

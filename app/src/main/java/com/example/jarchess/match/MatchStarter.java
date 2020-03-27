@@ -1,5 +1,7 @@
 package com.example.jarchess.match;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.example.jarchess.JarAccount;
@@ -41,6 +43,8 @@ public class MatchStarter {
     }
 
     public void multiplayerSetup(OnlineMatchInfoBundle onlineMatchInfoBundle) {
+        Log.d(TAG, "multiplayerSetup() called with: onlineMatchInfoBundle = [" + onlineMatchInfoBundle + "]");
+        Log.d(TAG, "multiplayerSetup is running on thread: " + Thread.currentThread().getName());
         this.onlineMatchInfoBundle = onlineMatchInfoBundle;
     }
 
@@ -73,7 +77,9 @@ public class MatchStarter {
         }
 
         // adapts the queue to act as a sender and as a receiver of Datapackages
+
         DatapackageQueueAdapter adapter = new DatapackageQueueAdapter(onlineMatchInfoBundle.getDatapackageQueue());
+
 
         return new OnlineMatch(onlineMatchInfoBundle, adapter, adapter, localParticipantController);
     }

@@ -42,6 +42,7 @@ public class MatchNetworkIO {
                 closeables.add((Closeable) datapackageSender);
             }
 
+            //TODO Establish connection
 
             final Runnable runnable = new Runnable() {
                 @Override
@@ -138,6 +139,7 @@ public class MatchNetworkIO {
                 closeables.add((Closeable) datapackageReceiver);
             }
 
+            //TODO Establish connection
             final Runnable runnable = new Runnable() {
                 @Override
                 public void run() {

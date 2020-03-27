@@ -3,6 +3,7 @@ package com.example.jarchess.online;
 import android.util.Log;
 
 import com.example.jarchess.JarAccount;
+import com.example.jarchess.LoggedThread;
 import com.example.jarchess.match.MatchStarter;
 
 import org.json.JSONException;
@@ -47,8 +48,6 @@ public class OnlineMatchMaker {
      * @return the instance.
      */
     public static OnlineMatchMaker getInstance() {
-        Log.d(TAG, "getInstance() called");
-        Log.d(TAG, "getInstance is running on thread: " + Thread.currentThread().getName());
         if (instance == null) {
             instance = new OnlineMatchMaker();
         }
@@ -88,18 +87,18 @@ public class OnlineMatchMaker {
 
     }
 
-    public synchronized OnlineMatchInfoBundle getOnlineMatchInfoBundle() throws SearchCanceledException, IOException, InterruptedException {
-        Log.d(TAG, "getOnlineMatchInfoBundle() called");
-        Log.d(TAG, "getOnlineMatchInfoBundle is running on thread: " + Thread.currentThread().getName());
-        wasCanceled = false;
+    public OnlineMatchInfoBundle getOnlineMatchInfoBundle() throws SearchCanceledException, IOException, InterruptedException {
+        Log.v(TAG, "getOnlineMatchInfoBundle() called");
+        Log.v(TAG, "getOnlineMatchInfoBundle is running on thread: " + Thread.currentThread().getName());
 
 
         // start the search
-        Thread t = new Thread(new Runnable() {
+        Thread t = new LoggedThread(TAG, new Runnable() {
             @Override
             public void run() {
-
                 synchronized (lock) {
+                    wasCanceled = false;
+                    done = false;
                     final byte[] buffer = new byte[1024];
 
 
@@ -195,6 +194,7 @@ public class OnlineMatchMaker {
                     }
 
                 }
+
             }
         }, "onlineMatchMakerThread");
 
@@ -205,6 +205,7 @@ public class OnlineMatchMaker {
             }
 
             if (wasCanceled) {
+                wasCanceled = false;
                 throw new SearchCanceledException();
             } else if (ioException != null) {
                 try {
@@ -220,18 +221,21 @@ public class OnlineMatchMaker {
     private void tryUntilSuccessOrCancel(SocketRunnable runnable) throws IOException, SearchCanceledException, InterruptedException {
         boolean failed;
 
-        if (!wasCanceled) {
-            do {
-                failed = false;
-                try {
-                    runnable.run();
-                } catch (SocketTimeoutException e) {
-                    failed = true;
-                    lock.wait(10);
+        synchronized (lock) {
+
+            if (!wasCanceled) {
+                do {
+                    failed = false;
+                    try {
+                        runnable.run();
+                    } catch (SocketTimeoutException e) {
+                        failed = true;
+                        lock.wait(10);
+                    }
+                } while (failed && !wasCanceled);
+                if (wasCanceled) {
+                    throw new SearchCanceledException();
                 }
-            } while (failed && !wasCanceled);
-            if (wasCanceled) {
-                throw new SearchCanceledException();
             }
         }
     }

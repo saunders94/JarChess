@@ -5,24 +5,21 @@ import com.example.jarchess.match.ChessColor;
 public interface MatchClock {
 
     boolean flagHasFallen();
-
     ChessColor getFallenFlag();
-
     long getDisplayedTimeMillis(ChessColor colorTimeToGet);
-
-    Object getLock();
-
     ChessColor getRunningColor();
 
+    ChessColor getStoppedColor();
+
+    long getToleranceMillis();
+
     boolean isRunning();
-
     void start();
-
-    void start(ChessColor colorStartingTurn);
-
     void stop();
 
-    void syncEnd(ChessColor colorEndingTurn, long reportedElapsedTimeMillis, long toleranceMillis) throws ClockSyncException;
+    void reset();
 
-    void syncEnd(ChessColor colorEndingTurn, long reportedElapsedTimeMillis);
+    void resume();
+
+    void syncEnd(ChessColor colorEndingTurn, long reportedElapsedTimeMillis) throws ClockSyncException;
 }
