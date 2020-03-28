@@ -2,9 +2,9 @@ package com.example.jarchess.online.datapackage;
 
 import android.util.Log;
 
-import com.example.jarchess.match.resignation.Resignation;
 import com.example.jarchess.match.resignation.ResignationReciever;
 import com.example.jarchess.match.resignation.ResignationSender;
+import com.example.jarchess.match.result.ResignationResult;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.turn.TurnReceiver;
 import com.example.jarchess.match.turn.TurnSender;
@@ -106,7 +106,7 @@ public class MatchNetworkIO {
         }
 
         @Override
-        public void send(Resignation resignation) {
+        public void send(ResignationResult resignationResult) {
             synchronized (lock) {
                 Datapackage datapackage = new Datapackage(RESIGNATION, destinationIP, destinationPort);
                 outGoingDatapackages.add(datapackage);
@@ -128,7 +128,7 @@ public class MatchNetworkIO {
         private final Collection<Closeable> closeables = new LinkedList<Closeable>();
         private final DatapackageReceiver datapackageReceiver;
         private final Queue<Turn> incomingTurns = new LinkedList<Turn>();
-        private final Queue<Resignation> incomingResignations = new LinkedList<Resignation>();
+        private final Queue<ResignationResult> incomingResignationResults = new LinkedList<ResignationResult>();
         private final Object lock = new Object();
 
         private boolean isAlive;
@@ -152,9 +152,6 @@ public class MatchNetworkIO {
 
                                 case TURN:
                                     incomingTurns.add(datapackage.getTurn());
-                                    break;
-                                case RESIGNATION:
-                                    incomingResignations.add(datapackage.getResignation());
                                     break;
                                 case PAUSE_REQUEST:
 //                                    incomingPauseRequest.add(datapackage.getPauseRequest());
@@ -223,11 +220,11 @@ public class MatchNetworkIO {
         }
 
         @Override
-        public Resignation recieveNextResignation() throws InterruptedException {
+        public ResignationResult recieveNextResignation() throws InterruptedException {
 
             synchronized (lock) {
-                waitWhileEmpty(incomingResignations);
-                return incomingResignations.remove();
+                waitWhileEmpty(incomingResignationResults);
+                return incomingResignationResults.remove();
             }
         }
 

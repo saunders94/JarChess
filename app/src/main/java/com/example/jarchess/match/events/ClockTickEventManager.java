@@ -1,18 +1,19 @@
-package com.example.jarchess.match.clock;
+package com.example.jarchess.match.events;
 
 import java.util.Collection;
 import java.util.LinkedList;
 
-public class ClockTickEventManager {
+public class ClockTickEventManager implements Clearable {
 
     private static ClockTickEventManager instance;
-    private final Collection<ClockTickListener> listeners;
+    private final Collection<ClockTickEventListener> listeners;
 
     /**
-     * Creates an instance of <code>flagFallEventManager</code> to construct a singleton instance
+     * Creates an instance of <code>FlagFallEventManager</code> to construct a singleton instance
      */
     private ClockTickEventManager() {
         listeners = new LinkedList<>();
+        ClearableManager.add(this);
     }
 
     /**
@@ -28,17 +29,22 @@ public class ClockTickEventManager {
         return instance;
     }
 
-    public boolean add(ClockTickListener listener) {
+    public boolean add(ClockTickEventListener listener) {
         return listeners.add(listener);
     }
 
+    @Override
+    public void clear() {
+        listeners.clear();
+    }
+
     public void notifyAllListeners(ClockTickEvent event) {
-        for (ClockTickListener listener : listeners) {
+        for (ClockTickEventListener listener : listeners) {
             listener.observe(event);
         }
     }
 
-    public boolean remove(ClockTickListener listener) {
+    public boolean remove(ClockTickEventListener listener) {
         return listeners.remove(listener);
     }
 }

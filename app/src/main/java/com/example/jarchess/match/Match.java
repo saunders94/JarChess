@@ -7,6 +7,11 @@ import androidx.annotation.NonNull;
 import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.clock.MatchClock;
 import com.example.jarchess.match.clock.MatchClockChoice;
+import com.example.jarchess.match.events.MatchEndingEvent;
+import com.example.jarchess.match.events.MatchEndingEventListener;
+import com.example.jarchess.match.events.MatchEndingEventManager;
+import com.example.jarchess.match.events.MatchResultIsInEvent;
+import com.example.jarchess.match.events.MatchResultIsInEventManager;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.pieces.Bishop;
@@ -16,6 +21,7 @@ import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.pieces.Queen;
 import com.example.jarchess.match.pieces.Rook;
 import com.example.jarchess.match.result.CheckmateResult;
+import com.example.jarchess.match.result.ExceptionResult;
 import com.example.jarchess.match.result.Result;
 import com.example.jarchess.match.result.StalemateDrawResult;
 import com.example.jarchess.match.result.TimeoutResult;
@@ -28,17 +34,15 @@ import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
 
 //TODO javadocs
-public abstract class Match {
+public abstract class Match implements MatchEndingEventListener {
     private final MatchHistory matchHistory;
     private final MatchParticipant blackPlayer;
     private final MatchParticipant whitePlayer;
     private final Chessboard chessboard;
     private final MoveExpert moveExpert;
     private final MatchClock matchClock;
-    private boolean isDone;
     private Result matchResult = null;
     private String gameToken;
-
     public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2, MatchClockChoice matchClockChoice) {
 
         chessboard = new Chessboard();
@@ -50,6 +54,8 @@ public abstract class Match {
         moveExpert = MoveExpert.getInstance();
         moveExpert.setMatchHistory(matchHistory);
         matchClock = matchClockChoice.makeMatchClock();
+        MatchEndingEventManager.getInstance().add(this);
+
     }
 
     public Piece capture(Coordinate destination) {
@@ -75,22 +81,17 @@ public abstract class Match {
                         Log.wtf(TAG, msg);
                         throw new IllegalStateException(msg);
                     }
-                    matchResult = new TimeoutResult(colorOfWinner);
+                    setMatchResult(new TimeoutResult(colorOfWinner));
                 } else if (!moveExpert.hasMoves(nextTurnColor, chessboard)) {
                     if (moveExpert.isInCheck(nextTurnColor, chessboard)) {
-                        isDone = true;
-                        matchResult = new CheckmateResult(ChessColor.getOther(nextTurnColor));
+                        setMatchResult(new CheckmateResult(ChessColor.getOther(nextTurnColor)));
                     } else {
-                        isDone = true;
-                        matchResult = new StalemateDrawResult();
+                        setMatchResult(new StalemateDrawResult());
                     }
                 } else {
                     // TODO handle our implementation of repeated board state draw
-                    // I have a tendency to want to do the 5 time version that requires no
 
                     // TODO handle 50 move draw
-
-                    // TODO imposibility of check draw handling
 
                 }
             }
@@ -99,28 +100,22 @@ public abstract class Match {
 
     public void checkForTimeout() {
         if (matchClock.flagHasFallen()) {
-            isDone = true;
             ChessColor colorOfWinner;
-            if (matchClock.getDisplayedTimeMillis(WHITE) <= 0L) {
-                colorOfWinner = BLACK;
-            } else if (matchClock.getDisplayedTimeMillis(BLACK) <= 0L) {
-                colorOfWinner = WHITE;
-            } else {
-                String msg = "checkForGameEnd: clock flag has fallen, but neither color is at 0";
-                Log.wtf(TAG, msg);
-                throw new IllegalStateException(msg);
-            }
-            matchResult = new TimeoutResult(colorOfWinner);
+            colorOfWinner = matchClock.getColorOfFallenFlag();
+            setMatchResult(new TimeoutResult(colorOfWinner));
         }
+    }
+
+    public void forceEndMatch(String msg) {
+        MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(getForceExitWinningColor(), msg)));
     }
 
     public MatchParticipant getBlackPlayer() {
         return blackPlayer;
     }
 
-    public Turn getFirstTurn() throws MatchActivity.MatchOverException, InterruptedException {
-        return whitePlayer.getFirstTurn();
-    }
+
+    public abstract ChessColor getForceExitWinningColor();
 
     public Collection<? extends PieceMovement> getLegalCastleMovements(Coordinate origin, Coordinate destination) {
         return moveExpert.getLegalCastleMovements(origin, destination, chessboard);
@@ -167,11 +162,30 @@ public abstract class Match {
     }
 
     public boolean isDone() {
-        return isDone;
+        return matchResult != null;
     }
 
     public void move(Coordinate origin, Coordinate destination) {
         chessboard.move(origin, destination);
+    }
+
+    @Override
+    public void observe(MatchEndingEvent matchEndingEvent) {
+
+        setMatchResult(matchEndingEvent.getMatchResult());
+
+
+    }
+
+    private synchronized void setMatchResult(Result matchResult) {
+        Log.d(TAG, "setMatchResult() called with: matchResult = [" + matchResult + "]");
+        Log.d(TAG, "setMatchResult is running on thread: " + Thread.currentThread().getName());
+        if (this.matchResult == null) {
+            Log.i(TAG, "setMatchResult: " + matchResult);
+            this.matchResult = matchResult;
+            notifyAll();
+            MatchResultIsInEventManager.getInstance().notifyAllListeners(new MatchResultIsInEvent(matchResult));
+        }
     }
 
     public void promote(Coordinate coordinate, Piece.PromotionChoice choice) {
@@ -203,10 +217,6 @@ public abstract class Match {
             chessboard.remove(coordinate);
             chessboard.add(newPiece, coordinate);
         }
-    }
-
-    public void setIsDone(boolean isDone) {
-        this.isDone = isDone;
     }
 
 

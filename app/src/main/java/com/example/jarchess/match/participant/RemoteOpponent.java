@@ -5,9 +5,11 @@ import androidx.annotation.NonNull;
 import com.example.jarchess.RemoteOpponentInfoBundle;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.activity.MatchActivity;
-import com.example.jarchess.match.resignation.Resignation;
+import com.example.jarchess.match.events.MatchResultIsInEvent;
+import com.example.jarchess.match.events.MatchResultIsInEventManager;
 import com.example.jarchess.match.resignation.ResignationReciever;
 import com.example.jarchess.match.resignation.ResignationSender;
+import com.example.jarchess.match.result.ResignationResult;
 import com.example.jarchess.match.styles.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.turn.TurnReceiver;
@@ -58,6 +60,7 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
         this.turnReceiver = mNIOReceiver;
         this.resignationSender = mNIOSender;
         this.resignationReciever = mNIOReceiver;
+        MatchResultIsInEventManager.getInstance().add(this);
 
 
         switch (color) {
@@ -111,12 +114,17 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
         return name;
     }
 
+    @Override
+    public void observe(MatchResultIsInEvent event) {
+
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void resign() {
-        resignationSender.send(new Resignation());
+        resignationSender.send(new ResignationResult(colorOfOtherParticipant));
     }
 
     /**

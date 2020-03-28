@@ -15,12 +15,17 @@ import com.example.jarchess.match.Match;
 import com.example.jarchess.match.MatchHistory;
 import com.example.jarchess.match.clock.ClockSyncException;
 import com.example.jarchess.match.clock.MatchClock;
+import com.example.jarchess.match.events.MatchEndingEvent;
+import com.example.jarchess.match.events.MatchEndingEventManager;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
+import com.example.jarchess.match.participant.LocalParticipant;
 import com.example.jarchess.match.participant.LocalParticipantController;
 import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.result.ExceptionResult;
+import com.example.jarchess.match.result.InvalidTurnReceivedResult;
+import com.example.jarchess.match.result.ResignationResult;
 import com.example.jarchess.match.result.Result;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.view.CommitButtonClickObserver;
@@ -29,8 +34,6 @@ import com.example.jarchess.match.view.SquareClickHandler;
 
 import java.util.Collection;
 import java.util.LinkedList;
-
-import static androidx.constraintlayout.widget.Constraints.TAG;
 
 /**
  * A match activity is an activity where two participants play a chess match with each other.
@@ -42,6 +45,8 @@ public abstract class MatchActivity extends AppCompatActivity
         SquareClickHandler,
         CommitButtonClickObserver {
 
+
+    private static final String TAG = "MatchActivity";
     //    private static final long MATCH_CLOCK_TOLERANCE_MILLIS = 1000L;
     private final Collection<Coordinate> possibleDestinations;
     private volatile ChessColor waitingForMove;
@@ -56,11 +61,92 @@ public abstract class MatchActivity extends AppCompatActivity
     private MatchView matchView;
     private boolean resultWasShown = false;
     private MatchClock matchClock;
+    private boolean inputRequestWasCanceled;
+    private ChessColor currentControllerColor;
+
+    @Override
+    public synchronized void cancelInput() {
+        Log.d(TAG, "cancelInput() called");
+        Log.d(TAG, "cancelInput is running on thread: " + Thread.currentThread().getName());
+        inputRequestWasCanceled = true;
+        notifyAll();
+    }
+
+    @Override
+    public synchronized Move getMoveInput(ChessColor color) throws InterruptedException, MatchOverException {
+        Log.v(TAG, "getMove() called with: color = [" + color + "]");
+
+        inputRequestWasCanceled = false;
+
+        // clear all of the move related fields to make sure we start fresh.
+        clearInputValues();
+
+        // set the color that is waiting for move
+        waitingForMove = color;
+
+        // process input until the move is constructed
+        while (move == null) {
+            processNextInput();
+        }
+
+        // return the move
+        return move;
+    }
+
+    @Override
+    public synchronized Piece.PromotionChoice getPromotionChoice(Move move) throws InterruptedException, MatchOverException {
+
+        if (promotionChoiceInput != null) {
+            promotionChoiceInput = null;
+            this.notifyAll();// promotionChoiceInput has been changed
+        }
+
+        Piece p;
+        for (PieceMovement movement : move) {
+            p = match.getPieceAt(movement.getOrigin());
+
+
+            if (p instanceof Pawn && (movement.getDestination().getRank() == 1 || movement.getDestination().getRank() == 8)) {
+
+                matchView.updateViewBefore(movement);
+                matchView.setPromotionIndicator(movement.getDestination());
+                matchView.showPawnPromotionChoiceDialog();
+                while (promotionChoiceInput == null) {
+                    myWait();
+                }
+                matchView.clearPromotionIndicator(movement);
+            }
+        }
+
+        return promotionChoiceInput;
+    }
 
     public MatchActivity() {
         this.possibleDestinations = new LinkedList<Coordinate>();
     }
 
+    private void changeCurrentControllerColorIfNeeded() {
+        if (currentControllerColor != null) {
+            ChessColor nextColor = ChessColor.getOther(currentControllerColor);
+            if (match.getParticipant(nextColor) instanceof LocalParticipant) {
+                currentControllerColor = nextColor;
+            }
+        }
+    }
+
+    private synchronized void conditionallyThrowMatchOverException() throws MatchOverException {
+        if (match.isDone() || inputRequestWasCanceled) {
+            throw new MatchOverException(match.getMatchResult());
+        }
+    }
+
+    private synchronized void exitActivity() {
+        matchClock.kill(); // stops the clock
+        if (!match.isDone()) {
+            match.forceEndMatch("Activity was exited");
+        }
+        super.onBackPressed();
+    }
 
     /**
      * clears the destinationInput
@@ -125,10 +211,8 @@ public abstract class MatchActivity extends AppCompatActivity
         return JarAccount.getInstance().getCommitButtonClickIsRequired();
     }
 
-    private synchronized void conditionallyThrowMatchOverException() throws MatchOverException {
-        if (match.isDone()) {
-            throw new MatchOverException(match.getMatchResult());
-        }
+    public synchronized ChessColor getCurrentControllerColor() {
+        return currentControllerColor;
     }
 
     public abstract Match createMatch();
@@ -161,57 +245,14 @@ public abstract class MatchActivity extends AppCompatActivity
         match.checkForGameEnd(ChessColor.getOther(turn.getColor()));
     }
 
-    private void exitActivity() {
-        matchClock.stop(); // stops the clock
-        match.setIsDone(true); // makes sure the match thread ends
-        super.onBackPressed();
-    }
+    public synchronized void observeResignButtonClick() {
 
-    @Override
-    public Move getMoveInput(ChessColor color) throws InterruptedException, MatchOverException {
-        Log.v(TAG, "getMove() called with: color = [" + color + "]");
-
-        // clear all of the move related fields to make sure we start fresh.
-        clearInputValues();
-
-        // set the color that is waiting for move
-        waitingForMove = color;
-
-        // process input until the move is constructed
-        while (move == null) {
-            processNextInput();
+        // do anything we need to do before match activity ends
+        if (currentControllerColor != null) {
+            MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ResignationResult(ChessColor.getOther(currentControllerColor))));
         }
 
-        // return the move
-        return move;
-    }
-
-    @Override
-    public synchronized Piece.PromotionChoice getPromotionChoice(Move move) throws InterruptedException, MatchOverException {
-
-        if (promotionChoiceInput != null) {
-            promotionChoiceInput = null;
-            this.notifyAll();// promotionChoiceInput has been changed
-        }
-
-        Piece p;
-        for (PieceMovement movement : move) {
-            p = match.getPieceAt(movement.getOrigin());
-
-
-            if (p instanceof Pawn && (movement.getDestination().getRank() == 1 || movement.getDestination().getRank() == 8)) {
-
-                matchView.updateViewBefore(movement);
-                matchView.setPromotionIndicator(movement.getDestination());
-                matchView.showPawnPromotionChoiceDialog();
-                while (promotionChoiceInput == null) {
-                    myWait();
-                }
-                matchView.clearPromotionIndicator(movement);
-            }
-        }
-
-        return promotionChoiceInput;
+        exitActivity();
     }
 
     private void handleSquareClick(Coordinate coordinateClicked) {
@@ -282,11 +323,14 @@ public abstract class MatchActivity extends AppCompatActivity
         notifyAll();
     }
 
-    public void observeResignButtonClick() {
+    @Override
+    public void onBackPressed() {
 
-        // do anything we need to do before match activity ends
-
-        exitActivity();
+        if (resultWasShown) {
+            exitActivity();
+        } else {
+            matchView.showLeaveMatchDialog();
+        }
     }
 
     public void observeResultAcknowledgement() {
@@ -311,13 +355,43 @@ public abstract class MatchActivity extends AppCompatActivity
 
     }
 
-    @Override
-    public void onBackPressed() {
-        if (resultWasShown) {
-            exitActivity();
-        } else {
-            matchView.showLeaveMatchDialog();
+    private void playMatch() {
+        Turn turn;
+
+
+        try {
+            try {
+                matchClock.start();
+                setCurrentControllerColorIfNeeded();
+                turn = match.getWhitePlayer().getFirstTurn();
+                matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
+                validate(turn);
+                execute(turn);
+                matchView.updateViewAfter(turn);
+
+                while (!match.isDone()) {
+                    changeCurrentControllerColorIfNeeded();
+                    turn = match.getTurn(turn);
+                    matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
+                    validate(turn);
+                    execute(turn);
+                    matchView.updateViewAfter(turn);
+                }
+            } catch (InterruptedException e) {
+                match.forceEndMatch("Thread was Interrupted");
+                throw new MatchOverException(new ExceptionResult(match.getForceExitWinningColor(), "The thread was interrupted"));
+            } catch (ClockSyncException e1) {
+                MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new InvalidTurnReceivedResult(ChessColor.getOther(e1.getColorOutOfSync()))));
+                throw new MatchOverException(new ExceptionResult(match.getForceExitWinningColor(), "The match clocks differed greater than " + matchClock.getToleranceMillis() + " milliseconds"));
+            }
+        } catch (MatchOverException e2) {
+            //TODO Notify participants
+
         }
+
+        matchClock.stop();
+
+        showMatchResult();
     }
 
     /**
@@ -349,41 +423,21 @@ public abstract class MatchActivity extends AppCompatActivity
         Log.v("MatchActivity", "created");
     }
 
-    private void playMatch() {
-        Turn turn;
+    private void setCurrentControllerColorIfNeeded() {
 
-
-        try {
-            try {
-                matchClock.start();
-                turn = match.getFirstTurn();
-                matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
-                validate(turn);
-                execute(turn);
-                matchView.updateViewAfter(turn);
-
-                while (!match.isDone()) {
-                    turn = match.getTurn(turn);
-                    matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
-                    validate(turn);
-                    execute(turn);
-                    matchView.updateViewAfter(turn);
-                }
-            } catch (InterruptedException e) {
-                match.setIsDone(true);
-                throw new MatchOverException(new ExceptionResult("The thread was interrupted"));
-            } catch (ClockSyncException e1) {
-                match.setIsDone(true);
-                throw new MatchOverException(new ExceptionResult("The match clocks differed greater than " + matchClock.getToleranceMillis() + " milliseconds"));
+        if (currentControllerColor == null) {
+            ChessColor nextColor = ChessColor.WHITE;
+            if (match.getParticipant(nextColor) instanceof LocalParticipant) {
+                currentControllerColor = nextColor;
             }
-        } catch (MatchOverException e2) {
-            //TODO Notify participants
-
         }
 
-        matchClock.stop();
-
-        showMatchResult();
+        if (currentControllerColor == null) {
+            ChessColor nextColor = ChessColor.BLACK;
+            if (match.getParticipant(nextColor) instanceof LocalParticipant) {
+                currentControllerColor = nextColor;
+            }
+        }
     }
 
     private void processNextInput() throws MatchOverException, InterruptedException {
@@ -460,10 +514,18 @@ public abstract class MatchActivity extends AppCompatActivity
         this.notifyAll();
     }
 
-    private void showMatchResult() {
+    private synchronized void showMatchResult() {
+        Result r = match.getMatchResult();
         Log.v(TAG, "showMatchResult() called");
         Log.v(TAG, "showMatchResult: " + match.getMatchResult());
         resultWasShown = true;
+
+        if (r instanceof ResignationResult) {
+            ChessColor resigningColor = ((ResignationResult) r).getLoserColor();
+            if (match.getParticipant(resigningColor) instanceof LocalParticipant) {
+                return; // without showing the result dialog because a local participant resigned
+            }
+        }
 
         matchView.showMatchResultDialog(match.getMatchResult());
     }
@@ -491,5 +553,4 @@ public abstract class MatchActivity extends AppCompatActivity
             return matchResult;
         }
     }
-
 }

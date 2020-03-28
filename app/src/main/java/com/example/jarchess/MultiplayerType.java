@@ -59,7 +59,7 @@ public class MultiplayerType extends Fragment {
                 //transaction.replace(R.id.fragmentHole, mainMenu);
                 //transaction.commit();
 
-                MatchStarter.getInstance().setMatchClockChoice(JarAccount.getInstance().getPreferedMatchClock());
+                MatchStarter.getInstance().setMatchClockChoice(JarAccount.getInstance().getPreferredMatchClock());
 
                 Intent intent = new Intent(getActivity(), LocalMultiplayerMatchActivity.class);
                 startActivity(intent);

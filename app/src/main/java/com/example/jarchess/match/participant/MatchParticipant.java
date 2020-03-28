@@ -2,6 +2,7 @@ package com.example.jarchess.match.participant;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.events.MatchResultIsInEventListener;
 import com.example.jarchess.match.styles.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 
@@ -10,7 +11,7 @@ import com.example.jarchess.match.turn.Turn;
  *
  * @author Joshua Zierman
  */
-public interface MatchParticipant {//TODO write unit tests
+public interface MatchParticipant extends MatchResultIsInEventListener {//TODO write unit tests
 
     /**
      * Gets the avatar style for this participant

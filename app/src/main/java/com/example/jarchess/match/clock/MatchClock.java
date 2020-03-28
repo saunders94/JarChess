@@ -5,7 +5,8 @@ import com.example.jarchess.match.ChessColor;
 public interface MatchClock {
 
     boolean flagHasFallen();
-    ChessColor getFallenFlag();
+
+    ChessColor getColorOfFallenFlag();
     long getDisplayedTimeMillis(ChessColor colorTimeToGet);
     ChessColor getRunningColor();
 
@@ -14,6 +15,9 @@ public interface MatchClock {
     long getToleranceMillis();
 
     boolean isRunning();
+
+    void kill();
+
     void start();
     void stop();
 

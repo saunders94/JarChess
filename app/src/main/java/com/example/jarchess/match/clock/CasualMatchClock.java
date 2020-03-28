@@ -3,6 +3,8 @@ package com.example.jarchess.match.clock;
 import android.util.Log;
 
 import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.events.ClockTickEvent;
+import com.example.jarchess.match.events.ClockTickEventManager;
 import com.example.jarchess.testmode.TestableCurrentTime;
 
 import static android.support.constraint.Constraints.TAG;
@@ -37,7 +39,7 @@ public class CasualMatchClock implements MatchClock {
     }
 
     @Override
-    public synchronized ChessColor getFallenFlag() {
+    public synchronized ChessColor getColorOfFallenFlag() {
         // flag never falls
         return null;
     }
@@ -72,6 +74,11 @@ public class CasualMatchClock implements MatchClock {
     @Override
     public synchronized boolean isRunning() {
         return runningColor != null;
+    }
+
+    @Override
+    public void kill() {
+        threadNeedsToDie = true;
     }
 
     @Override
@@ -164,7 +171,7 @@ public class CasualMatchClock implements MatchClock {
             long measuredElapsedTime = TestableCurrentTime.currentTimeMillis() - startTimeMillis;
             if (colorEndingTurn == runningColor) {
                 if (toleranceMillis >= 0 && abs(reportedElapsedTimeMillis - measuredElapsedTime) > toleranceMillis) {
-                    throw new ClockSyncException(reportedElapsedTimeMillis, measuredElapsedTime, toleranceMillis);
+                    throw new ClockSyncException(reportedElapsedTimeMillis, measuredElapsedTime, toleranceMillis, colorEndingTurn);
                 }
 
                 // update the current time

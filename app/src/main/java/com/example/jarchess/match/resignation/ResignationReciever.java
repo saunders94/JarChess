@@ -1,5 +1,7 @@
 package com.example.jarchess.match.resignation;
 
+import com.example.jarchess.match.result.ResignationResult;
+
 public interface ResignationReciever {
-    Resignation recieveNextResignation() throws InterruptedException;
+    ResignationResult recieveNextResignation() throws InterruptedException;
 }

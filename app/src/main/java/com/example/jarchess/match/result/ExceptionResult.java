@@ -1,19 +1,22 @@
 package com.example.jarchess.match.result;
 
-public class ExceptionResult extends Result {
+import com.example.jarchess.match.ChessColor;
+
+public class ExceptionResult extends WinResult {
     private final String message;
 
-    public ExceptionResult(Exception exception) {
-        this(exception.getMessage());
-    }
-
-    public ExceptionResult(String message) {
-        super(null);
+    public ExceptionResult(ChessColor winnerColor, String message) {
+        super(winnerColor);
         this.message = message;
     }
 
     @Override
     protected String getMessage() {
         return message;
+    }
+
+    @Override
+    protected String winTypeString() {
+        return null;
     }
 }

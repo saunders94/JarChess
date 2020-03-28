@@ -7,6 +7,7 @@ import com.example.jarchess.match.styles.ChesspieceStyle;
 import com.example.jarchess.match.styles.LeopardPrintAvatarStyle;
 import com.example.jarchess.match.styles.MarbleChessboardStyle;
 import com.example.jarchess.match.styles.NeonLetterChesspieceStyle;
+import com.example.jarchess.testmode.TestMode;
 
 public class JarAccount {
     private static JarAccount instance = null;
@@ -17,11 +18,6 @@ public class JarAccount {
     private boolean commitButtonClickIsRequired;
     private String signonToken;
     private MatchClockChoice preferedMatchClock;
-
-    public static void setInstance(JarAccount instance) {
-        JarAccount.instance = instance;
-    }
-
     private JarAccount() {
         name = "Display Name";//FIXME needs to getDisplayedTimeMillis this from account/preference file/database
         avatarStyle = LeopardPrintAvatarStyle.getInstance();//FIXME needs to get this from preference file/database
@@ -63,7 +59,12 @@ public class JarAccount {
         this.pieceStyle = pieceStyle;
     }
 
-    public MatchClockChoice getPreferedMatchClock() {
+    public MatchClockChoice getPreferredMatchClock() {
+
+        TestMode.turnOn();//TODO remove the test clock
+        if (TestMode.isOn()) {
+            return MatchClockChoice.TEST_MATCH_CLOCK;
+        }
         return preferedMatchClock;
     }
 
