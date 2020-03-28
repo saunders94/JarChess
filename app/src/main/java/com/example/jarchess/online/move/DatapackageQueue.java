@@ -12,6 +12,8 @@ public class DatapackageQueue {
     private String gameId;
 
     public DatapackageQueue() {
+
+
         this.inboundDatapackage = new LinkedBlockingQueue<Datapackage>();
         this.outboundDatapackage = new LinkedBlockingQueue<Datapackage>();
     }

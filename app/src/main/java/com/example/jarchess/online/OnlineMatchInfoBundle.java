@@ -11,6 +11,13 @@ public class OnlineMatchInfoBundle {
 
     public OnlineMatchInfoBundle(JSONObject responseObject) {
         this.responseObject = responseObject;
+
+        // TODO Create Datapackage Queue
+
+        // TODO Create PeerToPeerDatapackageSomethingOrAnother
+
+
+
     }
 
     private void setRemoteOpponentInfoBundle(){

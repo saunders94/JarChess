@@ -6,23 +6,24 @@ public interface MatchClock {
 
     boolean flagHasFallen();
 
-    ChessColor getFallenFlag();
-
+    ChessColor getColorOfFallenFlag();
     long getDisplayedTimeMillis(ChessColor colorTimeToGet);
-
-    Object getLock();
-
     ChessColor getRunningColor();
+
+    ChessColor getStoppedColor();
+
+    long getToleranceMillis();
 
     boolean isRunning();
 
+    void kill();
+
     void start();
-
-    void start(ChessColor colorStartingTurn);
-
     void stop();
 
-    void syncEnd(ChessColor colorEndingTurn, long reportedElapsedTimeMillis, long toleranceMillis) throws ClockSyncException;
+    void reset();
 
-    void syncEnd(ChessColor colorEndingTurn, long reportedElapsedTimeMillis);
+    void resume();
+
+    void syncEnd(ChessColor colorEndingTurn, long reportedElapsedTimeMillis) throws ClockSyncException;
 }
