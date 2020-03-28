@@ -54,9 +54,9 @@ public class ProfileSignIn extends Fragment {
 
                 if (callback.onLogin(usernameArea.getText(), passwordArea.getText())) {
                     FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                    ProfileMenu profileMenu = new ProfileMenu();
-                    transaction.replace(R.id.fragmentHole, profileMenu);
-                    transaction.addToBackStack(null);
+                    MainMenu mainMenu = new MainMenu();
+                    transaction.replace(R.id.fragmentHole, mainMenu);
+                    transaction.addToBackStack("mai");
                     transaction.commit();
 
                     Toast toast = Toast.makeText(v.getContext(), "Login Successful", duration);
@@ -78,9 +78,9 @@ public class ProfileSignIn extends Fragment {
 
                 if (callback.onRegister(usernameArea.getText(), passwordArea.getText())) {
                     FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                    ProfileMenu profileMenu = new ProfileMenu();
-                    transaction.replace(R.id.fragmentHole, profileMenu);
-                    transaction.addToBackStack(null);
+                    MainMenu mainMenu = new MainMenu();
+                    transaction.replace(R.id.fragmentHole, mainMenu);
+                    transaction.addToBackStack("mai");
                     transaction.commit();
 
                     Toast toast = Toast.makeText(v.getContext()

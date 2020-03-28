@@ -1,6 +1,7 @@
 package com.example.jarchess;
 
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
 
 /**
@@ -17,6 +19,7 @@ import android.widget.Button;
 public class StartPage extends Fragment {
 
     private Button startButton;
+    private LinearLayout layout;
 
     public StartPage() {
         // Required empty public constructor
@@ -29,7 +32,7 @@ public class StartPage extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_start_page, container, false);
         startButton = view.findViewById(R.id.button_start);
-
+        layout = view.findViewById(R.id.startLinearLayout);
         setupListeners();
 
 
@@ -59,6 +62,17 @@ public class StartPage extends Fragment {
         }
     }
 
+    @Override//This method allows things to be changed when the phone is turned
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            layout.setOrientation(LinearLayout.HORIZONTAL);
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            layout.setOrientation(LinearLayout.VERTICAL);
+        }
+    }
+
     private void setupListeners() {
         startButton.setOnClickListener(new View.OnClickListener() {
 
@@ -68,7 +82,7 @@ public class StartPage extends Fragment {
                 FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
                 MainMenu mainMenu = new MainMenu();
                 transaction.replace(R.id.fragmentHole, mainMenu);
-                transaction.addToBackStack(null);
+                transaction.addToBackStack("str");
                 transaction.commit();
             }
         });

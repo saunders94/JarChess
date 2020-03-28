@@ -15,7 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity implements ProfileSignIn.signInCommunicator{
+public class MainActivity extends AppCompatActivity implements ProfileSignIn.signInCommunicator,
+    ProfileMenu.signOutCommunicator {
 
     public static FragmentManager fragmentManager;
 
@@ -108,14 +109,35 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
                 item.setActionView(null);
                 return true;
             } case R.id.profile_menu: {
-                //This will either direct to the profile page or the login page, depending
-                //if the user is logged in
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                ProfileSignIn profileSignIn = new ProfileSignIn();
 
-                transaction.replace(R.id.fragmentHole,profileSignIn);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                FragmentManager.BackStackEntry backEntry = fragmentManager
+                        .getBackStackEntryAt(fragmentManager.getBackStackEntryCount() - 1);
+                String tag = backEntry.getName();
+
+                try {
+
+                    if (loggedIn && !(tag.equals("pro"))) {
+                        FragmentTransaction transaction = fragmentManager.beginTransaction();
+                        ProfileMenu profileMenu = new ProfileMenu();
+                        transaction.replace(R.id.fragmentHole, profileMenu);
+
+                        transaction.addToBackStack("pro");
+                        transaction.commit();
+
+                    } else if (!tag.equals("sig")) {
+                        FragmentTransaction transaction = fragmentManager.beginTransaction();
+                        ProfileSignIn profileSignIn = new ProfileSignIn();
+                        transaction.replace(R.id.fragmentHole, profileSignIn);
+
+                        transaction.addToBackStack("sig");
+                        transaction.commit();
+
+                    }
+
+                } catch (NullPointerException e) {
+                        System.out.println("null must've been added to backStack");
+                }
+
                 return true;
             }
 
@@ -137,7 +159,17 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
         if (fragment instanceof ProfileSignIn) {
             ProfileSignIn signInFragment = (ProfileSignIn) fragment;
             signInFragment.setCommunicator(this);
+        } else if (fragment instanceof ProfileMenu) {
+            ProfileMenu profileMenuFragment = (ProfileMenu) fragment;
+            profileMenuFragment.setCommunicator(this);
         }
+    }
+
+    @Override
+    public boolean onLogout() {
+        usernameLabel.setText("Logged Out");
+        loggedIn = false;
+        return true;
     }
 
 
