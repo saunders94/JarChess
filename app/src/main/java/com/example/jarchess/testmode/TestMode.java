@@ -2,6 +2,7 @@ package com.example.jarchess.testmode;
 
 // TODO javadocs
 public final class TestMode {
+
     private static boolean isInTestMode = false;
 
     public static final void turnOn() {

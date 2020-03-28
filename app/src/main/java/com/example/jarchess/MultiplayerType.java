@@ -12,8 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import androidx.constraintlayout.widget.Constraints;
-
 import com.example.jarchess.match.MatchStarter;
 import com.example.jarchess.match.activity.LocalMultiplayerMatchActivity;
 import com.example.jarchess.match.activity.OnlineMultiplayerMatchActivity;
@@ -25,9 +23,9 @@ import java.io.IOException;
 
 
 public class MultiplayerType extends Fragment {
+    private static final String TAG = "MultiplayerType";
     private Button localButton;
     private Button onlineButton;
-    private static final String TAG = "MultiplayerType";
 
     public MultiplayerType() {
         // Required empty public constructor
@@ -61,7 +59,7 @@ public class MultiplayerType extends Fragment {
                 //transaction.replace(R.id.fragmentHole, mainMenu);
                 //transaction.commit();
 
-                MatchStarter.getInstance().setMatchClockChoice(JarAccount.getInstance().getPreferedMatchClock());
+                MatchStarter.getInstance().setMatchClockChoice(JarAccount.getInstance().getPreferredMatchClock());
 
                 Intent intent = new Intent(getActivity(), LocalMultiplayerMatchActivity.class);
                 startActivity(intent);
@@ -111,26 +109,21 @@ public class MultiplayerType extends Fragment {
         public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
             // start a new thread to launch the online match maker.
-            new Thread(new Runnable() {
+            new LoggedThread(TAG, new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        Log.d(TAG, "run is running on thread: " + Thread.currentThread().getName());
-                        try {
-                            onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle();
-                            MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
+                        onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle();
+                        MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
 
-                            Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
-                            startActivity(intent);
-                        } catch (OnlineMatchMaker.SearchCanceledException e) {
-                            Log.d(TAG, "onCreateView's run: online match maker was cancled");
-                        } catch (IOException e) {
-                            Log.e(TAG, "onCreateView's run: ", e);
-                        } catch (InterruptedException e) {
-                            Log.e(TAG, "onCreateView's run: ", e);
-                        }
-                    } finally {
-                        Log.d(Constraints.TAG, "thread is done running: " + Thread.currentThread().getName());
+                        Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
+                        startActivity(intent);
+                    } catch (OnlineMatchMaker.SearchCanceledException e) {
+                        Log.d(TAG, "onCreateView's run caught:", e);
+                    } catch (IOException e) {
+                        Log.e(TAG, "onCreateView's run caught: ", e);
+                    } catch (InterruptedException e) {
+                        Log.e(TAG, "onCreateView's run caught: ", e);
                     }
                 }
             }, "matchMakerLauncherThread").start();
@@ -143,8 +136,7 @@ public class MultiplayerType extends Fragment {
             cancelMatchMakingButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "onClick() called with: v = [" + v + "]");
-                    Log.d(TAG, "onClick is running on thread: " + Thread.currentThread().getName());
+                    Log.i(TAG, "cancel button clicked");
                     cancel();
                     getActivity().onBackPressed();
                 }

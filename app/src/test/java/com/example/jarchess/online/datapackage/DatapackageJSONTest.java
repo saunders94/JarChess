@@ -210,7 +210,7 @@ public class DatapackageJSONTest {
 //        public JSONObject turnJSONObjectMock = mock(JSONObject.class);
 //
 //        @Mock
-//        public Resignation resignationMock = mock(Resignation.class);
+//        public ResignationResult resignationMock = mock(ResignationResult.class);
 //
 //        @Mock
 //        public JSONObject resignationJSONObjectMock = mock(JSONObject.class);

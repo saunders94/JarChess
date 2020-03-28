@@ -15,9 +15,9 @@ import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
 import com.example.jarchess.match.PlayerMatch;
 import com.example.jarchess.match.activity.MatchActivity;
-import com.example.jarchess.match.clock.ClockTickEvent;
-import com.example.jarchess.match.clock.ClockTickEventManager;
-import com.example.jarchess.match.clock.ClockTickListener;
+import com.example.jarchess.match.events.ClockTickEvent;
+import com.example.jarchess.match.events.ClockTickEventListener;
+import com.example.jarchess.match.events.ClockTickEventManager;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.MatchParticipant;
@@ -33,7 +33,7 @@ import java.util.Locale;
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
 
-public class MatchView extends View implements ClockTickListener {
+public class MatchView extends View implements ClockTickEventListener {
     private final MatchParticipant leftParticipant;
     private final MatchParticipant rightParticipant;
     private final View participantInfoBarView;

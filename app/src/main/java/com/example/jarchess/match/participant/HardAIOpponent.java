@@ -2,6 +2,7 @@ package com.example.jarchess.match.participant;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.events.MatchResultIsInEvent;
 import com.example.jarchess.match.turn.Turn;
 
 /**
@@ -34,5 +35,10 @@ public class HardAIOpponent extends AIOpponent {//TODO write unit tests
     @Override
     public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws MatchActivity.MatchOverException {
         return null;//TODO
+    }
+
+    @Override
+    public void observe(MatchResultIsInEvent event) {
+        //TODO
     }
 }

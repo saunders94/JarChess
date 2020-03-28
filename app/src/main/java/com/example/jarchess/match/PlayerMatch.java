@@ -16,6 +16,12 @@ public class PlayerMatch extends Match {
         super(new Player(ChessColor.getOther(opponent.getColor()), localParticipantController), opponent, matchClockChoice);
         this.player = (Player) (opponent.getColor() == ChessColor.WHITE ? getBlackPlayer() : getWhitePlayer());
     }
+
+    @Override
+    public ChessColor getForceExitWinningColor() {
+        return ChessColor.getOther(player.getColor());
+    }
+
     public Player getPlayer() {
         return player;
     }

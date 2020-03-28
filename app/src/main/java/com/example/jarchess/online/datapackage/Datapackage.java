@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.jarchess.match.move.Move;
-import com.example.jarchess.match.resignation.Resignation;
 import com.example.jarchess.match.turn.Turn;
 
 import org.json.JSONException;
@@ -29,7 +28,6 @@ public class Datapackage implements JSONConvertible<Datapackage> {
     public static final String JSON_PROPERTY_NAME_TURN = "turn";
     public static final String JSON_PROPERTY_NAME_DESTINATION_IP = "destinationIP";
     public static final String JSON_PROPERTY_NAME_DESTINATION_PORT = "destinationPort";
-    private static final Resignation RESIGNATION = new Resignation();
     private final DatapackageType datapackageType;
     private final Turn turn;
     private final String destinationIP;
@@ -103,9 +101,6 @@ public class Datapackage implements JSONConvertible<Datapackage> {
     }
 
 
-    public Resignation getResignation() {
-        return RESIGNATION;
-    }
 
     /**
      * Gets the turn packaged in this.
