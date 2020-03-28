@@ -205,8 +205,8 @@ public abstract class IncrementMatchClock implements MatchClock {
             long measuredElapsedTime = currentTime - startTimeMillis + turnTime;
             turnTime = 0L;
 
-            Log.i(TAG, "syncEnd: measured elapsed time was   " + measuredElapsedTime / 1000.0 + " seconds");
-            Log.i(TAG, "syncEnd: reported elapsed time was   " + reportedElapsedTimeMillis / 1000.0 + " seconds");
+            Log.i(TAG, "syncEnd: measured elapsed time was    " + measuredElapsedTime / 1000.0 + " seconds");
+            Log.i(TAG, "syncEnd: reported elapsed time was    " + reportedElapsedTimeMillis / 1000.0 + " seconds");
 
             startTimeMillis = currentTime;
 
