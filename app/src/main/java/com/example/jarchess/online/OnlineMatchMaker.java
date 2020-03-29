@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.example.jarchess.JarAccount;
 import com.example.jarchess.LoggedThread;
-import com.example.jarchess.match.MatchStarter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -185,11 +184,15 @@ public class OnlineMatchMaker {
                     } finally {
                         done = true;
                         for (Closeable c : new Closeable[]{in, out, socket}) {
-                            try {
-                                c.close();
-                            } catch (IOException e) {
-                                // continue
+                            if (c != null) {
+                                try {
+                                    c.close();
+                                } catch (IOException e) {
+                                    // continue
 
+                                }
+                            } else {
+                                Log.e(TAG, "run: trying to close something set to null");
                             }
                         }
                     }
