@@ -247,12 +247,12 @@ public class MatchNetworkIO {
 
         @Override
         public Datapackage recieveNextDatapackage() throws InterruptedException {
-            return queue.getInboundDatapackage();
+            return queue.getLocalDatapackage();
         }
 
         @Override
         public void send(Datapackage datapackage) {
-            queue.insertOutboundDatapackage(datapackage);
+            queue.insertLocalDatapackageQueue(datapackage);
         }
     }
 }

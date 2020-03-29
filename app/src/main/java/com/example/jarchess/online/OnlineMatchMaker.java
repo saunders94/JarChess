@@ -145,6 +145,7 @@ public class OnlineMatchMaker {
                             public void run() throws IOException {
 
                                 out.writeUTF(jsonObjFinal.toString());
+                                out.flush();
                             }
                         });
                         Log.i(TAG, "request sent");
@@ -165,7 +166,7 @@ public class OnlineMatchMaker {
                             JSONObject jsonResp = new JSONObject(respString);
                             Log.i("Match Creation Response", jsonResp.toString());
                             onlineMatchInfoBundle = new OnlineMatchInfoBundle(jsonResp);
-                            MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
+                            //MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
                             Log.d(TAG, "run: set online match: " + onlineMatchInfoBundle);
                         } catch (JSONException e) {
                             e.printStackTrace();
