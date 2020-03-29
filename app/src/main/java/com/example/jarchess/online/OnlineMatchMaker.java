@@ -1,5 +1,6 @@
 package com.example.jarchess.online;
 
+import android.nfc.Tag;
 import android.util.Log;
 
 import com.example.jarchess.JarAccount;
@@ -163,13 +164,13 @@ public class OnlineMatchMaker {
 
                         try {
                             JSONObject jsonResp = new JSONObject(respString);
-                            Log.i("Match Creation Response", jsonResp.toString());
+                            Log.i(TAG, jsonResp.toString());
                             onlineMatchInfoBundle = new OnlineMatchInfoBundle(jsonResp);
                             //MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
-                            Log.d(TAG, "run: set online match: " + onlineMatchInfoBundle);
+                            Log.i(TAG, "run: set online match: " + onlineMatchInfoBundle);
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Log.i("OnlineMatchmakerResp", "Error");
+                            Log.i(TAG, "Error");
                         }
                         //use the received information to create an online match
                         lock.notifyAll();
@@ -182,6 +183,7 @@ public class OnlineMatchMaker {
                     } catch (InterruptedException e3) {
                         //just get out
                     } finally {
+                        lock.notifyAll();
                         done = true;
                         for (Closeable c : new Closeable[]{in, out, socket}) {
                             if (c != null) {
@@ -204,6 +206,7 @@ public class OnlineMatchMaker {
 
         t.start();
         synchronized (lock) {
+            Log.i(TAG, "wasCaceled = " + wasCanceled);
             while (!done && !wasCanceled) {
                 lock.wait(500);
             }
