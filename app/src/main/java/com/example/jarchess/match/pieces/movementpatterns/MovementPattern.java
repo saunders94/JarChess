@@ -13,7 +13,7 @@ import static com.example.jarchess.match.ChessColor.WHITE;
  *
  * @author Joshua Zierman
  */
-public abstract class MovementPattern {//TODO write unit tests
+public abstract class MovementPattern {
 
     private final int kingwardOffset;
 

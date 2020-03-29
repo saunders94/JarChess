@@ -10,7 +10,7 @@ import com.example.jarchess.match.styles.AvatarStyle;
  *
  * @author Joshua Zierman
  */
-public abstract class AIOpponent implements MatchParticipant {//TODO write unit tests
+public abstract class AIOpponent implements MatchParticipant {
     private final ChessColor color;
     private final String name;
 
@@ -26,6 +26,7 @@ public abstract class AIOpponent implements MatchParticipant {//TODO write unit 
 
         MatchResultIsInEventManager.getInstance().add(this);
     }
+
 
     /**
      * {@inheritDoc}

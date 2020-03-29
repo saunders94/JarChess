@@ -20,7 +20,7 @@ import java.util.LinkedList;
  *
  * @author Joshua Zierman
  */
-public abstract class Piece implements Cloneable { //TODO write unit tests
+public abstract class Piece implements Cloneable {
 
     /*
      * The starting position of the piece is important when a piece is captured and made visible on the captured pieces view.
