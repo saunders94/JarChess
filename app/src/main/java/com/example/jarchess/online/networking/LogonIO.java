@@ -73,7 +73,7 @@ public class LogonIO {
             Log.d(TAG, "sendData: got lock");
 
             Log.d(TAG, "sendData: creating socket");
-            // TODO if the server cannot be reached the app hangs... we need to give the player a way to cancel login attempt or gracefully timeout.
+            // TODO if the server cannot be reached the app hangs... we need to give the player a way to cancel login attempt or gracefully timeout (and a lot faster per our NFR).
             socket = new Socket(logonServer, serverPort);
             Log.d(TAG, "sendData: socket created");
 
