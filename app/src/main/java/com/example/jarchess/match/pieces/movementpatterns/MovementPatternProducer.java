@@ -13,7 +13,7 @@ import java.util.LinkedList;
  *
  * @author Joshua Zierman
  */
-public class MovementPatternProducer {//TODO write unit tests
+public class MovementPatternProducer {
 
     private static final char QUEENWARD_ROOK_FILE = Rook.QUEENWARD_STARTING_FILE;
     private static final char KINGWARD_ROOK_FILE = Rook.KINGWARD_STARTING_FILE;

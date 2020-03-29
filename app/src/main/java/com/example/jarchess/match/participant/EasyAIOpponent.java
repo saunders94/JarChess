@@ -10,8 +10,9 @@ import com.example.jarchess.match.turn.Turn;
  *
  * @author Joshua Zierman
  */
-public class EasyAIOpponent extends AIOpponent {//TODO write unit tests
+public class EasyAIOpponent extends AIOpponent {
 
+    public static final boolean IS_IMPLEMENTED = false; // TODO change this when we implement Easy AI Opponent
     /**
      * Creates an easy AI opponent.
      *
@@ -26,7 +27,7 @@ public class EasyAIOpponent extends AIOpponent {//TODO write unit tests
      */
     @Override
     public Turn getFirstTurn() throws MatchActivity.MatchOverException {
-        return null;//TODO
+        return null;//FIXME
     }
 
     /**
@@ -34,12 +35,12 @@ public class EasyAIOpponent extends AIOpponent {//TODO write unit tests
      */
     @Override
     public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws MatchActivity.MatchOverException {
-        return null;//TODO
+        return null;//FIXME
     }
 
 
     @Override
     public void observe(MatchResultIsInEvent event) {
-        //TODO
+        //FIXME
     }
 }

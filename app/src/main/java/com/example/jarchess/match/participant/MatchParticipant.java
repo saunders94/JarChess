@@ -11,7 +11,7 @@ import com.example.jarchess.match.turn.Turn;
  *
  * @author Joshua Zierman
  */
-public interface MatchParticipant extends MatchResultIsInEventListener {//TODO write unit tests
+public interface MatchParticipant extends MatchResultIsInEventListener {
 
     /**
      * Gets the avatar style for this participant

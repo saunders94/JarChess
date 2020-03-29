@@ -7,7 +7,7 @@ import com.example.jarchess.match.ChessColor;
  *
  * @author Joshua Zierman
  */
-public class JumpPattern extends MovementPattern {//TODO write unit tests
+public class JumpPattern extends MovementPattern {
 
     /**
      * Creates a movement pattern.

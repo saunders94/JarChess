@@ -15,7 +15,7 @@ import com.example.jarchess.match.pieces.movementpatterns.MovementPatternProduce
  *
  * @author Joshua Zierman
  */
-public class Bishop extends Piece {//TODO write unit tests
+public class Bishop extends Piece {
 
 
     public static final char QUEENWARD_STARTING_FILE = 'c';

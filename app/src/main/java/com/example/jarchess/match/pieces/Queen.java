@@ -29,7 +29,7 @@ public class Queen extends Piece {
      *
      * @param color the color of the queen to be created
      */
-    public Queen(ChessColor color) {//TODO write unit tests
+    public Queen(ChessColor color) {
         super(color, TYPE, makeStartingCoordinate(color));
 
         addAllMovementPatterns();
