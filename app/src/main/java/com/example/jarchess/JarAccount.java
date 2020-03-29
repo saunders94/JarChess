@@ -7,7 +7,6 @@ import com.example.jarchess.match.styles.ChesspieceStyle;
 import com.example.jarchess.match.styles.LeopardPrintAvatarStyle;
 import com.example.jarchess.match.styles.MarbleChessboardStyle;
 import com.example.jarchess.match.styles.NeonLetterChesspieceStyle;
-import com.example.jarchess.testmode.TestMode;
 
 public class JarAccount {
     private static JarAccount instance = null;
@@ -61,10 +60,10 @@ public class JarAccount {
 
     public MatchClockChoice getPreferredMatchClock() {
 
-        TestMode.turnOn();//TODO remove the test clock
-        if (TestMode.isOn()) {
-            return MatchClockChoice.TEST_MATCH_CLOCK;
-        }
+//        TestMode.turnOn();//TODO remove the test clock
+//        if (TestMode.isOn()) {
+//            return MatchClockChoice.TEST_MATCH_CLOCK;
+//        }
         return preferedMatchClock;
     }
 
