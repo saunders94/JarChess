@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.example.jarchess.online.OnlineMatchMaker;
 import com.example.jarchess.online.usermanagement.Account;
 
-public class MainActivity extends AppCompatActivity implements ProfileSignIn.signInCommunicator{
+public class MainActivity extends AppCompatActivity implements ProfileSignIn.SignInCommunicator {
 
     public static FragmentManager fragmentManager;
 
@@ -25,10 +25,21 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
     private TextView usernameLabel;
     private TextView unseenNotificationView;
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
 
+        // cancel matchmaking
+        OnlineMatchMaker.getInstance().cancel();
+    }
 
-
-
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        if (fragment instanceof ProfileSignIn) {
+            ProfileSignIn signInFragment = (ProfileSignIn) fragment;
+            signInFragment.setCommunicator(this);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,19 +68,6 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
             transaction.add(R.id.fragmentHole, start);
             transaction.commit();
 
-        }
-    }
-
-    private void setupToolbar() {
-
-        Toolbar toolBar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolBar);
-
-        try {
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        } catch (NullPointerException e) {
-            System.out.println("Toolbar couldn't be found!");
         }
     }
 
@@ -102,54 +100,13 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-
-            case R.id.notification_menu: {
-                item.setActionView(null);
-                return true;
-            } case R.id.profile_menu: {
-                //This will either direct to the profile page or the login page, depending
-                //if the user is logged in
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                ProfileSignIn profileSignIn = new ProfileSignIn();
-
-                transaction.replace(R.id.fragmentHole,profileSignIn);
-                transaction.addToBackStack(null);
-                transaction.commit();
-                return true;
-            }
-
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void setUnseenNotificationQuantity(int unseenNotificationQuantity) {
-        this.unseenNotificationQuantity = unseenNotificationQuantity;
-    }
-
-    public void resetUnseenNotificationQuantity() {
-        setUnseenNotificationQuantity(0);
-    }
-
-    @Override
-    public void onAttachFragment(Fragment fragment) {
-        if (fragment instanceof ProfileSignIn) {
-            ProfileSignIn signInFragment = (ProfileSignIn) fragment;
-            signInFragment.setCommunicator(this);
-        }
-    }
-
-
-    @Override
-//use this method to getDisplayedTimeMillis login details, return true if login succeeded
+//use this method to get login details, return true if login succeeded
     public boolean onLogin(CharSequence username, CharSequence password) {
 
         //if(call to method that does logging in) {
         boolean signonStatus = new Account().signin(String.valueOf(username),
                 String.valueOf(password));
-        if(signonStatus){
+        if (signonStatus) {
             usernameLabel.setText(username);
             loggedIn = true;
             return true;
@@ -158,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
     }
 
     @Override
-//use this method to getDisplayedTimeMillis registration details, return true if registration succeeded
+//use this method to get registration details, return true if registration succeeded
     public boolean onRegister(CharSequence username, CharSequence password) {
 
         //if(call to method that does registration) {
@@ -171,10 +128,48 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
 
-        // cancel matchmaking
-        OnlineMatchMaker.getInstance().cancel();
+            case R.id.notification_menu: {
+                item.setActionView(null);
+                return true;
+            }
+            case R.id.profile_menu: {
+                //This will either direct to the profile page or the login page, depending
+                //if the user is logged in
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                ProfileSignIn profileSignIn = new ProfileSignIn();
+
+                transaction.replace(R.id.fragmentHole, profileSignIn);
+                transaction.addToBackStack(null);
+                transaction.commit();
+                return true;
+            }
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void resetUnseenNotificationQuantity() {
+        setUnseenNotificationQuantity(0);
+    }
+
+    public void setUnseenNotificationQuantity(int unseenNotificationQuantity) {
+        this.unseenNotificationQuantity = unseenNotificationQuantity;
+    }
+
+    private void setupToolbar() {
+
+        Toolbar toolBar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolBar);
+
+        try {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        } catch (NullPointerException e) {
+            System.out.println("Toolbar couldn't be found!");
+        }
     }
 }

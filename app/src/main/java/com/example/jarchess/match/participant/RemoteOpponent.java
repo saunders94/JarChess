@@ -101,7 +101,7 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
         try {
             return turnReceiver.receiveNextTurn();
         } catch (InterruptedException e) {
-            // just getDisplayedTimeMillis out
+            // just get out
         }
         return null;
     }
@@ -138,7 +138,7 @@ public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
         try {
             return turnReceiver.receiveNextTurn();
         } catch (InterruptedException e) {
-            // just getDisplayedTimeMillis out
+            // just get out
         }
 
         return null;

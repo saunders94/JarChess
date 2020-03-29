@@ -57,7 +57,7 @@ public class King extends Piece {//TODO write unit tests
     /**
      * Makes the starting coordinate of a king of the given color.
      *
-     * @param color the color of the king to getDisplayedTimeMillis the starting coordinate of
+     * @param color the color of the king to get the starting coordinate of
      * @return the starting coordinate of a king of the given color
      */
     private static Coordinate makeStartingCoordinate(ChessColor color) {

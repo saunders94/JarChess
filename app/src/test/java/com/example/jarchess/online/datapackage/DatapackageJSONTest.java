@@ -219,7 +219,7 @@ public class DatapackageJSONTest {
 //        @Test
 //        public void t(){
 //            when(turnMock.getJSONObject()).thenReturn(turnJSONObjectMock);
-//            when(turnJSONObjectMock.getDisplayedTimeMillis())
+//            when(turnJSONObjectMock.get())
 //            assertEquals(originFile, destinationFile);
 //        }
     }
