@@ -16,6 +16,7 @@ public class Account {
     private LogonIO logonIO;
     private String username;
     private String password;
+    private static final String TAG = "Account";
 
     public Account(){
         this.jsonAccount = new JSONAccount();
@@ -23,10 +24,16 @@ public class Account {
     }
 
     public boolean signin(String username, String password){
+        Log.d(TAG, "signin() called with: username = [" + username + "], password = [" + password + "]");
+        Log.d(TAG, "signin is running on thread: " + Thread.currentThread().getName());
         boolean status = false;
         if(username.equals("")){
+            Log.i(TAG, "signin: username was empty string");
+            Log.d(TAG, "signin() returned: " + false);
             return false;
         }else if(username == null){
+            Log.i(TAG, "signin: username was null");
+            Log.d(TAG, "signin() returned: " + false);
             return false;
         }
         JSONObject jsonObject =  jsonAccount.signin(username, password);
