@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
         super.onBackPressed();
 
         // cancel matchmaking
-        OnlineMatchMaker.getInstance().cancel();
+        //OnlineMatchMaker.getInstance().cancel();
     }
 
     @Override

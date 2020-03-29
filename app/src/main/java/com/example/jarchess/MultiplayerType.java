@@ -1,7 +1,7 @@
 package com.example.jarchess;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -113,7 +113,9 @@ public class MultiplayerType extends Fragment {
                 @Override
                 public void run() {
                     try {
+                        Log.i(TAG, "Creating onlinematchMakerBundle");
                         onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle();
+                        Log.i(TAG, "Online match info bundle created");
                         MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
 
                         Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);

@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.example.jarchess.JarAccount;
 import com.example.jarchess.RemoteOpponentInfoBundle;
+import com.example.jarchess.match.styles.YellowBlackYellowCircleAvatarStyle;
 import com.example.jarchess.online.move.DatapackageQueue;
 import com.example.jarchess.online.networking.GameIO;
 
@@ -53,11 +54,11 @@ public class OnlineMatchInfoBundle {
             e.printStackTrace();
         }
         if(JarAccount.getInstance().getName().equals(playerOne)){
-            remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerTwo,null,playerOneColor, playerOneIp, playerOnePort);
-            localOpponentInfoBundle = new RemoteOpponentInfoBundle(playerOne, null, playerOneColor, playerOneIp, playerOnePort);
+            remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerTwo,YellowBlackYellowCircleAvatarStyle.getInstance(),playerOneColor, playerOneIp, playerOnePort);
+            localOpponentInfoBundle = new RemoteOpponentInfoBundle(playerOne, YellowBlackYellowCircleAvatarStyle.getInstance(), playerOneColor, playerOneIp, playerOnePort);
         }else if(JarAccount.getInstance().getName().equals(playerTwo)){
-            remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerOne, null, playerOneColor, playerOneIp, playerOnePort);
-            localOpponentInfoBundle = new RemoteOpponentInfoBundle(playerTwo,null,playerOneColor, playerOneIp, playerOnePort);
+            remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerOne, YellowBlackYellowCircleAvatarStyle.getInstance(), playerOneColor, playerOneIp, playerOnePort);
+            localOpponentInfoBundle = new RemoteOpponentInfoBundle(playerTwo,YellowBlackYellowCircleAvatarStyle.getInstance(),playerOneColor, playerOneIp, playerOnePort);
         }
 
         this.gameToken = gameToken;
