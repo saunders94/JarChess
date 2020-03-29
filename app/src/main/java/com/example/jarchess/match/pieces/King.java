@@ -27,7 +27,7 @@ import java.util.LinkedList;
  *
  * @author Joshua Zierman
  */
-public class King extends Piece {//TODO write unit tests
+public class King extends Piece {
 
     public static final char STARTING_FILE = 'e';
     public static final int BLACK_STARTING_RANK = 8;

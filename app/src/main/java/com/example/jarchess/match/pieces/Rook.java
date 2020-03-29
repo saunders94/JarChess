@@ -19,7 +19,7 @@ import com.example.jarchess.match.pieces.movementpatterns.MovementPatternProduce
  *
  * @author Joshua Zierman
  */
-public class Rook extends Piece {//TODO write unit tests
+public class Rook extends Piece {
     public static final char QUEENWARD_STARTING_FILE = 'a';
     public static final char KINGWARD_STARTING_FILE = 'h';
     public static final int BLACK_STARTING_RANK = 8;

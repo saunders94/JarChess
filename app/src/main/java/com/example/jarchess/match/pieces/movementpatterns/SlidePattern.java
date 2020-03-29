@@ -9,7 +9,7 @@ import static java.lang.Math.abs;
  *
  * @author Joshua Zierman
  */
-public class SlidePattern extends MovementPattern {//TODO write unit tests
+public class SlidePattern extends MovementPattern {
 
 
     /**

@@ -21,7 +21,7 @@ import static com.example.jarchess.match.Coordinate.MIN_FILE;
  *
  * @author Joshua Zierman
  */
-public class Pawn extends Piece {//TODO write unit tests
+public class Pawn extends Piece {
     public final static int BLACK_STARTING_RANK = 7;
     public final static int WHITE_STARTING_RANK = 2;
     public static final String NAME = "Pawn";
