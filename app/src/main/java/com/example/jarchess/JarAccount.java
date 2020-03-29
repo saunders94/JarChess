@@ -7,7 +7,8 @@ import com.example.jarchess.match.styles.ChesspieceStyle;
 import com.example.jarchess.match.styles.LeopardPrintAvatarStyle;
 import com.example.jarchess.match.styles.MarbleChessboardStyle;
 import com.example.jarchess.match.styles.NeonLetterChesspieceStyle;
-import com.example.jarchess.testmode.TestMode;
+
+import java.io.IOException;
 
 public class JarAccount {
     private static JarAccount instance = null;
@@ -19,7 +20,7 @@ public class JarAccount {
     private String signonToken;
     private MatchClockChoice preferedMatchClock;
     private JarAccount() {
-        name = "Display Name";//FIXME needs to getDisplayedTimeMillis this from account/preference file/database
+        name = "Display Name";//FIXME needs to get this from account/preference file/database
         avatarStyle = LeopardPrintAvatarStyle.getInstance();//FIXME needs to get this from preference file/database
         boardStyle = MarbleChessboardStyle.getInstance();//FIXME needs to get this from preference file/database
         pieceStyle = NeonLetterChesspieceStyle.getInstance();//FIXME needs to get this from preference file/database
@@ -61,10 +62,10 @@ public class JarAccount {
 
     public MatchClockChoice getPreferredMatchClock() {
 
-        TestMode.turnOn();//TODO remove the test clock
-        if (TestMode.isOn()) {
-            return MatchClockChoice.TEST_MATCH_CLOCK;
-        }
+//        TestMode.turnOn();//TODO remove the test clock
+//        if (TestMode.isOn()) {
+//            return MatchClockChoice.TEST_MATCH_CLOCK;
+//        }
         return preferedMatchClock;
     }
 
@@ -93,5 +94,24 @@ public class JarAccount {
 
     public ChesspieceStyle getPieceStyle() {
         return pieceStyle;
+    }
+
+    /**
+     * checks to see if the jar account is considered logged in.
+     *
+     * @return true if the server verifies that the account is logged in (token and username matches as expected), otherwise false
+     * @throws IOException if the interaction with the sever fails
+     */
+    public boolean isLoggedIn() throws IOException {
+        return false;//FIXME
+    }
+
+    /**
+     * checks to see if the Account is Online (not necessarily logged in).
+     *
+     * @return true if the server can be reached, otherwise false.
+     */
+    public boolean isOnline() {
+        return false;//FIXME
     }
 }

@@ -59,7 +59,7 @@ public abstract class IncrementMatchClock implements MatchClock {
             tic();
         } catch (InterruptedException e) {
 
-            Log.e(TAG, "getDisplayedTimeMillis: ", e);
+            Log.e(TAG, "tic: ", e);
         }
         return colorOfFallenFlag != null;
     }
@@ -70,7 +70,7 @@ public abstract class IncrementMatchClock implements MatchClock {
             tic();
         } catch (InterruptedException e) {
 
-            Log.e(TAG, "getDisplayedTimeMillis: ", e);
+            Log.e(TAG, "getColorOfFallenFlag: ", e);
         }
         return colorOfFallenFlag;
     }
