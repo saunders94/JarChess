@@ -82,9 +82,9 @@ public class OnlineMatchInfoBundle {
             playerOneColor = (String) responseObject.get("player_one_color");
             playerTwoColor = (String) responseObject.get("player_two_color");
             playerOneIp = (String) responseObject.get("player_one_ip");
-            playerTwoIp = (String) responseObject.get("player_one_ip");
+            playerTwoIp = (String) responseObject.get("player_two_ip");
             playerOnePort = (int) responseObject.get("player_one_port");
-            playerTwoPort = (int) responseObject.get("player_one_port");
+            playerTwoPort = (int) responseObject.get("player_two_port");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -93,7 +93,7 @@ public class OnlineMatchInfoBundle {
             playerInfoBundle = new RemoteOpponentInfoBundle(playerOne, YellowBlackYellowCircleAvatarStyle.getInstance(), playerOneColor, playerOneIp, playerOnePort);
         }else if(JarAccount.getInstance().getName().equals(playerTwo)){
             remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerOne, YellowBlackYellowCircleAvatarStyle.getInstance(), playerOneColor, playerOneIp, playerOnePort);
-            playerInfoBundle = new RemoteOpponentInfoBundle(playerTwo, YellowBlackYellowCircleAvatarStyle.getInstance(), playerTwoColor, playerOneIp, playerOnePort);
+            playerInfoBundle = new RemoteOpponentInfoBundle(playerTwo, YellowBlackYellowCircleAvatarStyle.getInstance(), playerTwoColor, playerTwoIp, playerTwoPort);
         }
 
         this.gameToken = gameToken;
