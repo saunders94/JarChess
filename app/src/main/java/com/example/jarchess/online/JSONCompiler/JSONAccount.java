@@ -1,7 +1,5 @@
 package com.example.jarchess.online.JSONCompiler;
 
-import android.util.JsonReader;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 

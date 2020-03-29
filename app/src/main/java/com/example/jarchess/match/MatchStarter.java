@@ -71,7 +71,8 @@ public class MatchStarter {
     }
 
     public Match startRemoteMultiplayerMatch(OnlineMultiplayerMatchActivity onlineMultiplayerMatchActivity, LocalParticipantController localParticipantController) {
-
+        Log.d(TAG, "startRemoteMultiplayerMatch() called with: onlineMultiplayerMatchActivity = [" + onlineMultiplayerMatchActivity + "], localParticipantController = [" + localParticipantController + "]");
+        Log.d(TAG, "startRemoteMultiplayerMatch is running on thread: " + Thread.currentThread().getName());
         if (onlineMatchInfoBundle == null) {
             throw new IllegalStateException("MatchStarter.multiplayerSetup method must be called before match is started");
         }

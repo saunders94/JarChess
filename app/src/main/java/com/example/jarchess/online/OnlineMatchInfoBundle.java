@@ -1,10 +1,11 @@
 package com.example.jarchess.online;
 
+import android.util.Log;
+
 import com.example.jarchess.JarAccount;
 import com.example.jarchess.RemoteOpponentInfoBundle;
 import com.example.jarchess.online.move.DatapackageQueue;
 import com.example.jarchess.online.networking.GameIO;
-import com.google.gson.internal.JsonReaderInternalAccess;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,12 +17,15 @@ public class OnlineMatchInfoBundle {
     private DatapackageQueue datapackageQueue;
     private String gameToken;
     private GameIO gameIO;
+    private static final String TAG = "OnlineMatchInfoBundle";
 
     public OnlineMatchInfoBundle(JSONObject responseObject) {
         this.responseObject = responseObject;
         this.datapackageQueue = new DatapackageQueue();
         setRemoteOpponentInfoBundle();
-        // TODO Create PeerToPeerDatapackageSomethingOrAnother
+        // TODO create and set the datapackage queue
+
+        // establish connection
         this.gameIO = new GameIO(datapackageQueue, gameToken, remoteOpponentInfoBundle);
     }
 
@@ -68,6 +72,9 @@ public class OnlineMatchInfoBundle {
     }
 
     public DatapackageQueue getDatapackageQueue() {
+        Log.d(TAG, "getDatapackageQueue() called");
+        Log.d(TAG, "getDatapackageQueue is running on thread: " + Thread.currentThread().getName());
+        Log.d(TAG, "getDatapackageQueue() returned: " + datapackageQueue);
         return datapackageQueue;
     }
 

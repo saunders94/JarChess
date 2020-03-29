@@ -29,7 +29,7 @@ import static com.example.jarchess.match.ChessColor.WHITE;
  *
  * @author Joshua Zierman
  */
-public class RemoteOpponent implements MatchParticipant {//TODO write unit tests
+public class RemoteOpponent implements MatchParticipant {
 
     private final AvatarStyle avatarStyle;
     private final ChessColor color;

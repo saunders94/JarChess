@@ -103,7 +103,7 @@ public class JarAccount {
      * @throws IOException if the interaction with the sever fails
      */
     public boolean isLoggedIn() throws IOException {
-        return false;//FIXME
+        return signonToken != null;//FIXME
     }
 
     /**

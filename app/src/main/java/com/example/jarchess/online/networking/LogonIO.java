@@ -26,12 +26,15 @@ public class LogonIO {
     private JSONObject jsonObject;
     private JSONObject responseObject;
     private final Object lock;
+    private static final String TAG = "LogonIO";
 
     public LogonIO() {
         this.lock = new Object();
     }
 
     public JSONObject send(JSONObject jsonObject) throws IOException {
+        Log.d(TAG, "send() called with: jsonObject = [" + jsonObject + "]");
+        Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
         this.jsonObject = jsonObject;
 
 
@@ -56,12 +59,24 @@ public class LogonIO {
                 e.printStackTrace();
             }
         }
+
+        Log.d(TAG, "send() returned: " + this.responseObject);
         return this.responseObject;
     }
 
     private void sendData()throws IOException{
+        Log.d(TAG, "sendData() called");
+        Log.d(TAG, "sendData is running on thread: " + Thread.currentThread().getName());
+
+        Log.d(TAG, "sendData: waiting for lock: ");
         synchronized (lock){
+            Log.d(TAG, "sendData: got lock");
+
+            Log.d(TAG, "sendData: creating socket");
+            // TODO if the server cannot be reached the app hangs... we need to give the player a way to cancel login attempt or gracefully timeout (and a lot faster per our NFR).
             socket = new Socket(logonServer, serverPort);
+            Log.d(TAG, "sendData: socket created");
+
             String data = jsonObject.toString();
             Log.i("Sender",data);
             byte[] buffer = new byte[1024];
@@ -89,6 +104,8 @@ public class LogonIO {
                 this.responseObject = null;
             }
             lock.notifyAll();
+
+            Log.d(TAG, "sendData() returned");
         }
 
 

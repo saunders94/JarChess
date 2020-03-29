@@ -10,7 +10,8 @@ import com.example.jarchess.match.turn.Turn;
  *
  * @author Joshua Zierman
  */
-public class HardAIOpponent extends AIOpponent {//TODO write unit tests
+public class HardAIOpponent extends AIOpponent {
+    public static final boolean IS_IMPLEMENTED = false; // TODO change this when we implement Hard AI Opponent
 
     /**
      * Creates a hard AI opponent.
