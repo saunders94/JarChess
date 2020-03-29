@@ -89,11 +89,11 @@ public class OnlineMatchInfoBundle {
             e.printStackTrace();
         }
         if(JarAccount.getInstance().getName().equals(playerOne)){
-            remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerTwo,YellowBlackYellowCircleAvatarStyle.getInstance(),playerOneColor, playerOneIp, playerOnePort);
+            remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerTwo,YellowBlackYellowCircleAvatarStyle.getInstance(),playerTwoColor, playerOneIp, playerOnePort);
             playerInfoBundle = new RemoteOpponentInfoBundle(playerOne, YellowBlackYellowCircleAvatarStyle.getInstance(), playerOneColor, playerOneIp, playerOnePort);
         }else if(JarAccount.getInstance().getName().equals(playerTwo)){
             remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerOne, YellowBlackYellowCircleAvatarStyle.getInstance(), playerOneColor, playerOneIp, playerOnePort);
-            playerInfoBundle = new RemoteOpponentInfoBundle(playerTwo, YellowBlackYellowCircleAvatarStyle.getInstance(), playerOneColor, playerOneIp, playerOnePort);
+            playerInfoBundle = new RemoteOpponentInfoBundle(playerTwo, YellowBlackYellowCircleAvatarStyle.getInstance(), playerTwoColor, playerOneIp, playerOnePort);
         }
 
         this.gameToken = gameToken;
