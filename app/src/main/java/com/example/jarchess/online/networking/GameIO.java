@@ -11,6 +11,8 @@ import com.example.jarchess.online.move.DatapackageQueue;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -48,6 +50,12 @@ public class GameIO {
 
     private void processMoves() throws IOException, JSONException {
         socket = new Socket(gameServer, serverPort);
+        DataInputStream in = new DataInputStream(
+                new BufferedInputStream(
+                        socket.getInputStream()));
+        DataOutputStream out = new DataOutputStream(
+                new BufferedOutputStream(
+                        socket.getOutputStream()));
         final byte[] buffer = new byte[1024];
         JSONObject initialObject = new JSONObject();
         Log.i(TAG, "remoteOpponentInfoBundle Color = " + remoteOpponentInfoBundle.getColor().toString());
