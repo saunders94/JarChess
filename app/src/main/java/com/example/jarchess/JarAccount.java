@@ -8,6 +8,8 @@ import com.example.jarchess.match.styles.LeopardPrintAvatarStyle;
 import com.example.jarchess.match.styles.MarbleChessboardStyle;
 import com.example.jarchess.match.styles.NeonLetterChesspieceStyle;
 
+import java.io.IOException;
+
 public class JarAccount {
     private static JarAccount instance = null;
     private String name;
@@ -94,7 +96,22 @@ public class JarAccount {
         return pieceStyle;
     }
 
-    public boolean isLoggedIn() {
+    /**
+     * checks to see if the jar account is considered logged in.
+     *
+     * @return true if the server verifies that the account is logged in (token and username matches as expected), otherwise false
+     * @throws IOException if the interaction with the sever fails
+     */
+    public boolean isLoggedIn() throws IOException {
+        return false;//FIXME
+    }
+
+    /**
+     * checks to see if the Account is Online (not necessarily logged in).
+     *
+     * @return true if the server can be reached, otherwise false.
+     */
+    public boolean isOnline() {
         return false;//FIXME
     }
 }

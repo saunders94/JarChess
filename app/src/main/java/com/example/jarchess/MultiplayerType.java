@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.jarchess.match.MatchStarter;
 import com.example.jarchess.match.activity.LocalMultiplayerMatchActivity;
@@ -20,6 +21,8 @@ import com.example.jarchess.online.OnlineMatchMaker;
 import com.example.jarchess.online.networking.Controller;
 
 import java.io.IOException;
+
+import static com.example.jarchess.MainActivity.fragmentManager;
 
 
 public class MultiplayerType extends Fragment {
@@ -75,12 +78,27 @@ public class MultiplayerType extends Fragment {
                 //MainMenu mainMenu = new MainMenu();
                 //transaction.replace(R.id.fragmentHole, mainMenu);
                 //transaction.commit();
+                try {
+                    if (JarAccount.getInstance().isLoggedIn()) {
+                        Log.i(TAG, "onClick: account was logged in");
+                        // start matchmaking
+                        FragmentTransaction transaction = fragmentManager.beginTransaction();
+                        MatchMakerLauncher matchMakerLauncher = new MatchMakerLauncher();
+                        transaction.replace(R.id.fragmentHole, matchMakerLauncher);
+                        transaction.addToBackStack(null);
+                        transaction.commit();
 
-                FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                MatchMakerLauncher matchMakerLauncher = new MatchMakerLauncher();
-                transaction.replace(R.id.fragmentHole, matchMakerLauncher);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                    } else {
+                        Log.i(TAG, "onClick: account was not logged in");
+                        int duration = Toast.LENGTH_LONG;
+                        Toast.makeText(v.getContext(), "Login Required to play Online", duration).show();
+                    }
+                } catch (IOException e) {
+                    Log.i(TAG, "onClick: account was offline");
+                    int duration = Toast.LENGTH_LONG;
+                    Toast.makeText(v.getContext(), "Cannot connect to the server. Please make sure you have internet access.", duration).show();
+                }
+
             }
         });
     }
