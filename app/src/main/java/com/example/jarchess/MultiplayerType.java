@@ -114,10 +114,13 @@ public class MultiplayerType extends Fragment {
                 public void run() {
                     try {
                         onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle();
-                        MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
-
-                        Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
-                        startActivity(intent);
+                        if (onlineMatchInfoBundle == null) {
+                            Log.e(TAG, "run: onlineMatchInfoBundle recieved is null");
+                        } else {
+                            MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
+                            Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
+                            startActivity(intent);
+                        }
                     } catch (OnlineMatchMaker.SearchCanceledException e) {
                         Log.d(TAG, "onCreateView's run caught:", e);
                     } catch (IOException e) {

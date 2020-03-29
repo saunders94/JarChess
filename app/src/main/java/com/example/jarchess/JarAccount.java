@@ -19,7 +19,7 @@ public class JarAccount {
     private String signonToken;
     private MatchClockChoice preferedMatchClock;
     private JarAccount() {
-        name = "Display Name";//FIXME needs to getDisplayedTimeMillis this from account/preference file/database
+        name = "Display Name";//FIXME needs to get this from account/preference file/database
         avatarStyle = LeopardPrintAvatarStyle.getInstance();//FIXME needs to get this from preference file/database
         boardStyle = MarbleChessboardStyle.getInstance();//FIXME needs to get this from preference file/database
         pieceStyle = NeonLetterChesspieceStyle.getInstance();//FIXME needs to get this from preference file/database
@@ -93,5 +93,9 @@ public class JarAccount {
 
     public ChesspieceStyle getPieceStyle() {
         return pieceStyle;
+    }
+
+    public boolean isLoggedIn() {
+        return false;//FIXME
     }
 }
