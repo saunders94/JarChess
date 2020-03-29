@@ -15,6 +15,7 @@ import com.example.jarchess.match.activity.EasyAIMatchActivity;
 import com.example.jarchess.match.activity.HardAIMatchActivity;
 import com.example.jarchess.match.participant.EasyAIOpponent;
 import com.example.jarchess.match.participant.HardAIOpponent;
+import com.example.jarchess.testmode.TestMode;
 
 
 /**
@@ -56,7 +57,7 @@ public class AiDifficulty extends Fragment {
                 //transaction.replace(R.id.fragmentHole, mainMenu);
                 //transaction.commit();)
 
-                if (EasyAIOpponent.IS_IMPLEMENTED) {
+                if (EasyAIOpponent.IS_IMPLEMENTED || TestMode.isOn()) {
                     Intent intent = new Intent(getActivity(), EasyAIMatchActivity.class);
                     startActivity(intent);
                 } else {
@@ -76,7 +77,7 @@ public class AiDifficulty extends Fragment {
                 //transaction.replace(R.id.fragmentHole, mainMenu);
                 //transaction.commit();
 
-                if (HardAIOpponent.IS_IMPLEMENTED) {
+                if (HardAIOpponent.IS_IMPLEMENTED || TestMode.isOn()) {
 
                     Intent intent = new Intent(getActivity(), HardAIMatchActivity.class);
                     startActivity(intent);
