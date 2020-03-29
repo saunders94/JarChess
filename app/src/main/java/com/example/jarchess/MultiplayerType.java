@@ -1,16 +1,17 @@
 package com.example.jarchess;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.jarchess.match.MatchStarter;
 import com.example.jarchess.match.activity.LocalMultiplayerMatchActivity;
@@ -76,11 +77,24 @@ public class MultiplayerType extends Fragment {
                 //transaction.replace(R.id.fragmentHole, mainMenu);
                 //transaction.commit();
 
-                FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                MatchMakerLauncher matchMakerLauncher = new MatchMakerLauncher();
-                transaction.replace(R.id.fragmentHole, matchMakerLauncher);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                try {
+                    if (JarAccount.getInstance().isLoggedIn()) {
+                        // start matchmaking
+                        FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
+                        MatchMakerLauncher matchMakerLauncher = new MatchMakerLauncher();
+                        transaction.replace(R.id.fragmentHole, matchMakerLauncher);
+                        transaction.addToBackStack(null);
+                        transaction.commit();
+
+                    } else {
+
+                        int duration = Toast.LENGTH_SHORT;
+                        Toast.makeText(v.getContext(), "Login Required to play Online", duration).show();
+                    }
+                } catch (IOException e) {
+                    int duration = Toast.LENGTH_LONG;
+                    Toast.makeText(v.getContext(), "Cannot connect to the server. Please make sure you have internet access.", duration).show();
+                }
             }
         });
     }
