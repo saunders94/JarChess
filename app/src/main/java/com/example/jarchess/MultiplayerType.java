@@ -82,7 +82,6 @@ public class MultiplayerType extends Fragment {
                     if (JarAccount.getInstance().isLoggedIn()) {
                         Log.i(TAG, "onClick: account was logged in");
                         // start matchmaking
-                        ProfileSignIn.setNeedsToGoBackAfterNextLogin(true);
                         FragmentTransaction transaction = fragmentManager.beginTransaction();
                         MatchMakerLauncher matchMakerLauncher = new MatchMakerLauncher();
                         transaction.replace(R.id.fragmentHole, matchMakerLauncher);
@@ -91,7 +90,7 @@ public class MultiplayerType extends Fragment {
 
                     } else {
                         Log.i(TAG, "onClick: account was not logged in");
-                        int duration = Toast.LENGTH_SHORT;
+                        int duration = Toast.LENGTH_LONG;
                         Toast.makeText(v.getContext(), "Login Required to play Online", duration).show();
                     }
                 } catch (IOException e) {
@@ -102,14 +101,6 @@ public class MultiplayerType extends Fragment {
 
             }
         });
-    }
-
-    private void showLoggedIn() {
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        ProfileSignIn profileSignIn = new ProfileSignIn();
-        transaction.replace(R.id.fragmentHole, profileSignIn);
-        transaction.addToBackStack(null);
-        transaction.commit();
     }
 
     public static class MatchMakerLauncher extends Fragment {
