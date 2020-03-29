@@ -57,7 +57,9 @@ public class MatchNetworkIO {
                         synchronized (lock) {
                             while (isAlive) {
                                 waitWhileEmpty(outGoingDatapackages);
+                                Log.i(TAG, "run: ready to send");
                                 datapackageSender.send(outGoingDatapackages.remove());
+                                Log.i(TAG, "run: sent");
                             }
                         }
                     } catch (InterruptedException e1) {
