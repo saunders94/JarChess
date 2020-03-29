@@ -1,6 +1,5 @@
 package com.example.jarchess.online;
 
-import android.nfc.Tag;
 import android.util.Log;
 
 import com.example.jarchess.JarAccount;
@@ -127,17 +126,17 @@ public class OnlineMatchMaker {
                         out = new DataOutputStream(
                                 new BufferedOutputStream(
                                         socket.getOutputStream()));
-
-                        if (!wasCanceled) {
-                            do {
-                                failed = false;
-                                try {
-                                    out.flush();
-                                } catch (SocketTimeoutException e) {
-                                    failed = true;
-                                }
-                            } while (failed && !wasCanceled);
-                        }
+//
+//                        if (!wasCanceled) {
+//                            do {
+//                                failed = false;
+//                                try {
+//                                    out.flush();
+//                                } catch (SocketTimeoutException e) {
+//                                    failed = true;
+//                                }
+//                            } while (failed && !wasCanceled);
+//                        }
 
                         final JSONObject jsonObjFinal = jsonObj;
                         tryUntilSuccessOrCancel(new SocketRunnable() {
@@ -185,6 +184,8 @@ public class OnlineMatchMaker {
                     } finally {
                         lock.notifyAll();
                         done = true;
+                        lock.notifyAll();
+                        Log.d(TAG, "run: onlineMatchMaker thread set done true");
                         for (Closeable c : new Closeable[]{in, out, socket}) {
                             if (c != null) {
                                 try {
@@ -222,6 +223,9 @@ public class OnlineMatchMaker {
                 }
             }
         }
+
+
+        Log.d(TAG, "getOnlineMatchInfoBundle() returned: " + onlineMatchInfoBundle);
         return onlineMatchInfoBundle;
     }
 

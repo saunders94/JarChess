@@ -12,7 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.example.jarchess.online.OnlineMatchMaker;
 import com.example.jarchess.online.usermanagement.Account;
 
 public class MainActivity extends AppCompatActivity implements ProfileSignIn.SignInCommunicator {
