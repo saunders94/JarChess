@@ -1,11 +1,10 @@
 package com.example.jarchess;
 
-
-import android.app.Activity;
-import android.support.v4.app.Fragment;
+import com.example.jarchess.online.OnlineMatchMaker;
+import com.example.jarchess.online.usermanagement.Account;
 
 import android.os.Bundle;
-
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -15,8 +14,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+
 public class MainActivity extends AppCompatActivity implements ProfileSignIn.signInCommunicator,
     ProfileMenu.signOutCommunicator {
+
 
     public static FragmentManager fragmentManager;
 
@@ -26,9 +27,21 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
     private TextView usernameLabel;
     private TextView unseenNotificationView;
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
 
+        // cancel matchmaking
+        OnlineMatchMaker.getInstance().cancel();
+    }
 
-
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        if (fragment instanceof ProfileSignIn) {
+            ProfileSignIn signInFragment = (ProfileSignIn) fragment;
+            signInFragment.setCommunicator(this);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,19 +70,6 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
             transaction.add(R.id.fragmentHole, start);
             transaction.commit();
 
-        }
-    }
-
-    private void setupToolbar() {
-
-        Toolbar toolBar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolBar);
-
-        try {
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        } catch (NullPointerException e) {
-            System.out.println("Toolbar couldn't be found!");
         }
     }
 
@@ -102,12 +102,41 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
     }
 
     @Override
+//use this method to get login details, return true if login succeeded
+    public boolean onLogin(CharSequence username, CharSequence password) {
+
+        //if(call to method that does logging in) {
+        boolean signonStatus = new Account().signin(String.valueOf(username),
+                String.valueOf(password));
+        if (signonStatus) {
+            usernameLabel.setText(username);
+            loggedIn = true;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+//use this method to get registration details, return true if registration succeeded
+    public boolean onRegister(CharSequence username, CharSequence password) {
+
+        //if(call to method that does registration) {
+        onLogin(username, password);
+
+        return true;
+        //} else {
+        //return false;
+        //}
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
 
             case R.id.notification_menu: {
                 item.setActionView(null);
                 return true;
+
             } case R.id.profile_menu: {
 
                 FragmentManager.BackStackEntry backEntry = fragmentManager
@@ -138,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
                         System.out.println("null must've been added to backStack");
                 }
 
+
                 return true;
             }
 
@@ -146,13 +176,10 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
         return super.onOptionsItemSelected(item);
     }
 
-    public void setUnseenNotificationQuantity(int unseenNotificationQuantity) {
-        this.unseenNotificationQuantity = unseenNotificationQuantity;
-    }
-
     public void resetUnseenNotificationQuantity() {
         setUnseenNotificationQuantity(0);
     }
+
 
     @Override
     public void onAttachFragment(Fragment fragment) {
@@ -173,27 +200,21 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
     }
 
 
-    @Override//use this method to get login details, return true if login succeeded
-    public boolean onLogin(CharSequence username, CharSequence password) {
-
-        //if(call to method that does logging in) {
-        usernameLabel.setText(username);
-        loggedIn = true;
-        return true;
-        //} else {
-        //loggedIn = false;
-        //return false;
-        //}
+    public void setUnseenNotificationQuantity(int unseenNotificationQuantity) {
+        this.unseenNotificationQuantity = unseenNotificationQuantity;
     }
 
-    @Override//use this method to get registration details, return true if registration succeeded
-    public boolean onRegister(CharSequence username, CharSequence password) {
+    private void setupToolbar() {
 
-        //if(call to method that does registration) {
-        onLogin(username, password);
-        return true;
-        //} else {
-        //return false;
-        //}
+
+        Toolbar toolBar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolBar);
+
+        try {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        } catch (NullPointerException e) {
+            System.out.println("Toolbar couldn't be found!");
+        }
     }
 }

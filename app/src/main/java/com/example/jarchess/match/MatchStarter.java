@@ -1,24 +1,31 @@
 package com.example.jarchess.match;
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
 import com.example.jarchess.JarAccount;
-import com.example.jarchess.RemoteOpponentAccount;
+import com.example.jarchess.match.activity.EasyAIMatchActivity;
+import com.example.jarchess.match.activity.HardAIMatchActivity;
+import com.example.jarchess.match.activity.LocalMultiplayerMatchActivity;
+import com.example.jarchess.match.activity.OnlineMultiplayerMatchActivity;
+import com.example.jarchess.match.clock.MatchClockChoice;
 import com.example.jarchess.match.participant.EasyAIOpponent;
 import com.example.jarchess.match.participant.HardAIOpponent;
 import com.example.jarchess.match.participant.LocalOpponent;
+import com.example.jarchess.match.participant.LocalParticipantController;
 import com.example.jarchess.match.participant.MatchParticipant;
-import com.example.jarchess.match.participant.Player;
-import com.example.jarchess.match.participant.RemoteOpponent;
-import com.example.jarchess.online.move.DatapackageQueue;
+import com.example.jarchess.online.OnlineMatchInfoBundle;
 
-import static com.example.jarchess.match.datapackage.MatchNetworkIO.DatapackageQueueAddapter;
+import static com.example.jarchess.online.datapackage.MatchNetworkIO.DatapackageQueueAdapter;
 
 //TODO javadocs
 public class MatchStarter {
     private static MatchStarter instance = null;
     private final JarAccount account = JarAccount.getInstance();
-    private DatapackageQueue queue = null;
-    private RemoteOpponentAccount remoteOpponentAccount;
-
+    private OnlineMatchInfoBundle onlineMatchInfoBundle;
+    private MatchClockChoice matchClockChoice = MatchClockChoice.CLASSIC_FIDE_MATCH_CLOCK;
+    private static final String TAG = "MatchStarter";
 
     private MatchStarter() {
     }
@@ -31,60 +38,49 @@ public class MatchStarter {
         return instance;
     }
 
-    public Match startEasyAIMatch() {
-        ChessColor playerColor = ChessColor.getRandom();
-        Player player = new Player(playerColor);
+    public void setMatchClockChoice(@NonNull MatchClockChoice matchClockChoice) {
+        this.matchClockChoice = matchClockChoice;
+    }
 
-        ChessColor opponentColor = ChessColor.getOther(playerColor);
+    public void multiplayerSetup(OnlineMatchInfoBundle onlineMatchInfoBundle) {
+        Log.d(TAG, "multiplayerSetup() called with: onlineMatchInfoBundle = [" + onlineMatchInfoBundle + "]");
+        Log.d(TAG, "multiplayerSetup is running on thread: " + Thread.currentThread().getName());
+        this.onlineMatchInfoBundle = onlineMatchInfoBundle;
+    }
+
+    public Match startEasyAIMatch(EasyAIMatchActivity easyAIMatchActivity, LocalParticipantController localParticipantController) {
+        ChessColor opponentColor = ChessColor.getRandom();
         MatchParticipant opponent = new EasyAIOpponent(opponentColor);
 
-        return new PlayerMatch(player, opponent);
+        return new PlayerMatch(opponent, matchClockChoice, localParticipantController);
     }
 
-    public Match startHardAIMatch() {
-        ChessColor playerColor = ChessColor.getRandom();
-        Player player = new Player(playerColor);
+    public Match startHardAIMatch(HardAIMatchActivity hardAIMatchActivity, LocalParticipantController localParticipantController) {
 
-        ChessColor opponentColor = ChessColor.getOther(playerColor);
+        ChessColor opponentColor = ChessColor.getRandom();
         MatchParticipant opponent = new HardAIOpponent(opponentColor);
 
-        return new PlayerMatch(player, opponent);
+        return new PlayerMatch(opponent, matchClockChoice, localParticipantController);
     }
 
-    public Match startLocalMultiplayerMatch() {
-        ChessColor playerColor = ChessColor.getRandom();
-        Player player = new Player(playerColor);
+    public Match startLocalMultiplayerMatch(LocalMultiplayerMatchActivity localMultiplayerMatchActivity, LocalParticipantController localParticipantController) {
+        ChessColor opponentColor = ChessColor.getRandom();
+        MatchParticipant opponent = new LocalOpponent(opponentColor, localParticipantController);
 
-        ChessColor opponentColor = ChessColor.getOther(playerColor);
-        MatchParticipant opponent = new LocalOpponent(opponentColor);
-
-        return new PlayerMatch(player, opponent);
+        return new PlayerMatch(opponent, matchClockChoice, localParticipantController);
     }
 
-    public Match startRemoteMultiplayerMatch() {
+    public Match startRemoteMultiplayerMatch(OnlineMultiplayerMatchActivity onlineMultiplayerMatchActivity, LocalParticipantController localParticipantController) {
 
-        if (remoteOpponentAccount == null) {
+        if (onlineMatchInfoBundle == null) {
             throw new IllegalStateException("MatchStarter.multiplayerSetup method must be called before match is started");
         }
 
+        // adapts the queue to act as a sender and as a receiver of Datapackages
 
-        ChessColor playerColor = ChessColor.getRandom();
-        Player player = new Player(playerColor);
-        ChessColor opponentColor = ChessColor.getOther(playerColor);
-
-        // addapts the queue to act as a sender and as a receiver of Datapackages
-        DatapackageQueueAddapter addapter = new DatapackageQueueAddapter(queue);
+        DatapackageQueueAdapter adapter = new DatapackageQueueAdapter(onlineMatchInfoBundle.getDatapackageQueue());
 
 
-        MatchParticipant opponent = new RemoteOpponent(opponentColor, remoteOpponentAccount, addapter, addapter);
-
-        remoteOpponentAccount = null;
-        return new PlayerMatch(player, opponent);
-    }
-
-    public void multiplayerSetup(DatapackageQueue queue, RemoteOpponentAccount remoteOpponentAccount) {
-
-        this.queue = queue;
-        this.remoteOpponentAccount = remoteOpponentAccount;
+        return new OnlineMatch(onlineMatchInfoBundle, adapter, adapter, localParticipantController);
     }
 }

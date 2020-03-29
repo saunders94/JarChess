@@ -4,9 +4,15 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.clock.MatchClock;
+import com.example.jarchess.match.clock.MatchClockChoice;
+import com.example.jarchess.match.events.MatchEndingEvent;
+import com.example.jarchess.match.events.MatchEndingEventListener;
+import com.example.jarchess.match.events.MatchEndingEventManager;
+import com.example.jarchess.match.events.MatchResultIsInEvent;
+import com.example.jarchess.match.events.MatchResultIsInEventManager;
 import com.example.jarchess.match.move.PieceMovement;
-import com.example.jarchess.match.participant.LocalParticipantController;
-import com.example.jarchess.match.participant.LocalPartipant;
 import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.pieces.Bishop;
 import com.example.jarchess.match.pieces.Knight;
@@ -14,12 +20,11 @@ import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.pieces.Queen;
 import com.example.jarchess.match.pieces.Rook;
-import com.example.jarchess.match.resignation.ResignationEventManager;
-import com.example.jarchess.match.resignation.ResignationException;
-import com.example.jarchess.match.resignation.ResignationListener;
 import com.example.jarchess.match.result.CheckmateResult;
+import com.example.jarchess.match.result.ExceptionResult;
 import com.example.jarchess.match.result.Result;
 import com.example.jarchess.match.result.StalemateDrawResult;
+import com.example.jarchess.match.result.TimeoutResult;
 import com.example.jarchess.match.turn.Turn;
 
 import java.util.Collection;
@@ -29,82 +34,103 @@ import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
 
 //TODO javadocs
-public abstract class Match implements ResignationListener {
-    private final ResignationEventManager resignationEventManager;
+public abstract class Match implements MatchEndingEventListener {
     private final MatchHistory matchHistory;
     private final MatchParticipant blackPlayer;
     private final MatchParticipant whitePlayer;
     private final Chessboard chessboard;
     private final MoveExpert moveExpert;
-    private ChessColor winner;
-    private boolean isDone;
+    private final MatchClock matchClock;
     private Result matchResult = null;
-    private LocalParticipantController localParticipantController;
-
-    public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2) {
-
-        resignationEventManager = new ResignationEventManager();
-        resignationEventManager.addListener(this);
-        resignationEventManager.addListener(participant1);
-        resignationEventManager.addListener(participant2);
-
+    private String gameToken;
+    public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2, MatchClockChoice matchClockChoice) {
 
         chessboard = new Chessboard();
         chessboard.reset();
         this.blackPlayer = participant1.getColor() == BLACK ? participant1 : participant2;
         this.whitePlayer = participant1.getColor() == WHITE ? participant1 : participant2;
 
-        matchHistory = new MatchHistory();
+        matchHistory = new MatchHistory(whitePlayer, blackPlayer);
         moveExpert = MoveExpert.getInstance();
+        moveExpert.setMatchHistory(matchHistory);
+        matchClock = matchClockChoice.makeMatchClock();
+        MatchEndingEventManager.getInstance().add(this);
+
     }
 
+    public Piece capture(Coordinate destination) {
+        return chessboard.remove(destination);
+    }
 
-    public void setWinner(ChessColor color) {
+    public void checkForGameEnd(ChessColor nextTurnColor) {
 
-        if (winner == null) {
+        if (matchResult == null) {
 
-            winner = color;
-            notifyAll();
+            checkForTimeout();
+            if (matchResult == null) {
+
+
+                if (matchClock.flagHasFallen()) {
+                    ChessColor colorOfWinner;
+                    if (matchClock.getDisplayedTimeMillis(WHITE) <= 0L) {
+                        colorOfWinner = BLACK;
+                    } else if (matchClock.getDisplayedTimeMillis(BLACK) <= 0L) {
+                        colorOfWinner = WHITE;
+                    } else {
+                        String msg = "checkForGameEnd: clock flag has fallen, but neither color is at 0";
+                        Log.wtf(TAG, msg);
+                        throw new IllegalStateException(msg);
+                    }
+                    setMatchResult(new TimeoutResult(colorOfWinner));
+                } else if (!moveExpert.hasMoves(nextTurnColor, chessboard)) {
+                    if (moveExpert.isInCheck(nextTurnColor, chessboard)) {
+                        setMatchResult(new CheckmateResult(ChessColor.getOther(nextTurnColor)));
+                    } else {
+                        setMatchResult(new StalemateDrawResult());
+                    }
+                } else {
+                    // TODO handle our implementation of repeated board state draw
+
+                    // TODO handle 50 move draw
+
+                }
+            }
         }
-
     }
 
-    public void setLocalParticipantController(LocalParticipantController localParticipantController) {
-        if (blackPlayer instanceof LocalPartipant) {
-            ((LocalPartipant) blackPlayer).setController(localParticipantController);
-        }
-        if (whitePlayer instanceof LocalPartipant) {
-            ((LocalPartipant) whitePlayer).setController(localParticipantController);
+    public void checkForTimeout() {
+        if (matchClock.flagHasFallen()) {
+            ChessColor colorOfWinner;
+            colorOfWinner = matchClock.getColorOfFallenFlag();
+            setMatchResult(new TimeoutResult(colorOfWinner));
         }
     }
 
-    public boolean isDone() {
-        return isDone;
-    }
-
-    public MatchHistory getMatchHistory() {
-        return matchHistory;
+    public void forceEndMatch(String msg) {
+        MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(getForceExitWinningColor(), msg)));
     }
 
     public MatchParticipant getBlackPlayer() {
         return blackPlayer;
     }
 
-    public MatchParticipant getWhitePlayer() {
-        return whitePlayer;
+
+    public abstract ChessColor getForceExitWinningColor();
+
+    public Collection<? extends PieceMovement> getLegalCastleMovements(Coordinate origin, Coordinate destination) {
+        return moveExpert.getLegalCastleMovements(origin, destination, chessboard);
     }
 
-    public Piece getPieceAt(@NonNull Coordinate coordinate) {
-        return chessboard.getPieceAt(coordinate);
+    public MatchClock getMatchClock() {
+        return matchClock;
     }
 
-    public Turn getFirstTurn() throws ResignationException, InterruptedException {
-        return whitePlayer.takeFirstTurn();
+    public MatchHistory getMatchHistory() {
+        return matchHistory;
     }
 
-
-    public Turn getTurn(@NonNull Turn turn) throws ResignationException, InterruptedException {
-        return getParticipant(ChessColor.getOther(turn.getColor())).takeTurn(turn);
+    public Result getMatchResult() {
+        return matchResult;
     }
 
     public MatchParticipant getParticipant(ChessColor color) {
@@ -119,48 +145,47 @@ public abstract class Match implements ResignationListener {
         }
     }
 
-    public void setIsDone(boolean isDone) {
-        this.isDone = isDone;
+    public Piece getPieceAt(@NonNull Coordinate coordinate) {
+        return chessboard.getPieceAt(coordinate);
     }
 
     public Collection<Coordinate> getPossibleMoves(Coordinate origin) {
         return moveExpert.getLegalDestinations(origin, chessboard);
     }
 
+    public Turn getTurn(@NonNull Turn turn) throws MatchActivity.MatchOverException, InterruptedException {
+        return getParticipant(ChessColor.getOther(turn.getColor())).getNextTurn(turn);
+    }
+
+    public MatchParticipant getWhitePlayer() {
+        return whitePlayer;
+    }
+
+    public boolean isDone() {
+        return matchResult != null;
+    }
+
     public void move(Coordinate origin, Coordinate destination) {
         chessboard.move(origin, destination);
     }
 
-    public Piece capture(Coordinate destination) {
-        return chessboard.remove(destination);
+    @Override
+    public void observe(MatchEndingEvent matchEndingEvent) {
+
+        setMatchResult(matchEndingEvent.getMatchResult());
+
+
     }
 
-    public void checkForGameEnd(ChessColor nextTurnColor) {
-        if (!moveExpert.hasMoves(nextTurnColor, chessboard)) {
-            if (moveExpert.isInCheck(nextTurnColor, chessboard)) {
-                isDone = true;
-                matchResult = new CheckmateResult(ChessColor.getOther(nextTurnColor));
-            } else {
-                isDone = true;
-                matchResult = new StalemateDrawResult();
-            }
-        } else {
-            // TODO handle our implementation of repeated board state draw
-            // I have a tendency to want to do the 5 time version that requires no
-
-            // TODO handle 50 move draw
-
-            // TODO imposibility of check draw handling
-
+    private synchronized void setMatchResult(Result matchResult) {
+        Log.d(TAG, "setMatchResult() called with: matchResult = [" + matchResult + "]");
+        Log.d(TAG, "setMatchResult is running on thread: " + Thread.currentThread().getName());
+        if (this.matchResult == null) {
+            Log.i(TAG, "setMatchResult: " + matchResult);
+            this.matchResult = matchResult;
+            notifyAll();
+            MatchResultIsInEventManager.getInstance().notifyAllListeners(new MatchResultIsInEvent(matchResult));
         }
-    }
-
-    public Result getMatchResult() {
-        return matchResult;
-    }
-
-    public Collection<? extends PieceMovement> getLegalCastleMovements(Coordinate origin, Coordinate destination) {
-        return moveExpert.getLegalCastleMovements(origin, destination, chessboard);
     }
 
     public void promote(Coordinate coordinate, Piece.PromotionChoice choice) {
@@ -193,4 +218,6 @@ public abstract class Match implements ResignationListener {
             chessboard.add(newPiece, coordinate);
         }
     }
+
+
 }

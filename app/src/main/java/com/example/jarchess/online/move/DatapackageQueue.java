@@ -2,33 +2,26 @@ package com.example.jarchess.online.move;
 
 import android.util.Log;
 
-import com.example.jarchess.match.datapackage.Datapackage;
+import com.example.jarchess.online.datapackage.Datapackage;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class DatapackageQueue {
-    private LinkedBlockingQueue<Datapackage> inboundDatapackage;
-    private LinkedBlockingQueue<Datapackage> outboundDatapackage;
+    private LinkedBlockingQueue<Datapackage> localDatapackageQueue;
+    private LinkedBlockingQueue<Datapackage> networkDatapackageQueue;
     private String gameId;
 
     public DatapackageQueue() {
-        this.inboundDatapackage = new LinkedBlockingQueue<Datapackage>();
-        this.outboundDatapackage = new LinkedBlockingQueue<Datapackage>();
+
+
+        this.localDatapackageQueue = new LinkedBlockingQueue<Datapackage>();
+        this.networkDatapackageQueue = new LinkedBlockingQueue<Datapackage>();
     }
 
-    public void insertDatapackage(Datapackage datapackage) {
+    public Datapackage getLocalDatapackage() {
         try {
-            outboundDatapackage.put(datapackage);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public Datapackage getDatapackage() {
-        try {
-            Datapackage datapackage = inboundDatapackage.take();
-            Log.d("DatapackageQueue", "getDatapackage: " + datapackage);
+            Datapackage datapackage = localDatapackageQueue.take();
+            Log.d("DatapackageQueue", "getInboundDatapackage: " + datapackage);
             return datapackage;
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -36,4 +29,30 @@ public class DatapackageQueue {
         return null;
     }
 
+    public Datapackage getNetworkDatapackageQueue() {
+        try {
+            Datapackage datapackage = networkDatapackageQueue.take();
+            Log.d("DatapackageQueue", "getOutboundDatapackage: " + datapackage);
+            return datapackage;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void insertLocalDatapackageQueue(Datapackage datapackage) {
+        try {
+            localDatapackageQueue.put(datapackage);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void insertNetworkDatapackageQueue(Datapackage datapackage) {
+        try {
+            networkDatapackageQueue.put(datapackage);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

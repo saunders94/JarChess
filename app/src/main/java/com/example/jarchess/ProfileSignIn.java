@@ -17,7 +17,7 @@ import android.widget.Toast;
  */
 public class ProfileSignIn extends Fragment {
 
-    private signInCommunicator callback;
+    private SignInCommunicator callback;
     private Button loginButton;
     private Button registerButton;
     private TextView usernameArea;
@@ -99,11 +99,11 @@ public class ProfileSignIn extends Fragment {
     }
 
     //This allows the main activity to share an instance for communication
-    public void setCommunicator(signInCommunicator callback) {
+    public void setCommunicator(SignInCommunicator callback) {
         this.callback = callback;
     }
 
-    public interface signInCommunicator {
+    public interface SignInCommunicator {
         boolean onLogin(CharSequence username, CharSequence password);
         boolean onRegister(CharSequence username, CharSequence password);
     }

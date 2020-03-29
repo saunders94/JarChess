@@ -1,10 +1,10 @@
 package com.example.jarchess.match.turn;
 
 import com.example.jarchess.match.ChessColor;
-import com.example.jarchess.match.datapackage.JSONConvertable;
-import com.example.jarchess.match.datapackage.JSONConverter;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.online.datapackage.JSONConverter;
+import com.example.jarchess.online.datapackage.JSONConvertible;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,7 +20,7 @@ import org.json.JSONObject;
  *
  * @author Joshua Zierman
  */
-public class Turn implements JSONConvertable<Turn> {
+public class Turn implements JSONConvertible<Turn> {
     public static final TurnJSONConverter JSON_CONVERTER = TurnJSONConverter.getInstance();
     public static final String JSON_PROPERTY_NAME_COLOR = "color";
     public static final String JSON_PROPERTY_NAME_MOVE = "move";
@@ -60,15 +60,6 @@ public class Turn implements JSONConvertable<Turn> {
     }
 
     /**
-     * Gets the move that was made during this turn.
-     *
-     * @return the move that was made during this turn.
-     */
-    public Move getMove() {
-        return move;
-    }
-
-    /**
      * Gets the amount of time that elapsed during this turn in milliseconds.
      *
      * @return the amount of milliseconds that passed during this turn.
@@ -87,6 +78,15 @@ public class Turn implements JSONConvertable<Turn> {
 
 
         return jsonObject;
+    }
+
+    /**
+     * Gets the move that was made during this turn.
+     *
+     * @return the move that was made during this turn.
+     */
+    public Move getMove() {
+        return move;
     }
 
     public Piece.PromotionChoice getPromotionChoice() {

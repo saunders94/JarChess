@@ -1,6 +1,7 @@
 package com.example.jarchess.match.participant;
 
 import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.events.MatchResultIsInEventManager;
 import com.example.jarchess.match.styles.AIAvatarStyle;
 import com.example.jarchess.match.styles.AvatarStyle;
 
@@ -22,14 +23,8 @@ public abstract class AIOpponent implements MatchParticipant {//TODO write unit 
     public AIOpponent(ChessColor color, String name) {
         this.color = color;
         this.name = name;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ChessColor getColor() {
-        return color;
+        MatchResultIsInEventManager.getInstance().add(this);
     }
 
     /**
@@ -46,6 +41,14 @@ public abstract class AIOpponent implements MatchParticipant {//TODO write unit 
     @Override
     public void resign() {
         //TODO
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ChessColor getColor() {
+        return color;
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.example.jarchess.match;
 
-import com.example.jarchess.match.datapackage.JSONConvertable;
-import com.example.jarchess.match.datapackage.JSONConverter;
+import com.example.jarchess.online.datapackage.JSONConverter;
+import com.example.jarchess.online.datapackage.JSONConvertible;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,7 +19,7 @@ import java.util.Random;
  *
  * @author Joshua Zierman
  */
-public enum ChessColor implements JSONConvertable<ChessColor> {
+public enum ChessColor implements JSONConvertible<ChessColor> {
 
     BLACK(0), WHITE(1);
 
@@ -38,18 +38,8 @@ public enum ChessColor implements JSONConvertable<ChessColor> {
         intValue = i;
     }
 
-
-    /**
-     * Gets a random color
-     *
-     * @return BLACK or WHITE
-     */
-    public static ChessColor getRandom() {
-        if (random.nextBoolean()) {
-            return WHITE;
-        } else {
-            return BLACK;
-        }
+    public static ChessColor getFromInt(int colorInt) {
+        return values()[colorInt];
     }
 
     /**
@@ -66,8 +56,17 @@ public enum ChessColor implements JSONConvertable<ChessColor> {
         }
     }
 
-    public static ChessColor getFromInt(int colorInt) {
-        return values()[colorInt];
+    /**
+     * Gets a random color
+     *
+     * @return BLACK or WHITE
+     */
+    public static ChessColor getRandom() {
+        if (random.nextBoolean()) {
+            return WHITE;
+        } else {
+            return BLACK;
+        }
     }
 
     public int getIntValue() {

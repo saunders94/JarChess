@@ -3,13 +3,13 @@ package com.example.jarchess.match.move;
 import androidx.annotation.NonNull;
 
 import com.example.jarchess.match.Coordinate;
-import com.example.jarchess.match.datapackage.JSONConvertable;
-import com.example.jarchess.match.datapackage.JSONConverter;
+import com.example.jarchess.online.datapackage.JSONConverter;
+import com.example.jarchess.online.datapackage.JSONConvertible;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class PieceMovement implements JSONConvertable<PieceMovement> {
+public class PieceMovement implements JSONConvertible<PieceMovement> {
     public static final PieceMovementJSONConverter JSON_CONVERTER = PieceMovementJSONConverter.getInstance();
     public static final String JSON_PROPERTY_NAME_ORIGIN = "origin";
     public static final String JSON_PROPERTY_NAME_DESTINATION = "destination";
@@ -19,10 +19,6 @@ public class PieceMovement implements JSONConvertable<PieceMovement> {
     public PieceMovement(Coordinate origin, Coordinate destination) {
         this.origin = origin;
         this.destination = destination;
-    }
-
-    public Coordinate getOrigin() {
-        return origin;
     }
 
     public Coordinate getDestination() {
@@ -37,6 +33,10 @@ public class PieceMovement implements JSONConvertable<PieceMovement> {
         jsonObject.put(JSON_PROPERTY_NAME_DESTINATION, destination.getJSONObject());
 
         return jsonObject;
+    }
+
+    public Coordinate getOrigin() {
+        return origin;
     }
 
     @NonNull
