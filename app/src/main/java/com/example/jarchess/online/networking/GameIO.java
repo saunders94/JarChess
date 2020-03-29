@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class GameIO {
+    private final String TAG = "GameIO";
     private String gameToken;
     private String gameServer = "AppLB-f1eb9121f64bbd52.elb.us-east-2.amazonaws.com";
     private int serverPort = 12345;
@@ -49,9 +50,10 @@ public class GameIO {
         socket = new Socket(gameServer, serverPort);
         final byte[] buffer = new byte[1024];
         JSONObject initialObject = new JSONObject();
-        if(remoteOpponentInfoBundle.getColor().equals("white")){
+        Log.i(TAG, "remoteOpponentInfoBundle Color = " + remoteOpponentInfoBundle.getColor().toString());
+        if(remoteOpponentInfoBundle.getColor().toString().equals("WHITE")){
+            Log.i(TAG,"Initial move - waiting for oponent to move");
             int response = in.read(buffer);
-            Log.i("GameIO","Initial move - waiting for oponent to move");
             String respSting = new String(buffer).trim();
             datapackageQueue.insertLocalDatapackageQueue(
                     Datapackage.DatapackageJSONConverter.getInstance().convertFromJSONObject(initialObject));
@@ -62,16 +64,16 @@ public class GameIO {
             jsonObject.put("username", JarAccount.getInstance().getName());
             jsonObject.put("game_token",gameToken);
             jsonObject.put("signon_token",JarAccount.getInstance().getSignonToken());
-            Log.i("GameIO","getLocalDatapackage");
+            Log.i(TAG,"getLocalDatapackage");
             Datapackage datapackage = datapackageQueue.getLocalDatapackage();
             jsonObject = datapackage.getJSONObject();
-            Log.i("GameIO","sending datapackage");
+            Log.i(TAG,"sending datapackage");
             out.writeUTF(jsonObject.toString());
             out.flush();
-            Log.i("GameIO","waiting on IO");
+            Log.i(TAG,"waiting on IO");
             int response = in.read(buffer);
             String respSting = new String(buffer).trim();
-            Log.i("GameIO","insertLocalDatapackageQueue");
+            Log.i(TAG,"insertLocalDatapackageQueue");
             datapackageQueue.insertLocalDatapackageQueue(
                     Datapackage.DatapackageJSONConverter.getInstance().convertFromJSONObject(jsonObject));
         }

@@ -80,7 +80,7 @@ public class OnlineMatchInfoBundle {
             playerTwo = (String) responseObject.get("player_two");
             gameToken = (String) responseObject.get("game_token");
             playerOneColor = (String) responseObject.get("player_one_color");
-            playerTwoColor = (String) responseObject.get("player_one_color");
+            playerTwoColor = (String) responseObject.get("player_two_color");
             playerOneIp = (String) responseObject.get("player_one_ip");
             playerTwoIp = (String) responseObject.get("player_one_ip");
             playerOnePort = (int) responseObject.get("player_one_port");
