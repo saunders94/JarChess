@@ -4,7 +4,7 @@ import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
-import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.turn.Turn;
 
 import org.json.JSONException;
@@ -18,10 +18,10 @@ import org.junit.runners.Parameterized.Parameters;
 
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
-import static com.example.jarchess.match.pieces.Piece.PromotionChoice.PROMOTE_TO_BISHOP;
-import static com.example.jarchess.match.pieces.Piece.PromotionChoice.PROMOTE_TO_KNIGHT;
-import static com.example.jarchess.match.pieces.Piece.PromotionChoice.PROMOTE_TO_QUEEN;
-import static com.example.jarchess.match.pieces.Piece.PromotionChoice.PROMOTE_TO_ROOK;
+import static com.example.jarchess.match.pieces.PromotionChoice.PROMOTE_TO_BISHOP;
+import static com.example.jarchess.match.pieces.PromotionChoice.PROMOTE_TO_KNIGHT;
+import static com.example.jarchess.match.pieces.PromotionChoice.PROMOTE_TO_QUEEN;
+import static com.example.jarchess.match.pieces.PromotionChoice.PROMOTE_TO_ROOK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
@@ -63,7 +63,7 @@ public class DatapackageJSONTest {
         @Parameter(value = PARAM_VALUE_ELAPSED_TIME)
         public long elapsedTimeParameter;
         @Parameter(value = PARAM_VALUE_PROMOTION_CHOICE)
-        public Piece.PromotionChoice promotionChoiceParameter;
+        public PromotionChoice promotionChoiceParameter;
 
 
         @Parameters(name = "{index} | originFile = {" + PARAM_VALUE_ORIGIN_FILE + "}, originRank = {" + PARAM_VALUE_ORIGIN_RANK + "}, destinationFile = {" + PARAM_VALUE_DESTINATION_FILE + "}, destinationRank = {" + PARAM_VALUE_DESTINATION_RANK + "}, turnColor = {" + PARAM_VALUE_TURN_COLOR + "}, elapsedTime = {" + PARAM_VALUE_ELAPSED_TIME + "}, promotionChoice = {" + PARAM_VALUE_PROMOTION_CHOICE + "}")
@@ -163,7 +163,7 @@ public class DatapackageJSONTest {
             Coordinate[] destination = new Coordinate[2];
             ChessColor[] turnColor = new ChessColor[2];
             long[] elapsedTime = new long[2];
-            Piece.PromotionChoice[] chosenPromotion = new Piece.PromotionChoice[2];
+            PromotionChoice[] chosenPromotion = new PromotionChoice[2];
 
 
             origin[EXPECTED] = Coordinate.getByFileAndRank(originFileParameter, originRankParameter);
@@ -171,7 +171,7 @@ public class DatapackageJSONTest {
             Move move = new Move(origin[EXPECTED], destination[EXPECTED]);
             ChessColor color = turnColor[EXPECTED] = turnColorParameter;
             long time = elapsedTime[EXPECTED] = elapsedTimeParameter;
-            Piece.PromotionChoice pieceType = chosenPromotion[EXPECTED] = promotionChoiceParameter;
+            PromotionChoice pieceType = chosenPromotion[EXPECTED] = promotionChoiceParameter;
 
 
             Turn turnExpected = new Turn(color, move, time, pieceType);

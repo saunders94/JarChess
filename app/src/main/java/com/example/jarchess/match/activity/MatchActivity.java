@@ -23,6 +23,7 @@ import com.example.jarchess.match.participant.LocalParticipant;
 import com.example.jarchess.match.participant.LocalParticipantController;
 import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.result.ExceptionResult;
 import com.example.jarchess.match.result.InvalidTurnReceivedResult;
 import com.example.jarchess.match.result.ResignationResult;
@@ -51,7 +52,7 @@ public abstract class MatchActivity extends AppCompatActivity
     private final Collection<Coordinate> possibleDestinations;
     private volatile ChessColor waitingForMove;
     private volatile Move move;
-    private volatile Piece.PromotionChoice promotionChoiceInput = null;
+    private volatile PromotionChoice promotionChoiceInput = null;
     private volatile Coordinate observedSquareClickCoordinate = null;
     private volatile boolean commitButtonHasBeenPressed = false;
     private Match match;
@@ -94,7 +95,7 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     @Override
-    public synchronized Piece.PromotionChoice getPromotionChoice(Move move) throws InterruptedException, MatchOverException {
+    public synchronized PromotionChoice getPromotionChoice(Move move) throws InterruptedException, MatchOverException {
 
         if (promotionChoiceInput != null) {
             promotionChoiceInput = null;
@@ -241,7 +242,7 @@ public abstract class MatchActivity extends AppCompatActivity
                 matchView.updatePiece(matchHistory.getEnPassentRiskedPieceLocation());
             }
             match.move(movement.getOrigin(), movement.getDestination());
-            Piece.PromotionChoice choice = turn.getPromotionChoice();
+            PromotionChoice choice = turn.getPromotionChoice();
             if (choice != null) {
                 match.promote(destination, choice);
             }
@@ -514,7 +515,7 @@ public abstract class MatchActivity extends AppCompatActivity
 
     }
 
-    public synchronized void setPromotionChoiceInput(Piece.PromotionChoice promoteToRook) {
+    public synchronized void setPromotionChoiceInput(PromotionChoice promoteToRook) {
         promotionChoiceInput = promoteToRook;
         this.notifyAll();
     }

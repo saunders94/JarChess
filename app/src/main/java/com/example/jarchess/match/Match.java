@@ -18,13 +18,14 @@ import com.example.jarchess.match.pieces.Bishop;
 import com.example.jarchess.match.pieces.Knight;
 import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.pieces.Queen;
 import com.example.jarchess.match.pieces.Rook;
 import com.example.jarchess.match.result.CheckmateResult;
 import com.example.jarchess.match.result.ExceptionResult;
 import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.match.result.StalemateDrawResult;
-import com.example.jarchess.match.result.TimeoutResult;
+import com.example.jarchess.match.result.FlagFallResult;
 import com.example.jarchess.match.turn.Turn;
 
 import java.util.Collection;
@@ -81,7 +82,7 @@ public abstract class Match implements MatchEndingEventListener {
                         Log.wtf(TAG, msg);
                         throw new IllegalStateException(msg);
                     }
-                    setMatchChessMatchResult(new TimeoutResult(colorOfWinner));
+                    setMatchChessMatchResult(new FlagFallResult(colorOfWinner));
                 } else if (!moveExpert.hasMoves(nextTurnColor, chessboard)) {
                     if (moveExpert.isInCheck(nextTurnColor, chessboard)) {
                         setMatchChessMatchResult(new CheckmateResult(ChessColor.getOther(nextTurnColor)));
@@ -102,7 +103,7 @@ public abstract class Match implements MatchEndingEventListener {
         if (matchClock.flagHasFallen()) {
             ChessColor colorOfWinner;
             colorOfWinner = matchClock.getColorOfFallenFlag();
-            setMatchChessMatchResult(new TimeoutResult(colorOfWinner));
+            setMatchChessMatchResult(new FlagFallResult(colorOfWinner));
         }
     }
 
@@ -188,7 +189,7 @@ public abstract class Match implements MatchEndingEventListener {
 
     }
 
-    public void promote(Coordinate coordinate, Piece.PromotionChoice choice) {
+    public void promote(Coordinate coordinate, PromotionChoice choice) {
         Log.d(TAG, "promote is running on thread: " + Thread.currentThread().getName());
         Log.d(TAG, "promote() called with: coordinate = [" + coordinate + "], choice = [" + choice + "]");
         Piece oldPiece = chessboard.getPieceAt(coordinate);
