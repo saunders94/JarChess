@@ -16,7 +16,6 @@ import com.example.jarchess.match.pieces.movementpatterns.SlidePattern;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import static androidx.constraintlayout.widget.Constraints.TAG;
 import static com.example.jarchess.match.ChessColor.WHITE;
 import static com.example.jarchess.match.pieces.Piece.Type.KING;
 import static com.example.jarchess.match.pieces.movementpatterns.MovementPattern.CaptureType.CANNOT_CAPTURE;
@@ -27,6 +26,7 @@ public class MoveExpert {
 
     private static MoveExpert instance;
     private MatchHistory matchHistory;
+    private static final String TAG = "MoveExpert";
 
     /**
      * Creates an instance of <code>MoveExpert</code> to construct a singleton instance
