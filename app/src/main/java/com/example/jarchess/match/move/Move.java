@@ -17,6 +17,8 @@ import java.util.LinkedList;
 public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
     public static final String JSON_PROPERTY_NAME_MOVEMENTS = "movements";
     public static final MoveJSONConverter JSON_CONVERTER = MoveJSONConverter.getInstance();
+    private static final int MAX_MOVEMENT_COUNT = 2;
+    private static final int MIN_MOVEMENT_COUNT = 1;
     private final Collection<PieceMovement> movements;
 
     public Move(Coordinate origin, Coordinate destination) {
@@ -30,6 +32,9 @@ public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
     }
 
     public Move(Collection<PieceMovement> pieceMovements) {
+        if (pieceMovements.size() < MIN_MOVEMENT_COUNT || pieceMovements.size() > 2) {
+            throw new IllegalArgumentException("Expected 1 or 2 piece movements but got " + pieceMovements.size());
+        }
         movements = new LinkedList<PieceMovement>();
         for (PieceMovement movement : pieceMovements) {
             add(movement);
@@ -57,7 +62,10 @@ public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
 
     @Override
     public boolean equals(Object o) {
-        return movements.equals(o);
+        if (o.getClass() != getClass()) {
+            return false;
+        }
+        return movements.equals(((Move) o).movements);
     }
 
     @NonNull
@@ -108,12 +116,24 @@ public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
 
     @Override
     public boolean add(PieceMovement pieceMovement) {
-        return movements.add(pieceMovement);
+        try{
+            return movements.add(pieceMovement);
+        } finally {
+            if (size() > MAX_MOVEMENT_COUNT) {
+                throw new RuntimeException("addAll resulted in a Move with more than "+MAX_MOVEMENT_COUNT+" PieceMovements");
+            }
+        }
     }
 
     @Override
     public boolean remove(Object o) {
-        return movements.remove(o);
+        try {
+            return movements.remove(o);
+        } finally {
+            if (size() < MIN_MOVEMENT_COUNT) {
+                throw new RuntimeException("Removing the following resulted in a Move with less than "+MIN_MOVEMENT_COUNT+" PieceMovement: " + o.toString());
+            }
+        }
     }
 
     @Override
@@ -123,22 +143,43 @@ public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
 
     @Override
     public boolean addAll(Collection<? extends PieceMovement> c) {
-        return movements.addAll(c);
+        try {
+            return movements.addAll(c);
+        } finally {
+            if (size() > MAX_MOVEMENT_COUNT) {
+                throw new RuntimeException("addAll resulted in a Move with more than "+MAX_MOVEMENT_COUNT+" PieceMovements");
+            }
+        }
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return movements.removeAll(c);
+        try {
+            return movements.removeAll(c);
+        } finally {
+            if (size() < MIN_MOVEMENT_COUNT) {
+                throw new RuntimeException("RemoveAll resulted in a Move with less than "+MIN_MOVEMENT_COUNT+" PieceMovement");
+            }
+        }
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return movements.retainAll(c);
+        try {
+            return movements.retainAll(c);
+        } finally {
+            if (size() < MIN_MOVEMENT_COUNT) {
+                throw new RuntimeException("retainAll resulted in a Move with less than "+MIN_MOVEMENT_COUNT+" PieceMovement");
+            }
+        }
     }
 
     @Override
+    @Deprecated
     public void clear() {
-        movements.clear();
+        if(MIN_MOVEMENT_COUNT > 0) {
+            throw new RuntimeException("clear results in a Move with less than "+MIN_MOVEMENT_COUNT+" PieceMovement");
+        }
     }
 
     public static class MoveJSONConverter extends JSONConverter<Move> {
