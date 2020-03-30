@@ -284,7 +284,7 @@ public class MatchNetworkIO {
         public Datapackage recieveNextDatapackage() throws InterruptedException {
             Log.d(TAG, "recieveNextDatapackage() called");
             Log.d(TAG, "recieveNextDatapackage is running on thread: " + Thread.currentThread().getName());
-            Datapackage tmp = queue.getLocalDatapackage();
+            Datapackage tmp = queue.getNetworkDatapackageQueue();
 
             Log.d(TAG, "recieveNextDatapackage() returned: " + tmp);
             return tmp;

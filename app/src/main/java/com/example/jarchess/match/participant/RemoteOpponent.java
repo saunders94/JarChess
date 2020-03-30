@@ -1,5 +1,7 @@
 package com.example.jarchess.match.participant;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.example.jarchess.RemoteOpponentInfoBundle;
@@ -42,6 +44,7 @@ public class RemoteOpponent implements MatchParticipant {
     private final ResignationSender resignationSender;
     private final ResignationReciever resignationReciever;
     private boolean alive;
+    private static final String TAG = "RemoteOpponent";
 
     /**
      * Creates a remote opponent.
@@ -135,12 +138,18 @@ public class RemoteOpponent implements MatchParticipant {
 
         turnSender.send(lastTurnFromOtherParticipant);
 
+        Log.i(TAG, "getNextTurn: Turn was sent to sender!");
+
         try {
-            return turnReceiver.receiveNextTurn();
+            Log.i(TAG, "getNextTurn: Waiting for turn from receiver");
+            Turn turn = turnReceiver.receiveNextTurn();
+            Log.d(TAG, "getNextTurn() returned: " + turn);
+            return turn;
         } catch (InterruptedException e) {
             // just get out
         }
 
+        Log.d(TAG, "getNextTurn() returned: " + null);
         return null;
 
     }
