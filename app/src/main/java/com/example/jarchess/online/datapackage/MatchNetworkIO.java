@@ -2,6 +2,7 @@ package com.example.jarchess.online.datapackage;
 
 import android.util.Log;
 
+import com.example.jarchess.LoggedThread;
 import com.example.jarchess.match.resignation.ResignationReciever;
 import com.example.jarchess.match.resignation.ResignationSender;
 import com.example.jarchess.match.result.ResignationResult;
@@ -56,6 +57,7 @@ public class MatchNetworkIO {
                     try {
                         synchronized (lock) {
                             while (isAlive) {
+                                Log.d(TAG, "run: waiting wile outgoing datapackages are empty");
                                 waitWhileEmpty(outGoingDatapackages);
                                 Log.i(TAG, "run: ready to send");
                                 datapackageSender.send(outGoingDatapackages.remove());
@@ -65,6 +67,7 @@ public class MatchNetworkIO {
                     } catch (InterruptedException e1) {
                         Log.e(TAG, "got interrupted ", e1);
                     } finally {
+                        Log.d(TAG, "run: closing anything we need to close");
                         try {
                             close();
                         } catch (IOException e2) {
@@ -75,7 +78,7 @@ public class MatchNetworkIO {
                 }
             };
 
-            new Thread(runnable, "MatchNetworkSender").start();
+            new LoggedThread(TAG, runnable, "MatchNetworkSender").start();
         }
 
         @Override
