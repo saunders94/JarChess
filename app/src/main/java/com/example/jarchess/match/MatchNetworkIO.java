@@ -1,4 +1,4 @@
-package com.example.jarchess.online.datapackage;
+package com.example.jarchess.match;
 
 import android.util.Log;
 
@@ -9,6 +9,9 @@ import com.example.jarchess.match.result.ResignationResult;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.turn.TurnReceiver;
 import com.example.jarchess.match.turn.TurnSender;
+import com.example.jarchess.online.datapackage.Datapackage;
+import com.example.jarchess.online.datapackage.DatapackageReceiver;
+import com.example.jarchess.online.datapackage.DatapackageSender;
 import com.example.jarchess.online.move.DatapackageQueue;
 
 import java.io.Closeable;
