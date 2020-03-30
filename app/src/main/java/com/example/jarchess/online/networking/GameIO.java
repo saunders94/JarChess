@@ -48,6 +48,9 @@ public class GameIO {
     }
 
     private void processMoves() throws IOException, JSONException {
+        Log.d(TAG, "processMoves() called");
+        Log.d(TAG, "processMoves is running on thread: " + Thread.currentThread().getName());
+
         socket = new Socket(gameServer, serverPort);
         DataInputStream in = new DataInputStream(
                 new BufferedInputStream(
