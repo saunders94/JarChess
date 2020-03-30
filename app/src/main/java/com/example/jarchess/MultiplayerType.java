@@ -54,13 +54,9 @@ public class MultiplayerType extends Fragment {
         localButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("Local button pressed");
-                //FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                //MainMenu mainMenu = new MainMenu();
-                //transaction.replace(R.id.fragmentHole, mainMenu);
-                //transaction.commit();
 
                 MatchStarter.getInstance().setMatchClockChoice(JarAccount.getInstance().getPreferredMatchClock());
+
 
                 Intent intent = new Intent(getActivity(), LocalMultiplayerMatchActivity.class);
                 startActivity(intent);
@@ -72,10 +68,6 @@ public class MultiplayerType extends Fragment {
             @Override
             public void onClick(View v) {
                 System.out.println("Online button pressed");
-                //FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                //MainMenu mainMenu = new MainMenu();
-                //transaction.replace(R.id.fragmentHole, mainMenu);
-                //transaction.commit();
 
                 try {
                     if (JarAccount.getInstance().isLoggedIn()) {

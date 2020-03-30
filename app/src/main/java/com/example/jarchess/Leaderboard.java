@@ -38,8 +38,6 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
         sortSpinner.setAdapter(spinnerAdapter);
         sortSpinner.setOnItemSelectedListener(this);
         //handle onclick listener by using onItemSelected and onNothingSelected
-
-
         //Here's a demo to show the leaderboard list
 
         ArrayList<String> listItems = new ArrayList<>();
