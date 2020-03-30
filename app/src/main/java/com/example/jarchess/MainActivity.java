@@ -1,6 +1,7 @@
 package com.example.jarchess;
 
-
+import com.example.jarchess.online.OnlineMatchMaker;
+import com.example.jarchess.online.usermanagement.Account;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,9 +13,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.example.jarchess.online.usermanagement.Account;
 
-public class MainActivity extends AppCompatActivity implements ProfileSignIn.SignInCommunicator {
+public class MainActivity extends AppCompatActivity implements ProfileSignIn.SignInCommunicator,
+    ProfileMenu.signOutCommunicator {
+
+
+
 
     public static FragmentManager fragmentManager;
 
@@ -29,14 +33,18 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
         super.onBackPressed();
 
         // cancel matchmaking
-        //OnlineMatchMaker.getInstance().cancel();
+        OnlineMatchMaker.getInstance().cancel();
     }
+
 
     @Override
     public void onAttachFragment(Fragment fragment) {
         if (fragment instanceof ProfileSignIn) {
             ProfileSignIn signInFragment = (ProfileSignIn) fragment;
             signInFragment.setCommunicator(this);
+        } else if (fragment instanceof ProfileMenu) {
+            ProfileMenu profileMenuFragment = (ProfileMenu) fragment;
+            profileMenuFragment.setCommunicator(this);
         }
     }
 
@@ -53,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
         unseenNotificationQuantity = 3;
 
         fragmentManager = getSupportFragmentManager();
+        setupListeners();
         setupToolbar();
 
 
@@ -69,6 +78,61 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
 
         }
     }
+
+
+    private void setupToolbar() {
+
+        Toolbar toolBar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolBar);
+
+        try {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        } catch (NullPointerException e) {
+            System.out.println("Toolbar couldn't be found!");
+        }
+    }
+
+    private void setupListeners() {
+        usernameLabel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openLoginAssociatedPage();
+            }
+        });
+    }
+
+    private void openLoginAssociatedPage() {
+        FragmentManager.BackStackEntry backEntry = fragmentManager
+                .getBackStackEntryAt(fragmentManager.getBackStackEntryCount() - 1);
+        String tag = backEntry.getName();
+
+        try {
+
+            if (loggedIn && !(tag.equals("pro"))) {
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                ProfileMenu profileMenu = new ProfileMenu();
+                transaction.replace(R.id.fragmentHole, profileMenu);
+
+                transaction.addToBackStack("pro");
+                transaction.commit();
+
+            } else if (!tag.equals("sig")) {
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                ProfileSignIn profileSignIn = new ProfileSignIn();
+                transaction.replace(R.id.fragmentHole, profileSignIn);
+
+                transaction.addToBackStack("sig");
+                transaction.commit();
+
+            }
+
+
+        } catch (NullPointerException e) {
+            System.out.println("null must've been added to backStack");
+        }
+    }
+
 
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -133,16 +197,10 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
             case R.id.notification_menu: {
                 item.setActionView(null);
                 return true;
-            }
-            case R.id.profile_menu: {
-                //This will either direct to the profile page or the login page, depending
-                //if the user is logged in
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                ProfileSignIn profileSignIn = new ProfileSignIn();
 
-                transaction.replace(R.id.fragmentHole, profileSignIn);
-                transaction.addToBackStack(null);
-                transaction.commit();
+            } case R.id.profile_menu: {
+                openLoginAssociatedPage();
+
                 return true;
             }
 
@@ -155,20 +213,19 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
         setUnseenNotificationQuantity(0);
     }
 
+
+
+    @Override
+    public boolean onLogout() {
+        usernameLabel.setText("Logged Out");
+        loggedIn = false;
+        return true;
+    }
+
+
     public void setUnseenNotificationQuantity(int unseenNotificationQuantity) {
         this.unseenNotificationQuantity = unseenNotificationQuantity;
     }
 
-    private void setupToolbar() {
 
-        Toolbar toolBar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolBar);
-
-        try {
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        } catch (NullPointerException e) {
-            System.out.println("Toolbar couldn't be found!");
-        }
-    }
 }
