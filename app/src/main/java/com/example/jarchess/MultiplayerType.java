@@ -22,8 +22,6 @@ import com.example.jarchess.online.networking.Controller;
 
 import java.io.IOException;
 
-import static com.example.jarchess.MainActivity.fragmentManager;
-
 
 public class MultiplayerType extends Fragment {
     private static final String TAG = "MultiplayerType";
@@ -69,29 +67,26 @@ public class MultiplayerType extends Fragment {
         onlineButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println("Online button pressed");
 
                 try {
                     if (JarAccount.getInstance().isLoggedIn()) {
-                        Log.i(TAG, "onClick: account was logged in");
                         // start matchmaking
-                        FragmentTransaction transaction = fragmentManager.beginTransaction();
+                        FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
                         MatchMakerLauncher matchMakerLauncher = new MatchMakerLauncher();
                         transaction.replace(R.id.fragmentHole, matchMakerLauncher);
                         transaction.addToBackStack(null);
                         transaction.commit();
 
                     } else {
-                        Log.i(TAG, "onClick: account was not logged in");
-                        int duration = Toast.LENGTH_LONG;
+
+                        int duration = Toast.LENGTH_SHORT;
                         Toast.makeText(v.getContext(), "Login Required to play Online", duration).show();
                     }
                 } catch (IOException e) {
-                    Log.i(TAG, "onClick: account was offline");
                     int duration = Toast.LENGTH_LONG;
                     Toast.makeText(v.getContext(), "Cannot connect to the server. Please make sure you have internet access.", duration).show();
                 }
-
-
             }
         });
     }
@@ -124,14 +119,13 @@ public class MultiplayerType extends Fragment {
                 @Override
                 public void run() {
                     try {
+                        Log.i(TAG, "Creating onlinematchMakerBundle");
                         onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle();
-                        if (onlineMatchInfoBundle == null) {
-                            Log.e(TAG, "run: onlineMatchInfoBundle recieved is null");
-                        } else {
-                            MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
-                            Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
-                            startActivity(intent);
-                        }
+                        Log.i(TAG, "Online match info bundle created");
+                        MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
+
+                        Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
+                        startActivity(intent);
                     } catch (OnlineMatchMaker.SearchCanceledException e) {
                         Log.d(TAG, "onCreateView's run caught:", e);
                     } catch (IOException e) {
