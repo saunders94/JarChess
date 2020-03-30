@@ -53,11 +53,7 @@ public class ProfileSignIn extends Fragment {
                 int duration = Toast.LENGTH_SHORT;
 
                 if (callback.onLogin(usernameArea.getText(), passwordArea.getText())) {
-                    FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                    MainMenu mainMenu = new MainMenu();
-                    transaction.replace(R.id.fragmentHole, mainMenu);
-                    transaction.addToBackStack("mai");
-                    transaction.commit();
+                    MainActivity.fragmentManager.popBackStackImmediate();
 
                     Toast toast = Toast.makeText(v.getContext(), "Login Successful", duration);
                     toast.show();
@@ -77,11 +73,7 @@ public class ProfileSignIn extends Fragment {
                 int duration = Toast.LENGTH_SHORT;
 
                 if (callback.onRegister(usernameArea.getText(), passwordArea.getText())) {
-                    FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                    MainMenu mainMenu = new MainMenu();
-                    transaction.replace(R.id.fragmentHole, mainMenu);
-                    transaction.addToBackStack("mai");
-                    transaction.commit();
+                    MainActivity.fragmentManager.popBackStackImmediate();
 
                     Toast toast = Toast.makeText(v.getContext()
                             , "Registration Successful, Logged In", duration);

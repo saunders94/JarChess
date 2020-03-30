@@ -31,9 +31,11 @@ public class StartPage extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_start_page, container, false);
+        int orientation = view.getResources().getConfiguration().orientation;
         startButton = view.findViewById(R.id.button_start);
         layout = view.findViewById(R.id.startLinearLayout);
         setupListeners();
+        setOrientation(orientation);
 
 
         return view;
@@ -66,9 +68,13 @@ public class StartPage extends Fragment {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        setOrientation(newConfig.orientation);
+    }
+
+    private void setOrientation(int orientation) {
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             layout.setOrientation(LinearLayout.HORIZONTAL);
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+        } else if (orientation == Configuration.ORIENTATION_PORTRAIT){
             layout.setOrientation(LinearLayout.VERTICAL);
         }
     }

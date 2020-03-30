@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
         unseenNotificationQuantity = 3;
 
         fragmentManager = getSupportFragmentManager();
+        setupListeners();
         setupToolbar();
 
 
@@ -70,6 +71,46 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
 
         } catch (NullPointerException e) {
             System.out.println("Toolbar couldn't be found!");
+        }
+    }
+
+    private void setupListeners() {
+        usernameLabel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openLoginAssociatedPage();
+            }
+        });
+    }
+
+    private void openLoginAssociatedPage() {
+        FragmentManager.BackStackEntry backEntry = fragmentManager
+                .getBackStackEntryAt(fragmentManager.getBackStackEntryCount() - 1);
+        String tag = backEntry.getName();
+
+        try {
+
+            if (loggedIn && !(tag.equals("pro"))) {
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                ProfileMenu profileMenu = new ProfileMenu();
+                transaction.replace(R.id.fragmentHole, profileMenu);
+
+                transaction.addToBackStack("pro");
+                transaction.commit();
+
+            } else if (!tag.equals("sig")) {
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                ProfileSignIn profileSignIn = new ProfileSignIn();
+                transaction.replace(R.id.fragmentHole, profileSignIn);
+
+                transaction.addToBackStack("sig");
+                transaction.commit();
+
+            }
+
+
+        } catch (NullPointerException e) {
+            System.out.println("null must've been added to backStack");
         }
     }
 
@@ -109,35 +150,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
                 item.setActionView(null);
                 return true;
             } case R.id.profile_menu: {
-
-                FragmentManager.BackStackEntry backEntry = fragmentManager
-                        .getBackStackEntryAt(fragmentManager.getBackStackEntryCount() - 1);
-                String tag = backEntry.getName();
-
-                try {
-
-                    if (loggedIn && !(tag.equals("pro"))) {
-                        FragmentTransaction transaction = fragmentManager.beginTransaction();
-                        ProfileMenu profileMenu = new ProfileMenu();
-                        transaction.replace(R.id.fragmentHole, profileMenu);
-
-                        transaction.addToBackStack("pro");
-                        transaction.commit();
-
-                    } else if (!tag.equals("sig")) {
-                        FragmentTransaction transaction = fragmentManager.beginTransaction();
-                        ProfileSignIn profileSignIn = new ProfileSignIn();
-                        transaction.replace(R.id.fragmentHole, profileSignIn);
-
-                        transaction.addToBackStack("sig");
-                        transaction.commit();
-
-                    }
-
-                } catch (NullPointerException e) {
-                        System.out.println("null must've been added to backStack");
-                }
-
+                openLoginAssociatedPage();
                 return true;
             }
 
@@ -153,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
     public void resetUnseenNotificationQuantity() {
         setUnseenNotificationQuantity(0);
     }
+
 
     @Override
     public void onAttachFragment(Fragment fragment) {
