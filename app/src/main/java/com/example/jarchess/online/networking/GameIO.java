@@ -63,7 +63,8 @@ public class GameIO {
             Log.i(TAG,"Initial move - waiting for oponent to move");
             int response = in.read(buffer);
             String respSting = new String(buffer).trim();
-            datapackageQueue.insertLocalDatapackageQueue(
+            Log.i(TAG, "Response: " + respSting);
+            datapackageQueue.insertClientBoundDatapackageQueue(
                     Datapackage.DatapackageJSONConverter.getInstance().convertFromJSONObject(initialObject));
         }
         while(true){
@@ -72,8 +73,8 @@ public class GameIO {
             jsonObject.put("username", JarAccount.getInstance().getName());
             jsonObject.put("game_token",gameToken);
             jsonObject.put("signon_token",JarAccount.getInstance().getSignonToken());
-            Log.i(TAG,"getLocalDatapackage");
-            Datapackage datapackage = datapackageQueue.getLocalDatapackage();
+            Log.i(TAG,"getClientBoundDatapackage");
+            Datapackage datapackage = datapackageQueue.getServerBoundDatapackageQueue();
             jsonObject = datapackage.getJSONObject();
             Log.i(TAG,"sending datapackage");
             out.writeUTF(jsonObject.toString());
@@ -81,8 +82,8 @@ public class GameIO {
             Log.i(TAG,"waiting on IO");
             int response = in.read(buffer);
             String respSting = new String(buffer).trim();
-            Log.i(TAG,"insertLocalDatapackageQueue");
-            datapackageQueue.insertLocalDatapackageQueue(
+            Log.i(TAG,"insertClientBoundDatapackageQueue");
+            datapackageQueue.insertClientBoundDatapackageQueue(
                     Datapackage.DatapackageJSONConverter.getInstance().convertFromJSONObject(jsonObject));
         }
     }
