@@ -5,7 +5,7 @@ import com.example.jarchess.match.ChessColor;
 /**
  * A castle movement pattern is a special movement pattern for the castle move that involves a rook and king piece.
  */
-public class CastleMovementPattern extends SlidePattern {//TODO write unit tests
+public class CastleMovementPattern extends SlidePattern {
 
 
     /**

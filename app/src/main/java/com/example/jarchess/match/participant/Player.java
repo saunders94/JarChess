@@ -8,19 +8,20 @@ import com.example.jarchess.match.ChessColor;
  *
  * @author Joshua Zierman
  */
-public class Player extends LocalPartipant {
+public class Player extends LocalParticipant {
 
     /**
      * Creates a player.
      *
      * @param color the color of the participant
+     * @param localParticipantController
      */
-    public Player(ChessColor color) {
+    public Player(ChessColor color, LocalParticipantController localParticipantController) {
         super(
                 JarAccount.getInstance().getName(),
                 color,
-                JarAccount.getInstance().getAvatarStyle()
-        );
+                JarAccount.getInstance().getAvatarStyle(),
+                localParticipantController);
     }
 
 }

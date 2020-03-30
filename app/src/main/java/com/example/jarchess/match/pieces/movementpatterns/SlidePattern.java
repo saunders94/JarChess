@@ -9,7 +9,7 @@ import static java.lang.Math.abs;
  *
  * @author Joshua Zierman
  */
-public class SlidePattern extends MovementPattern {//TODO write unit tests
+public class SlidePattern extends MovementPattern {
 
 
     /**
@@ -28,13 +28,16 @@ public class SlidePattern extends MovementPattern {//TODO write unit tests
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the forward (away from the piece's color's starting rows) slide direction offset.
+     *
+     * @return -1 if slide is backward, 0 if there is no forward or backward movement, or 1 if the slide is forward.
      */
-    @Override
-    boolean isJump() {
-        return false;
-    }
+    public int getForwardSlideOffset() {
 
+        int y = getForwardOffset();
+
+        return y != 0 ? y / abs(y) : 0;
+    }
 
     /**
      * Gets the kingward (right when looking at the board with black at the top) slide direction offset.
@@ -48,15 +51,11 @@ public class SlidePattern extends MovementPattern {//TODO write unit tests
     }
 
     /**
-     * Gets the forward (away from the piece's color's starting rows) slide direction offset.
-     *
-     * @return -1 if slide is backward, 0 if there is no forward or backward movement, or 1 if the slide is forward.
+     * {@inheritDoc}
      */
-    public int getForwardSlideOffset() {
-
-        int y = getForwardOffset();
-
-        return y != 0 ? y / abs(y) : 0;
+    @Override
+    boolean isJump() {
+        return false;
     }
 }
 

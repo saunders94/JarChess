@@ -3,8 +3,8 @@ package com.example.jarchess.match.move;
 import androidx.annotation.NonNull;
 
 import com.example.jarchess.match.Coordinate;
-import com.example.jarchess.match.datapackage.JSONConvertable;
-import com.example.jarchess.match.datapackage.JSONConverter;
+import com.example.jarchess.online.datapackage.JSONConverter;
+import com.example.jarchess.online.datapackage.JSONConvertible;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class Move implements Collection<PieceMovement>, JSONConvertable<Move> {
+public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
     public static final String JSON_PROPERTY_NAME_MOVEMENTS = "movements";
     public static final MoveJSONConverter JSON_CONVERTER = MoveJSONConverter.getInstance();
     private final Collection<PieceMovement> movements;
@@ -34,6 +34,46 @@ public class Move implements Collection<PieceMovement>, JSONConvertable<Move> {
         for (PieceMovement movement : pieceMovements) {
             add(movement);
         }
+    }
+
+    @Override
+    public JSONObject getJSONObject() throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+
+        for (PieceMovement movement : movements) {
+            jsonArray.put(movement.getJSONObject());
+        }
+
+        jsonObject.put(JSON_PROPERTY_NAME_MOVEMENTS, jsonArray);
+
+        return jsonObject;
+    }
+
+    @Override
+    public int hashCode() {
+        return movements.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return movements.equals(o);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        String s = "";
+        boolean first = true;
+        for (PieceMovement movement : movements) {
+            if (first) {
+                first = false;
+            } else {
+                s += ", ";
+            }
+            s += movement.toString();
+        }
+        return s;
     }
 
     @Override
@@ -99,46 +139,6 @@ public class Move implements Collection<PieceMovement>, JSONConvertable<Move> {
     @Override
     public void clear() {
         movements.clear();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return movements.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return movements.hashCode();
-    }
-
-    @NonNull
-    @Override
-    public String toString() {
-        String s = "";
-        boolean first = true;
-        for (PieceMovement movement : movements) {
-            if (first) {
-                first = false;
-            } else {
-                s += ", ";
-            }
-            s += movement.toString();
-        }
-        return s;
-    }
-
-    @Override
-    public JSONObject getJSONObject() throws JSONException {
-        JSONObject jsonObject = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
-
-        for (PieceMovement movement : movements) {
-            jsonArray.put(movement.getJSONObject());
-        }
-
-        jsonObject.put(JSON_PROPERTY_NAME_MOVEMENTS, jsonArray);
-
-        return jsonObject;
     }
 
     public static class MoveJSONConverter extends JSONConverter<Move> {

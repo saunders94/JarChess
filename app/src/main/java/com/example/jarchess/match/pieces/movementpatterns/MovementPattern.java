@@ -13,7 +13,7 @@ import static com.example.jarchess.match.ChessColor.WHITE;
  *
  * @author Joshua Zierman
  */
-public abstract class MovementPattern {//TODO write unit tests
+public abstract class MovementPattern {
 
     private final int kingwardOffset;
 
@@ -37,6 +37,24 @@ public abstract class MovementPattern {//TODO write unit tests
         this.captureType = captureType;
         this.mustBeFirstMoveOfPiece = mustBeFirstMoveOfPiece;
         this.color = color;
+    }
+
+    /**
+     * Gets the number of squares backward that the movement pattern would shift the piece.
+     *
+     * @return The number of spaces down (when black starting position is at the top) that the movement pattern would shift the piece
+     */
+    public final int getBackwardOffset() {
+        return -forwardOffset;
+    }
+
+    /**
+     * Gets the capture type. Some moves require capturing, can't capture, or can capture but don't have to.
+     *
+     * @return the capture type of this setAsMoved
+     */
+    public final CaptureType getCaptureType() {
+        return captureType;
     }
 
     /**
@@ -66,6 +84,15 @@ public abstract class MovementPattern {//TODO write unit tests
     }
 
     /**
+     * Gets the number of squares forward that the movement pattern would shift the piece.
+     *
+     * @return The number of spaces up (when black starting position is at the top) that the movement pattern would shift the piece
+     */
+    public final int getForwardOffset() {
+        return forwardOffset;
+    }
+
+    /**
      * Gets the number of squares kingward that the movement pattern would shift the piece.
      *
      * @return The number of spaces right (when black starting position is at the top) that the movement pattern would shift the piece
@@ -81,42 +108,6 @@ public abstract class MovementPattern {//TODO write unit tests
      */
     public final int getQueenwardOffset() {
         return -kingwardOffset;
-    }
-
-    /**
-     * Gets the number of squares forward that the movement pattern would shift the piece.
-     *
-     * @return The number of spaces up (when black starting position is at the top) that the movement pattern would shift the piece
-     */
-    public final int getForwardOffset() {
-        return forwardOffset;
-    }
-
-    /**
-     * Gets the number of squares backward that the movement pattern would shift the piece.
-     *
-     * @return The number of spaces down (when black starting position is at the top) that the movement pattern would shift the piece
-     */
-    public final int getBackwardOffset() {
-        return -forwardOffset;
-    }
-
-    /**
-     * Gets the capture type. Some moves require capturing, can't capture, or can capture but don't have to.
-     *
-     * @return the capture type of this setAsMoved
-     */
-    public final CaptureType getCaptureType() {
-        return captureType;
-    }
-
-    /**
-     * checks if this movement pattern must be the first setAsMoved made by the piece(s) being moved
-     *
-     * @return true if the movement pattern can only be executed on the first movement of the piece, otherwise false
-     */
-    public final boolean mustBeFirstMoveOfPiece() {
-        return mustBeFirstMoveOfPiece;
     }
 
     /**
@@ -138,6 +129,15 @@ public abstract class MovementPattern {//TODO write unit tests
      */
     public boolean isSlide() {
         return !isJump();
+    }
+
+    /**
+     * checks if this movement pattern must be the first setAsMoved made by the piece(s) being moved
+     *
+     * @return true if the movement pattern can only be executed on the first movement of the piece, otherwise false
+     */
+    public final boolean mustBeFirstMoveOfPiece() {
+        return mustBeFirstMoveOfPiece;
     }
 
     /**

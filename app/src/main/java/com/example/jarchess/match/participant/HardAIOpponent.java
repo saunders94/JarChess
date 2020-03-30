@@ -1,8 +1,8 @@
 package com.example.jarchess.match.participant;
 
 import com.example.jarchess.match.ChessColor;
-import com.example.jarchess.match.resignation.ResignationEvent;
-import com.example.jarchess.match.resignation.ResignationException;
+import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.events.MatchResultIsInEvent;
 import com.example.jarchess.match.turn.Turn;
 
 /**
@@ -10,7 +10,8 @@ import com.example.jarchess.match.turn.Turn;
  *
  * @author Joshua Zierman
  */
-public class HardAIOpponent extends AIOpponent {//TODO write unit tests
+public class HardAIOpponent extends AIOpponent {
+    public static final boolean IS_IMPLEMENTED = false; // TODO change this when we implement Hard AI Opponent
 
     /**
      * Creates a hard AI opponent.
@@ -25,7 +26,7 @@ public class HardAIOpponent extends AIOpponent {//TODO write unit tests
      * {@inheritDoc}
      */
     @Override
-    public Turn takeFirstTurn() throws ResignationException {
+    public Turn getFirstTurn() throws MatchActivity.MatchOverException {
         return null;//TODO
     }
 
@@ -33,15 +34,12 @@ public class HardAIOpponent extends AIOpponent {//TODO write unit tests
      * {@inheritDoc}
      */
     @Override
-    public Turn takeTurn(Turn lastTurnFromOtherParticipant) throws ResignationException {
+    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws MatchActivity.MatchOverException {
         return null;//TODO
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void observeResignationEvent(ResignationEvent resignationEvent) {
+    public void observe(MatchResultIsInEvent event) {
         //TODO
     }
 }

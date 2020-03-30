@@ -1,6 +1,7 @@
 package com.example.jarchess.match.view;
 
 import android.support.constraint.ConstraintLayout;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -11,6 +12,8 @@ import androidx.annotation.NonNull;
 import com.example.jarchess.R;
 import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.result.Result;
+
+import static android.support.constraint.Constraints.TAG;
 
 class MatchResultDialog {
 
@@ -41,9 +44,10 @@ class MatchResultDialog {
             }
         });
 
-        backgroundFadeView.setOnClickListener(new View.OnClickListener() {
+        backgroundFadeView.setOnClickListener(new View.OnClickListener() { //FIXME why doesn't this work?
             @Override
             public void onClick(View v) {
+                Log.d(TAG, "backgroundFadeView.onClick is running on thread: " + Thread.currentThread().getName());
                 hide();
             }
         });
@@ -69,6 +73,7 @@ class MatchResultDialog {
                 backgroundFadeView.setVisibility(View.VISIBLE);
 
                 if (backgroundFadeView.getTop() < MINIMUM_HEIGHT) {
+                    Log.d(TAG, "Resizing viewGroup fade view");
                     viewGroup.setLayoutParams(new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT));
                 }
                 viewGroup.setVisibility(View.VISIBLE);

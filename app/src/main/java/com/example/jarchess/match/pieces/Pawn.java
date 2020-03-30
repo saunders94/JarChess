@@ -21,7 +21,7 @@ import static com.example.jarchess.match.Coordinate.MIN_FILE;
  *
  * @author Joshua Zierman
  */
-public class Pawn extends Piece {//TODO write unit tests
+public class Pawn extends Piece {
     public final static int BLACK_STARTING_RANK = 7;
     public final static int WHITE_STARTING_RANK = 2;
     public static final String NAME = "Pawn";
@@ -43,13 +43,6 @@ public class Pawn extends Piece {//TODO write unit tests
 
     public Pawn(Pawn pieceToCopy) {
         super(pieceToCopy);
-    }
-
-    private void addAllMovementPatterns() {
-        add(MovementPatternProducer.getNewSlideMovementPattern(0, 1, MovementPattern.CaptureType.CANNOT_CAPTURE, false, getColor()));
-        add(MovementPatternProducer.getNewSlideMovementPattern(0, 2, MovementPattern.CaptureType.CANNOT_CAPTURE, true, getColor()));
-        add(MovementPatternProducer.getNewSlideMovementPattern(-1, 1, MovementPattern.CaptureType.MUST_CAPTURE, false, getColor()));
-        add(MovementPatternProducer.getNewSlideMovementPattern(1, 1, MovementPattern.CaptureType.MUST_CAPTURE, false, getColor()));
     }
 
     /**
@@ -79,6 +72,13 @@ public class Pawn extends Piece {//TODO write unit tests
         // create and return the coordinate.
         startingCoordinate = Coordinate.getByFileAndRank(startingFile, startingRank);
         return startingCoordinate;
+    }
+
+    private void addAllMovementPatterns() {
+        add(MovementPatternProducer.getNewSlideMovementPattern(0, 1, MovementPattern.CaptureType.CANNOT_CAPTURE, false, getColor()));
+        add(MovementPatternProducer.getNewSlideMovementPattern(0, 2, MovementPattern.CaptureType.CANNOT_CAPTURE, true, getColor()));
+        add(MovementPatternProducer.getNewSlideMovementPattern(-1, 1, MovementPattern.CaptureType.MUST_CAPTURE, false, getColor()));
+        add(MovementPatternProducer.getNewSlideMovementPattern(1, 1, MovementPattern.CaptureType.MUST_CAPTURE, false, getColor()));
     }
 
 }

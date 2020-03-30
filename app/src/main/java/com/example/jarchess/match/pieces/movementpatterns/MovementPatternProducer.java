@@ -13,7 +13,7 @@ import java.util.LinkedList;
  *
  * @author Joshua Zierman
  */
-public class MovementPatternProducer {//TODO write unit tests
+public class MovementPatternProducer {
 
     private static final char QUEENWARD_ROOK_FILE = Rook.QUEENWARD_STARTING_FILE;
     private static final char KINGWARD_ROOK_FILE = Rook.KINGWARD_STARTING_FILE;
@@ -21,59 +21,6 @@ public class MovementPatternProducer {//TODO write unit tests
     private static final int KINGWARD_ROOK_CASTLE_OFFSET = -2;
     private static final int KING_CASTLE_OFFSET_MAGNITUDE = 2;
     private static final int MAX_OFFSET = 7;
-
-    /**
-     * Creates a slide movement pattern.
-     *
-     * @param kingwardOffset         the number of squares to the right (when viewing from white's starting
-     *                               side) that the movement pattern will shift the piece.
-     * @param forwardOffset          the number of squares forward (away from its color's starting rows) that
-     *                               the movement pattern will shift the piece
-     * @param captureType            the capturing type of the movement pattern
-     * @param mustBeFirstMoveOfPiece if the movement pattern only applies to the first movement of the piece
-     * @param color                 the color of the piece this pattern if for
-     * @return the created slide movement pattern
-     */
-    public static MovementPattern getNewSlideMovementPattern(int kingwardOffset, int forwardOffset, MovementPattern.CaptureType captureType, boolean mustBeFirstMoveOfPiece, ChessColor color) {
-        return new SlidePattern(kingwardOffset, forwardOffset, captureType, mustBeFirstMoveOfPiece, color);
-    }
-
-    /**
-     * Creates a jump movement pattern.
-     *
-     * @param kingwardOffset         the number of squares to the right (when viewing from white's starting
-     *                               side) that the movement pattern will shift the piece.
-     * @param forwardOffset          the number of squares forward (away from its color's starting rows) that
-     *                               the movement pattern will shift the piece
-     * @param captureType            the capturing type of the movement pattern
-     * @param mustBeFirstMoveOfPiece if the movement pattern only applies to the first movement of the piece
-     * @return the created jump movement pattern
-     */
-    public static MovementPattern getNewJumpMovementPattern(int kingwardOffset, int forwardOffset, MovementPattern.CaptureType captureType, boolean mustBeFirstMoveOfPiece, ChessColor color) {
-        return new JumpPattern(kingwardOffset, forwardOffset, captureType, mustBeFirstMoveOfPiece, color);
-    }
-
-    /**
-     * gets all straight slide movement patterns like that of a rook.
-     *
-     * @return a collection of all straight slide movement patterns
-     */
-    public static Collection<MovementPattern> getAllStraightSlideMovementPatterns(ChessColor color) {
-        Collection<MovementPattern> collection = new LinkedList<MovementPattern>();
-        MovementPattern tmp;
-        for (int i = 1; i <= MovementPatternProducer.MAX_OFFSET; i++) {
-            tmp = new SlidePattern(0, i, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
-            collection.add(tmp);
-            tmp = new SlidePattern(i, 0, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
-            collection.add(tmp);
-            tmp = new SlidePattern(0, -i, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
-            collection.add(tmp);
-            tmp = new SlidePattern(-i, 0, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
-            collection.add(tmp);
-        }
-
-        return collection;
-    }
 
     /**
      * gets all diagonal slide movement patterns like that of a bishop.
@@ -115,6 +62,59 @@ public class MovementPatternProducer {//TODO write unit tests
         collection.add(tmp);
 
         return collection;
+    }
+
+    /**
+     * gets all straight slide movement patterns like that of a rook.
+     *
+     * @return a collection of all straight slide movement patterns
+     */
+    public static Collection<MovementPattern> getAllStraightSlideMovementPatterns(ChessColor color) {
+        Collection<MovementPattern> collection = new LinkedList<MovementPattern>();
+        MovementPattern tmp;
+        for (int i = 1; i <= MovementPatternProducer.MAX_OFFSET; i++) {
+            tmp = new SlidePattern(0, i, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
+            collection.add(tmp);
+            tmp = new SlidePattern(i, 0, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
+            collection.add(tmp);
+            tmp = new SlidePattern(0, -i, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
+            collection.add(tmp);
+            tmp = new SlidePattern(-i, 0, MovementPattern.CaptureType.CAN_CAPTURE, false, color);
+            collection.add(tmp);
+        }
+
+        return collection;
+    }
+
+    /**
+     * Creates a jump movement pattern.
+     *
+     * @param kingwardOffset         the number of squares to the right (when viewing from white's starting
+     *                               side) that the movement pattern will shift the piece.
+     * @param forwardOffset          the number of squares forward (away from its color's starting rows) that
+     *                               the movement pattern will shift the piece
+     * @param captureType            the capturing type of the movement pattern
+     * @param mustBeFirstMoveOfPiece if the movement pattern only applies to the first movement of the piece
+     * @return the created jump movement pattern
+     */
+    public static MovementPattern getNewJumpMovementPattern(int kingwardOffset, int forwardOffset, MovementPattern.CaptureType captureType, boolean mustBeFirstMoveOfPiece, ChessColor color) {
+        return new JumpPattern(kingwardOffset, forwardOffset, captureType, mustBeFirstMoveOfPiece, color);
+    }
+
+    /**
+     * Creates a slide movement pattern.
+     *
+     * @param kingwardOffset         the number of squares to the right (when viewing from white's starting
+     *                               side) that the movement pattern will shift the piece.
+     * @param forwardOffset          the number of squares forward (away from its color's starting rows) that
+     *                               the movement pattern will shift the piece
+     * @param captureType            the capturing type of the movement pattern
+     * @param mustBeFirstMoveOfPiece if the movement pattern only applies to the first movement of the piece
+     * @param color                  the color of the piece this pattern if for
+     * @return the created slide movement pattern
+     */
+    public static MovementPattern getNewSlideMovementPattern(int kingwardOffset, int forwardOffset, MovementPattern.CaptureType captureType, boolean mustBeFirstMoveOfPiece, ChessColor color) {
+        return new SlidePattern(kingwardOffset, forwardOffset, captureType, mustBeFirstMoveOfPiece, color);
     }
 
     /**

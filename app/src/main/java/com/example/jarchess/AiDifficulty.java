@@ -4,14 +4,18 @@ package com.example.jarchess;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
-import com.example.jarchess.match.MatchStarter;
 import com.example.jarchess.match.activity.EasyAIMatchActivity;
 import com.example.jarchess.match.activity.HardAIMatchActivity;
+import com.example.jarchess.match.participant.EasyAIOpponent;
+import com.example.jarchess.match.participant.HardAIOpponent;
+import com.example.jarchess.testmode.TestMode;
 
 
 /**
@@ -21,6 +25,7 @@ public class AiDifficulty extends Fragment {
 
     private Button easyButton;
     private Button hardButton;
+    private static final String TAG = "AiDifficulty";
 
     public AiDifficulty() {
         // Required empty public constructor
@@ -52,10 +57,14 @@ public class AiDifficulty extends Fragment {
                 //transaction.replace(R.id.fragmentHole, mainMenu);
                 //transaction.commit();)
 
-                MatchStarter.getInstance().startEasyAIMatch();
-
-                Intent intent = new Intent(getActivity(), EasyAIMatchActivity.class);
-                startActivity(intent);
+                if (EasyAIOpponent.IS_IMPLEMENTED || TestMode.isOn()) {
+                    Intent intent = new Intent(getActivity(), EasyAIMatchActivity.class);
+                    startActivity(intent);
+                } else {
+                    Log.i(TAG, "onClick: Easy AI Opponent is not implemented");
+                    int duration = Toast.LENGTH_LONG;
+                    Toast.makeText(v.getContext(), "We don't have this mode working yet.", duration).show();
+                }
             }
         });
 
@@ -68,11 +77,16 @@ public class AiDifficulty extends Fragment {
                 //transaction.replace(R.id.fragmentHole, mainMenu);
                 //transaction.commit();
 
+                if (HardAIOpponent.IS_IMPLEMENTED || TestMode.isOn()) {
 
-                MatchStarter.getInstance().startHardAIMatch();
+                    Intent intent = new Intent(getActivity(), HardAIMatchActivity.class);
+                    startActivity(intent);
 
-                Intent intent = new Intent(getActivity(), HardAIMatchActivity.class);
-                startActivity(intent);
+                } else {
+                    Log.i(TAG, "onClick: Easy AI Opponent is not implemented");
+                    int duration = Toast.LENGTH_LONG;
+                    Toast.makeText(v.getContext(), "We don't have this mode working yet.", duration).show();
+                }
             }
         });
     }

@@ -2,8 +2,8 @@ package com.example.jarchess.match;
 
 import androidx.annotation.NonNull;
 
-import com.example.jarchess.match.datapackage.JSONConvertable;
-import com.example.jarchess.match.datapackage.JSONConverter;
+import com.example.jarchess.online.datapackage.JSONConverter;
+import com.example.jarchess.online.datapackage.JSONConvertible;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,7 +31,7 @@ import java.util.Iterator;
  *
  * @author Joshua Zierman
  */
-public class Coordinate implements JSONConvertable<Coordinate> {
+public class Coordinate implements JSONConvertible<Coordinate> {
 
     // File Constants
     /**
@@ -157,6 +157,37 @@ public class Coordinate implements JSONConvertable<Coordinate> {
     }
 
     /**
+     * Gets a coordinate by column and row.
+     *
+     * @param column the column of the coordinate where 0 is the furthest column to left when black's starting position is at the top, must be in range [0, 8)
+     * @param row    the row of the coordinate where 0 is the furthest row to the top when black's starting position is at the top, must be in range [0, 8)
+     * @return the coordinate with matching column and row
+     */
+    public static Coordinate getByColumnAndRow(int column, int row) {
+
+        if (column < MIN_COLUMN || column > MAX_COLUMN) {
+            String exceptionMessage = "expected rank in range [0, 7] but got " + column + ". ";
+            throw new IllegalArgumentException(exceptionMessage);
+        }
+        if (row < MIN_ROW || row > MAX_ROW) {
+            String exceptionMessage = "expected rank in range [0, 7] but got " + row + ". ";
+            throw new IllegalArgumentException(exceptionMessage);
+        }
+
+        if (coordinates[column][row] == null) {
+
+            char file = (char) ('a' + column);
+            int rank = 8 - row;
+
+            coordinates[column][row] = new Coordinate(file, rank, column, row);
+        }
+
+        return coordinates[column][row];
+
+
+    }
+
+    /**
      * Gets a coordinate by file and rank.
      *
      * @param file the file of the coordinate where 'a' is the furthest file to left when black's starting position is at the top, must be 'a', 'b', 'c', 'd', 'e', 'f', 'g', or 'h'
@@ -185,37 +216,6 @@ public class Coordinate implements JSONConvertable<Coordinate> {
         }
 
         return coordinates[column][row];
-
-    }
-
-    /**
-     * Gets a coordinate by column and row.
-     *
-     * @param column the column of the coordinate where 0 is the furthest column to left when black's starting position is at the top, must be in range [0, 8)
-     * @param row    the row of the coordinate where 0 is the furthest row to the top when black's starting position is at the top, must be in range [0, 8)
-     * @return the coordinate with matching column and row
-     */
-    public static Coordinate getByColumnAndRow(int column, int row) {
-
-        if (column < MIN_COLUMN || column > MAX_COLUMN) {
-            String exceptionMessage = "expected rank in range [0, 7] but got " + column + ". ";
-            throw new IllegalArgumentException(exceptionMessage);
-        }
-        if (row < MIN_ROW || row > MAX_ROW) {
-            String exceptionMessage = "expected rank in range [0, 7] but got " + row + ". ";
-            throw new IllegalArgumentException(exceptionMessage);
-        }
-
-        if (coordinates[column][row] == null) {
-
-            char file = (char) ('a' + column);
-            int rank = 8 - row;
-
-            coordinates[column][row] = new Coordinate(file, rank, column, row);
-        }
-
-        return coordinates[column][row];
-
 
     }
 
@@ -252,6 +252,16 @@ public class Coordinate implements JSONConvertable<Coordinate> {
     }
 
     /**
+     * gets the index of the column where the furthest column to white's
+     * queenside (at starting position) is index 0.
+     *
+     * @return the index of the column
+     */
+    public int getColumn() {
+        return column;
+    }
+
+    /**
      * Gets the file, where a file is a letter 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' representing
      * the columns where 'a' is the furthest to white's queenside (at starting position).
      *
@@ -259,6 +269,17 @@ public class Coordinate implements JSONConvertable<Coordinate> {
      */
     public char getFile() {
         return file;
+    }
+
+    @Override
+    public JSONObject getJSONObject() throws JSONException {
+
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put(JSON_PROPERTY_NAME_COLUMN, column);
+        jsonObject.put(JSON_PROPERTY_NAME_ROW, row);
+
+        return jsonObject;
     }
 
     /**
@@ -282,18 +303,12 @@ public class Coordinate implements JSONConvertable<Coordinate> {
     }
 
     /**
-     * gets the index of the column where the furthest column to white's
-     * queenside (at starting position) is index 0.
+     * Checks to see if this coordinate would be for a black square on a standard chessboard.
      *
-     * @return the index of the column
+     * @return true if the square at that coordinate is black
      */
-    public int getColumn() {
-        return column;
-    }
-
-    @Override
-    public String toString() {
-        return "" + file + rank;
+    public boolean isBlackSquare() { //TODO write unit test
+        return !isWhiteSquare();
     }
 
     /**
@@ -305,24 +320,9 @@ public class Coordinate implements JSONConvertable<Coordinate> {
         return (row + column) % 2 == 0;
     }
 
-    /**
-     * Checks to see if this coordinate would be for a black square on a standard chessboard.
-     *
-     * @return true if the square at that coordinate is black
-     */
-    public boolean isBlackSquare() { //TODO write unit test
-        return !isWhiteSquare();
-    }
-
     @Override
-    public JSONObject getJSONObject() throws JSONException {
-
-        JSONObject jsonObject = new JSONObject();
-
-        jsonObject.put(JSON_PROPERTY_NAME_COLUMN, column);
-        jsonObject.put(JSON_PROPERTY_NAME_ROW, row);
-
-        return jsonObject;
+    public String toString() {
+        return "" + file + rank;
     }
 
     public static class CoordinateJSONConverter extends JSONConverter<Coordinate> {

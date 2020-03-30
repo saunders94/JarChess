@@ -1,15 +1,13 @@
 package com.example.jarchess.match.pieces;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
-import com.example.jarchess.match.datapackage.JSONConvertable;
-import com.example.jarchess.match.datapackage.JSONConverter;
 import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
+import com.example.jarchess.online.datapackage.JSONConverter;
+import com.example.jarchess.online.datapackage.JSONConvertible;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,7 +20,7 @@ import java.util.LinkedList;
  *
  * @author Joshua Zierman
  */
-public abstract class Piece implements Cloneable { //TODO write unit tests
+public abstract class Piece implements Cloneable {
 
     /*
      * The starting position of the piece is important when a piece is captured and made visible on the captured pieces view.
@@ -57,45 +55,6 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
         movementPatterns.addAll(pieceToCopy.movementPatterns);
     }
 
-
-    /**
-     * Gets the color of this piece
-     *
-     * @return the color of this piece
-     */
-    public ChessColor getColor() {
-        return color;
-    }
-
-    /**
-     * Gets the type of this piece.
-     *
-     * @return the <code>Piece.Type</code> of this piece.
-     */
-    @NonNull
-    public Type getType() {
-        return type;
-    }
-
-    /**
-     * Gets the starting position of this piece, or in the event of a promoted piece, the starting position of the pawn this piece was promoted from.
-     *
-     * @return the starting position of this piece
-     */
-    public Coordinate getStartingPosition() {
-        return startingPosition;
-    }
-
-    /**
-     * Sets the piece as moved.
-     */
-    public void setAsMoved() {
-        if (!hasMoved) {
-            this.hasMoved = true;
-            log(this + " has been set as moved.");
-        }
-    }
-
     /**
      * adds a movement pattern to the piece's collection of movement patterns.
      *
@@ -117,12 +76,12 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
     }
 
     /**
-     * Checks to see if this piece has moved
+     * Gets the color of this piece
      *
-     * @return true if this piece has moved, otherwise returns false
+     * @return the color of this piece
      */
-    public boolean hasMoved() {
-        return hasMoved;
+    public ChessColor getColor() {
+        return color;
     }
 
     /**
@@ -132,6 +91,43 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
      */
     public Collection<MovementPattern> getMovementPatterns() {
         return movementPatterns;
+    }
+
+    /**
+     * Gets the starting position of this piece, or in the event of a promoted piece, the starting position of the pawn this piece was promoted from.
+     *
+     * @return the starting position of this piece
+     */
+    public Coordinate getStartingPosition() {
+        return startingPosition;
+    }
+
+    /**
+     * Gets the type of this piece.
+     *
+     * @return the <code>Piece.Type</code> of this piece.
+     */
+    @NonNull
+    public Type getType() {
+        return type;
+    }
+
+    /**
+     * Checks to see if this piece has moved
+     *
+     * @return true if this piece has moved, otherwise returns false
+     */
+    public boolean hasMoved() {
+        return hasMoved;
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = type.hashCode();
+        hashCode ^= color.hashCode();
+        hashCode ^= startingPosition.hashCode();
+        hashCode ^= Boolean.valueOf(hasMoved).hashCode();
+        return hashCode;
     }
 
     @Override
@@ -161,18 +157,10 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
     }
 
     @Override
-    public int hashCode() {
-        int hashCode = type.hashCode();
-        hashCode ^= color.hashCode();
-        hashCode ^= startingPosition.hashCode();
-        hashCode ^= Boolean.valueOf(hasMoved).hashCode();
-        return hashCode;
-    }
-
-    private void log(String msg) {
-        if (!isClone) {
-            Log.d("Piece on " + Thread.currentThread().getName(), msg);
-        }
+    public Object clone() throws CloneNotSupportedException {
+        Piece clone = (Piece) super.clone();
+        clone.isClone = true;
+        return clone;
     }
 
     @NonNull
@@ -181,14 +169,17 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
         return type.toString();
     }
 
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        Piece clone = (Piece) super.clone();
-        clone.isClone = true;
-        return clone;
+
+    /**
+     * Sets the piece as moved.
+     */
+    public void setAsMoved() {
+        if (!hasMoved) {
+            this.hasMoved = true;
+        }
     }
 
-    public enum PromotionChoice implements JSONConvertable<PromotionChoice> {
+    public enum PromotionChoice implements JSONConvertible<PromotionChoice> {
         PROMOTE_TO_ROOK(0, Type.ROOK),
         PROMOTE_TO_KNIGHT(1, Type.KNIGHT),
         PROMOTE_TO_BISHOP(2, Type.BISHOP),
@@ -215,13 +206,13 @@ public abstract class Piece implements Cloneable { //TODO write unit tests
             return intValue;
         }
 
-        public Type getPieceType() {
-            return pieceType;
-        }
-
         @Override
         public JSONObject getJSONObject() throws JSONException {
             return new JSONObject().put(JSON_PROPERTY_NAME_NAME, toString()).put(JSON_PROPERTY_NAME_INT_VALUE, intValue);
+        }
+
+        public Type getPieceType() {
+            return pieceType;
         }
 
         public static class PromotionChoiceJSONConverter extends JSONConverter<PromotionChoice> {

@@ -1,8 +1,8 @@
 package com.example.jarchess.match.participant;
 
 import com.example.jarchess.match.ChessColor;
-import com.example.jarchess.match.resignation.ResignationEvent;
-import com.example.jarchess.match.resignation.ResignationException;
+import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.events.MatchResultIsInEvent;
 import com.example.jarchess.match.turn.Turn;
 
 /**
@@ -10,8 +10,9 @@ import com.example.jarchess.match.turn.Turn;
  *
  * @author Joshua Zierman
  */
-public class EasyAIOpponent extends AIOpponent {//TODO write unit tests
+public class EasyAIOpponent extends AIOpponent {
 
+    public static final boolean IS_IMPLEMENTED = false; // TODO change this when we implement Easy AI Opponent
     /**
      * Creates an easy AI opponent.
      *
@@ -25,24 +26,21 @@ public class EasyAIOpponent extends AIOpponent {//TODO write unit tests
      * {@inheritDoc}
      */
     @Override
-    public Turn takeFirstTurn() throws ResignationException {
-        return null;//TODO
+    public Turn getFirstTurn() throws MatchActivity.MatchOverException {
+        return null;//FIXME
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Turn takeTurn(Turn lastTurnFromOtherParticipant) throws ResignationException {
-        return null;//TODO
+    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws MatchActivity.MatchOverException {
+        return null;//FIXME
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
     @Override
-    public void observeResignationEvent(ResignationEvent resignationEvent) {
-        //TODO
+    public void observe(MatchResultIsInEvent event) {
+        //FIXME
     }
-
 }
