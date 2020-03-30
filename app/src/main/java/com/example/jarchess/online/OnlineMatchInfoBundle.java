@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.example.jarchess.JarAccount;
 import com.example.jarchess.RemoteOpponentInfoBundle;
+import com.example.jarchess.match.styles.avatar.YellowBlackYellowCircleAvatarStyle;
 import com.example.jarchess.online.move.DatapackageQueue;
 import com.example.jarchess.online.networking.GameIO;
 
@@ -12,7 +13,7 @@ import org.json.JSONObject;
 
 public class OnlineMatchInfoBundle {
     private RemoteOpponentInfoBundle remoteOpponentInfoBundle;
-    private RemoteOpponentInfoBundle localOpponentInfoBundle;
+    private RemoteOpponentInfoBundle playerInfoBundle;
     private JSONObject responseObject;
     private DatapackageQueue datapackageQueue;
     private String gameToken;
@@ -27,6 +28,41 @@ public class OnlineMatchInfoBundle {
 
         // establish connection
         this.gameIO = new GameIO(datapackageQueue, gameToken, remoteOpponentInfoBundle);
+    }
+
+    public RemoteOpponentInfoBundle getBlackOpponentInfoBundle() {
+        if (playerInfoBundle.getColor().equals("black")) {
+            return playerInfoBundle;
+        } else {
+            return remoteOpponentInfoBundle;
+        }
+    }
+
+    public RemoteOpponentInfoBundle getPlayerInfoBundle() {
+        return playerInfoBundle;
+    }
+
+    public DatapackageQueue getDatapackageQueue() {
+        Log.d(TAG, "getDatapackageQueue() called");
+        Log.d(TAG, "getDatapackageQueue is running on thread: " + Thread.currentThread().getName());
+        Log.d(TAG, "getDatapackageQueue() returned: " + datapackageQueue);
+        return datapackageQueue;
+    }
+
+    public String getMatchToken() {
+        return gameToken;
+    }
+
+    public RemoteOpponentInfoBundle getRemoteOpponentInfoBundle() {
+        return remoteOpponentInfoBundle;
+    }
+
+    public RemoteOpponentInfoBundle getWhiteOpponentInfoBundle() {
+        if (playerInfoBundle.getColor().equals("white")) {
+            return playerInfoBundle;
+        } else {
+            return remoteOpponentInfoBundle;
+        }
     }
 
     private void setRemoteOpponentInfoBundle(){
@@ -44,49 +80,22 @@ public class OnlineMatchInfoBundle {
             playerTwo = (String) responseObject.get("player_two");
             gameToken = (String) responseObject.get("game_token");
             playerOneColor = (String) responseObject.get("player_one_color");
-            playerTwoColor = (String) responseObject.get("player_one_color");
+            playerTwoColor = (String) responseObject.get("player_two_color");
             playerOneIp = (String) responseObject.get("player_one_ip");
-            playerTwoIp = (String) responseObject.get("player_one_ip");
+            playerTwoIp = (String) responseObject.get("player_two_ip");
             playerOnePort = (int) responseObject.get("player_one_port");
-            playerTwoPort = (int) responseObject.get("player_one_port");
+            playerTwoPort = (int) responseObject.get("player_two_port");
         } catch (JSONException e) {
             e.printStackTrace();
         }
         if(JarAccount.getInstance().getName().equals(playerOne)){
-            remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerTwo,null,playerOneColor, playerOneIp, playerOnePort);
-            localOpponentInfoBundle = new RemoteOpponentInfoBundle(playerOne, null, playerOneColor, playerOneIp, playerOnePort);
+            remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerTwo,YellowBlackYellowCircleAvatarStyle.getInstance(),playerTwoColor, playerOneIp, playerOnePort);
+            playerInfoBundle = new RemoteOpponentInfoBundle(playerOne, YellowBlackYellowCircleAvatarStyle.getInstance(), playerOneColor, playerOneIp, playerOnePort);
         }else if(JarAccount.getInstance().getName().equals(playerTwo)){
-            remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerOne, null, playerOneColor, playerOneIp, playerOnePort);
-            localOpponentInfoBundle = new RemoteOpponentInfoBundle(playerTwo,null,playerOneColor, playerOneIp, playerOnePort);
+            remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerOne, YellowBlackYellowCircleAvatarStyle.getInstance(), playerOneColor, playerOneIp, playerOnePort);
+            playerInfoBundle = new RemoteOpponentInfoBundle(playerTwo, YellowBlackYellowCircleAvatarStyle.getInstance(), playerTwoColor, playerTwoIp, playerTwoPort);
         }
 
         this.gameToken = gameToken;
-    }
-
-    public RemoteOpponentInfoBundle getBlackOpponentInfoBundle() {
-        if(localOpponentInfoBundle.getColor().equals("black")){
-            return localOpponentInfoBundle;
-        }else{
-            return remoteOpponentInfoBundle;
-        }
-    }
-
-    public DatapackageQueue getDatapackageQueue() {
-        Log.d(TAG, "getDatapackageQueue() called");
-        Log.d(TAG, "getDatapackageQueue is running on thread: " + Thread.currentThread().getName());
-        Log.d(TAG, "getDatapackageQueue() returned: " + datapackageQueue);
-        return datapackageQueue;
-    }
-
-    public String getMatchToken() {
-        return gameToken;
-    }
-
-    public RemoteOpponentInfoBundle getWhiteOpponentInfoBundle() {
-        if(localOpponentInfoBundle.getColor().equals("white")){
-            return localOpponentInfoBundle;
-        }else{
-            return remoteOpponentInfoBundle;
-        }
     }
 }

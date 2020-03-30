@@ -126,17 +126,17 @@ public class OnlineMatchMaker {
                         out = new DataOutputStream(
                                 new BufferedOutputStream(
                                         socket.getOutputStream()));
-
-                        if (!wasCanceled) {
-                            do {
-                                failed = false;
-                                try {
-                                    out.flush();
-                                } catch (SocketTimeoutException e) {
-                                    failed = true;
-                                }
-                            } while (failed && !wasCanceled);
-                        }
+//
+//                        if (!wasCanceled) {
+//                            do {
+//                                failed = false;
+//                                try {
+//                                    out.flush();
+//                                } catch (SocketTimeoutException e) {
+//                                    failed = true;
+//                                }
+//                            } while (failed && !wasCanceled);
+//                        }
 
                         final JSONObject jsonObjFinal = jsonObj;
                         tryUntilSuccessOrCancel(new SocketRunnable() {
@@ -163,13 +163,13 @@ public class OnlineMatchMaker {
 
                         try {
                             JSONObject jsonResp = new JSONObject(respString);
-                            Log.i("Match Creation Response", jsonResp.toString());
+                            Log.i(TAG, jsonResp.toString());
                             onlineMatchInfoBundle = new OnlineMatchInfoBundle(jsonResp);
                             //MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
-                            Log.d(TAG, "run: set online match: " + onlineMatchInfoBundle);
+                            Log.i(TAG, "run: set online match: " + onlineMatchInfoBundle);
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Log.i("OnlineMatchmakerResp", "Error");
+                            Log.i(TAG, "Error");
                         }
                         //use the received information to create an online match
                         lock.notifyAll();
@@ -182,7 +182,10 @@ public class OnlineMatchMaker {
                     } catch (InterruptedException e3) {
                         //just get out
                     } finally {
+                        lock.notifyAll();
                         done = true;
+                        lock.notifyAll();
+                        Log.d(TAG, "run: onlineMatchMaker thread set done true");
                         for (Closeable c : new Closeable[]{in, out, socket}) {
                             if (c != null) {
                                 try {
@@ -204,6 +207,7 @@ public class OnlineMatchMaker {
 
         t.start();
         synchronized (lock) {
+            Log.i(TAG, "wasCaceled = " + wasCanceled);
             while (!done && !wasCanceled) {
                 lock.wait(500);
             }
@@ -219,6 +223,9 @@ public class OnlineMatchMaker {
                 }
             }
         }
+
+
+        Log.d(TAG, "getOnlineMatchInfoBundle() returned: " + onlineMatchInfoBundle);
         return onlineMatchInfoBundle;
     }
 

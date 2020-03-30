@@ -1,4 +1,4 @@
-package com.example.jarchess.match.styles;
+package com.example.jarchess.match.styles.chessboard;
 
 import com.example.jarchess.R;
 import com.example.jarchess.match.Coordinate;

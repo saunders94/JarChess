@@ -1,12 +1,12 @@
 package com.example.jarchess;
 
 import com.example.jarchess.match.clock.MatchClockChoice;
-import com.example.jarchess.match.styles.AvatarStyle;
-import com.example.jarchess.match.styles.ChessboardStyle;
-import com.example.jarchess.match.styles.ChesspieceStyle;
-import com.example.jarchess.match.styles.LeopardPrintAvatarStyle;
-import com.example.jarchess.match.styles.MarbleChessboardStyle;
-import com.example.jarchess.match.styles.NeonLetterChesspieceStyle;
+import com.example.jarchess.match.styles.avatar.AvatarStyle;
+import com.example.jarchess.match.styles.avatar.LeopardPrintAvatarStyle;
+import com.example.jarchess.match.styles.chessboard.ChessboardStyle;
+import com.example.jarchess.match.styles.chessboard.MarbleChessboardStyle;
+import com.example.jarchess.match.styles.chesspiece.ChesspieceStyle;
+import com.example.jarchess.match.styles.chesspiece.NeonLetterChesspieceStyle;
 
 import java.io.IOException;
 

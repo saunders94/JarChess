@@ -7,21 +7,20 @@ import com.example.jarchess.online.datapackage.Datapackage;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class DatapackageQueue {
-    private LinkedBlockingQueue<Datapackage> localDatapackageQueue;
-    private LinkedBlockingQueue<Datapackage> networkDatapackageQueue;
+    private final String TAG = "DatapackageQueue";
+    private LinkedBlockingQueue<Datapackage> clientBoundDatapackageQueue;
+    private LinkedBlockingQueue<Datapackage> serverBoundDatapackageQueue;
     private String gameId;
 
     public DatapackageQueue() {
-
-
-        this.localDatapackageQueue = new LinkedBlockingQueue<Datapackage>();
-        this.networkDatapackageQueue = new LinkedBlockingQueue<Datapackage>();
+        this.clientBoundDatapackageQueue = new LinkedBlockingQueue<Datapackage>();
+        this.serverBoundDatapackageQueue = new LinkedBlockingQueue<Datapackage>();
     }
 
-    public Datapackage getLocalDatapackage() {
+    public Datapackage getClientBoundDatapackage() {
         try {
-            Datapackage datapackage = localDatapackageQueue.take();
-            Log.d("DatapackageQueue", "getInboundDatapackage: " + datapackage);
+            Datapackage datapackage = clientBoundDatapackageQueue.take();
+            Log.i(TAG, "getClientBoundDatapackage: " + datapackage);
             return datapackage;
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -29,10 +28,10 @@ public class DatapackageQueue {
         return null;
     }
 
-    public Datapackage getNetworkDatapackageQueue() {
+    public Datapackage getServerBoundDatapackage() {
         try {
-            Datapackage datapackage = networkDatapackageQueue.take();
-            Log.d("DatapackageQueue", "getOutboundDatapackage: " + datapackage);
+            Datapackage datapackage = serverBoundDatapackageQueue.take();
+            Log.i(TAG, "getServerBoundDatapackage: " + datapackage);
             return datapackage;
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -40,17 +39,19 @@ public class DatapackageQueue {
         return null;
     }
 
-    public void insertLocalDatapackageQueue(Datapackage datapackage) {
+    public void insertClientBoundDatapackageQueue(Datapackage datapackage) {
         try {
-            localDatapackageQueue.put(datapackage);
+            Log.i(TAG, "insertClientBoundDatapackageQueue: " + datapackage);
+            clientBoundDatapackageQueue.put(datapackage);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    public void insertNetworkDatapackageQueue(Datapackage datapackage) {
+    public void insertServerBoundDatapackageQueue(Datapackage datapackage) {
         try {
-            networkDatapackageQueue.put(datapackage);
+            Log.i(TAG, "insertServerBoundDatapackageQueue: " + datapackage);
+            serverBoundDatapackageQueue.put(datapackage);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

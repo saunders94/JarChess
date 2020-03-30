@@ -12,7 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-
+import com.example.jarchess.online.usermanagement.Account;
 
 public class MainActivity extends AppCompatActivity implements ProfileSignIn.SignInCommunicator,
     ProfileMenu.signOutCommunicator {
@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
         super.onBackPressed();
 
         // cancel matchmaking
-        OnlineMatchMaker.getInstance().cancel();
+        //OnlineMatchMaker.getInstance().cancel();
     }
 
 

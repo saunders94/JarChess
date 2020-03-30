@@ -2,6 +2,7 @@ package com.example.jarchess.online.datapackage;
 
 import android.util.Log;
 
+import com.example.jarchess.LoggedThread;
 import com.example.jarchess.match.resignation.ResignationReciever;
 import com.example.jarchess.match.resignation.ResignationSender;
 import com.example.jarchess.match.result.ResignationResult;
@@ -35,6 +36,9 @@ public class MatchNetworkIO {
         private boolean isAlive;
 
         public Sender(final DatapackageSender datapackageSender, String destinationIP, int destinationPort) {
+            Log.d(TAG, "Sender() called with: datapackageSender = [" + datapackageSender + "], destinationIP = [" + destinationIP + "], destinationPort = [" + destinationPort + "]");
+            Log.d(TAG, "Sender is running on thread: " + Thread.currentThread().getName());
+
             this.datapackageSender = datapackageSender;
             this.destinationIP = destinationIP;
             this.destinationPort = destinationPort;
@@ -53,13 +57,17 @@ public class MatchNetworkIO {
                     try {
                         synchronized (lock) {
                             while (isAlive) {
+                                Log.d(TAG, "run: waiting wile outgoing datapackages are empty");
                                 waitWhileEmpty(outGoingDatapackages);
+                                Log.i(TAG, "run: ready to send");
                                 datapackageSender.send(outGoingDatapackages.remove());
+                                Log.i(TAG, "run: sent");
                             }
                         }
                     } catch (InterruptedException e1) {
                         Log.e(TAG, "got interrupted ", e1);
                     } finally {
+                        Log.d(TAG, "run: closing anything we need to close");
                         try {
                             close();
                         } catch (IOException e2) {
@@ -70,11 +78,14 @@ public class MatchNetworkIO {
                 }
             };
 
-            new Thread(runnable, "MatchNetworkSender").start();
+            new LoggedThread(TAG, runnable, "MatchNetworkSender").start();
         }
 
         @Override
         public void close() throws IOException {
+            Log.d(TAG, "close() called");
+            Log.d(TAG, "close is running on thread: " + Thread.currentThread().getName());
+
             Queue<IOException> ioExceptions = new LinkedList<IOException>();
 
             synchronized (lock) {
@@ -100,23 +111,36 @@ public class MatchNetworkIO {
 
         @Override
         public void send(Turn turn) {
+            Log.d(TAG, "send() called with: turn = [" + turn + "]");
+            Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
+
+            Log.d(TAG, "send: waiting for lock");
             synchronized (lock) {
+                Log.d(TAG, "send: got lock");
                 outGoingDatapackages.add(new Datapackage(turn, destinationIP, destinationPort));
             }
+            Log.d(TAG, "send() returned: ");
         }
 
         @Override
         public void send(ResignationResult resignationResult) {
+            Log.d(TAG, "send() called with: resignationResult = [" + resignationResult + "]");
+            Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
+
             synchronized (lock) {
                 Datapackage datapackage = new Datapackage(RESIGNATION, destinationIP, destinationPort);
                 outGoingDatapackages.add(datapackage);
+                lock.notifyAll();
             }
         }
 
         private synchronized void waitWhileEmpty(Queue<?> queue) throws InterruptedException {
+            Log.d(TAG, "waitWhileEmpty() called with: queue = [" + queue + "]");
+            Log.d(TAG, "waitWhileEmpty is running on thread: " + Thread.currentThread().getName());
+
             synchronized (lock) {
                 while (queue.isEmpty()) {
-                    lock.wait();
+                    lock.wait(50);
                 }
             }
         }
@@ -134,6 +158,8 @@ public class MatchNetworkIO {
         private boolean isAlive;
 
         public Receiver(final DatapackageReceiver datapackageReceiver) {
+            Log.d(TAG, "Receiver() called with: datapackageReceiver = [" + datapackageReceiver + "]");
+            Log.d(TAG, "Receiver is running on thread: " + Thread.currentThread().getName());
             this.datapackageReceiver = datapackageReceiver;
             if (datapackageReceiver instanceof Closeable) {
                 closeables.add((Closeable) datapackageReceiver);
@@ -187,6 +213,8 @@ public class MatchNetworkIO {
 
         @Override
         public void close() throws IOException {
+            Log.d(TAG, "close() called");
+            Log.d(TAG, "close is running on thread: " + Thread.currentThread().getName());
             Queue<IOException> ioExceptions = new LinkedList<IOException>();
 
             synchronized (lock) {
@@ -212,6 +240,8 @@ public class MatchNetworkIO {
 
         @Override
         public Turn receiveNextTurn() throws InterruptedException {
+            Log.d(TAG, "receiveNextTurn() called");
+            Log.d(TAG, "receiveNextTurn is running on thread: " + Thread.currentThread().getName());
 
             synchronized (lock) {
                 waitWhileEmpty(incomingTurns);
@@ -221,7 +251,8 @@ public class MatchNetworkIO {
 
         @Override
         public ResignationResult recieveNextResignation() throws InterruptedException {
-
+            Log.d(TAG, "recieveNextResignation() called");
+            Log.d(TAG, "recieveNextResignation is running on thread: " + Thread.currentThread().getName());
             synchronized (lock) {
                 waitWhileEmpty(incomingResignationResults);
                 return incomingResignationResults.remove();
@@ -230,16 +261,20 @@ public class MatchNetworkIO {
 
 
         private synchronized void waitWhileEmpty(Queue<?> queue) throws InterruptedException {
+            Log.d(TAG, "waitWhileEmpty() called with: queue = [" + queue + "]");
+            Log.d(TAG, "waitWhileEmpty is running on thread: " + Thread.currentThread().getName());
             synchronized (lock) {
                 while (queue.isEmpty()) {
-                    lock.wait();
+                    lock.wait(50);
                 }
             }
         }
     }
 
     public static class DatapackageQueueAdapter implements DatapackageSender, DatapackageReceiver {
+        private static final String TAG = "MatchNetworkIO.DQA";
         private final DatapackageQueue queue;
+
 
         public DatapackageQueueAdapter(DatapackageQueue queue) {
             this.queue = queue;
@@ -247,12 +282,21 @@ public class MatchNetworkIO {
 
         @Override
         public Datapackage recieveNextDatapackage() throws InterruptedException {
-            return queue.getLocalDatapackage();
+            Log.d(TAG, "recieveNextDatapackage() called");
+            Log.d(TAG, "recieveNextDatapackage is running on thread: " + Thread.currentThread().getName());
+            Datapackage tmp = queue.getClientBoundDatapackage();
+
+            Log.d(TAG, "recieveNextDatapackage() returned: " + tmp);
+            return tmp;
+
         }
 
         @Override
         public void send(Datapackage datapackage) {
-            queue.insertLocalDatapackageQueue(datapackage);
+            Log.d(TAG, "send() called with: datapackage = [" + datapackage + "]");
+            Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
+            queue.insertServerBoundDatapackageQueue(datapackage);
+            Log.d(TAG, "send() returned: ");
         }
     }
 }

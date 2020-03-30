@@ -8,7 +8,7 @@ import com.example.jarchess.match.events.MatchResultIsInEvent;
 import com.example.jarchess.match.events.MatchResultIsInEventManager;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.pieces.Piece;
-import com.example.jarchess.match.styles.AvatarStyle;
+import com.example.jarchess.match.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.testmode.TestableCurrentTime;
 

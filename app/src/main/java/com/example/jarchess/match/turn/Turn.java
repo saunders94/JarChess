@@ -1,5 +1,7 @@
 package com.example.jarchess.match.turn;
 
+import androidx.annotation.NonNull;
+
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.pieces.Piece;
@@ -80,6 +82,17 @@ public class Turn implements JSONConvertible<Turn> {
         return jsonObject;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        try {
+            return getJSONObject().toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return this.getClass().getSimpleName() + ".toString() failed";
+    }
+
     /**
      * Gets the move that was made during this turn.
      *
@@ -129,5 +142,6 @@ public class Turn implements JSONConvertible<Turn> {
             }
             return new Turn(color, move, elapsedTime, promotionChoice);
         }
+
     }
 }
