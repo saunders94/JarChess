@@ -72,7 +72,6 @@ public class GameIO {
             jsonObject.put("username", JarAccount.getInstance().getName());
             jsonObject.put("game_token",gameToken);
             jsonObject.put("signon_token",JarAccount.getInstance().getSignonToken());
-            Log.i(TAG, jsonObject.toString());
             Log.i(TAG,"getLocalDatapackage");
             Datapackage datapackage = datapackageQueue.getLocalDatapackage();
             jsonObject = datapackage.getJSONObject();

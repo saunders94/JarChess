@@ -17,7 +17,7 @@ public class DatapackageQueue {
         this.networkDatapackageQueue = new LinkedBlockingQueue<Datapackage>();
     }
 
-    public Datapackage getLocalDatapackage() {
+    public Datapackage getClientBoundDatapackage() {
         try {
             Datapackage datapackage = localDatapackageQueue.take();
             Log.i(TAG, "getLocalDatapackage: " + datapackage);
@@ -28,7 +28,7 @@ public class DatapackageQueue {
         return null;
     }
 
-    public Datapackage getNetworkDatapackageQueue() {
+    public Datapackage getServerBoundDatapackageQueue() {
         try {
             Datapackage datapackage = networkDatapackageQueue.take();
             Log.i(TAG, "getNetworkDatapackageQueue: " + datapackage);
@@ -39,7 +39,7 @@ public class DatapackageQueue {
         return null;
     }
 
-    public void insertLocalDatapackageQueue(Datapackage datapackage) {
+    public void insertClientBoundDatapackageQueue(Datapackage datapackage) {
         try {
             Log.i(TAG, "insertLocalDatapackageQueue: " + datapackage);
             localDatapackageQueue.put(datapackage);
@@ -48,7 +48,7 @@ public class DatapackageQueue {
         }
     }
 
-    public void insertNetworkDatapackageQueue(Datapackage datapackage) {
+    public void insertServerBoundDatapackageQueue(Datapackage datapackage) {
         try {
             Log.i(TAG, "insertNetworkDatapackageQueue: " + datapackage);
             networkDatapackageQueue.put(datapackage);
