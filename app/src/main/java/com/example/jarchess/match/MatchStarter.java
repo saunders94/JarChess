@@ -17,7 +17,7 @@ import com.example.jarchess.match.participant.LocalParticipantController;
 import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.online.OnlineMatchInfoBundle;
 
-import static com.example.jarchess.online.datapackage.MatchNetworkIO.DatapackageQueueAdapter;
+import static com.example.jarchess.match.MatchNetworkIO.DatapackageQueueAdapter;
 
 //TODO javadocs
 public class MatchStarter {

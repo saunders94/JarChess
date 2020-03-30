@@ -1,5 +1,6 @@
 package com.example.jarchess.online.networking;
 
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.example.jarchess.JarAccount;
@@ -64,6 +65,7 @@ public class GameIO {
         if(remoteOpponentInfoBundle.getColor().toString().equals("WHITE")){
             Log.i(TAG,"Initial move - waiting for oponent to move");
             int response = in.read(buffer);
+            String respString = new String(buffer).trim();
             String respSting = new String(buffer).trim();
             Log.i(TAG, "Response: " + respSting);
             datapackageQueue.insertClientBoundDatapackageQueue(
@@ -78,7 +80,7 @@ public class GameIO {
             Log.i(TAG,"JsonObject: " + jsonObject.toString());
             Log.i(TAG,"getClientBoundDatapackage");
             Datapackage datapackage = datapackageQueue.getServerBoundDatapackage();
-            jsonObject.put("datapackage", datapackage.getJSONObject());
+            jsonObject.put("move",datapackage.getJSONObject());
             Log.i(TAG,"JsonObject: " + jsonObject.toString());
             Log.i(TAG,"sending datapackage");
             out.writeUTF(jsonObject.toString());
@@ -86,9 +88,7 @@ public class GameIO {
             Log.i(TAG,"waiting on IO");
             int response = in.read(buffer);
             String respSting = new String(buffer).trim();
-            Log.i(TAG, "response was : " + respSting);
-            Log.i(TAG, "sending the response back to client.");
-            jsonObject = new JSONObject(respSting);
+            Log.i(TAG,"insertClientBoundDatapackageQueue");
             datapackageQueue.insertClientBoundDatapackageQueue(
                     Datapackage.DatapackageJSONConverter.getInstance().convertFromJSONObject(jsonObject));
         }

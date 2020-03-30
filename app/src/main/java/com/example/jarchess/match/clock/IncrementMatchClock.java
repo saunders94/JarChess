@@ -225,8 +225,10 @@ public abstract class IncrementMatchClock implements MatchClock {
 
                 //handle timeout
                 if (currentDisplayTimeMillis[i] <= 0L) {
+                    Log.i(TAG, "syncEnd: The participant ran out of time.");
                     handleFlagFall(colorEndingTurn);
                 } else {
+                    Log.i(TAG, "syncEnd: The participant did not run out of time.");
                     //add increment to time
                     Log.i(TAG, "syncEnd: add " + (long) getIncrementSeconds(turn[i]) + " seconds");
                     currentDisplayTimeMillis[i] += (long) getIncrementSeconds(turn[i]) * 1000L;
@@ -241,10 +243,14 @@ public abstract class IncrementMatchClock implements MatchClock {
 
                 displayTimeAtLastSync[i] = currentDisplayTimeMillis[i];
             } else {
-                Log.e(TAG, "syncEnd: Attempting to sync end on with the non running color");
+                String msg = "syncEnd: Attempting to sync end on with the non running color";
+                Log.e(TAG, msg);
+                throw new RuntimeException(msg);
             }
         } else {
-            Log.e(TAG, "syncEnd: called after flag has fallen");
+            String msg = "syncEnd: called after flag has fallen";
+            Log.e(TAG, msg);
+            throw new RuntimeException(msg);
         }
 
     }

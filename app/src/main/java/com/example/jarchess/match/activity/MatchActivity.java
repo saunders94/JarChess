@@ -108,7 +108,6 @@ public abstract class MatchActivity extends AppCompatActivity
 
             if (p instanceof Pawn && (movement.getDestination().getRank() == 1 || movement.getDestination().getRank() == 8)) {
 
-                matchView.updateViewBefore(movement);
                 matchView.setPromotionIndicator(movement.getDestination());
                 matchView.showPawnPromotionChoiceDialog();
                 while (promotionChoiceInput == null) {
@@ -192,11 +191,12 @@ public abstract class MatchActivity extends AppCompatActivity
 
     private synchronized void commit() {
         if (originInput != null && destinationInput != null) {
+            PieceMovement movement = new PieceMovement(originInput, destinationInput);
 
             LinkedList<PieceMovement> movements = new LinkedList<PieceMovement>(match.getLegalCastleMovements(originInput, destinationInput));
 
             if (movements.isEmpty()) {
-                movements.add(new PieceMovement(originInput, destinationInput));
+                movements.add(movement);
             }
             move = new Move(movements);
             waitingForMove = null;
@@ -204,6 +204,11 @@ public abstract class MatchActivity extends AppCompatActivity
 
             clearDestinationInput();
             clearOriginInput();
+
+            // update the view to show changes immediately (before match verifies the move is legal)
+            for (PieceMovement m : movements) {
+                matchView.updateViewBefore(m);
+            }
         }
     }
 
