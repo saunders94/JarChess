@@ -1,6 +1,6 @@
 package com.example.jarchess.match.result;
 
-public abstract class DrawResult extends Result {
+public abstract class DrawResult extends ChessMatchResult {
     public DrawResult() {
         super(null);
     }

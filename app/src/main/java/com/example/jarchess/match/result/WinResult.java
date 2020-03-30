@@ -2,7 +2,7 @@ package com.example.jarchess.match.result;
 
 import com.example.jarchess.match.ChessColor;
 
-public abstract class WinResult extends Result {
+public abstract class WinResult extends ChessMatchResult {
     public WinResult(ChessColor winnerColor) {
         super(winnerColor);
     }

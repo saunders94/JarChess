@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.example.jarchess.R;
 import com.example.jarchess.match.activity.MatchActivity;
-import com.example.jarchess.match.result.Result;
+import com.example.jarchess.match.result.ChessMatchResult;
 
 import static android.support.constraint.Constraints.TAG;
 
@@ -63,8 +63,8 @@ class MatchResultDialog {
         });
     }
 
-    public void show(Result matchResult) {
-        final String msg = matchResult.toString();
+    public void show(ChessMatchResult matchChessMatchResult) {
+        final String msg = matchChessMatchResult.toString();
 
         activity.runOnUiThread(new Runnable() {
             @Override

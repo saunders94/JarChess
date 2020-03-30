@@ -4,10 +4,10 @@ import androidx.annotation.NonNull;
 
 import com.example.jarchess.match.ChessColor;
 
-public abstract class Result {
+public abstract class ChessMatchResult {
     final ChessColor winnerColor;
 
-    public Result(ChessColor winnerColor) {
+    public ChessMatchResult(ChessColor winnerColor) {
         this.winnerColor = winnerColor;
     }
 
