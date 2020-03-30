@@ -48,7 +48,7 @@ public class MainMenu extends Fragment {
                 FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
                 AiDifficulty aiDifficulty = new AiDifficulty();
                 transaction.replace(R.id.fragmentHole, aiDifficulty);
-                transaction.addToBackStack(null);
+                transaction.addToBackStack("sin");
                 transaction.commit();
             }
         });
@@ -59,7 +59,7 @@ public class MainMenu extends Fragment {
                 FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
                 MultiplayerType multiplayerType = new MultiplayerType();
                 transaction.replace(R.id.fragmentHole, multiplayerType);
-                transaction.addToBackStack(null);
+                transaction.addToBackStack("mul");
                 transaction.commit();
             }
         });
@@ -70,7 +70,7 @@ public class MainMenu extends Fragment {
                 FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
                 Leaderboard leaderboard = new Leaderboard();
                 transaction.replace(R.id.fragmentHole, leaderboard);
-                transaction.addToBackStack(null);
+                transaction.addToBackStack("led");
                 transaction.commit();
             }
         });

@@ -56,13 +56,9 @@ public class MultiplayerType extends Fragment {
         localButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("Local button pressed");
-                //FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                //MainMenu mainMenu = new MainMenu();
-                //transaction.replace(R.id.fragmentHole, mainMenu);
-                //transaction.commit();
 
                 MatchStarter.getInstance().setMatchClockChoice(JarAccount.getInstance().getPreferredMatchClock());
+
 
                 Intent intent = new Intent(getActivity(), LocalMultiplayerMatchActivity.class);
                 startActivity(intent);
@@ -73,11 +69,7 @@ public class MultiplayerType extends Fragment {
         onlineButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("Online button pressed");
-                //FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                //MainMenu mainMenu = new MainMenu();
-                //transaction.replace(R.id.fragmentHole, mainMenu);
-                //transaction.commit();
+
                 try {
                     if (JarAccount.getInstance().isLoggedIn()) {
                         Log.i(TAG, "onClick: account was logged in");
@@ -98,6 +90,7 @@ public class MultiplayerType extends Fragment {
                     int duration = Toast.LENGTH_LONG;
                     Toast.makeText(v.getContext(), "Cannot connect to the server. Please make sure you have internet access.", duration).show();
                 }
+
 
             }
         });
