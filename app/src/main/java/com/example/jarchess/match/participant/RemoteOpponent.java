@@ -118,9 +118,9 @@ public class RemoteOpponent implements MatchParticipant {
 
     @Override
     public void observe(MatchResultIsInEvent event) {
-
-        // send the match result
-        matchResultSender.send();
+//
+//        // send the match result
+//        matchResultSender.send();
     }
 
     /**
