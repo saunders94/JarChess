@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.example.jarchess.JarAccount;
 import com.example.jarchess.RemoteOpponentInfoBundle;
-import com.example.jarchess.match.styles.YellowBlackYellowCircleAvatarStyle;
+import com.example.jarchess.match.styles.avatar.YellowBlackYellowCircleAvatarStyle;
 import com.example.jarchess.online.move.DatapackageQueue;
 import com.example.jarchess.online.networking.GameIO;
 

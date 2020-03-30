@@ -1,4 +1,4 @@
-package com.example.jarchess.match.styles;
+package com.example.jarchess.match.styles.avatar;
 
 import com.example.jarchess.R;
 

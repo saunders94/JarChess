@@ -1,7 +1,7 @@
 package com.example.jarchess;
 
 import com.example.jarchess.match.ChessColor;
-import com.example.jarchess.match.styles.AvatarStyle;
+import com.example.jarchess.match.styles.avatar.AvatarStyle;
 
 public class RemoteOpponentInfoBundle {
     private final String name;

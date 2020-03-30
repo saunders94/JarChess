@@ -11,8 +11,7 @@ import com.example.jarchess.match.events.MatchResultIsInEvent;
 import com.example.jarchess.match.events.MatchResultIsInEventManager;
 import com.example.jarchess.match.resignation.ResignationReciever;
 import com.example.jarchess.match.resignation.ResignationSender;
-import com.example.jarchess.match.result.ResignationResult;
-import com.example.jarchess.match.styles.AvatarStyle;
+import com.example.jarchess.match.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.turn.TurnReceiver;
 import com.example.jarchess.match.turn.TurnSender;
@@ -41,7 +40,7 @@ public class RemoteOpponent implements MatchParticipant {
     private final TurnSender turnSender;
     private final Queue<Turn> recievedTurns = new ConcurrentLinkedQueue<Turn>();
     private final TurnReceiver turnReceiver;
-    private final ResignationSender resignationSender;
+    private final ResignationSender matchResultSender;
     private final ResignationReciever resignationReciever;
     private boolean alive;
     private static final String TAG = "RemoteOpponent";
@@ -61,7 +60,7 @@ public class RemoteOpponent implements MatchParticipant {
         MatchNetworkIO.Receiver mNIOReceiver = new MatchNetworkIO.Receiver(receiver);
         this.turnSender = mNIOSender;
         this.turnReceiver = mNIOReceiver;
-        this.resignationSender = mNIOSender;
+        this.matchResultSender = mNIOSender;
         this.resignationReciever = mNIOReceiver;
         MatchResultIsInEventManager.getInstance().add(this);
 
@@ -119,7 +118,9 @@ public class RemoteOpponent implements MatchParticipant {
 
     @Override
     public void observe(MatchResultIsInEvent event) {
-
+//
+//        // send the match result
+//        matchResultSender.send();
     }
 
     /**
@@ -127,7 +128,7 @@ public class RemoteOpponent implements MatchParticipant {
      */
     @Override
     public void resign() {
-        resignationSender.send(new ResignationResult(colorOfOtherParticipant));
+        //
     }
 
     /**
