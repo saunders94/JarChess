@@ -86,7 +86,9 @@ public class GameIO {
             Log.i(TAG,"waiting on IO");
             int response = in.read(buffer);
             String respSting = new String(buffer).trim();
-            Log.i(TAG,"insertClientBoundDatapackageQueue");
+            Log.i(TAG, "response was : " + respSting);
+            Log.i(TAG, "sending the response back to client.");
+            jsonObject = new JSONObject(respSting);
             datapackageQueue.insertClientBoundDatapackageQueue(
                     Datapackage.DatapackageJSONConverter.getInstance().convertFromJSONObject(jsonObject));
         }
