@@ -1,6 +1,5 @@
 package com.example.jarchess.online.networking;
 
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.example.jarchess.JarAccount;
@@ -74,7 +73,7 @@ public class GameIO {
             jsonObject.put("game_token",gameToken);
             jsonObject.put("signon_token",JarAccount.getInstance().getSignonToken());
             Log.i(TAG,"getClientBoundDatapackage");
-            Datapackage datapackage = datapackageQueue.getServerBoundDatapackageQueue();
+            Datapackage datapackage = datapackageQueue.getServerBoundDatapackage();
             jsonObject = datapackage.getJSONObject();
             Log.i(TAG,"sending datapackage");
             out.writeUTF(jsonObject.toString());

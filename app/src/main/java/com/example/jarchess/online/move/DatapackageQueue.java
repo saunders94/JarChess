@@ -8,19 +8,19 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class DatapackageQueue {
     private final String TAG = "DatapackageQueue";
-    private LinkedBlockingQueue<Datapackage> localDatapackageQueue;
-    private LinkedBlockingQueue<Datapackage> networkDatapackageQueue;
+    private LinkedBlockingQueue<Datapackage> clientBoundDatapackageQueue;
+    private LinkedBlockingQueue<Datapackage> serverBoundDatapackageQueue;
     private String gameId;
 
     public DatapackageQueue() {
-        this.localDatapackageQueue = new LinkedBlockingQueue<Datapackage>();
-        this.networkDatapackageQueue = new LinkedBlockingQueue<Datapackage>();
+        this.clientBoundDatapackageQueue = new LinkedBlockingQueue<Datapackage>();
+        this.serverBoundDatapackageQueue = new LinkedBlockingQueue<Datapackage>();
     }
 
     public Datapackage getClientBoundDatapackage() {
         try {
-            Datapackage datapackage = localDatapackageQueue.take();
-            Log.i(TAG, "getLocalDatapackage: " + datapackage);
+            Datapackage datapackage = clientBoundDatapackageQueue.take();
+            Log.i(TAG, "getClientBoundDatapackage: " + datapackage);
             return datapackage;
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -28,10 +28,10 @@ public class DatapackageQueue {
         return null;
     }
 
-    public Datapackage getServerBoundDatapackageQueue() {
+    public Datapackage getServerBoundDatapackage() {
         try {
-            Datapackage datapackage = networkDatapackageQueue.take();
-            Log.i(TAG, "getNetworkDatapackageQueue: " + datapackage);
+            Datapackage datapackage = serverBoundDatapackageQueue.take();
+            Log.i(TAG, "getServerBoundDatapackage: " + datapackage);
             return datapackage;
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -41,8 +41,8 @@ public class DatapackageQueue {
 
     public void insertClientBoundDatapackageQueue(Datapackage datapackage) {
         try {
-            Log.i(TAG, "insertLocalDatapackageQueue: " + datapackage);
-            localDatapackageQueue.put(datapackage);
+            Log.i(TAG, "insertClientBoundDatapackageQueue: " + datapackage);
+            clientBoundDatapackageQueue.put(datapackage);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -50,8 +50,8 @@ public class DatapackageQueue {
 
     public void insertServerBoundDatapackageQueue(Datapackage datapackage) {
         try {
-            Log.i(TAG, "insertNetworkDatapackageQueue: " + datapackage);
-            networkDatapackageQueue.put(datapackage);
+            Log.i(TAG, "insertServerBoundDatapackageQueue: " + datapackage);
+            serverBoundDatapackageQueue.put(datapackage);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
