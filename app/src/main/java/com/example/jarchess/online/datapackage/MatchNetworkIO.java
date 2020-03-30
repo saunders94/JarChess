@@ -114,9 +114,12 @@ public class MatchNetworkIO {
             Log.d(TAG, "send() called with: turn = [" + turn + "]");
             Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
 
+            Log.d(TAG, "send: waiting for lock");
             synchronized (lock) {
+                Log.d(TAG, "send: got lock");
                 outGoingDatapackages.add(new Datapackage(turn, destinationIP, destinationPort));
             }
+            Log.d(TAG, "send() returned: ");
         }
 
         @Override
@@ -127,6 +130,7 @@ public class MatchNetworkIO {
             synchronized (lock) {
                 Datapackage datapackage = new Datapackage(RESIGNATION, destinationIP, destinationPort);
                 outGoingDatapackages.add(datapackage);
+                lock.notifyAll();
             }
         }
 
@@ -136,7 +140,7 @@ public class MatchNetworkIO {
 
             synchronized (lock) {
                 while (queue.isEmpty()) {
-                    lock.wait();
+                    lock.wait(50);
                 }
             }
         }
@@ -261,14 +265,14 @@ public class MatchNetworkIO {
             Log.d(TAG, "waitWhileEmpty is running on thread: " + Thread.currentThread().getName());
             synchronized (lock) {
                 while (queue.isEmpty()) {
-                    lock.wait();
+                    lock.wait(50);
                 }
             }
         }
     }
 
     public static class DatapackageQueueAdapter implements DatapackageSender, DatapackageReceiver {
-        private static final String TAG = "DatapackageQueueAdapter";
+        private static final String TAG = "MatchNetworkIO.DQA";
         private final DatapackageQueue queue;
 
 
