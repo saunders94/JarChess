@@ -1,13 +1,18 @@
 package com.example.jarchess;
 
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 
 /**
@@ -15,6 +20,7 @@ import android.widget.Button;
  */
 public class ProfileMenu extends Fragment {
 
+    private signOutCommunicator callback;
     private Button changeAvatarButton;
     private Button friendListButton;
     private Button changePasswordButton;
@@ -43,6 +49,7 @@ public class ProfileMenu extends Fragment {
     }
 
     private void setupListeners() {
+        final int duration = Toast.LENGTH_SHORT;
         changeAvatarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,13 +86,37 @@ public class ProfileMenu extends Fragment {
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                //MainMenu mainMenu = new MainMenu();
-                //transaction.replace(R.id.fragmentHole, mainMenu);
-                //transaction.addToBackStack(null);
-                //transaction.commit();
+                int duration = Toast.LENGTH_SHORT;
+
+                if (callback.onLogout()) {
+                    FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
+                    MainMenu mainMenu = new MainMenu();
+                    transaction.replace(R.id.fragmentHole, mainMenu);
+                    transaction.addToBackStack("mai");
+                    transaction.commit();
+
+                    Toast toast = Toast.makeText(v.getContext(), "Logout Successful", duration);
+                    toast.show();
+
+                } else {
+                    Toast toast = Toast.makeText(v.getContext(), "Logout Failed", duration);
+                    toast.show();
+                    //We could probably go more in-depth for why the login failed
+
+                }
+
             }
         });
+    }
+
+
+    //This allows the main activity to share an instance for communication
+    public void setCommunicator(signOutCommunicator callback) {
+        this.callback = callback;
+    }
+
+    public interface signOutCommunicator {
+        boolean onLogout();
     }
 
 }
