@@ -14,7 +14,7 @@ import android.view.View;
 import android.widget.TextView;
 
 
-public class MainActivity extends AppCompatActivity implements ProfileSignIn.signInCommunicator,
+public class MainActivity extends AppCompatActivity implements ProfileSignIn.SignInCommunicator,
     ProfileMenu.signOutCommunicator {
 
 
@@ -36,11 +36,15 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
         OnlineMatchMaker.getInstance().cancel();
     }
 
+
     @Override
     public void onAttachFragment(Fragment fragment) {
         if (fragment instanceof ProfileSignIn) {
             ProfileSignIn signInFragment = (ProfileSignIn) fragment;
             signInFragment.setCommunicator(this);
+        } else if (fragment instanceof ProfileMenu) {
+            ProfileMenu profileMenuFragment = (ProfileMenu) fragment;
+            profileMenuFragment.setCommunicator(this);
         }
     }
 
@@ -212,17 +216,6 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
 
 
     @Override
-    public void onAttachFragment(Fragment fragment) {
-        if (fragment instanceof ProfileSignIn) {
-            ProfileSignIn signInFragment = (ProfileSignIn) fragment;
-            signInFragment.setCommunicator(this);
-        } else if (fragment instanceof ProfileMenu) {
-            ProfileMenu profileMenuFragment = (ProfileMenu) fragment;
-            profileMenuFragment.setCommunicator(this);
-        }
-    }
-
-    @Override
     public boolean onLogout() {
         usernameLabel.setText("Logged Out");
         loggedIn = false;
@@ -234,17 +227,5 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.sig
         this.unseenNotificationQuantity = unseenNotificationQuantity;
     }
 
-    private void setupToolbar() {
 
-
-        Toolbar toolBar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolBar);
-
-        try {
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        } catch (NullPointerException e) {
-            System.out.println("Toolbar couldn't be found!");
-        }
-    }
 }
