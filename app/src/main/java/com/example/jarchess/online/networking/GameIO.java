@@ -65,6 +65,7 @@ public class GameIO {
         if(remoteOpponentInfoBundle.getColor().toString().equals("WHITE")){
             Log.i(TAG,"Initial move - waiting for oponent to move");
             int response = in.read(buffer);
+            String respString = new String(buffer).trim();
             String respSting = new String(buffer).trim();
             Log.i(TAG, "Response: " + respSting);
             datapackageQueue.insertClientBoundDatapackageQueue(
@@ -79,7 +80,7 @@ public class GameIO {
             Log.i(TAG,"JsonObject: " + jsonObject.toString());
             Log.i(TAG,"getClientBoundDatapackage");
             Datapackage datapackage = datapackageQueue.getServerBoundDatapackage();
-            jsonObject.put("move",datapackage.getJSONObject().toString());
+            jsonObject.put("move",datapackage.getJSONObject());
             Log.i(TAG,"JsonObject: " + jsonObject.toString());
             Log.i(TAG,"sending datapackage");
             out.writeUTF(jsonObject.toString());
