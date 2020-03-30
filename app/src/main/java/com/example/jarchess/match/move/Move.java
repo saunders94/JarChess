@@ -14,22 +14,25 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
+public class Move implements Iterable<PieceMovement>, JSONConvertible<Move> {
     public static final String JSON_PROPERTY_NAME_MOVEMENTS = "movements";
     public static final MoveJSONConverter JSON_CONVERTER = MoveJSONConverter.getInstance();
     private final Collection<PieceMovement> movements;
 
-    public Move(Coordinate origin, Coordinate destination) {
+    public Move(@NonNull Coordinate origin, @NonNull Coordinate destination) {
         movements = new LinkedList<PieceMovement>();
         add(new PieceMovement(origin, destination));
     }
 
-    public Move(PieceMovement pieceMovement) {
+    public Move(@NonNull PieceMovement pieceMovement) {
         movements = new LinkedList<PieceMovement>();
         add(pieceMovement);
     }
 
-    public Move(Collection<PieceMovement> pieceMovements) {
+    public Move(@NonNull Collection<PieceMovement> pieceMovements) {
+        if(pieceMovements.size() < 1 || pieceMovements.size() > 2){
+            throw new IllegalArgumentException("expected 1 or 2 piece movements but got " + pieceMovements.size());
+        }
         movements = new LinkedList<PieceMovement>();
         for (PieceMovement movement : pieceMovements) {
             add(movement);
@@ -57,7 +60,10 @@ public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
 
     @Override
     public boolean equals(Object o) {
-        return movements.equals(o);
+        if(o.getClass() != this.getClass()){
+            return false;
+        }
+        return movements.equals(((Move)o).movements);
     }
 
     @NonNull
@@ -76,19 +82,14 @@ public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
         return s;
     }
 
-    @Override
+
     public int size() {
         return movements.size();
     }
 
-    @Override
+
     public boolean isEmpty() {
         return movements.isEmpty();
-    }
-
-    @Override
-    public boolean contains(Object o) {
-        return movements.contains(o);
     }
 
     @Override
@@ -96,50 +97,16 @@ public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
         return movements.iterator();
     }
 
-    @Override
-    public Object[] toArray() {
-        return movements.toArray();
-    }
 
-    @Override
-    public <T> T[] toArray(T[] a) {
-        return movements.toArray(a);
-    }
-
-    @Override
     public boolean add(PieceMovement pieceMovement) {
+        if(size() > 1){
+            throw new RuntimeException("trying to add a third movement to a move");
+        }
         return movements.add(pieceMovement);
     }
 
-    @Override
-    public boolean remove(Object o) {
-        return movements.remove(o);
-    }
 
-    @Override
-    public boolean containsAll(Collection<?> c) {
-        return movements.containsAll(c);
-    }
 
-    @Override
-    public boolean addAll(Collection<? extends PieceMovement> c) {
-        return movements.addAll(c);
-    }
-
-    @Override
-    public boolean removeAll(Collection<?> c) {
-        return movements.removeAll(c);
-    }
-
-    @Override
-    public boolean retainAll(Collection<?> c) {
-        return movements.retainAll(c);
-    }
-
-    @Override
-    public void clear() {
-        movements.clear();
-    }
 
     public static class MoveJSONConverter extends JSONConverter<Move> {
 
