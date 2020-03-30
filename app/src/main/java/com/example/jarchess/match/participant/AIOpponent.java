@@ -2,8 +2,8 @@ package com.example.jarchess.match.participant;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.events.MatchResultIsInEventManager;
-import com.example.jarchess.match.styles.AIAvatarStyle;
-import com.example.jarchess.match.styles.AvatarStyle;
+import com.example.jarchess.match.styles.avatar.AIAvatarStyle;
+import com.example.jarchess.match.styles.avatar.AvatarStyle;
 
 /**
  * An AI opponent is a match participant that is controlled by an algorithm.

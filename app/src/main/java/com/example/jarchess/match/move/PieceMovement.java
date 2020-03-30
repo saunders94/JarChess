@@ -53,7 +53,7 @@ public class PieceMovement implements JSONConvertible<PieceMovement> {
          * Creates an instance of <code>PieceMovementJSONConverter</code> to construct a singleton instance
          */
         private PieceMovementJSONConverter() {
-            //TODO
+
         }
 
         /**

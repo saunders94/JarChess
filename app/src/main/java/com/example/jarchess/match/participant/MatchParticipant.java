@@ -3,7 +3,7 @@ package com.example.jarchess.match.participant;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.events.MatchResultIsInEventListener;
-import com.example.jarchess.match.styles.AvatarStyle;
+import com.example.jarchess.match.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 
 /**
