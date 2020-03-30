@@ -79,7 +79,7 @@ public class GameIO {
             Log.i(TAG,"JsonObject: " + jsonObject.toString());
             Log.i(TAG,"getClientBoundDatapackage");
             Datapackage datapackage = datapackageQueue.getServerBoundDatapackage();
-            jsonObject.put("move",datapackage.getJSONObject().toString());
+            jsonObject.put("datapackage",datapackage.getJSONObject());
             Log.i(TAG,"JsonObject: " + jsonObject.toString());
             Log.i(TAG,"sending datapackage");
             out.writeUTF(jsonObject.toString());
