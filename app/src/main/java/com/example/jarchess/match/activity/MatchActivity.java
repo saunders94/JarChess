@@ -17,6 +17,9 @@ import com.example.jarchess.match.clock.ClockSyncException;
 import com.example.jarchess.match.clock.MatchClock;
 import com.example.jarchess.match.events.MatchEndingEvent;
 import com.example.jarchess.match.events.MatchEndingEventManager;
+import com.example.jarchess.match.events.SquareClickEvent;
+import com.example.jarchess.match.events.SquareClickEventListener;
+import com.example.jarchess.match.events.SquareClickEventManager;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.LocalParticipant;
@@ -31,7 +34,6 @@ import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.view.CommitButtonClickObserver;
 import com.example.jarchess.match.view.MatchView;
-import com.example.jarchess.match.view.SquareClickHandler;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -43,7 +45,7 @@ import java.util.LinkedList;
  */
 public abstract class MatchActivity extends AppCompatActivity
         implements LocalParticipantController,
-        SquareClickHandler,
+        SquareClickEventListener,
         CommitButtonClickObserver {
 
 
@@ -123,6 +125,7 @@ public abstract class MatchActivity extends AppCompatActivity
 
     public MatchActivity() {
         this.possibleDestinations = new LinkedList<Coordinate>();
+        SquareClickEventManager.getInstance().add(this);
     }
 
     private void changeCurrentControllerColorIfNeeded() {
@@ -221,7 +224,7 @@ public abstract class MatchActivity extends AppCompatActivity
         return currentControllerColor;
     }
 
-    public abstract Match createMatch();
+    protected abstract Match createMatch();
 
     private void execute(Turn turn) {
         Log.v(TAG, "execute is running on thread: " + Thread.currentThread().getName());
@@ -349,10 +352,10 @@ public abstract class MatchActivity extends AppCompatActivity
      * {@inheritDoc}
      */
     @Override
-    public synchronized void observeSquareClick(Coordinate coordinateClicked) {
+    public synchronized void observe(SquareClickEvent event) {
 
         // won't process if there is a pending commit button click to be processed.
-
+        Coordinate coordinateClicked = event.getCoordinateClicked();
         if (observedSquareClickCoordinate != coordinateClicked && !commitButtonHasBeenPressed) {
             observedSquareClickCoordinate = coordinateClicked;
             Log.v(TAG, "observeSquareClick: at " + coordinateClicked);
