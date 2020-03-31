@@ -16,7 +16,7 @@ public class ExceptionResult extends WinResult {
     }
 
     @Override
-    protected String winTypeString() {
+    protected String getWinTypeString() {
         return null;
     }
 }

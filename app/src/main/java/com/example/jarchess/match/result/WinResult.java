@@ -13,12 +13,12 @@ public abstract class WinResult extends ChessMatchResult {
 
     @Override
     protected String getMessage() {
-        return winnerColor.toString() + " wins by " + winTypeString() + ".";
+        return winnerColor.toString() + " wins by " + getWinTypeString() + ".";
     }
 
     public ChessColor getWinnerColor() {
         return winnerColor;
     }
 
-    protected abstract String winTypeString();
+    protected abstract String getWinTypeString();
 }

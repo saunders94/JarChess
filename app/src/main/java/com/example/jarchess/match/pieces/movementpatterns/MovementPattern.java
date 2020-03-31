@@ -28,8 +28,8 @@ public abstract class MovementPattern {
      * @param forwardOffset          The number of spaces up (when black starting position is at the top) that the movement pattern would shift the piece. A negative value indicates a backward movement at the magnitude.
      * @param captureType            the capturing type of the movement pattern
      * @param mustBeFirstMoveOfPiece if the movement pattern only applies to the first movement of the piece
-     * @param color                 the color of the piece this pattern if for
-     * @return the created slide movement pattern
+     * @param color                 the color of the piece this pattern is for
+     * @return the created movement pattern
      */
     MovementPattern(int kingwardOffset, int forwardOffset, CaptureType captureType, boolean mustBeFirstMoveOfPiece, ChessColor color) {
         this.kingwardOffset = kingwardOffset;
