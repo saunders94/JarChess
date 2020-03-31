@@ -11,12 +11,7 @@ public class ExceptionResult extends WinResult {
     }
 
     @Override
-    protected String getMessage() {
-        return message;
-    }
-
-    @Override
     protected String getWinTypeString() {
-        return null;
+        return message;
     }
 }
