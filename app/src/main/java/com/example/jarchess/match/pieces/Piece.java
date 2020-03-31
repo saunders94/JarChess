@@ -69,7 +69,7 @@ public abstract class Piece implements Cloneable {
      *
      * @param patterns a collection of movement patterns to add
      */
-    void add(Collection<MovementPattern> patterns) {
+    void add(Iterable<MovementPattern> patterns) {
         for (MovementPattern pattern : patterns) {
             add(pattern);
         }
