@@ -190,7 +190,7 @@ public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
          * Creates an instance of <code>MoveJSONConverter</code> to construct a singleton instance
          */
         private MoveJSONConverter() {
-            //TODO
+
         }
 
         /**
