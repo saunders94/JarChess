@@ -1,15 +1,15 @@
 package com.example.jarchess.match.events;
 
-import com.example.jarchess.match.result.Result;
+import com.example.jarchess.match.result.ChessMatchResult;
 
 public class MatchResultIsInEvent {
-    final Result matchResult;
+    final ChessMatchResult matchChessMatchResult;
 
-    public MatchResultIsInEvent(Result matchResult) {
-        this.matchResult = matchResult;
+    public MatchResultIsInEvent(ChessMatchResult matchChessMatchResult) {
+        this.matchChessMatchResult = matchChessMatchResult;
     }
 
-    public Result getMatchResult() {
-        return matchResult;
+    public ChessMatchResult getMatchChessMatchResult() {
+        return matchChessMatchResult;
     }
 }

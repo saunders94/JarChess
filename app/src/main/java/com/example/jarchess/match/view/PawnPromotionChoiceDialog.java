@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 
 import com.example.jarchess.R;
 import com.example.jarchess.match.activity.MatchActivity;
-import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.pieces.PromotionChoice;
 
 class PawnPromotionChoiceDialog {
     private static final int MINIMUM_HEIGHT = 120;
@@ -41,7 +41,7 @@ class PawnPromotionChoiceDialog {
         queen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.setPromotionChoiceInput(Piece.PromotionChoice.PROMOTE_TO_QUEEN);
+                activity.setPromotionChoiceInput(PromotionChoice.PROMOTE_TO_QUEEN);
                 hide();
             }
         });
@@ -49,7 +49,7 @@ class PawnPromotionChoiceDialog {
         knight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.setPromotionChoiceInput(Piece.PromotionChoice.PROMOTE_TO_KNIGHT);
+                activity.setPromotionChoiceInput(PromotionChoice.PROMOTE_TO_KNIGHT);
                 hide();
             }
         });
@@ -58,7 +58,7 @@ class PawnPromotionChoiceDialog {
         bishop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.setPromotionChoiceInput(Piece.PromotionChoice.PROMOTE_TO_BISHOP);
+                activity.setPromotionChoiceInput(PromotionChoice.PROMOTE_TO_BISHOP);
                 hide();
             }
         });
@@ -67,7 +67,7 @@ class PawnPromotionChoiceDialog {
         rook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.setPromotionChoiceInput(Piece.PromotionChoice.PROMOTE_TO_ROOK);
+                activity.setPromotionChoiceInput(PromotionChoice.PROMOTE_TO_ROOK);
                 hide();
             }
         });

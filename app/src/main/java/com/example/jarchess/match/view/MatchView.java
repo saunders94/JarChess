@@ -22,7 +22,7 @@ import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.pieces.Piece;
-import com.example.jarchess.match.result.Result;
+import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.match.styles.chessboard.ChessboardStyle;
 import com.example.jarchess.match.styles.chesspiece.ChesspieceStyle;
 import com.example.jarchess.match.turn.Turn;
@@ -194,8 +194,8 @@ public class MatchView extends View implements ClockTickEventListener {
         leaveMatchDialog.show();
     }
 
-    public void showMatchResultDialog(Result matchResult) {
-        matchResultDialog.show(matchResult);
+    public void showMatchResultDialog(ChessMatchResult matchChessMatchResult) {
+        matchResultDialog.show(matchChessMatchResult);
     }
 
     public void showPawnPromotionChoiceDialog() {

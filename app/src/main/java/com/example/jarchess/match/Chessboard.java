@@ -112,7 +112,7 @@ public class Chessboard {
         pieces[column][row] = piece;
     }
 
-    public Chessboard getCopyWithMovementsApplied(Collection<PieceMovement> movements) {
+    public Chessboard getCopyWithMovementsApplied(Iterable<PieceMovement> movements) {
         Chessboard copy = new Chessboard(this);
         for (PieceMovement movement : movements) {
             copy.move(movement.getOrigin(), movement.getDestination());

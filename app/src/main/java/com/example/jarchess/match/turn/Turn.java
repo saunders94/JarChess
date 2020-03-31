@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.move.Move;
-import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.online.datapackage.JSONConverter;
 import com.example.jarchess.online.datapackage.JSONConvertible;
 
@@ -31,10 +31,10 @@ public class Turn implements JSONConvertible<Turn> {
     private final ChessColor color;
     private final Move move;
     private final long elapsedTime;
-    private final Piece.PromotionChoice promotionChoice;
+    private final PromotionChoice promotionChoice;
 
 
-    public Turn(ChessColor color, Move move, long elapsedTime, Piece.PromotionChoice promotionChoice) {
+    public Turn(ChessColor color, Move move, long elapsedTime, PromotionChoice promotionChoice) {
         this.color = color;
         this.move = move;
         this.elapsedTime = elapsedTime;
@@ -102,7 +102,7 @@ public class Turn implements JSONConvertible<Turn> {
         return move;
     }
 
-    public Piece.PromotionChoice getPromotionChoice() {
+    public PromotionChoice getPromotionChoice() {
         return promotionChoice;
     }
 
@@ -135,10 +135,10 @@ public class Turn implements JSONConvertible<Turn> {
             Move move = Move.JSON_CONVERTER.convertFromJSONObject(jsonObject.getJSONObject(JSON_PROPERTY_NAME_MOVE));
             long elapsedTime = jsonObject.getLong(JSON_PROPERTY_NAME_ELAPSED_TIME);
 
-            Piece.PromotionChoice promotionChoice = null;
+            PromotionChoice promotionChoice = null;
             if (!jsonObject.isNull(JSON_PROPERTY_NAME_PROMOTION_CHOICE)) {
                 JSONObject promotionChoiceJSON = jsonObject.getJSONObject(JSON_PROPERTY_NAME_PROMOTION_CHOICE);
-                promotionChoice = Piece.PromotionChoice.JSON_CONVERTER.convertFromJSONObject(promotionChoiceJSON);
+                promotionChoice = PromotionChoice.JSON_CONVERTER.convertFromJSONObject(promotionChoiceJSON);
             }
             return new Turn(color, move, elapsedTime, promotionChoice);
         }

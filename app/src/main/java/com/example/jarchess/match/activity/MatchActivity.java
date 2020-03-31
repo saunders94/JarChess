@@ -23,10 +23,11 @@ import com.example.jarchess.match.participant.LocalParticipant;
 import com.example.jarchess.match.participant.LocalParticipantController;
 import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.result.ExceptionResult;
 import com.example.jarchess.match.result.InvalidTurnReceivedResult;
 import com.example.jarchess.match.result.ResignationResult;
-import com.example.jarchess.match.result.Result;
+import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.view.CommitButtonClickObserver;
 import com.example.jarchess.match.view.MatchView;
@@ -51,7 +52,7 @@ public abstract class MatchActivity extends AppCompatActivity
     private final Collection<Coordinate> possibleDestinations;
     private volatile ChessColor waitingForMove;
     private volatile Move move;
-    private volatile Piece.PromotionChoice promotionChoiceInput = null;
+    private volatile PromotionChoice promotionChoiceInput = null;
     private volatile Coordinate observedSquareClickCoordinate = null;
     private volatile boolean commitButtonHasBeenPressed = false;
     private Match match;
@@ -94,7 +95,7 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     @Override
-    public synchronized Piece.PromotionChoice getPromotionChoice(Move move) throws InterruptedException, MatchOverException {
+    public synchronized PromotionChoice getPromotionChoice(Move move) throws InterruptedException, MatchOverException {
 
         if (promotionChoiceInput != null) {
             promotionChoiceInput = null;
@@ -135,7 +136,7 @@ public abstract class MatchActivity extends AppCompatActivity
 
     private synchronized void conditionallyThrowMatchOverException() throws MatchOverException {
         if (match.isDone() || inputRequestWasCanceled) {
-            throw new MatchOverException(match.getMatchResult());
+            throw new MatchOverException(match.getMatchChessMatchResult());
         }
     }
 
@@ -241,7 +242,7 @@ public abstract class MatchActivity extends AppCompatActivity
                 matchView.updatePiece(matchHistory.getEnPassentRiskedPieceLocation());
             }
             match.move(movement.getOrigin(), movement.getDestination());
-            Piece.PromotionChoice choice = turn.getPromotionChoice();
+            PromotionChoice choice = turn.getPromotionChoice();
             if (choice != null) {
                 match.promote(destination, choice);
             }
@@ -514,15 +515,15 @@ public abstract class MatchActivity extends AppCompatActivity
 
     }
 
-    public synchronized void setPromotionChoiceInput(Piece.PromotionChoice promoteToRook) {
+    public synchronized void setPromotionChoiceInput(PromotionChoice promoteToRook) {
         promotionChoiceInput = promoteToRook;
         this.notifyAll();
     }
 
     private synchronized void showMatchResult() {
-        Result r = match.getMatchResult();
+        ChessMatchResult r = match.getMatchChessMatchResult();
         Log.v(TAG, "showMatchResult() called");
-        Log.v(TAG, "showMatchResult: " + match.getMatchResult());
+        Log.v(TAG, "showMatchResult: " + match.getMatchChessMatchResult());
         resultWasShown = true;
 
         if (r instanceof ResignationResult) {
@@ -532,7 +533,7 @@ public abstract class MatchActivity extends AppCompatActivity
             }
         }
 
-        matchView.showMatchResultDialog(match.getMatchResult());
+        matchView.showMatchResultDialog(match.getMatchChessMatchResult());
     }
 
     private void updatePossibleInputDestinations(@NonNull Coordinate originInput) {
@@ -547,15 +548,15 @@ public abstract class MatchActivity extends AppCompatActivity
 
     public static class MatchOverException extends Exception {
 
-        private final Result matchResult;
+        private final ChessMatchResult matchChessMatchResult;
 
-        public MatchOverException(Result matchResult) {
-            super("MatchOverException with result: " + matchResult);
-            this.matchResult = matchResult;
+        public MatchOverException(ChessMatchResult matchChessMatchResult) {
+            super("MatchOverException with result: " + matchChessMatchResult);
+            this.matchChessMatchResult = matchChessMatchResult;
         }
 
-        public Result getMatchResult() {
-            return matchResult;
+        public ChessMatchResult getMatchChessMatchResult() {
+            return matchChessMatchResult;
         }
     }
 }

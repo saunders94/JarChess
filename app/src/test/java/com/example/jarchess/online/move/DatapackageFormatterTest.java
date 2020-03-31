@@ -4,7 +4,7 @@ import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
-import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.online.datapackage.Datapackage;
 
@@ -19,10 +19,10 @@ import org.junit.runners.Parameterized.Parameter;
 
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
-import static com.example.jarchess.match.pieces.Piece.PromotionChoice.PROMOTE_TO_BISHOP;
-import static com.example.jarchess.match.pieces.Piece.PromotionChoice.PROMOTE_TO_KNIGHT;
-import static com.example.jarchess.match.pieces.Piece.PromotionChoice.PROMOTE_TO_QUEEN;
-import static com.example.jarchess.match.pieces.Piece.PromotionChoice.PROMOTE_TO_ROOK;
+import static com.example.jarchess.match.pieces.PromotionChoice.PROMOTE_TO_BISHOP;
+import static com.example.jarchess.match.pieces.PromotionChoice.PROMOTE_TO_KNIGHT;
+import static com.example.jarchess.match.pieces.PromotionChoice.PROMOTE_TO_QUEEN;
+import static com.example.jarchess.match.pieces.PromotionChoice.PROMOTE_TO_ROOK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
@@ -64,7 +64,7 @@ public class DatapackageFormatterTest {
         @Parameter(value = PARAM_VALUE_ELAPSED_TIME)
         public long elapsedTimeParameter;
         @Parameter(value = PARAM_VALUE_PROMOTION_CHOICE)
-        public Piece.PromotionChoice promotionChoiceParameter;
+        public PromotionChoice promotionChoiceParameter;
         @Parameter(value = PARAM_VALUE_EXPECTED_STRING)
         public String expectedString;
 
@@ -74,7 +74,7 @@ public class DatapackageFormatterTest {
         private long[] elapsedTime = new long[2];
         private String[] ip = new String[2];
         private int[] port = new int[2];
-        private Piece.PromotionChoice[] chosenPromotion = new Piece.PromotionChoice[2];
+        private PromotionChoice[] chosenPromotion = new PromotionChoice[2];
         private DatapackageFormatter datapackageFormatterUnderTest = new DatapackageFormatter();
         private Datapackage expectedDataPackage;
 
@@ -217,7 +217,7 @@ public class DatapackageFormatterTest {
             Move move = new Move(origin[EXPECTED], destination[EXPECTED]);
             ChessColor color = turnColor[EXPECTED] = turnColorParameter;
             long time = elapsedTime[EXPECTED] = elapsedTimeParameter;
-            Piece.PromotionChoice pieceType = chosenPromotion[EXPECTED] = promotionChoiceParameter;
+            PromotionChoice pieceType = chosenPromotion[EXPECTED] = promotionChoiceParameter;
 
             //TODO I should parameterize these and test the acceptable bounds.
             ip[EXPECTED] = "1.2.3.4";
