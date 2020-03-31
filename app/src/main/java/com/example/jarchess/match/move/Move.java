@@ -21,12 +21,12 @@ public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
     private static final int MIN_MOVEMENT_COUNT = 1;
     private final Collection<PieceMovement> movements;
 
-    public Move(Coordinate origin, Coordinate destination) {
+    public Move(@NonNull Coordinate origin, @NonNull Coordinate destination) {
         movements = new LinkedList<PieceMovement>();
         add(new PieceMovement(origin, destination));
     }
 
-    public Move(PieceMovement pieceMovement) {
+    public Move(@NonNull PieceMovement pieceMovement) {
         movements = new LinkedList<PieceMovement>();
         add(pieceMovement);
     }
