@@ -12,8 +12,15 @@ import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
 import com.example.jarchess.match.clock.MatchClock;
+import com.example.jarchess.match.events.ClearableManager;
 import com.example.jarchess.match.events.MatchEndingEvent;
 import com.example.jarchess.match.events.MatchEndingEventManager;
+import com.example.jarchess.match.events.PauseButtonPressedEvent;
+import com.example.jarchess.match.events.PauseButtonPressedEventListener;
+import com.example.jarchess.match.events.PauseButtonPressedEventManager;
+import com.example.jarchess.match.events.RequestDrawButtonPressedEvent;
+import com.example.jarchess.match.events.RequestDrawButtonPressedEventListener;
+import com.example.jarchess.match.events.RequestDrawButtonPressedEventManager;
 import com.example.jarchess.match.events.SquareClickEvent;
 import com.example.jarchess.match.events.SquareClickEventListener;
 import com.example.jarchess.match.events.SquareClickEventManager;
@@ -25,6 +32,7 @@ import com.example.jarchess.match.participant.LocalParticipantController;
 import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.pieces.PromotionChoice;
+import com.example.jarchess.match.result.AgreedUponDrawResult;
 import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.match.result.ResignationResult;
 import com.example.jarchess.match.view.CommitButtonClickObserver;
@@ -41,11 +49,10 @@ import java.util.LinkedList;
 public abstract class MatchActivity extends AppCompatActivity
         implements LocalParticipantController,
         SquareClickEventListener,
-        CommitButtonClickObserver {
-
-
+        CommitButtonClickObserver,
+        PauseButtonPressedEventListener,
+        RequestDrawButtonPressedEventListener {
     private static final String TAG = "MatchActivity";
-    //    private static final long MATCH_CLOCK_TOLERANCE_MILLIS = 1000L;
     private final Collection<Coordinate> possibleDestinations;
     private volatile ChessColor waitingForMove;
     private volatile Move move;
@@ -61,6 +68,13 @@ public abstract class MatchActivity extends AppCompatActivity
     private MatchClock matchClock;
     private boolean inputRequestWasCanceled;
     private ChessColor currentControllerColor;
+
+    public MatchActivity() {
+        this.possibleDestinations = new LinkedList<Coordinate>();
+        PauseButtonPressedEventManager.getInstance().add(this);
+        SquareClickEventManager.getInstance().add(this);
+        RequestDrawButtonPressedEventManager.getInstance().add(this);
+    }
 
     @Override
     public synchronized void cancelInput() {
@@ -118,11 +132,6 @@ public abstract class MatchActivity extends AppCompatActivity
         return promotionChoiceInput;
     }
 
-    public MatchActivity() {
-        this.possibleDestinations = new LinkedList<Coordinate>();
-        SquareClickEventManager.getInstance().add(this);
-    }
-
     public void changeCurrentControllerColorIfNeeded() {
         if (currentControllerColor != null) {
             ChessColor nextColor = ChessColor.getOther(currentControllerColor);
@@ -130,20 +139,6 @@ public abstract class MatchActivity extends AppCompatActivity
                 currentControllerColor = nextColor;
             }
         }
-    }
-
-    private synchronized void conditionallyThrowMatchOverException() throws MatchOverException {
-        if (match.isDone() || inputRequestWasCanceled) {
-            throw new MatchOverException(match.getMatchChessMatchResult());
-        }
-    }
-
-    private synchronized void exitActivity() {
-        matchClock.kill(); // stops the clock
-        if (!match.isDone()) {
-            match.forceEndMatch("Activity was exited");
-        }
-        super.onBackPressed();
     }
 
     /**
@@ -215,65 +210,77 @@ public abstract class MatchActivity extends AppCompatActivity
         return JarAccount.getInstance().getCommitButtonClickIsRequired();
     }
 
-    public synchronized ChessColor getCurrentControllerColor() {
-        return currentControllerColor;
+    private synchronized void conditionallyThrowMatchOverException() throws MatchOverException {
+        if (match.isDone() || inputRequestWasCanceled) {
+            throw new MatchOverException(match.getMatchChessMatchResult());
+        }
     }
 
     protected abstract Match createMatch();
 
-
-
-    public synchronized void observeResignButtonClick() {
-
-        // do anything we need to do before match activity ends
-        if (currentControllerColor != null) {
-            MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ResignationResult(ChessColor.getOther(currentControllerColor))));
+    private synchronized void exitActivity() {
+        matchClock.kill(); // stops the clock
+        if (!match.isDone()) {
+            match.forceEndMatch("Activity was exited");
         }
+        ClearableManager.clearAll();
+        super.onBackPressed();
+    }
 
-        exitActivity();
+    public synchronized ChessColor getCurrentControllerColor() {
+        return currentControllerColor;
+    }
+
+    public MatchView getMatchView() {
+        return matchView;
     }
 
     private void handleSquareClick(Coordinate coordinateClicked) {
         // log the click
         Log.v(TAG, "observeSquareClick() called with: coordinateClicked = " + coordinateClicked);
 
-
-        Piece clickedPiece = match.getPieceAt(coordinateClicked);
-        if (waitingForMove != null) {
-            // Than one of the participants is waiting for a move.
-
-            if (isNewOrginInput(coordinateClicked, clickedPiece)) {
-                Log.v(TAG, "handleSquareClick: treating the coordinate as newly selected origin");
-                // If the square has a piece and it is the color of the waiting participant
-                // and it is not already the current originInput,
-                //
-                // than we assume that the click indicates that the user intends to set that square as the new originInput of the move
-
-                // set the originInput
-                clearOriginInput();
-                clearDestinationInput();
-                clearPossibleInputDestinations();
-                setOriginInput(coordinateClicked);
-                updatePossibleInputDestinations(originInput);
+        if (!matchClock.isRunning()) {
+            Log.i(TAG, "handleSquareClick: Click is ignored because match clock is not running");
+        } else {
 
 
-            } else if (isNewDestinationInput(coordinateClicked)) {
-                Log.v(TAG, "handleSquareClick: Treating the coordinate as newly selected destination");
-                // If the originInput was already set
-                // and the square was empty or had a piece that was a different color than the participant waiting for a move to be input,
-                // and the square is in the set of possible destinations
-                //
-                // than we assume that the click indicates that the user intends to set that square as the destinationInput of the move.
+            Piece clickedPiece = match.getPieceAt(coordinateClicked);
+            if (waitingForMove != null) {
+                // Than one of the participants is waiting for a move.
 
-                setDestinationInput(coordinateClicked);
+                if (isNewOrginInput(coordinateClicked, clickedPiece)) {
+                    Log.v(TAG, "handleSquareClick: treating the coordinate as newly selected origin");
+                    // If the square has a piece and it is the color of the waiting participant
+                    // and it is not already the current originInput,
+                    //
+                    // than we assume that the click indicates that the user intends to set that square as the new originInput of the move
 
-                if (!commitButtonClickRequired()) {
-                    Log.v(TAG, "handleSquareClick: commit button is not required, so commit is immediate");
-                    observeCommitButtonClick();
+                    // set the originInput
+                    clearOriginInput();
+                    clearDestinationInput();
+                    clearPossibleInputDestinations();
+                    setOriginInput(coordinateClicked);
+                    updatePossibleInputDestinations(originInput);
+
+
+                } else if (isNewDestinationInput(coordinateClicked)) {
+                    Log.v(TAG, "handleSquareClick: Treating the coordinate as newly selected destination");
+                    // If the originInput was already set
+                    // and the square was empty or had a piece that was a different color than the participant waiting for a move to be input,
+                    // and the square is in the set of possible destinations
+                    //
+                    // than we assume that the click indicates that the user intends to set that square as the destinationInput of the move.
+
+                    setDestinationInput(coordinateClicked);
+
+                    if (!commitButtonClickRequired()) {
+                        Log.v(TAG, "handleSquareClick: commit button is not required, so commit is immediate");
+                        observeCommitButtonClick();
+                    }
+
+                } else {
+                    Log.v(TAG, "handleSquareClick: The coordinate is not a new origin or destination");
                 }
-
-            } else {
-                Log.v(TAG, "handleSquareClick: The coordinate is not a new origin or destination");
             }
         }
     }
@@ -292,29 +299,32 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     @Override
-    public synchronized void observeCommitButtonClick() {
+    public void observe(RequestDrawButtonPressedEvent event) {
 
-        // won't process if there is a pending square click to be processed.
+        if (this instanceof LocalMultiplayerMatchActivity) {
+            // we don't need to check for agreement
+            MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new AgreedUponDrawResult()));
 
-        if (observedSquareClickCoordinate == null && !commitButtonHasBeenPressed)
-            commitButtonHasBeenPressed = true;
-        notifyAll();
-    }
-
-    @Override
-    public void onBackPressed() {
-
-        if (resultWasShown) {
             exitActivity();
-        } else {
-            matchView.showLeaveMatchDialog();
         }
     }
 
-    public void observeResultAcknowledgement() {
-        // do anything we need to do before match activity ends
+    @Override
+    public void observe(PauseButtonPressedEvent event) {
+        if (this instanceof LocalMultiplayerMatchActivity) {
 
-        exitActivity();
+            // we don't need to check for agreement
+            if (matchClock.isRunning()) {
+                matchClock.stop();
+                matchView.setPauseButtonText("Resume");
+            } else {
+                matchClock.resume();
+                matchView.setPauseButtonText("Pause");
+            }
+        } else {
+            //TODO
+            // we need to start a thread to deal with pause request otherwise GUI will freeze
+        }
     }
 
     /**
@@ -333,9 +343,40 @@ public abstract class MatchActivity extends AppCompatActivity
 
     }
 
+    @Override
+    public synchronized void observeCommitButtonClick() {
 
-    public MatchView getMatchView() {
-        return matchView;
+        // won't process if there is a pending square click to be processed.
+
+        if (observedSquareClickCoordinate == null && !commitButtonHasBeenPressed)
+            commitButtonHasBeenPressed = true;
+        notifyAll();
+    }
+
+    public synchronized void observeResignButtonClick() {
+
+        // do anything we need to do before match activity ends
+        if (currentControllerColor != null) {
+            MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ResignationResult(ChessColor.getOther(currentControllerColor))));
+        }
+
+        exitActivity();
+    }
+
+    public void observeResultAcknowledgement() {
+        // do anything we need to do before match activity ends
+
+        exitActivity();
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (resultWasShown) {
+            exitActivity();
+        } else {
+            matchView.showLeaveMatchDialog();
+        }
     }
 
     /**
@@ -358,24 +399,7 @@ public abstract class MatchActivity extends AppCompatActivity
         match.start();
     }
 
-    public void setCurrentControllerColorIfNeeded() {
-
-        if (currentControllerColor == null) {
-            ChessColor nextColor = ChessColor.WHITE;
-            if (match.getParticipant(nextColor) instanceof LocalParticipant) {
-                currentControllerColor = nextColor;
-            }
-        }
-
-        if (currentControllerColor == null) {
-            ChessColor nextColor = ChessColor.BLACK;
-            if (match.getParticipant(nextColor) instanceof LocalParticipant) {
-                currentControllerColor = nextColor;
-            }
-        }
-    }
-
-    private void processNextInput() throws MatchOverException, InterruptedException {
+    private synchronized void processNextInput() throws MatchOverException, InterruptedException {
         Coordinate coordinateToProcess = null;
         boolean commitButtonPressNeedsProcessing = false;
         synchronized (this) {
@@ -410,6 +434,23 @@ public abstract class MatchActivity extends AppCompatActivity
             handleSquareClick(coordinateToProcess);
         }
 
+    }
+
+    public void setCurrentControllerColorIfNeeded() {
+
+        if (currentControllerColor == null) {
+            ChessColor nextColor = ChessColor.WHITE;
+            if (match.getParticipant(nextColor) instanceof LocalParticipant) {
+                currentControllerColor = nextColor;
+            }
+        }
+
+        if (currentControllerColor == null) {
+            ChessColor nextColor = ChessColor.BLACK;
+            if (match.getParticipant(nextColor) instanceof LocalParticipant) {
+                currentControllerColor = nextColor;
+            }
+        }
     }
 
     /**
@@ -460,6 +501,10 @@ public abstract class MatchActivity extends AppCompatActivity
             if (match.getParticipant(resigningColor) instanceof LocalParticipant) {
                 return; // without showing the result dialog because a local participant resigned
             }
+        }
+
+        if (r instanceof AgreedUponDrawResult) {
+            return; // without showing the result dialog because the local participant agreed to draw
         }
 
         matchView.showMatchResultDialog(match.getMatchChessMatchResult());

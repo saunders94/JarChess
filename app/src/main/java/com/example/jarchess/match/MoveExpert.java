@@ -180,7 +180,7 @@ public class MoveExpert {
         }
 
         if (movementPattern instanceof CastleMovementPattern) {
-            Log.v(TAG, "isLegalMoveIgnoringChecks: was instance of CastleMovmentPattern");
+            Log.v(TAG, "isLegalMoveIgnoringChecks: was instance of CastleMovementPattern");
             return (getLegalCastleMovements(origin, movementPattern.getDestinationFrom(origin), chessboardToCheck).size() > 0);
 
 

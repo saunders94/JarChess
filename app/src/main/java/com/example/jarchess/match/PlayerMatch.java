@@ -15,7 +15,7 @@ public class PlayerMatch extends Match {
 
     public PlayerMatch(@NonNull MatchParticipant opponent, MatchClockChoice matchClockChoice, LocalParticipantController localParticipantController, MatchActivity matchActivity) {
         super(new Player(ChessColor.getOther(opponent.getColor()), localParticipantController), opponent, matchClockChoice, matchActivity);
-        this.player = (Player) (opponent.getColor() == ChessColor.WHITE ? getBlackPlayer() : getWhitePlayer());
+        this.player = (Player) (opponent.getColor() == ChessColor.WHITE ? getBlackParticipant() : getWhiteParticipant());
     }
 
     @Override

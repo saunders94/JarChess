@@ -13,6 +13,7 @@ class RepeatTracker implements Clearable {
     private static final String TAG = "RepeatTracker";
     private final Stack<RepeatNode> repeatNodeStack = new Stack<>();
     private int maxRepeat = 0;
+    private int lastRepetitionCount;
 
     public int add(ChessColor color, Collection<PieceMovement> possiblePieceMovements) {
         int repeats = 0;
@@ -41,6 +42,9 @@ class RepeatTracker implements Clearable {
             maxRepeat = repeats;
         }
 
+        // set last repetition count
+        lastRepetitionCount = repeats;
+
         repeatNodeStack.push(new RepeatNode(color, possiblePieceMovements, repeats));
 
         return repeats;
@@ -49,6 +53,10 @@ class RepeatTracker implements Clearable {
     @Override
     public void clear() {
         repeatNodeStack.clear();
+    }
+
+    public int getLastRepetitionCount() {
+        return lastRepetitionCount;
     }
 
     public int getMaxRepeatCount() {

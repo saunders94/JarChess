@@ -30,7 +30,9 @@ import com.example.jarchess.match.result.CheckmateResult;
 import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.match.result.ExceptionResult;
 import com.example.jarchess.match.result.FlagFallResult;
+import com.example.jarchess.match.result.RepetitionRuleDrawResult;
 import com.example.jarchess.match.result.StalemateDrawResult;
+import com.example.jarchess.match.result.XMoveRuleDrawResult;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.view.MatchView;
 
@@ -97,11 +99,11 @@ public abstract class Match implements MatchEndingEventListener {
                     } else {
                         setMatchChessMatchResult(new StalemateDrawResult());
                     }
-                } else {
-                    // TODO handle our implementation of repeated board state draw
+                } else if (matchHistory.getMovesSinceCaptureOrPawnMovement(nextTurnColor) >= XMoveRuleDrawResult.FORCED_DRAW_AMOUNT) {
+                    setMatchChessMatchResult(new XMoveRuleDrawResult(matchHistory.getMovesSinceCaptureOrPawnMovement(nextTurnColor)));
 
-                    // TODO handle 50 move draw
-
+                } else if (matchHistory.getRepititons() >= RepetitionRuleDrawResult.FORCED_DRAW_AMOUNT) {
+                    setMatchChessMatchResult(new RepetitionRuleDrawResult(matchHistory.getRepititons()));
                 }
             }
         }
@@ -155,7 +157,7 @@ public abstract class Match implements MatchEndingEventListener {
         MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(getForceExitWinningColor(), msg, new Exception("Match end was forced"))));
     }
 
-    public MatchParticipant getBlackPlayer() {
+    public MatchParticipant getBlackParticipant() {
         return blackPlayer;
     }
 
@@ -213,7 +215,7 @@ public abstract class Match implements MatchEndingEventListener {
         return getParticipant(ChessColor.getOther(turn.getColor())).getNextTurn(turn);
     }
 
-    public MatchParticipant getWhitePlayer() {
+    public MatchParticipant getWhiteParticipant() {
         return whitePlayer;
     }
 
@@ -226,7 +228,7 @@ public abstract class Match implements MatchEndingEventListener {
             try {
                 matchClock.start();
                 matchActivity.setCurrentControllerColorIfNeeded();
-                turn = getWhitePlayer().getFirstTurn();
+                turn = getWhiteParticipant().getFirstTurn();
                 matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
                 validate(turn);
                 execute(turn);

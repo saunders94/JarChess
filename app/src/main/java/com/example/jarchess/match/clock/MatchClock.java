@@ -18,6 +18,8 @@ public interface MatchClock {
 
     void kill();
 
+    boolean isAlive();
+
     void start();
     void stop();
 
