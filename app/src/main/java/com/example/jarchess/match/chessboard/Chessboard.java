@@ -27,7 +27,7 @@ public class Chessboard {
     private static final int ROW_COUNT = 8;
     private static final int COLUMN_COUNT = 8;
     private final Piece[][] pieces;
-    private boolean isCopy;
+    private final boolean isCopy;
 
     /**
      * Private constructor used to create the instance of chessboard
