@@ -20,19 +20,19 @@ import com.example.jarchess.online.OnlineMatchInfoBundle;
 import static com.example.jarchess.match.MatchNetworkIO.DatapackageQueueAdapter;
 
 //TODO javadocs
-public class MatchStarter {
-    private static MatchStarter instance = null;
+public class MatchBuilder {
+    private static MatchBuilder instance = null;
     private final JarAccount account = JarAccount.getInstance();
     private OnlineMatchInfoBundle onlineMatchInfoBundle;
     private MatchClockChoice matchClockChoice = MatchClockChoice.CLASSIC_FIDE_MATCH_CLOCK;
     private static final String TAG = "MatchStarter";
 
-    private MatchStarter() {
+    private MatchBuilder() {
     }
 
-    public static MatchStarter getInstance() {
+    public static MatchBuilder getInstance() {
         if (instance == null) {
-            instance = new MatchStarter();
+            instance = new MatchBuilder();
         }
 
         return instance;
@@ -52,7 +52,7 @@ public class MatchStarter {
         ChessColor opponentColor = ChessColor.getRandom();
         MatchParticipant opponent = new EasyAIOpponent(opponentColor);
 
-        return new PlayerMatch(opponent, matchClockChoice, localParticipantController);
+        return new PlayerMatch(opponent, matchClockChoice, localParticipantController, easyAIMatchActivity);
     }
 
     public Match startHardAIMatch(HardAIMatchActivity hardAIMatchActivity, LocalParticipantController localParticipantController) {
@@ -60,14 +60,14 @@ public class MatchStarter {
         ChessColor opponentColor = ChessColor.getRandom();
         MatchParticipant opponent = new HardAIOpponent(opponentColor);
 
-        return new PlayerMatch(opponent, matchClockChoice, localParticipantController);
+        return new PlayerMatch(opponent, matchClockChoice, localParticipantController, hardAIMatchActivity);
     }
 
     public Match startLocalMultiplayerMatch(LocalMultiplayerMatchActivity localMultiplayerMatchActivity, LocalParticipantController localParticipantController) {
         ChessColor opponentColor = ChessColor.getRandom();
         MatchParticipant opponent = new LocalOpponent(opponentColor, localParticipantController);
 
-        return new PlayerMatch(opponent, matchClockChoice, localParticipantController);
+        return new PlayerMatch(opponent, matchClockChoice, localParticipantController, localMultiplayerMatchActivity);
     }
 
     public Match startRemoteMultiplayerMatch(OnlineMultiplayerMatchActivity onlineMultiplayerMatchActivity, LocalParticipantController localParticipantController) {
@@ -82,6 +82,6 @@ public class MatchStarter {
         DatapackageQueueAdapter adapter = new DatapackageQueueAdapter(onlineMatchInfoBundle.getDatapackageQueue());
 
 
-        return new OnlineMatch(onlineMatchInfoBundle, adapter, adapter, localParticipantController);
+        return new OnlineMatch(onlineMatchInfoBundle, adapter, adapter, localParticipantController, onlineMultiplayerMatchActivity);
     }
 }

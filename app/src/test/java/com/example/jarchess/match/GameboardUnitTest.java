@@ -1,5 +1,7 @@
 package com.example.jarchess.match;
 
+import com.example.jarchess.match.chessboard.Chessboard;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

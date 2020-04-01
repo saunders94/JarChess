@@ -8,6 +8,8 @@ import android.widget.ImageView;
 
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.events.SquareClickEvent;
+import com.example.jarchess.match.events.SquareClickEventManager;
 
 import static android.support.constraint.Constraints.TAG;
 
@@ -40,7 +42,7 @@ class ChessboardViewSquare {
         squareImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                matchActivity.observeSquareClick(coordinate);
+                SquareClickEventManager.getInstance().notifyAllListeners(new SquareClickEvent(coordinate));
             }
         });
     }

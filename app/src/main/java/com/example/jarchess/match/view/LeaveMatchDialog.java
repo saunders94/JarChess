@@ -9,6 +9,8 @@ import androidx.annotation.NonNull;
 
 import com.example.jarchess.R;
 import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.events.RequestDrawButtonPressedEvent;
+import com.example.jarchess.match.events.RequestDrawButtonPressedEventManager;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
@@ -41,6 +43,13 @@ class LeaveMatchDialog {
             @Override
             public void onClick(View v) {
                 activity.observeResignButtonClick();
+            }
+        });
+
+        requestDrawButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RequestDrawButtonPressedEventManager.getInstance().notifyAllListeners(new RequestDrawButtonPressedEvent());
             }
         });
     }

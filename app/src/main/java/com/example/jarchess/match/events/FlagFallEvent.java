@@ -16,7 +16,7 @@ public class FlagFallEvent extends MatchEndingEvent {
         return ChessColor.getOther(colorOfFallingFlag);
     }
 
-    public final ChessColor getColorOfFallingFLag() {
+    public final ChessColor getColorOfFallingFlag() {
         return colorOfFallingFlag;
     }
 }

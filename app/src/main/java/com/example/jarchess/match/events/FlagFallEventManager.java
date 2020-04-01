@@ -16,7 +16,7 @@ public class FlagFallEventManager implements Clearable {
      */
     private FlagFallEventManager() {
         listeners = new LinkedList<>();
-        ClearableManager.add(this);
+        MatchClearableManager.add(this);
     }
 
     /**

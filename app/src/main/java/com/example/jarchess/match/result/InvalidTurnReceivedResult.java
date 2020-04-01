@@ -9,7 +9,7 @@ public class InvalidTurnReceivedResult extends WinResult {
     }
 
     @Override
-    protected String winTypeString() {
+    protected String getWinTypeString() {
         return "invalid move";
     }
 }

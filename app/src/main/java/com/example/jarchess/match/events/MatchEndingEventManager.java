@@ -15,7 +15,7 @@ public class MatchEndingEventManager implements Clearable {
      */
     private MatchEndingEventManager() {
         listeners = new LinkedList<>();
-        ClearableManager.add(this);
+        MatchClearableManager.add(this);
     }
 
     /**

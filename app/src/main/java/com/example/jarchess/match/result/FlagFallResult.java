@@ -8,7 +8,7 @@ public class FlagFallResult extends WinResult {
     }
 
     @Override
-    protected String winTypeString() {
+    protected String getWinTypeString() {
         return "clock flag fall";
     }
 }

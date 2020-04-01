@@ -15,7 +15,7 @@ public class MatchResultIsInEventManager implements Clearable {
      */
     private MatchResultIsInEventManager() {
         listeners = new LinkedList<>();
-        ClearableManager.add(this);
+        MatchClearableManager.add(this);
     }
 
     /**

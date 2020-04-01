@@ -9,7 +9,7 @@ public class ResignationResult extends WinResult {
     }
 
     @Override
-    protected String winTypeString() {
+    protected String getWinTypeString() {
         return "resignation";
     }
 }
