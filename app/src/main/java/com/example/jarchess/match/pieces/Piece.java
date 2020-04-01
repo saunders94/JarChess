@@ -69,7 +69,7 @@ public abstract class Piece implements Cloneable {
      *
      * @param patterns a collection of movement patterns to add
      */
-    void add(Collection<MovementPattern> patterns) {
+    void add(Iterable<MovementPattern> patterns) {
         for (MovementPattern pattern : patterns) {
             add(pattern);
         }
@@ -89,6 +89,7 @@ public abstract class Piece implements Cloneable {
      *
      * @return the movement patterns of this piece
      */
+    @NonNull
     public Collection<MovementPattern> getMovementPatterns() {
         return movementPatterns;
     }
@@ -98,6 +99,7 @@ public abstract class Piece implements Cloneable {
      *
      * @return the starting position of this piece
      */
+    @NonNull
     public Coordinate getStartingPosition() {
         return startingPosition;
     }
@@ -125,8 +127,6 @@ public abstract class Piece implements Cloneable {
     public int hashCode() {
         int hashCode = type.hashCode();
         hashCode ^= color.hashCode();
-        hashCode ^= startingPosition.hashCode();
-        hashCode ^= Boolean.valueOf(hasMoved).hashCode();
         return hashCode;
     }
 
@@ -143,13 +143,8 @@ public abstract class Piece implements Cloneable {
 
             boolean p1 = this.getColor().equals(that.getColor());
             boolean p2 = this.getType().equals(that.getType());
-            boolean p3 = this.hasMoved == that.hasMoved;
-            boolean p4 = this.startingPosition.equals(that.startingPosition);
 
-            return p1
-                    && p2
-                    && p3
-                    && p4;
+            return p1 && p2;
         }
 
         return false;

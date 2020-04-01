@@ -82,6 +82,11 @@ public class CasualMatchClock implements MatchClock {
     }
 
     @Override
+    public synchronized boolean isAlive() {
+        return thread != null && !threadNeedsToDie;
+    }
+
+    @Override
     public synchronized void start() {
         if (thread != null) {
             resume();

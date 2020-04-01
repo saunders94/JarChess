@@ -1,6 +1,7 @@
 package com.example.jarchess.match.view;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -18,6 +19,8 @@ import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.events.ClockTickEvent;
 import com.example.jarchess.match.events.ClockTickEventListener;
 import com.example.jarchess.match.events.ClockTickEventManager;
+import com.example.jarchess.match.events.PauseButtonPressedEvent;
+import com.example.jarchess.match.events.PauseButtonPressedEventManager;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.MatchParticipant;
@@ -53,18 +56,21 @@ public class MatchView extends View implements ClockTickEventListener {
     private final int leftParticipantTextColor;
     private final int rightParticipantTextColor;
     private final Button commitButton;
+    private static final String TAG = "MatchView";
     private final LeaveMatchDialog leaveMatchDialog;
     private final CommitButtonClickObserver commitButtonClickObserver;
     private final CapturedPiecesView capturedPieceView;
     private final MatchResultDialog matchResultDialog;
     private final PawnPromotionChoiceDialog pawnPromotionChoiceDialog;
     private final Activity activity;
+    private final Button pauseButton;
 
     public MatchView(Match match, MatchActivity activity) {
         super(activity.getBaseContext());
         commitButtonClickObserver = activity;
         this.activity = activity;
         participantInfoBarView = activity.findViewById(R.id.participant_info_bar);
+        pauseButton = participantInfoBarView.findViewById(R.id.pauseButton);
         leftParticipantInfoView = participantInfoBarView.findViewById(R.id.player_info);
         leftParticipantNameTextView = leftParticipantInfoView.findViewById(R.id.nameTextView);
         leftParticipantColorTextView = leftParticipantInfoView.findViewById(R.id.playerColorTextView);
@@ -83,7 +89,17 @@ public class MatchView extends View implements ClockTickEventListener {
         commitButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.i(TAG, "commitButton onClick: ");
                 commitButtonClickObserver.observeCommitButtonClick();
+            }
+        });
+
+
+        pauseButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "pauseButton onClick: ");
+                PauseButtonPressedEventManager.getInstance().notifyAllListeners(new PauseButtonPressedEvent());
             }
         });
 
@@ -104,7 +120,7 @@ public class MatchView extends View implements ClockTickEventListener {
                     match,
                     activity);
         } else {
-            leftParticipant = match.getBlackPlayer();
+            leftParticipant = match.getBlackParticipant();
             chessboardView = new ChessboardView(
                     activity.findViewById(R.id.chessboard),
                     chesspieceStyle,
@@ -117,7 +133,7 @@ public class MatchView extends View implements ClockTickEventListener {
 
         capturedPieceView = new CapturedPiecesView(activity, chesspieceStyle, leftParticipant.getColor());
 
-        rightParticipant = leftParticipant.equals(match.getBlackPlayer()) ? match.getWhitePlayer() : match.getBlackPlayer();
+        rightParticipant = leftParticipant.equals(match.getBlackParticipant()) ? match.getWhiteParticipant() : match.getBlackParticipant();
         leftParticipantColor = leftParticipant.getColor() == BLACK ? android.graphics.Color.BLACK : android.graphics.Color.WHITE;
         rightParticipantColor = rightParticipant.getColor() == BLACK ? android.graphics.Color.BLACK : android.graphics.Color.WHITE;
         leftParticipantTextColor = leftParticipant.getColor() == ChessColor.WHITE ? android.graphics.Color.BLACK : android.graphics.Color.WHITE;
@@ -184,6 +200,15 @@ public class MatchView extends View implements ClockTickEventListener {
 
     public void setDestinationSelectionIndicator(@NonNull Coordinate coordinate) {
         chessboardView.setDestinationSelectionIndicator(coordinate);
+    }
+
+    public void setPauseButtonText(final String string) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                pauseButton.setText(string);
+            }
+        });
     }
 
     public void setPromotionIndicator(Coordinate coordinate) {

@@ -104,13 +104,17 @@ public abstract class IncrementMatchClock implements MatchClock {
     }
 
     @Override
-    public void kill() {
+    public synchronized void kill() {
         threadNeedsToDie = true;
     }
 
     @Override
+    public synchronized boolean isAlive() {
+        return thread != null && !threadNeedsToDie;
+    }
+
+    @Override
     public synchronized boolean isRunning() {
-        Log.v(TAG, "isRunning() called");
         return runningColor != null;
     }
 

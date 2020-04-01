@@ -1,9 +1,10 @@
-package com.example.jarchess.match;
+package com.example.jarchess.match.chessboard;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.jarchess.match.move.PieceMovement;
+import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.pieces.Bishop;
 import com.example.jarchess.match.pieces.King;
 import com.example.jarchess.match.pieces.Knight;
@@ -11,8 +12,6 @@ import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.pieces.Queen;
 import com.example.jarchess.match.pieces.Rook;
-
-import java.util.Collection;
 
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
@@ -33,7 +32,7 @@ public class Chessboard {
     /**
      * Private constructor used to create the instance of chessboard
      */
-    Chessboard() {
+    public Chessboard() {
         pieces = new Piece[COLUMN_COUNT][ROW_COUNT];
 
         Piece tmp;
@@ -112,26 +111,24 @@ public class Chessboard {
         pieces[column][row] = piece;
     }
 
-    public Chessboard getCopyWithMovementsApplied(Iterable<PieceMovement> movements) {
-        Chessboard copy = new Chessboard(this);
-        for (PieceMovement movement : movements) {
-            copy.move(movement.getOrigin(), movement.getDestination());
-        }
-        return copy;
+    public Chessboard getCopy() {
+        return new Chessboard(this);
     }
 
-    public Chessboard getCopyWithMovementsApplied(Coordinate origin, Coordinate destination) {
+
+    public Chessboard getCopyWithMovementsApplied(@NonNull Coordinate origin, @NonNull Coordinate destination) {
+        return getCopyWithMovementsApplied(origin, destination, null);
+    }
+
+    public Chessboard getCopyWithMovementsApplied(@NonNull Coordinate origin, @NonNull Coordinate destination, @Nullable Coordinate captureCoordinate) {
         Chessboard copy = new Chessboard(this);
+        if (captureCoordinate != null) {
+            copy.remove(captureCoordinate);
+        }
         copy.move(origin, destination);
         return copy;
     }
 
-    public Chessboard getCopyWithMovementsApplied(Coordinate origin1, Coordinate destination1, Coordinate origin2, Coordinate destination2) {
-        Chessboard copy = new Chessboard(this);
-        copy.move(origin1, destination1);
-        copy.move(origin2, destination2);
-        return copy;
-    }
 
     /**
      * Gets the Piece at a specified coordinate or null if there is no piece at that position
