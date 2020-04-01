@@ -14,7 +14,7 @@ public class PauseButtonPressedEventManager implements Clearable {
      */
     private PauseButtonPressedEventManager() {
         super();
-        ClearableManager.add(this);
+        MatchClearableManager.add(this);
     }
 
     /**
