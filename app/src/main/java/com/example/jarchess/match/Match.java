@@ -4,7 +4,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.jarchess.LoggedThread;
 import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.clock.ClockSyncException;
 import com.example.jarchess.match.clock.MatchClock;
 import com.example.jarchess.match.clock.MatchClockChoice;
 import com.example.jarchess.match.events.MatchEndingEvent;
@@ -12,6 +14,7 @@ import com.example.jarchess.match.events.MatchEndingEventListener;
 import com.example.jarchess.match.events.MatchEndingEventManager;
 import com.example.jarchess.match.events.MatchResultIsInEvent;
 import com.example.jarchess.match.events.MatchResultIsInEventManager;
+import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.pieces.Bishop;
@@ -27,6 +30,7 @@ import com.example.jarchess.match.result.ExceptionResult;
 import com.example.jarchess.match.result.FlagFallResult;
 import com.example.jarchess.match.result.StalemateDrawResult;
 import com.example.jarchess.match.turn.Turn;
+import com.example.jarchess.match.view.MatchView;
 
 import java.util.Collection;
 
@@ -42,10 +46,12 @@ public abstract class Match implements MatchEndingEventListener {
     private final Chessboard chessboard;
     private final MoveExpert moveExpert;
     private final MatchClock matchClock;
+    private final MatchActivity matchActivity;
     private ChessMatchResult matchChessMatchResult = null;
     private String gameToken;
-    public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2, MatchClockChoice matchClockChoice) {
 
+    public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2, MatchClockChoice matchClockChoice, MatchActivity matchActivity) {
+        this.matchActivity = matchActivity;
         chessboard = new Chessboard();
         chessboard.reset();
         this.blackPlayer = participant1.getColor() == BLACK ? participant1 : participant2;
@@ -107,6 +113,38 @@ public abstract class Match implements MatchEndingEventListener {
         }
     }
 
+    private void execute(Turn turn) {
+        Log.v(TAG, "execute is running on thread: " + Thread.currentThread().getName());
+        Move move = turn.getMove();
+        for (PieceMovement movement : move) {
+
+            Coordinate origin = movement.getOrigin();
+            Coordinate destination = movement.getDestination();
+
+            if (getPieceAt(destination) != null) {
+                //perform normal capture
+                Piece capturedPiece = capture(destination);
+                matchActivity.getMatchView().addCapturedPiece(capturedPiece);
+            } else if (matchHistory.getEnPassantVulnerableCoordinate() == destination && getPieceAt(origin) instanceof Pawn) {
+                // perform en passant capture
+                Piece capturedPiece = capture(matchHistory.getEnPassentRiskedPieceLocation());
+                matchActivity.getMatchView().addCapturedPiece(capturedPiece);
+                matchActivity.getMatchView().updatePiece(matchHistory.getEnPassentRiskedPieceLocation());
+            }
+            move(movement.getOrigin(), movement.getDestination());
+            PromotionChoice choice = turn.getPromotionChoice();
+            if (choice != null) {
+                promote(destination, choice);
+            }
+        }
+        matchHistory.add(turn, chessboard);
+        checkForGameEnd(ChessColor.getOther(turn.getColor()));
+    }
+
+    public ChessMatchResult getMatchChessMatchResult() {
+        return matchChessMatchResult;
+    }
+
     public void forceEndMatch(String msg) {
         MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(getForceExitWinningColor(), msg, new Exception("Match end was forced"))));
     }
@@ -122,16 +160,27 @@ public abstract class Match implements MatchEndingEventListener {
         return moveExpert.getLegalCastleMovements(origin, destination, chessboard);
     }
 
+    private synchronized void setMatchChessMatchResult(ChessMatchResult matchChessMatchResult) {
+        Log.d(TAG, "setMatchResult() called with: matchResult = [" + matchChessMatchResult + "]");
+        Log.d(TAG, "setMatchResult is running on thread: " + Thread.currentThread().getName());
+        if (this.matchChessMatchResult == null) {
+            Log.i(TAG, "setMatchResult: " + matchChessMatchResult);
+            this.matchChessMatchResult = matchChessMatchResult;
+            notifyAll();
+            MatchResultIsInEventManager.getInstance().notifyAllListeners(new MatchResultIsInEvent(matchChessMatchResult));
+        }
+    }
+
+    public boolean isDone() {
+        return matchChessMatchResult != null;
+    }
+
     public MatchClock getMatchClock() {
         return matchClock;
     }
 
     public MatchHistory getMatchHistory() {
         return matchHistory;
-    }
-
-    public ChessMatchResult getMatchChessMatchResult() {
-        return matchChessMatchResult;
     }
 
     public MatchParticipant getParticipant(ChessColor color) {
@@ -162,23 +211,47 @@ public abstract class Match implements MatchEndingEventListener {
         return whitePlayer;
     }
 
-    private synchronized void setMatchChessMatchResult(ChessMatchResult matchChessMatchResult) {
-        Log.d(TAG, "setMatchResult() called with: matchResult = [" + matchChessMatchResult + "]");
-        Log.d(TAG, "setMatchResult is running on thread: " + Thread.currentThread().getName());
-        if (this.matchChessMatchResult == null) {
-            Log.i(TAG, "setMatchResult: " + matchChessMatchResult);
-            this.matchChessMatchResult = matchChessMatchResult;
-            notifyAll();
-            MatchResultIsInEventManager.getInstance().notifyAllListeners(new MatchResultIsInEvent(matchChessMatchResult));
+    private void playMatch() {
+        Turn turn;
+
+        MatchView matchView = matchActivity.getMatchView();
+
+        try {
+            try {
+                matchClock.start();
+                matchActivity.setCurrentControllerColorIfNeeded();
+                turn = getWhitePlayer().getFirstTurn();
+                matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
+                validate(turn);
+                execute(turn);
+                matchView.updateViewAfter(turn);
+
+                while (!isDone()) {
+                    matchActivity.changeCurrentControllerColorIfNeeded();
+                    turn = getTurn(turn);
+                    matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
+                    validate(turn);
+                    execute(turn);
+                    matchView.updateViewAfter(turn);
+                }
+            } catch (InterruptedException e) {
+                forceEndMatch("Thread was Interrupted");
+                throw new MatchActivity.MatchOverException(new ExceptionResult(getForceExitWinningColor(), "The thread was interrupted", e));
+            } catch (ClockSyncException e1) {
+                // match ends due to clock sync exception
+                MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(ChessColor.getOther(e1.getColorOutOfSync()), "reported time out of tolerance", e1)));
+            }
+        } catch (MatchActivity.MatchOverException e2) {
+            // the match is over... just continue
         }
+
+        matchClock.stop();
+
+        matchActivity.showMatchResult();
     }
 
     public void move(Coordinate origin, Coordinate destination) {
         chessboard.move(origin, destination);
-    }
-
-    public boolean isDone() {
-        return matchChessMatchResult != null;
     }
 
     @Override
@@ -220,5 +293,18 @@ public abstract class Match implements MatchEndingEventListener {
         }
     }
 
+    public void start() {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                playMatch();
+            }
+        };
+        new LoggedThread(TAG, runnable, "MatchThread").start();
 
+    }
+
+    private void validate(Turn turn) {
+        //TODO
+    }
 }

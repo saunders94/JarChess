@@ -34,12 +34,12 @@ public class MatchHistory implements Iterable<Turn> {
         chessboardBeforeLastMove = null;
     }
 
-    public void add(Turn turn) {
+    public void add(Turn turn, Chessboard updatedChessboard) {
         enPassantVulnerableCoordinate = null;
         enPassentRiskedPieceLocation = null;
         Log.v(TAG, "add is running on thread: " + Thread.currentThread().getName());
         chessboardBeforeLastMove = chessboardAfterLastMove;
-        chessboardAfterLastMove = chessboardBeforeLastMove.getCopyWithMovementsApplied(turn.getMove());
+        chessboardAfterLastMove = updatedChessboard.getCopy();
         turnList.addLast(turn);
 
         for (PieceMovement movement : turn.getMove()) {

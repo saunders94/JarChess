@@ -52,7 +52,7 @@ public class MatchStarter {
         ChessColor opponentColor = ChessColor.getRandom();
         MatchParticipant opponent = new EasyAIOpponent(opponentColor);
 
-        return new PlayerMatch(opponent, matchClockChoice, localParticipantController);
+        return new PlayerMatch(opponent, matchClockChoice, localParticipantController, easyAIMatchActivity);
     }
 
     public Match startHardAIMatch(HardAIMatchActivity hardAIMatchActivity, LocalParticipantController localParticipantController) {
@@ -60,14 +60,14 @@ public class MatchStarter {
         ChessColor opponentColor = ChessColor.getRandom();
         MatchParticipant opponent = new HardAIOpponent(opponentColor);
 
-        return new PlayerMatch(opponent, matchClockChoice, localParticipantController);
+        return new PlayerMatch(opponent, matchClockChoice, localParticipantController, hardAIMatchActivity);
     }
 
     public Match startLocalMultiplayerMatch(LocalMultiplayerMatchActivity localMultiplayerMatchActivity, LocalParticipantController localParticipantController) {
         ChessColor opponentColor = ChessColor.getRandom();
         MatchParticipant opponent = new LocalOpponent(opponentColor, localParticipantController);
 
-        return new PlayerMatch(opponent, matchClockChoice, localParticipantController);
+        return new PlayerMatch(opponent, matchClockChoice, localParticipantController, localMultiplayerMatchActivity);
     }
 
     public Match startRemoteMultiplayerMatch(OnlineMultiplayerMatchActivity onlineMultiplayerMatchActivity, LocalParticipantController localParticipantController) {
@@ -82,6 +82,6 @@ public class MatchStarter {
         DatapackageQueueAdapter adapter = new DatapackageQueueAdapter(onlineMatchInfoBundle.getDatapackageQueue());
 
 
-        return new OnlineMatch(onlineMatchInfoBundle, adapter, adapter, localParticipantController);
+        return new OnlineMatch(onlineMatchInfoBundle, adapter, adapter, localParticipantController, onlineMultiplayerMatchActivity);
     }
 }
