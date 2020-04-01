@@ -1,11 +1,11 @@
 package com.example.jarchess.match.activity;
 
 import com.example.jarchess.match.Match;
-import com.example.jarchess.match.MatchStarter;
+import com.example.jarchess.match.MatchBuilder;
 
 public class HardAIMatchActivity extends MatchActivity {
     @Override
     public Match createMatch() {
-        return MatchStarter.getInstance().startHardAIMatch(this, this);
+        return MatchBuilder.getInstance().startHardAIMatch(this, this);
     }
 }
