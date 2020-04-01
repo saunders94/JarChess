@@ -39,7 +39,7 @@ public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
     }
 
     public Move(Collection<PieceMovement> pieceMovements) {
-        if (pieceMovements.size() < MIN_MOVEMENT_COUNT || pieceMovements.size() > 2) {
+        if (pieceMovements.size() < MIN_MOVEMENT_COUNT || pieceMovements.size() > MAX_MOVEMENT_COUNT) {
             throw new IllegalArgumentException("Expected 1 or 2 piece movements but got " + pieceMovements.size());
         }
         movements = new LinkedList<PieceMovement>();
