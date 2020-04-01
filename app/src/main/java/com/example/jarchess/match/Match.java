@@ -265,7 +265,7 @@ public abstract class Match implements MatchEndingEventListener {
     @Override
     public void observe(MatchEndingEvent matchEndingEvent) {
 
-        setMatchChessMatchResult(matchEndingEvent.getMatchChessMatchResult());
+        setMatchChessMatchResult(matchEndingEvent.getResult());
 
 
     }
