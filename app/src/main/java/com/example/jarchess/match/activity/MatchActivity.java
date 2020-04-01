@@ -421,7 +421,7 @@ public abstract class MatchActivity extends AppCompatActivity
         Log.v(TAG, "setDestinationInput() called with: destinationInput = [" + destinationInput + "]");
 
         if (destinationInput != null) {
-            matchView.clearDestinationSelectionIndicator(destinationInput);
+            matchView.updateAfterSettingPossibleDestinations(possibleDestinations);
         }
         destinationInput = destination;
         matchView.setDestinationSelectionIndicator(destination);
