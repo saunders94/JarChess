@@ -28,6 +28,7 @@ public class OnlineMatchMaker {
     private IOException ioException = null;
     private OnlineMatchInfoBundle onlineMatchInfoBundle = null;
     private String gameServer = "AppLB-f1eb9121f64bbd52.elb.us-east-2.amazonaws.com";
+    private String serverIp = "3.18.79.149";
     private int serverPort = 12345;
     private DataInputStream in;
     private DataOutputStream out;
@@ -89,7 +90,17 @@ public class OnlineMatchMaker {
     public OnlineMatchInfoBundle getOnlineMatchInfoBundle() throws SearchCanceledException, IOException, InterruptedException {
         Log.v(TAG, "getOnlineMatchInfoBundle() called");
         Log.v(TAG, "getOnlineMatchInfoBundle is running on thread: " + Thread.currentThread().getName());
+        this.socket = new Socket(serverIp, serverPort);
+        socket.setSoTimeout(500);
+        boolean failed;
+        final byte[] buffer = new byte[1024];
 
+        this.in = new DataInputStream(
+                new BufferedInputStream(
+                        socket.getInputStream()));
+        this.out = new DataOutputStream(
+                new BufferedOutputStream(
+                        socket.getOutputStream()));
 
         // start the search
         Thread t = new LoggedThread(TAG, new Runnable() {
@@ -98,16 +109,10 @@ public class OnlineMatchMaker {
                 synchronized (lock) {
                     wasCanceled = false;
                     done = false;
-                    final byte[] buffer = new byte[1024];
-
 
                     try {
 
                         //create and bind socket to server
-
-                        socket = new Socket(gameServer, serverPort);
-                        socket.setSoTimeout(500);
-                        boolean failed;
 
                         //send a request to the server to find a match for an online game
                         JSONObject jsonObj = new JSONObject();
@@ -120,12 +125,7 @@ public class OnlineMatchMaker {
                             e.printStackTrace();
                         }
 
-                        in = new DataInputStream(
-                                new BufferedInputStream(
-                                        socket.getInputStream()));
-                        out = new DataOutputStream(
-                                new BufferedOutputStream(
-                                        socket.getOutputStream()));
+
 //
 //                        if (!wasCanceled) {
 //                            do {
@@ -177,10 +177,13 @@ public class OnlineMatchMaker {
 
                     } catch (IOException e1) { // if an I/O exception is experienced
                         ioException = e1; //record the exception
+                        Log.i(TAG, e1.toString());
                     } catch (SearchCanceledException e2) {
                         // just get out
+                        Log.i(TAG, e2.toString());
                     } catch (InterruptedException e3) {
                         //just get out
+                        Log.i(TAG, e3.toString());
                     } finally {
                         lock.notifyAll();
                         done = true;
