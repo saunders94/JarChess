@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.example.jarchess.LoggedThread;
 import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.chessboard.Chessboard;
 import com.example.jarchess.match.clock.ClockSyncException;
 import com.example.jarchess.match.clock.MatchClock;
 import com.example.jarchess.match.clock.MatchClockChoice;
@@ -14,6 +15,7 @@ import com.example.jarchess.match.events.MatchEndingEventListener;
 import com.example.jarchess.match.events.MatchEndingEventManager;
 import com.example.jarchess.match.events.MatchResultIsInEvent;
 import com.example.jarchess.match.events.MatchResultIsInEventManager;
+import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.MatchParticipant;
@@ -114,6 +116,8 @@ public abstract class Match implements MatchEndingEventListener {
     }
 
     private void execute(Turn turn) {
+        Piece capturedPiece = null;
+        Coordinate capturedPieceCoordinate = null;
         Log.v(TAG, "execute is running on thread: " + Thread.currentThread().getName());
         Move move = turn.getMove();
         for (PieceMovement movement : move) {
@@ -123,11 +127,13 @@ public abstract class Match implements MatchEndingEventListener {
 
             if (getPieceAt(destination) != null) {
                 //perform normal capture
-                Piece capturedPiece = capture(destination);
+                capturedPieceCoordinate = destination;
+                capturedPiece = capture(capturedPieceCoordinate);
                 matchActivity.getMatchView().addCapturedPiece(capturedPiece);
             } else if (matchHistory.getEnPassantVulnerableCoordinate() == destination && getPieceAt(origin) instanceof Pawn) {
                 // perform en passant capture
-                Piece capturedPiece = capture(matchHistory.getEnPassentRiskedPieceLocation());
+                capturedPieceCoordinate = matchHistory.getEnPassentRiskedPieceLocation();
+                capturedPiece = capture(matchHistory.getEnPassentRiskedPieceLocation());
                 matchActivity.getMatchView().addCapturedPiece(capturedPiece);
                 matchActivity.getMatchView().updatePiece(matchHistory.getEnPassentRiskedPieceLocation());
             }
@@ -137,7 +143,7 @@ public abstract class Match implements MatchEndingEventListener {
                 promote(destination, choice);
             }
         }
-        matchHistory.add(turn, chessboard);
+        matchHistory.add(turn, chessboard, capturedPiece, capturedPieceCoordinate);
         checkForGameEnd(ChessColor.getOther(turn.getColor()));
     }
 

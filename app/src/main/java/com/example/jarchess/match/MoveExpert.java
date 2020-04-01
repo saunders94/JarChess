@@ -4,6 +4,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.jarchess.match.chessboard.Chessboard;
+import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.pieces.King;
 import com.example.jarchess.match.pieces.Pawn;
@@ -45,6 +47,20 @@ public class MoveExpert {
         }
 
         return instance;
+    }
+
+    public Collection<PieceMovement> getAllPossibleMovements(ChessColor color, MatchHistory matchHistory, Chessboard chessboard) {
+        Collection<PieceMovement> movements = new LinkedList<>();
+        for (Coordinate origin : Coordinate.values()) {
+            Piece movingPiece = chessboard.getPieceAt(origin);
+            if (movingPiece != null && movingPiece.getColor() == color) {
+                for (Coordinate destination : getLegalDestinations(origin, chessboard)) {
+                    movements.add(new PieceMovement(origin, destination));
+                }
+            }
+        }
+
+        return movements;
     }
 
     public Collection<PieceMovement> getLegalCastleMovements(@NonNull Coordinate kingOrigin, @NonNull Coordinate kingDestination, Chessboard chessboardToCheck) {

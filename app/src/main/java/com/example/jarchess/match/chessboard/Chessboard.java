@@ -1,8 +1,10 @@
-package com.example.jarchess.match;
+package com.example.jarchess.match.chessboard;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.pieces.Bishop;
 import com.example.jarchess.match.pieces.King;
 import com.example.jarchess.match.pieces.Knight;
@@ -30,7 +32,7 @@ public class Chessboard {
     /**
      * Private constructor used to create the instance of chessboard
      */
-    Chessboard() {
+    public Chessboard() {
         pieces = new Piece[COLUMN_COUNT][ROW_COUNT];
 
         Piece tmp;

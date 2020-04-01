@@ -1,6 +1,7 @@
 package com.example.jarchess.match.move;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.online.datapackage.JSONConverter;
@@ -39,6 +40,20 @@ public class PieceMovement implements JSONConvertible<PieceMovement> {
         return origin;
     }
 
+    @Override
+    public int hashCode() {
+        return origin.hashCode() ^ destination.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null || obj.getClass() != getClass()) {
+            return false;
+        }
+        PieceMovement that = (PieceMovement) obj;
+        return this.origin == that.origin && this.destination == that.destination;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -75,5 +90,6 @@ public class PieceMovement implements JSONConvertible<PieceMovement> {
             Coordinate destination = Coordinate.JSON_CONVERTER.convertFromJSONObject(jsonObject.getJSONObject(JSON_PROPERTY_NAME_DESTINATION));
             return new PieceMovement(origin, destination);
         }
+
     }
 }

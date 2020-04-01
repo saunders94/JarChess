@@ -20,6 +20,7 @@ public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
     private static final int MAX_MOVEMENT_COUNT = 2;
     private static final int MIN_MOVEMENT_COUNT = 1;
     private final Collection<PieceMovement> movements;
+    private static final String TAG = "Move";
 
     /**
      * Creates a Move with a single movement from a origin and destination <code>Coordinate</code>
@@ -59,19 +60,6 @@ public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
         jsonObject.put(JSON_PROPERTY_NAME_MOVEMENTS, jsonArray);
 
         return jsonObject;
-    }
-
-    @Override
-    public int hashCode() {
-        return movements.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o.getClass() != getClass()) {
-            return false;
-        }
-        return movements.equals(((Move) o).movements);
     }
 
     @NonNull
