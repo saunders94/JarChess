@@ -20,19 +20,19 @@ import com.example.jarchess.online.OnlineMatchInfoBundle;
 import static com.example.jarchess.match.MatchNetworkIO.DatapackageQueueAdapter;
 
 //TODO javadocs
-public class MatchStarter {
-    private static MatchStarter instance = null;
+public class MatchBuilder {
+    private static MatchBuilder instance = null;
     private final JarAccount account = JarAccount.getInstance();
     private OnlineMatchInfoBundle onlineMatchInfoBundle;
     private MatchClockChoice matchClockChoice = MatchClockChoice.CLASSIC_FIDE_MATCH_CLOCK;
     private static final String TAG = "MatchStarter";
 
-    private MatchStarter() {
+    private MatchBuilder() {
     }
 
-    public static MatchStarter getInstance() {
+    public static MatchBuilder getInstance() {
         if (instance == null) {
-            instance = new MatchStarter();
+            instance = new MatchBuilder();
         }
 
         return instance;

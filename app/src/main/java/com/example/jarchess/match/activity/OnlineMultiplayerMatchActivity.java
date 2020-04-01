@@ -1,12 +1,12 @@
 package com.example.jarchess.match.activity;
 
 import com.example.jarchess.match.Match;
-import com.example.jarchess.match.MatchStarter;
+import com.example.jarchess.match.MatchBuilder;
 
 public class OnlineMultiplayerMatchActivity extends MatchActivity {
     @Override
     public Match createMatch() {
 
-        return MatchStarter.getInstance().startRemoteMultiplayerMatch(this, this);
+        return MatchBuilder.getInstance().startRemoteMultiplayerMatch(this, this);
     }
 }

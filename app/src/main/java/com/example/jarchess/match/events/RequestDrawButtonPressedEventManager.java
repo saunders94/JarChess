@@ -14,7 +14,7 @@ public class RequestDrawButtonPressedEventManager implements Clearable {
      */
     private RequestDrawButtonPressedEventManager() {
         super();
-        ClearableManager.add(this);
+        MatchClearableManager.add(this);
     }
 
     /**

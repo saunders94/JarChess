@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.jarchess.match.MatchStarter;
+import com.example.jarchess.match.MatchBuilder;
 import com.example.jarchess.match.activity.LocalMultiplayerMatchActivity;
 import com.example.jarchess.match.activity.OnlineMultiplayerMatchActivity;
 import com.example.jarchess.online.OnlineMatchInfoBundle;
@@ -55,7 +55,7 @@ public class MultiplayerType extends Fragment {
             @Override
             public void onClick(View v) {
 
-                MatchStarter.getInstance().setMatchClockChoice(JarAccount.getInstance().getPreferredMatchClock());
+                MatchBuilder.getInstance().setMatchClockChoice(JarAccount.getInstance().getPreferredMatchClock());
 
 
                 Intent intent = new Intent(getActivity(), LocalMultiplayerMatchActivity.class);
@@ -122,7 +122,7 @@ public class MultiplayerType extends Fragment {
                         Log.i(TAG, "Creating onlinematchMakerBundle");
                         onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle();
                         Log.i(TAG, "Online match info bundle created");
-                        MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
+                        MatchBuilder.getInstance().multiplayerSetup(onlineMatchInfoBundle);
 
                         Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
                         startActivity(intent);

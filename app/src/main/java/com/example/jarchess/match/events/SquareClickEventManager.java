@@ -15,7 +15,7 @@ public class SquareClickEventManager implements Clearable {
      */
     private SquareClickEventManager() {
         listeners = new LinkedList<>();
-        ClearableManager.add(this);
+        MatchClearableManager.add(this);
     }
 
     /**

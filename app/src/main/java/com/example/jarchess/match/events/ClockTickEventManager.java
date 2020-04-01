@@ -13,7 +13,7 @@ public class ClockTickEventManager implements Clearable {
      */
     private ClockTickEventManager() {
         listeners = new LinkedList<>();
-        ClearableManager.add(this);
+        MatchClearableManager.add(this);
     }
 
     /**

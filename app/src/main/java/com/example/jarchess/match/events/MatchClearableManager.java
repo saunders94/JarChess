@@ -3,15 +3,15 @@ package com.example.jarchess.match.events;
 import java.util.Collection;
 import java.util.LinkedList;
 
-public class ClearableManager {
+public class MatchClearableManager {
 
     private static Collection<Clearable> clearables = new LinkedList<>();
-    private static ClearableManager instance;
+    private static MatchClearableManager instance;
 
     /**
      * Creates an instance of <code>ClearableManager</code> to construct a singleton instance
      */
-    private ClearableManager() {
+    private MatchClearableManager() {
     }
 
     public static boolean add(Clearable clearable) {
@@ -29,9 +29,9 @@ public class ClearableManager {
      *
      * @return the instance.
      */
-    public static ClearableManager getInstance() {
+    public static MatchClearableManager getInstance() {
         if (instance == null) {
-            instance = new ClearableManager();
+            instance = new MatchClearableManager();
         }
 
         return instance;

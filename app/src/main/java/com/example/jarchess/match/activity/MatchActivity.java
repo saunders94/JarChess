@@ -12,7 +12,7 @@ import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
 import com.example.jarchess.match.clock.MatchClock;
-import com.example.jarchess.match.events.ClearableManager;
+import com.example.jarchess.match.events.MatchClearableManager;
 import com.example.jarchess.match.events.MatchEndingEvent;
 import com.example.jarchess.match.events.MatchEndingEventManager;
 import com.example.jarchess.match.events.PauseButtonPressedEvent;
@@ -223,7 +223,7 @@ public abstract class MatchActivity extends AppCompatActivity
         if (!match.isDone()) {
             match.forceEndMatch("Activity was exited");
         }
-        ClearableManager.clearAll();
+        MatchClearableManager.clearAll();
         super.onBackPressed();
     }
 
