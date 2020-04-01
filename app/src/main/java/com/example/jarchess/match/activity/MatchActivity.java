@@ -27,10 +27,10 @@ import com.example.jarchess.match.participant.LocalParticipantController;
 import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.pieces.PromotionChoice;
+import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.match.result.ExceptionResult;
 import com.example.jarchess.match.result.InvalidTurnReceivedResult;
 import com.example.jarchess.match.result.ResignationResult;
-import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.view.CommitButtonClickObserver;
 import com.example.jarchess.match.view.MatchView;
@@ -388,14 +388,13 @@ public abstract class MatchActivity extends AppCompatActivity
                 }
             } catch (InterruptedException e) {
                 match.forceEndMatch("Thread was Interrupted");
-                throw new MatchOverException(new ExceptionResult(match.getForceExitWinningColor(), "The thread was interrupted"));
+                throw new MatchOverException(new ExceptionResult(match.getForceExitWinningColor(), "The thread was interrupted", e));
             } catch (ClockSyncException e1) {
-                MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new InvalidTurnReceivedResult(ChessColor.getOther(e1.getColorOutOfSync()))));
-                throw new MatchOverException(new ExceptionResult(match.getForceExitWinningColor(), "The match clocks differed greater than " + matchClock.getToleranceMillis() + " milliseconds"));
+                // match ends due to clock sync exception
+                MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(ChessColor.getOther(e1.getColorOutOfSync()), "reported time out of tolerance", e1)));
             }
         } catch (MatchOverException e2) {
-            //TODO Notify participants
-
+            // the match is over... just continue
         }
 
         matchClock.stop();

@@ -21,6 +21,12 @@ public class Move implements Collection<PieceMovement>, JSONConvertible<Move> {
     private static final int MIN_MOVEMENT_COUNT = 1;
     private final Collection<PieceMovement> movements;
 
+    /**
+     * Creates a Move with a single movement from a origin and destination <code>Coordinate</code>
+     *
+     * @param origin      the origin of the Move's only piece movement
+     * @param destination the destination of the move's only piece movement
+     */
     public Move(@NonNull Coordinate origin, @NonNull Coordinate destination) {
         movements = new LinkedList<PieceMovement>();
         add(new PieceMovement(origin, destination));

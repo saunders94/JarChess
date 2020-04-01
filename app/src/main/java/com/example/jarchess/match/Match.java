@@ -22,10 +22,10 @@ import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.pieces.Queen;
 import com.example.jarchess.match.pieces.Rook;
 import com.example.jarchess.match.result.CheckmateResult;
-import com.example.jarchess.match.result.ExceptionResult;
 import com.example.jarchess.match.result.ChessMatchResult;
-import com.example.jarchess.match.result.StalemateDrawResult;
+import com.example.jarchess.match.result.ExceptionResult;
 import com.example.jarchess.match.result.FlagFallResult;
+import com.example.jarchess.match.result.StalemateDrawResult;
 import com.example.jarchess.match.turn.Turn;
 
 import java.util.Collection;
@@ -108,7 +108,7 @@ public abstract class Match implements MatchEndingEventListener {
     }
 
     public void forceEndMatch(String msg) {
-        MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(getForceExitWinningColor(), msg)));
+        MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(getForceExitWinningColor(), msg, new Exception("Match end was forced"))));
     }
 
     public MatchParticipant getBlackPlayer() {
