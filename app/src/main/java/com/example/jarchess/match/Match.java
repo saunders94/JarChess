@@ -102,8 +102,8 @@ public abstract class Match implements MatchEndingEventListener {
                 } else if (matchHistory.getMovesSinceCaptureOrPawnMovement(nextTurnColor) >= XMoveRuleDrawResult.FORCED_DRAW_AMOUNT) {
                     setMatchChessMatchResult(new XMoveRuleDrawResult(matchHistory.getMovesSinceCaptureOrPawnMovement(nextTurnColor)));
 
-                } else if (matchHistory.getRepititons() >= RepetitionRuleDrawResult.FORCED_DRAW_AMOUNT) {
-                    setMatchChessMatchResult(new RepetitionRuleDrawResult(matchHistory.getRepititons()));
+                } else if (matchHistory.getRepetitions() >= RepetitionRuleDrawResult.FORCED_DRAW_AMOUNT) {
+                    setMatchChessMatchResult(new RepetitionRuleDrawResult(matchHistory.getRepetitions()));
                 }
             }
         }

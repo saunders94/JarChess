@@ -149,7 +149,7 @@ public class MatchHistory implements Iterable<Turn> {
         return movesSinceCaptureOrPawnMovement[chessColor.getIntValue()];
     }
 
-    public int getRepititons() {
+    public int getRepetitions() {
         return repeatTracker.getLastRepetitionCount();
     }
 
@@ -158,7 +158,7 @@ public class MatchHistory implements Iterable<Turn> {
      *
      * @return the last turn that was taken
      */
-    public Turn getlastTurn() {
+    public Turn getLastTurn() {
         Log.v(TAG, "getlastTurn is running on thread: " + Thread.currentThread().getName());
         return turnList.peekLast();
     }
