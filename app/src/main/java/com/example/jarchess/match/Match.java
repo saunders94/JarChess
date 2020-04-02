@@ -63,17 +63,16 @@ public abstract class Match implements MatchEndingEventListener {
 
         matchHistory = new MatchHistory(whitePlayer, blackPlayer);
         moveExpert = MoveExpert.getInstance();
-        moveExpert.setMatchHistory(matchHistory);
         matchClock = matchClockChoice.makeMatchClock();
         MatchEndingEventManager.getInstance().add(this);
 
     }
 
-    public Piece capture(Coordinate destination) {
+    private Piece capture(Coordinate destination) {
         return chessboard.remove(destination);
     }
 
-    public void checkForGameEnd(ChessColor nextTurnColor) {
+    private void checkForGameEnd(ChessColor nextTurnColor) {
 
         if (matchChessMatchResult == null) {
 
@@ -93,8 +92,8 @@ public abstract class Match implements MatchEndingEventListener {
                         throw new IllegalStateException(msg);
                     }
                     setMatchChessMatchResult(new FlagFallResult(colorOfWinner));
-                } else if (!moveExpert.hasMoves(nextTurnColor, chessboard)) {
-                    if (moveExpert.isInCheck(nextTurnColor, chessboard)) {
+                } else if (!moveExpert.hasMoves(nextTurnColor, chessboard, matchHistory)) {
+                    if (moveExpert.isInCheck(nextTurnColor, chessboard, matchHistory)) {
                         setMatchChessMatchResult(new CheckmateResult(ChessColor.getOther(nextTurnColor)));
                     } else {
                         setMatchChessMatchResult(new StalemateDrawResult());
@@ -102,14 +101,14 @@ public abstract class Match implements MatchEndingEventListener {
                 } else if (matchHistory.getMovesSinceCaptureOrPawnMovement(nextTurnColor) >= XMoveRuleDrawResult.FORCED_DRAW_AMOUNT) {
                     setMatchChessMatchResult(new XMoveRuleDrawResult(matchHistory.getMovesSinceCaptureOrPawnMovement(nextTurnColor)));
 
-                } else if (matchHistory.getRepititons() >= RepetitionRuleDrawResult.FORCED_DRAW_AMOUNT) {
-                    setMatchChessMatchResult(new RepetitionRuleDrawResult(matchHistory.getRepititons()));
+                } else if (matchHistory.getRepetitions() >= RepetitionRuleDrawResult.FORCED_DRAW_AMOUNT) {
+                    setMatchChessMatchResult(new RepetitionRuleDrawResult(matchHistory.getRepetitions()));
                 }
             }
         }
     }
 
-    public void checkForTimeout() {
+    private void checkForTimeout() {
         if (matchClock.flagHasFallen()) {
             ChessColor colorOfWinner;
             colorOfWinner = matchClock.getColorOfFallenFlag();
@@ -134,10 +133,10 @@ public abstract class Match implements MatchEndingEventListener {
                 matchActivity.getMatchView().addCapturedPiece(capturedPiece);
             } else if (matchHistory.getEnPassantVulnerableCoordinate() == destination && getPieceAt(origin) instanceof Pawn) {
                 // perform en passant capture
-                capturedPieceCoordinate = matchHistory.getEnPassentRiskedPieceLocation();
-                capturedPiece = capture(matchHistory.getEnPassentRiskedPieceLocation());
+                capturedPieceCoordinate = matchHistory.getEnPassantRiskedPieceLocation();
+                capturedPiece = capture(matchHistory.getEnPassantRiskedPieceLocation());
                 matchActivity.getMatchView().addCapturedPiece(capturedPiece);
-                matchActivity.getMatchView().updatePiece(matchHistory.getEnPassentRiskedPieceLocation());
+                matchActivity.getMatchView().updatePiece(matchHistory.getEnPassantRiskedPieceLocation());
             }
             move(movement.getOrigin(), movement.getDestination());
             PromotionChoice choice = turn.getPromotionChoice();
@@ -165,7 +164,7 @@ public abstract class Match implements MatchEndingEventListener {
     public abstract ChessColor getForceExitWinningColor();
 
     public Collection<? extends PieceMovement> getLegalCastleMovements(Coordinate origin, Coordinate destination) {
-        return moveExpert.getLegalCastleMovements(origin, destination, chessboard);
+        return moveExpert.getLegalCastleMovements(origin, destination, chessboard, matchHistory);
     }
 
     private synchronized void setMatchChessMatchResult(ChessMatchResult matchChessMatchResult) {
@@ -208,10 +207,10 @@ public abstract class Match implements MatchEndingEventListener {
     }
 
     public Collection<Coordinate> getPossibleMoves(Coordinate origin) {
-        return moveExpert.getLegalDestinations(origin, chessboard);
+        return moveExpert.getLegalDestinations(origin, chessboard, matchHistory);
     }
 
-    public Turn getTurn(@NonNull Turn turn) throws MatchActivity.MatchOverException, InterruptedException {
+    private Turn getTurn(@NonNull Turn turn) throws MatchActivity.MatchOverException, InterruptedException {
         return getParticipant(ChessColor.getOther(turn.getColor())).getNextTurn(turn);
     }
 

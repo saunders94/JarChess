@@ -11,6 +11,7 @@ import com.example.jarchess.R;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
+import com.example.jarchess.match.clock.HiddenCasualMatchClock;
 import com.example.jarchess.match.clock.MatchClock;
 import com.example.jarchess.match.events.MatchClearableManager;
 import com.example.jarchess.match.events.MatchEndingEvent;
@@ -54,13 +55,12 @@ public abstract class MatchActivity extends AppCompatActivity
         RequestDrawButtonPressedEventListener {
     private static final String TAG = "MatchActivity";
     private final Collection<Coordinate> possibleDestinations;
-    private volatile ChessColor waitingForMove;
+    private  ChessColor waitingForMove;
     private volatile Move move;
     private volatile PromotionChoice promotionChoiceInput = null;
     private volatile Coordinate observedSquareClickCoordinate = null;
     private volatile boolean commitButtonHasBeenPressed = false;
     private Match match;
-    private MatchHistory matchHistory;
     private Coordinate originInput;
     private Coordinate destinationInput;
     private MatchView matchView;
@@ -131,6 +131,8 @@ public abstract class MatchActivity extends AppCompatActivity
 
         return promotionChoiceInput;
     }
+
+
 
     public void changeCurrentControllerColorIfNeeded() {
         if (currentControllerColor != null) {
@@ -389,13 +391,16 @@ public abstract class MatchActivity extends AppCompatActivity
 
         // set match to the current match
         match = createMatch();
-        matchHistory = match.getMatchHistory();
 
         //GUI Drawn
         setContentView(R.layout.activity_match);
         matchView = new MatchView(match, this);
 
         matchClock = match.getMatchClock();
+        if(matchClock instanceof HiddenCasualMatchClock)
+        {
+            matchView.makeClockDisappear();
+        }
         match.start();
     }
 
@@ -462,7 +467,7 @@ public abstract class MatchActivity extends AppCompatActivity
         Log.v(TAG, "setDestinationInput() called with: destinationInput = [" + destinationInput + "]");
 
         if (destinationInput != null) {
-            matchView.updateAfterSettingPossibleDestinations(possibleDestinations);
+            matchView.setPossibleDestinationIndicators(possibleDestinations);
         }
         destinationInput = destination;
         matchView.setDestinationSelectionIndicator(destination);
@@ -481,7 +486,7 @@ public abstract class MatchActivity extends AppCompatActivity
             matchView.clearOriginSelectionIndicator(originInput);
         }
         originInput = origin;
-        matchView.updateAfterSettingOrigin(origin);
+        matchView.setOriginSelectionIndicator(origin);
 
     }
 
@@ -513,7 +518,7 @@ public abstract class MatchActivity extends AppCompatActivity
     private void updatePossibleInputDestinations(@NonNull Coordinate originInput) {
         matchView.clearPossibleDestinationIndicators(possibleDestinations);
         possibleDestinations.addAll(match.getPossibleMoves(originInput));
-        matchView.updateAfterSettingPossibleDestinations(possibleDestinations);
+        matchView.setPossibleDestinationIndicators(possibleDestinations);
     }
 
 

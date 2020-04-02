@@ -109,7 +109,7 @@ public class CasualMatchClock implements MatchClock {
                                     while (runningColor == null) {
                                         matchClock.wait();
                                     }
-                                    notifyClockTickListeners();
+                                    tick();
                                     matchClock.wait(MILLISECOND_INTERVAL_BETWEEN_TICKS);
                                 }
                             }
@@ -194,7 +194,11 @@ public class CasualMatchClock implements MatchClock {
 
     }
 
-    private synchronized void notifyClockTickListeners() {
+    protected synchronized void tick(){
+        notifyClockTickListeners();
+    }
+
+    protected synchronized void notifyClockTickListeners() {
         ClockTickEventManager.getInstance().notifyAllListeners(new ClockTickEvent(new long[]{getDisplayedTimeMillis(ChessColor.getFromInt(0)), getDisplayedTimeMillis(ChessColor.getFromInt(1))}));
     }
 }

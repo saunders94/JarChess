@@ -27,7 +27,6 @@ import static com.example.jarchess.match.pieces.movementpatterns.MovementPattern
 public class MoveExpert {
 
     private static MoveExpert instance;
-    private MatchHistory matchHistory;
     private static final String TAG = "MoveExpert";
 
     /**
@@ -54,7 +53,7 @@ public class MoveExpert {
         for (Coordinate origin : Coordinate.values()) {
             Piece movingPiece = chessboard.getPieceAt(origin);
             if (movingPiece != null && movingPiece.getColor() == color) {
-                for (Coordinate destination : getLegalDestinations(origin, chessboard)) {
+                for (Coordinate destination : getLegalDestinations(origin, chessboard, matchHistory)) {
                     movements.add(new PieceMovement(origin, destination));
                 }
             }
@@ -63,7 +62,7 @@ public class MoveExpert {
         return movements;
     }
 
-    public Collection<PieceMovement> getLegalCastleMovements(@NonNull Coordinate kingOrigin, @NonNull Coordinate kingDestination, Chessboard chessboardToCheck) {
+    public Collection<PieceMovement> getLegalCastleMovements(@NonNull Coordinate kingOrigin, @NonNull Coordinate kingDestination, Chessboard chessboardToCheck, MatchHistory matchHistory) {
         final Collection<PieceMovement> movements = new LinkedList<PieceMovement>();
 
         Log.v(TAG, "getLegalCastleMovements() called with: kingOrigin = [" + kingOrigin + "], kingDestination = [" + kingDestination + "], chessboardToCheck = [" + chessboardToCheck + "]");
@@ -151,7 +150,7 @@ public class MoveExpert {
             Log.v(TAG, "getLegalCastleMovements: newPosition = " + newPosition);
             Chessboard tmpChessboard = chessboardToCheck.getCopyWithMovementsApplied(kingOrigin, newPosition);
             Log.v(TAG, "getLegalCastleMovements: tmpChessboard" + tmpChessboard);
-            if (isInCheck(color, tmpChessboard)) {
+            if (isInCheck(color, tmpChessboard, matchHistory)) {
                 Log.v(TAG, "getLegalCastleMovements: king would be in danger before during or after move");
                 Log.v(TAG, "getLegalCastleMovements() returned: " + movements);
                 return movements;
@@ -168,11 +167,7 @@ public class MoveExpert {
         return movements;
     }
 
-    private boolean isLegalMoveIgnoringChecks(Piece pieceToMove, Coordinate origin, MovementPattern movementPattern, Chessboard chessboardToCheck) {
-
-        if (matchHistory == null) {
-            throw new IllegalStateException("matchHistory must be set for MoveExpert before calling isLegalMoveIgnoringChecks");
-        }
+    private boolean isLegalMoveIgnoringChecks(Piece pieceToMove, Coordinate origin, MovementPattern movementPattern, Chessboard chessboardToCheck, MatchHistory matchHistory) {
 
         // if the move pattern requires the move be the first move of the piece and the piece has moved
         if (movementPattern.mustBeFirstMoveOfPiece() && pieceToMove.hasMoved()) {
@@ -181,7 +176,7 @@ public class MoveExpert {
 
         if (movementPattern instanceof CastleMovementPattern) {
             Log.v(TAG, "isLegalMoveIgnoringChecks: was instance of CastleMovementPattern");
-            return (getLegalCastleMovements(origin, movementPattern.getDestinationFrom(origin), chessboardToCheck).size() > 0);
+            return (getLegalCastleMovements(origin, movementPattern.getDestinationFrom(origin), chessboardToCheck, matchHistory).size() > 0);
 
 
         } else {
@@ -238,12 +233,12 @@ public class MoveExpert {
 
     }
 
-    public Collection<Coordinate> getLegalDestinations(Coordinate origin, Chessboard chessboardToCheck) {
+    public Collection<Coordinate> getLegalDestinations(Coordinate origin, Chessboard chessboardToCheck, MatchHistory matchHistory) {
         Collection<Coordinate> collection = new LinkedList<Coordinate>();
         Piece pieceToMove = chessboardToCheck.getPieceAt(origin);
 
         for (MovementPattern pattern : pieceToMove.getMovementPatterns()) {
-            if (isLegalMove(pieceToMove, origin, pattern, chessboardToCheck)) {
+            if (isLegalMove(pieceToMove, origin, pattern, chessboardToCheck, matchHistory)) {
                 collection.add(pattern.getDestinationFrom(origin));
             }
         }
@@ -251,11 +246,11 @@ public class MoveExpert {
         return collection;
     }
 
-    public boolean hasMoves(ChessColor nextTurnColor, Chessboard chessboardToCheck) {
+    public boolean hasMoves(ChessColor movingColor, Chessboard chessboardToCheck, MatchHistory matchHistory) {
         for (Coordinate originCoordinate : Coordinate.values()) {
             Piece piece = chessboardToCheck.getPieceAt(originCoordinate);
-            if (piece != null && piece.getColor() == nextTurnColor)
-                if (!getLegalDestinations(originCoordinate, chessboardToCheck).isEmpty()) {
+            if (piece != null && piece.getColor() == movingColor)
+                if (!getLegalDestinations(originCoordinate, chessboardToCheck, matchHistory).isEmpty()) {
                     return true;
                 }
         }
@@ -263,7 +258,7 @@ public class MoveExpert {
         return false;
     }
 
-    public boolean isInCheck(ChessColor colorOfPlayerThatMightBeInCheck, Chessboard chessboardToCheck) {
+    public boolean isInCheck(ChessColor colorOfPlayerThatMightBeInCheck, Chessboard chessboardToCheck, MatchHistory matchHistory) {
 
         final ChessColor threatColor = ChessColor.getOther(colorOfPlayerThatMightBeInCheck);
         Piece tmpPiece;
@@ -285,7 +280,7 @@ public class MoveExpert {
             if (tmpPiece != null && threatColor == tmpPiece.getColor()) {
 
                 for (MovementPattern pattern : tmpPiece.getMovementPatterns()) {
-                    if (pattern.getDestinationFrom(c) == kingCoordinateToCheck && isLegalMoveIgnoringChecks(tmpPiece, c, pattern, chessboardToCheck)) {
+                    if (pattern.getDestinationFrom(c) == kingCoordinateToCheck && isLegalMoveIgnoringChecks(tmpPiece, c, pattern, chessboardToCheck, matchHistory)) {
                         return true;
                     }
                 }
@@ -294,15 +289,15 @@ public class MoveExpert {
         return false;
     }
 
-    public boolean isLegalMove(Piece pieceToMove, Coordinate origin, MovementPattern movementPattern, Chessboard chessboardToCheck) {
+    public boolean isLegalMove(Piece pieceToMove, Coordinate origin, MovementPattern movementPattern, Chessboard chessboardToCheck, MatchHistory matchHistory) {
         Coordinate destination = movementPattern.getDestinationFrom(origin);
         if (destination == null) {
             return false; // because the destination of that move is out of bounds
         }
-        boolean isLegalIgnoringCheck = isLegalMoveIgnoringChecks(pieceToMove, origin, movementPattern, chessboardToCheck);
+        boolean isLegalIgnoringCheck = isLegalMoveIgnoringChecks(pieceToMove, origin, movementPattern, chessboardToCheck, matchHistory);
 
         if (isLegalIgnoringCheck) {
-            boolean leavesKingInCheck = isInCheck(pieceToMove.getColor(), chessboardToCheck.getCopyWithMovementsApplied(origin, destination));
+            boolean leavesKingInCheck = isInCheck(pieceToMove.getColor(), chessboardToCheck.getCopyWithMovementsApplied(origin, destination), matchHistory);
 
             return !leavesKingInCheck; // you can't make a move that would leave your king in check
         } else {
@@ -310,7 +305,4 @@ public class MoveExpert {
         }
     }
 
-    public void setMatchHistory(MatchHistory matchHistory) {
-        this.matchHistory = matchHistory;
-    }
 }

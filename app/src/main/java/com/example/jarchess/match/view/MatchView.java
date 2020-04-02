@@ -192,6 +192,16 @@ public class MatchView extends View implements ClockTickEventListener {
         chessboardView.clearDestinationSelectionIndicator(movement.getDestination());
     }
 
+    public void makeClockDisappear() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                leftParticipantTimeTextView.setVisibility(GONE);
+                rightParticipantTimeTextView.setVisibility(GONE);
+            }
+        });
+    }
+
     @Override
     public void observe(ClockTickEvent clockTickEvent) {
         updateParticipantTime(leftParticipantTimeTextView, clockTickEvent.getDisplayedTimeMillis(leftParticipant.getColor()));
@@ -227,12 +237,12 @@ public class MatchView extends View implements ClockTickEventListener {
         pawnPromotionChoiceDialog.show();
     }
 
-    public void updateAfterSettingOrigin(Coordinate origin) {
+    public void setOriginSelectionIndicator(Coordinate origin) {
 
         chessboardView.setOriginSelectionIndicator(origin);
     }
 
-    public void updateAfterSettingPossibleDestinations(Collection<Coordinate> possibleDestinations) {
+    public void setPossibleDestinationIndicators(Collection<Coordinate> possibleDestinations) {
         //TODO optimize
         for (Coordinate possibleDestination : possibleDestinations) {
             chessboardView.setPossibleDestinationIndicator(possibleDestination);
