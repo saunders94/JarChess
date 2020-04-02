@@ -192,6 +192,16 @@ public class MatchView extends View implements ClockTickEventListener {
         chessboardView.clearDestinationSelectionIndicator(movement.getDestination());
     }
 
+    public void makeClockDisappear() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                leftParticipantTimeTextView.setVisibility(GONE);
+                rightParticipantTimeTextView.setVisibility(GONE);
+            }
+        });
+    }
+
     @Override
     public void observe(ClockTickEvent clockTickEvent) {
         updateParticipantTime(leftParticipantTimeTextView, clockTickEvent.getDisplayedTimeMillis(leftParticipant.getColor()));

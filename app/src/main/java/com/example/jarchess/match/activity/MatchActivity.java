@@ -11,6 +11,7 @@ import com.example.jarchess.R;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
+import com.example.jarchess.match.clock.HiddenCasualMatchClock;
 import com.example.jarchess.match.clock.MatchClock;
 import com.example.jarchess.match.events.MatchClearableManager;
 import com.example.jarchess.match.events.MatchEndingEvent;
@@ -131,6 +132,8 @@ public abstract class MatchActivity extends AppCompatActivity
 
         return promotionChoiceInput;
     }
+
+
 
     public void changeCurrentControllerColorIfNeeded() {
         if (currentControllerColor != null) {
@@ -396,6 +399,10 @@ public abstract class MatchActivity extends AppCompatActivity
         matchView = new MatchView(match, this);
 
         matchClock = match.getMatchClock();
+        if(matchClock instanceof HiddenCasualMatchClock)
+        {
+            matchView.makeClockDisappear();
+        }
         match.start();
     }
 
