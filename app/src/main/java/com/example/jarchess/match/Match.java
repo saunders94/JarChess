@@ -134,10 +134,10 @@ public abstract class Match implements MatchEndingEventListener {
                 matchActivity.getMatchView().addCapturedPiece(capturedPiece);
             } else if (matchHistory.getEnPassantVulnerableCoordinate() == destination && getPieceAt(origin) instanceof Pawn) {
                 // perform en passant capture
-                capturedPieceCoordinate = matchHistory.getEnPassentRiskedPieceLocation();
-                capturedPiece = capture(matchHistory.getEnPassentRiskedPieceLocation());
+                capturedPieceCoordinate = matchHistory.getEnPassantRiskedPieceLocation();
+                capturedPiece = capture(matchHistory.getEnPassantRiskedPieceLocation());
                 matchActivity.getMatchView().addCapturedPiece(capturedPiece);
-                matchActivity.getMatchView().updatePiece(matchHistory.getEnPassentRiskedPieceLocation());
+                matchActivity.getMatchView().updatePiece(matchHistory.getEnPassantRiskedPieceLocation());
             }
             move(movement.getOrigin(), movement.getDestination());
             PromotionChoice choice = turn.getPromotionChoice();
