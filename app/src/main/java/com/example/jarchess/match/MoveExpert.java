@@ -246,10 +246,10 @@ public class MoveExpert {
         return collection;
     }
 
-    public boolean hasMoves(ChessColor nextTurnColor, Chessboard chessboardToCheck, MatchHistory matchHistory) {
+    public boolean hasMoves(ChessColor movingColor, Chessboard chessboardToCheck, MatchHistory matchHistory) {
         for (Coordinate originCoordinate : Coordinate.values()) {
             Piece piece = chessboardToCheck.getPieceAt(originCoordinate);
-            if (piece != null && piece.getColor() == nextTurnColor)
+            if (piece != null && piece.getColor() == movingColor)
                 if (!getLegalDestinations(originCoordinate, chessboardToCheck, matchHistory).isEmpty()) {
                     return true;
                 }
