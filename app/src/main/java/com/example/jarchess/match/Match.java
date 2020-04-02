@@ -63,7 +63,6 @@ public abstract class Match implements MatchEndingEventListener {
 
         matchHistory = new MatchHistory(whitePlayer, blackPlayer);
         moveExpert = MoveExpert.getInstance();
-        moveExpert.setMatchHistory(matchHistory);
         matchClock = matchClockChoice.makeMatchClock();
         MatchEndingEventManager.getInstance().add(this);
 
@@ -93,8 +92,8 @@ public abstract class Match implements MatchEndingEventListener {
                         throw new IllegalStateException(msg);
                     }
                     setMatchChessMatchResult(new FlagFallResult(colorOfWinner));
-                } else if (!moveExpert.hasMoves(nextTurnColor, chessboard)) {
-                    if (moveExpert.isInCheck(nextTurnColor, chessboard)) {
+                } else if (!moveExpert.hasMoves(nextTurnColor, chessboard, matchHistory)) {
+                    if (moveExpert.isInCheck(nextTurnColor, chessboard, matchHistory)) {
                         setMatchChessMatchResult(new CheckmateResult(ChessColor.getOther(nextTurnColor)));
                     } else {
                         setMatchChessMatchResult(new StalemateDrawResult());
@@ -165,7 +164,7 @@ public abstract class Match implements MatchEndingEventListener {
     public abstract ChessColor getForceExitWinningColor();
 
     public Collection<? extends PieceMovement> getLegalCastleMovements(Coordinate origin, Coordinate destination) {
-        return moveExpert.getLegalCastleMovements(origin, destination, chessboard);
+        return moveExpert.getLegalCastleMovements(origin, destination, chessboard, matchHistory);
     }
 
     private synchronized void setMatchChessMatchResult(ChessMatchResult matchChessMatchResult) {
@@ -208,7 +207,7 @@ public abstract class Match implements MatchEndingEventListener {
     }
 
     public Collection<Coordinate> getPossibleMoves(Coordinate origin) {
-        return moveExpert.getLegalDestinations(origin, chessboard);
+        return moveExpert.getLegalDestinations(origin, chessboard, matchHistory);
     }
 
     public Turn getTurn(@NonNull Turn turn) throws MatchActivity.MatchOverException, InterruptedException {
