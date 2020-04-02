@@ -68,11 +68,11 @@ public abstract class Match implements MatchEndingEventListener {
 
     }
 
-    public Piece capture(Coordinate destination) {
+    private Piece capture(Coordinate destination) {
         return chessboard.remove(destination);
     }
 
-    public void checkForGameEnd(ChessColor nextTurnColor) {
+    private void checkForGameEnd(ChessColor nextTurnColor) {
 
         if (matchChessMatchResult == null) {
 
@@ -108,7 +108,7 @@ public abstract class Match implements MatchEndingEventListener {
         }
     }
 
-    public void checkForTimeout() {
+    private void checkForTimeout() {
         if (matchClock.flagHasFallen()) {
             ChessColor colorOfWinner;
             colorOfWinner = matchClock.getColorOfFallenFlag();
@@ -210,7 +210,7 @@ public abstract class Match implements MatchEndingEventListener {
         return moveExpert.getLegalDestinations(origin, chessboard, matchHistory);
     }
 
-    public Turn getTurn(@NonNull Turn turn) throws MatchActivity.MatchOverException, InterruptedException {
+    private Turn getTurn(@NonNull Turn turn) throws MatchActivity.MatchOverException, InterruptedException {
         return getParticipant(ChessColor.getOther(turn.getColor())).getNextTurn(turn);
     }
 
