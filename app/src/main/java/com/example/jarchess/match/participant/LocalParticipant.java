@@ -6,6 +6,7 @@ import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.events.MatchResultIsInEvent;
 import com.example.jarchess.match.events.MatchResultIsInEventManager;
+import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.styles.avatar.AvatarStyle;
@@ -50,7 +51,7 @@ public abstract class LocalParticipant implements MatchParticipant {
     }
 
     @Override
-    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws MatchOverException, InterruptedException {
+    public Turn getNextTurn(MatchHistory lastTurnFromOtherParticipant) throws MatchOverException, InterruptedException {
         return getTurnFromInput();
     }
 

@@ -3,6 +3,7 @@ package com.example.jarchess.match.participant;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.events.MatchResultIsInEvent;
+import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.turn.Turn;
 
 /**
@@ -32,9 +33,10 @@ public class HardAIOpponent extends AIOpponent {
 
     /**
      * {@inheritDoc}
+     * @param lastTurnFromOtherParticipant
      */
     @Override
-    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws MatchOverException {
+    public Turn getNextTurn(MatchHistory lastTurnFromOtherParticipant) throws MatchOverException {
         return null;//TODO
     }
 

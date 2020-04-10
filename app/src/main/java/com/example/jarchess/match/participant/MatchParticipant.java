@@ -3,6 +3,7 @@ package com.example.jarchess.match.participant;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.events.MatchResultIsInEventListener;
+import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 
@@ -49,8 +50,8 @@ public interface MatchParticipant extends MatchResultIsInEventListener {
     /**
      * Takes a turn in response to the last turn from the other participant.
      *
-     * @param lastTurnFromOtherParticipant the turn that happened immediately before by the other participant
+     * @param matchHistory the matchHistory recorded so far
      * @return the turn that this participant takes
      */
-    Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws InterruptedException, MatchOverException;
+    Turn getNextTurn(MatchHistory matchHistory) throws InterruptedException, MatchOverException;
 }

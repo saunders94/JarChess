@@ -10,8 +10,10 @@ import com.example.jarchess.match.MatchNetworkIO;
 import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.events.MatchResultIsInEvent;
 import com.example.jarchess.match.events.MatchResultIsInEventManager;
+import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.resignation.ResignationReciever;
 import com.example.jarchess.match.resignation.ResignationSender;
+import com.example.jarchess.match.result.ExceptionResult;
 import com.example.jarchess.match.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.turn.TurnReceiver;
@@ -36,7 +38,7 @@ public class RemoteOpponent implements MatchParticipant {
     private final ChessColor color;
     //    private final Object lock; //FIXME
     private final String name;
-    private final ChessColor colorOfOtherParticipant;
+    private final ChessColor colorOfLocalParticipant;
     private final TurnSender turnSender;
     private final Queue<Turn> recievedTurns = new ConcurrentLinkedQueue<Turn>();
     private final TurnReceiver turnReceiver;
@@ -67,10 +69,10 @@ public class RemoteOpponent implements MatchParticipant {
 
         switch (color) {
             case BLACK:
-                colorOfOtherParticipant = WHITE;
+                colorOfLocalParticipant = WHITE;
                 break;
             case WHITE:
-                colorOfOtherParticipant = BLACK;
+                colorOfLocalParticipant = BLACK;
                 break;
             default:
                 throw new IllegalStateException("Unexpected color value: " + color);
@@ -131,13 +133,10 @@ public class RemoteOpponent implements MatchParticipant {
         //
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws MatchOverException {
+    public Turn getNextTurn(MatchHistory matchHistory) throws MatchOverException {
 
-        turnSender.send(lastTurnFromOtherParticipant);
+        turnSender.send(matchHistory.getLastTurn());
 
         Log.i(TAG, "getNextTurn: Turn was sent to sender!");
 
@@ -147,12 +146,8 @@ public class RemoteOpponent implements MatchParticipant {
             Log.d(TAG, "getNextTurn() returned: " + turn);
             return turn;
         } catch (InterruptedException e) {
-            // just get out
+            throw new MatchOverException(new ExceptionResult(colorOfLocalParticipant, "InterruptedException", e));
         }
-
-        Log.d(TAG, "getNextTurn() returned: " + null);
-        return null;
-
     }
 
 

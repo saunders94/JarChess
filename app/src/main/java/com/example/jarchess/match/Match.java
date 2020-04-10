@@ -211,8 +211,11 @@ public abstract class Match implements MatchEndingEventListener {
         return moveExpert.getLegalDestinations(origin, matchHistory);
     }
 
-    private Turn getTurn(@NonNull Turn turn) throws MatchOverException, InterruptedException {
-        return getParticipant(ChessColor.getOther(turn.getColor())).getNextTurn(turn);
+    private Turn getTurn() throws MatchOverException, InterruptedException {
+        if (matchHistory.getLastTurn() == null) {
+            return getParticipant(WHITE).getFirstTurn();
+        }
+        return getParticipant(matchHistory.getNextTurnColor()).getNextTurn(matchHistory);
     }
 
     public MatchParticipant getWhiteParticipant() {
@@ -228,7 +231,7 @@ public abstract class Match implements MatchEndingEventListener {
             try {
                 matchClock.start();
                 matchActivity.setCurrentControllerColorIfNeeded();
-                turn = getWhiteParticipant().getFirstTurn();
+                turn = getTurn();
                 matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
                 validate(turn);
                 execute(turn);
@@ -236,7 +239,7 @@ public abstract class Match implements MatchEndingEventListener {
 
                 while (!isDone()) {
                     matchActivity.changeCurrentControllerColorIfNeeded();
-                    turn = getTurn(turn);
+                    turn = getTurn();
                     matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
                     validate(turn);
                     execute(turn);
