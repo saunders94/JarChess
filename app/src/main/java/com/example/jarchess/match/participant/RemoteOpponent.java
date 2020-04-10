@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 import com.example.jarchess.RemoteOpponentInfoBundle;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.MatchNetworkIO;
-import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.events.MatchResultIsInEvent;
 import com.example.jarchess.match.events.MatchResultIsInEventManager;
 import com.example.jarchess.match.resignation.ResignationReciever;
@@ -135,7 +135,7 @@ public class RemoteOpponent implements MatchParticipant {
      * {@inheritDoc}
      */
     @Override
-    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws MatchActivity.MatchOverException {
+    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws MatchOverException {
 
         turnSender.send(lastTurnFromOtherParticipant);
 
