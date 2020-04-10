@@ -9,6 +9,11 @@ public abstract class DrawResult extends ChessMatchResult {
 
     @Override
     protected String getMessage() {
-        return "The match resulted in a " + getDrawTypeString() + " draw";
+        String a = "a ";
+        CharSequence leadingChar = getDrawTypeString().toLowerCase().trim().subSequence(0, 1);
+        if ("aeiou".contains(leadingChar)) {
+            a = "an ";
+        }
+        return "The match resulted in " + a + getDrawTypeString() + " draw";
     }
 }

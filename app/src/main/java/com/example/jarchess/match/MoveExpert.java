@@ -5,7 +5,9 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.jarchess.match.chessboard.Chessboard;
+import com.example.jarchess.match.chessboard.ChessboardReader;
 import com.example.jarchess.match.history.MatchHistory;
+import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.pieces.King;
 import com.example.jarchess.match.pieces.Pawn;
@@ -26,8 +28,9 @@ import static com.example.jarchess.match.pieces.movementpatterns.MovementPattern
 //TODO javadocs
 public class MoveExpert {
 
-    private static MoveExpert instance;
     private static final String TAG = "MoveExpert";
+    private static MoveExpert instance;
+
 
     /**
      * Creates an instance of <code>MoveExpert</code> to construct a singleton instance
@@ -48,12 +51,13 @@ public class MoveExpert {
         return instance;
     }
 
-    public Collection<PieceMovement> getAllPossibleMovements(ChessColor color, MatchHistory matchHistory, Chessboard chessboard) {
+    public Collection<PieceMovement> getAllPossibleMovements(ChessColor color, MatchHistory matchHistory) {
+        ChessboardReader chessboard = matchHistory.getLastChessboardReader();
         Collection<PieceMovement> movements = new LinkedList<>();
         for (Coordinate origin : Coordinate.values()) {
             Piece movingPiece = chessboard.getPieceAt(origin);
             if (movingPiece != null && movingPiece.getColor() == color) {
-                for (Coordinate destination : getLegalDestinations(origin, chessboard, matchHistory)) {
+                for (Coordinate destination : getLegalDestinations(origin, matchHistory)) {
                     movements.add(new PieceMovement(origin, destination));
                 }
             }
@@ -62,8 +66,9 @@ public class MoveExpert {
         return movements;
     }
 
-    public Collection<PieceMovement> getLegalCastleMovements(@NonNull Coordinate kingOrigin, @NonNull Coordinate kingDestination, Chessboard chessboardToCheck, MatchHistory matchHistory) {
+    public Collection<PieceMovement> getLegalCastleMovements(@NonNull Coordinate kingOrigin, @NonNull Coordinate kingDestination, MatchHistory matchHistory) {
         final Collection<PieceMovement> movements = new LinkedList<PieceMovement>();
+        final ChessboardReader chessboardToCheck = matchHistory.getLastChessboardReader();
 
         Log.v(TAG, "getLegalCastleMovements() called with: kingOrigin = [" + kingOrigin + "], kingDestination = [" + kingDestination + "], chessboardToCheck = [" + chessboardToCheck + "]");
         final King king;
@@ -150,7 +155,7 @@ public class MoveExpert {
             Log.v(TAG, "getLegalCastleMovements: newPosition = " + newPosition);
             Chessboard tmpChessboard = chessboardToCheck.getCopyWithMovementsApplied(kingOrigin, newPosition);
             Log.v(TAG, "getLegalCastleMovements: tmpChessboard" + tmpChessboard);
-            if (isInCheck(color, tmpChessboard, matchHistory)) {
+            if (isInCheck(color, matchHistory)) {
                 Log.v(TAG, "getLegalCastleMovements: king would be in danger before during or after move");
                 Log.v(TAG, "getLegalCastleMovements() returned: " + movements);
                 return movements;
@@ -167,7 +172,162 @@ public class MoveExpert {
         return movements;
     }
 
-    private boolean isLegalMoveIgnoringChecks(Piece pieceToMove, Coordinate origin, MovementPattern movementPattern, Chessboard chessboardToCheck, MatchHistory matchHistory) {
+    public Collection<Coordinate> getLegalDestinations(Coordinate origin, MatchHistory matchHistory) {
+        ChessboardReader chessboardToCheck = matchHistory.getLastChessboardReader();
+        Collection<Coordinate> collection = new LinkedList<Coordinate>();
+        Piece pieceToMove = chessboardToCheck.getPieceAt(origin);
+
+        for (MovementPattern pattern : pieceToMove.getMovementPatterns()) {
+            if (isLegalMovement(origin, pattern, matchHistory)) {
+                collection.add(pattern.getDestinationFrom(origin));
+            }
+        }
+
+        return collection;
+    }
+
+    public boolean hasMoves(ChessColor movingColor, MatchHistory matchHistory) {
+        ChessboardReader chessboardToCheck = matchHistory.getLastChessboardReader();
+        for (Coordinate originCoordinate : Coordinate.values()) {
+            Piece piece = chessboardToCheck.getPieceAt(originCoordinate);
+            if (piece != null && piece.getColor() == movingColor)
+                if (!getLegalDestinations(originCoordinate, matchHistory).isEmpty()) {
+                    return true;
+                }
+        }
+
+        return false;
+    }
+
+    public boolean isInCheck(ChessColor colorOfPlayerThatMightBeInCheck, MatchHistory matchHistory) {
+        ChessboardReader chessboardToCheck = matchHistory.getLastChessboardReader();
+
+        final ChessColor threatColor = ChessColor.getOther(colorOfPlayerThatMightBeInCheck);
+        Piece tmpPiece;
+        Coordinate kingCoordinateToCheck = null;
+        for (Coordinate c : Coordinate.values()) {
+            tmpPiece = chessboardToCheck.getPieceAt(c);
+            if (tmpPiece != null && colorOfPlayerThatMightBeInCheck == tmpPiece.getColor() && tmpPiece.getType() == KING) {
+                kingCoordinateToCheck = c;
+                break;
+            }
+
+        }
+        if (kingCoordinateToCheck == null) {
+
+        }
+
+        for (Coordinate c : Coordinate.values()) {
+            tmpPiece = chessboardToCheck.getPieceAt(c);
+            if (tmpPiece != null && threatColor == tmpPiece.getColor()) {
+
+                for (MovementPattern pattern : tmpPiece.getMovementPatterns()) {
+                    if (pattern.getDestinationFrom(c) == kingCoordinateToCheck && isLegalMovementIgnoringChecks(tmpPiece, c, pattern, matchHistory)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isLegalMove(Move move, MatchHistory matchHistory) {
+        if (move.size() == 2) {
+            return moveIsLegalCastle(move, matchHistory);
+        } else if (move.size() == 1) {
+            for (PieceMovement movement : move) {
+                ChessboardReader chessboardToCheck = matchHistory.getLastChessboardReader();
+                if (chessboardToCheck == null) {
+                    throw new IllegalStateException("Match history should never return null chessboard");
+                }
+                Coordinate origin = movement.getOrigin();
+                Coordinate destination = movement.getDestination();
+                if (destination == null || origin == null) {
+                    return false; // because the destination or origin of that move is out of bounds
+                }
+                Piece pieceToMove = chessboardToCheck.getPieceAt(origin);
+                if (pieceToMove == null) {
+                    return false; // because the origin must contain a piece to move
+                } else if (pieceToMove.getColor() != matchHistory.getNextTurnColor()) {
+                    return false; // because the piece that is trying to be moved is the same color as the last turn
+                }
+                boolean isLegalIgnoringCheck = isLegalMoveIgnoringChecks(move, matchHistory);
+
+                if (isLegalIgnoringCheck) {
+                    boolean leavesKingInCheck = isInCheck(pieceToMove.getColor(), matchHistory.getCopyWithMoveApplied(move));
+
+                    return !leavesKingInCheck; // you can't make a move that would leave your king in check
+                } else {
+                    return false; // not legal ignoring checks
+                }
+            }
+            // this should be unreachable code, but return or throw is required because compiler doesn't
+            // see that it is unreachable.
+            String msg = "Reached a line of code that should be unreachable";
+            Log.wtf(TAG, "isLegalMove: " + msg);
+            throw new RuntimeException(msg);
+        } else {
+            return false;
+        }
+    }
+
+    private boolean isLegalMoveIgnoringChecks(@NonNull Move move, @NonNull MatchHistory matchHistory) {
+
+        ChessboardReader chessboardToCheck = matchHistory.getLastChessboardReader();
+        if (move.size() == 2) {
+
+            return moveIsLegalCastle(move, matchHistory);
+
+        } else if (move.size() == 1) {
+            for (PieceMovement movement : move) {
+                final Coordinate origin = movement.getOrigin();
+                if (origin == null) {
+                    return false;
+                }
+
+                final Coordinate destination = movement.getDestination();
+                if (destination == null) {
+                    return false;
+                }
+
+                final Piece piece = chessboardToCheck.getPieceAt(origin);
+                if (piece == null) {
+                    return false;
+                }
+
+                MovementPattern matchedPattern = null;
+                for (MovementPattern checkedPattern : piece.getMovementPatterns()) {
+                    if (destination == checkedPattern.getDestinationFrom(origin)) {
+                        matchedPattern = checkedPattern;
+                        break;
+                    }
+                }
+                if (matchedPattern == null) {
+                    return false;
+                }
+
+                return isLegalMovementIgnoringChecks(piece, origin, matchedPattern, matchHistory);
+            }
+            // this should be unreachable code, but return or throw is required because compiler doesn't
+            // see that it is unreachable.
+            String msg = "Reached a line of code that should be unreachable";
+            Log.wtf(TAG, "isLegalMoveIgnoringChecks: " + msg);
+            throw new RuntimeException(msg);
+        } else {
+            return false;
+        }
+    }
+
+    private boolean isLegalMovement(Coordinate origin, MovementPattern pattern, MatchHistory matchHistory) {
+        return isLegalMove(new Move(origin, pattern.getDestinationFrom(origin)), matchHistory);
+    }
+
+    private boolean isLegalMovementIgnoringChecks(@NonNull Piece pieceToMove, @NonNull Coordinate origin, @NonNull MovementPattern movementPattern, @NonNull MatchHistory matchHistory) {
+
+        ChessboardReader chessboardToCheck = matchHistory.getLastChessboardReader();
+        if (chessboardToCheck == null) {
+            throw new IllegalStateException("matchHistory's lastChessboardReader method returned null");
+        }
 
         // if the move pattern requires the move be the first move of the piece and the piece has moved
         if (movementPattern.mustBeFirstMoveOfPiece() && pieceToMove.hasMoved()) {
@@ -176,7 +336,7 @@ public class MoveExpert {
 
         if (movementPattern instanceof CastleMovementPattern) {
             Log.v(TAG, "isLegalMoveIgnoringChecks: was instance of CastleMovementPattern");
-            return (getLegalCastleMovements(origin, movementPattern.getDestinationFrom(origin), chessboardToCheck, matchHistory).size() > 0);
+            return (getLegalCastleMovements(origin, movementPattern.getDestinationFrom(origin), matchHistory).size() > 0);
 
 
         } else {
@@ -230,79 +390,26 @@ public class MoveExpert {
                 return movementPattern.getCaptureType() != MUST_CAPTURE; // because the the pattern requires capturing and there is no piece to capture at destination
             }
         }
-
     }
 
-    public Collection<Coordinate> getLegalDestinations(Coordinate origin, Chessboard chessboardToCheck, MatchHistory matchHistory) {
-        Collection<Coordinate> collection = new LinkedList<Coordinate>();
-        Piece pieceToMove = chessboardToCheck.getPieceAt(origin);
-
-        for (MovementPattern pattern : pieceToMove.getMovementPatterns()) {
-            if (isLegalMove(pieceToMove, origin, pattern, chessboardToCheck, matchHistory)) {
-                collection.add(pattern.getDestinationFrom(origin));
-            }
-        }
-
-        return collection;
-    }
-
-    public boolean hasMoves(ChessColor movingColor, Chessboard chessboardToCheck, MatchHistory matchHistory) {
-        for (Coordinate originCoordinate : Coordinate.values()) {
-            Piece piece = chessboardToCheck.getPieceAt(originCoordinate);
-            if (piece != null && piece.getColor() == movingColor)
-                if (!getLegalDestinations(originCoordinate, chessboardToCheck, matchHistory).isEmpty()) {
-                    return true;
-                }
-        }
-
-        return false;
-    }
-
-    public boolean isInCheck(ChessColor colorOfPlayerThatMightBeInCheck, Chessboard chessboardToCheck, MatchHistory matchHistory) {
-
-        final ChessColor threatColor = ChessColor.getOther(colorOfPlayerThatMightBeInCheck);
-        Piece tmpPiece;
-        Coordinate kingCoordinateToCheck = null;
-        for (Coordinate c : Coordinate.values()) {
-            tmpPiece = chessboardToCheck.getPieceAt(c);
-            if (tmpPiece != null && colorOfPlayerThatMightBeInCheck == tmpPiece.getColor() && tmpPiece.getType() == KING) {
-                kingCoordinateToCheck = c;
+    private boolean moveIsLegalCastle(Move move, MatchHistory matchHistory) {
+        ChessboardReader chessboardToCheck = matchHistory.getLastChessboardReader();
+        Coordinate kOrigin = null;
+        Coordinate kDestination = null;
+        for (PieceMovement movement : move) {
+            if (chessboardToCheck.getPieceAt(movement.getOrigin()) instanceof King) {
+                kOrigin = movement.getOrigin();
+                kDestination = movement.getDestination();
                 break;
             }
-
         }
-        if (kingCoordinateToCheck == null) {
-
+        Collection<PieceMovement> castleMovements = null;
+        if (kOrigin != null && kDestination != null) {
+            castleMovements = getLegalCastleMovements(kOrigin, kDestination, matchHistory);
+            return castleMovements.containsAll(move);
         }
 
-        for (Coordinate c : Coordinate.values()) {
-            tmpPiece = chessboardToCheck.getPieceAt(c);
-            if (tmpPiece != null && threatColor == tmpPiece.getColor()) {
-
-                for (MovementPattern pattern : tmpPiece.getMovementPatterns()) {
-                    if (pattern.getDestinationFrom(c) == kingCoordinateToCheck && isLegalMoveIgnoringChecks(tmpPiece, c, pattern, chessboardToCheck, matchHistory)) {
-                        return true;
-                    }
-                }
-            }
-        }
         return false;
-    }
-
-    public boolean isLegalMove(Piece pieceToMove, Coordinate origin, MovementPattern movementPattern, Chessboard chessboardToCheck, MatchHistory matchHistory) {
-        Coordinate destination = movementPattern.getDestinationFrom(origin);
-        if (destination == null) {
-            return false; // because the destination of that move is out of bounds
-        }
-        boolean isLegalIgnoringCheck = isLegalMoveIgnoringChecks(pieceToMove, origin, movementPattern, chessboardToCheck, matchHistory);
-
-        if (isLegalIgnoringCheck) {
-            boolean leavesKingInCheck = isInCheck(pieceToMove.getColor(), chessboardToCheck.getCopyWithMovementsApplied(origin, destination), matchHistory);
-
-            return !leavesKingInCheck; // you can't make a move that would leave your king in check
-        } else {
-            return false;
-        }
     }
 
 }

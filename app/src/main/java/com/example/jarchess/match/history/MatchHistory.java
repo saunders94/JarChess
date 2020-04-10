@@ -8,6 +8,7 @@ import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.MoveExpert;
 import com.example.jarchess.match.chessboard.Chessboard;
+import com.example.jarchess.match.chessboard.ChessboardReader;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.MatchParticipant;
@@ -31,7 +32,7 @@ public class MatchHistory implements Iterable<Turn> {
     private static final String TAG = "MatchHistory";
     private final LinkedList<Turn> turnList = new LinkedList<>();
     private final MatchParticipant white, black;
-    private final RepeatTracker repeatTracker = new RepeatTracker();
+    private final RepeatTracker repeatTracker;
     private final int[] movesSinceCaptureOrPawnMovement = new int[]{0, 0};
     private Chessboard chessboardAfterLastMove;
     private Chessboard chessboardBeforeLastMove;
@@ -50,6 +51,23 @@ public class MatchHistory implements Iterable<Turn> {
         this.black = black;
         chessboardAfterLastMove = new Chessboard();
         chessboardBeforeLastMove = null;
+        repeatTracker = new RepeatTracker();
+    }
+
+    private MatchHistory(MatchHistory original) {
+        white = original.white;
+        black = original.black;
+        chessboardAfterLastMove = original.chessboardAfterLastMove.getCopy();
+        if (original.chessboardBeforeLastMove != null) {
+            chessboardBeforeLastMove = original.chessboardBeforeLastMove.getCopy();
+        } else {
+            chessboardBeforeLastMove = null;
+        }
+        turnList.addAll(original.turnList);
+        repeatTracker = original.repeatTracker.getCopy();
+        enPassantRiskedPieceLocation = original.enPassantRiskedPieceLocation;
+        enPassantVulnerableCoordinate = original.enPassantVulnerableCoordinate;
+        addHasBeenCalled = original.addHasBeenCalled;
     }
 
     /**
@@ -66,7 +84,7 @@ public class MatchHistory implements Iterable<Turn> {
         // Needs to add the starting state before adding anything else but can't do it during construction
         if (!addHasBeenCalled) {
             addHasBeenCalled = true;
-            repeatTracker.add(WHITE, MoveExpert.getInstance().getAllPossibleMovements(WHITE, this, chessboardAfterLastMove));
+            repeatTracker.add(WHITE, MoveExpert.getInstance().getAllPossibleMovements(WHITE, this));
         }
 
 
@@ -113,8 +131,12 @@ public class MatchHistory implements Iterable<Turn> {
 
         Log.i(TAG, "add: moves since capture or pawn move: " + movesSinceCaptureOrPawnMovement[color.getIntValue()]);
 
-        int repeats = repeatTracker.add(nextColor, MoveExpert.getInstance().getAllPossibleMovements(nextColor, this, chessboardAfterLastMove));
+        int repeats = repeatTracker.add(nextColor, MoveExpert.getInstance().getAllPossibleMovements(nextColor, this));
         Log.i(TAG, repeats + " repeats detected for " + nextColor);
+    }
+
+    public MatchHistory getCopyWithMoveApplied(Move move) {
+        return new MatchHistory(this);
     }
 
     /**
@@ -129,6 +151,10 @@ public class MatchHistory implements Iterable<Turn> {
      */
     public Coordinate getEnPassantRiskedPieceLocation() {
         return enPassantRiskedPieceLocation;
+    }
+
+    public ChessboardReader getLastChessboardReader() {
+        return chessboardAfterLastMove.getReader();
     }
 
     /**
@@ -147,6 +173,14 @@ public class MatchHistory implements Iterable<Turn> {
      */
     public int getMovesSinceCaptureOrPawnMovement(ChessColor chessColor) {
         return movesSinceCaptureOrPawnMovement[chessColor.getIntValue()];
+    }
+
+    public ChessColor getNextTurnColor() {
+        if (getLastTurn() == null) {
+            return WHITE;
+        } else {
+            return ChessColor.getOther(getLastTurn().getColor());
+        }
     }
 
     public int getRepetitions() {

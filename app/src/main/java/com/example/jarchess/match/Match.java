@@ -92,8 +92,8 @@ public abstract class Match implements MatchEndingEventListener {
                         throw new IllegalStateException(msg);
                     }
                     setMatchChessMatchResult(new FlagFallResult(colorOfWinner));
-                } else if (!moveExpert.hasMoves(nextTurnColor, chessboard, matchHistory)) {
-                    if (moveExpert.isInCheck(nextTurnColor, chessboard, matchHistory)) {
+                } else if (!moveExpert.hasMoves(nextTurnColor, matchHistory)) {
+                    if (moveExpert.isInCheck(nextTurnColor, matchHistory)) {
                         setMatchChessMatchResult(new CheckmateResult(ChessColor.getOther(nextTurnColor)));
                     } else {
                         setMatchChessMatchResult(new StalemateDrawResult());
@@ -164,7 +164,7 @@ public abstract class Match implements MatchEndingEventListener {
     public abstract ChessColor getForceExitWinningColor();
 
     public Collection<? extends PieceMovement> getLegalCastleMovements(Coordinate origin, Coordinate destination) {
-        return moveExpert.getLegalCastleMovements(origin, destination, chessboard, matchHistory);
+        return moveExpert.getLegalCastleMovements(origin, destination, matchHistory);
     }
 
     private synchronized void setMatchChessMatchResult(ChessMatchResult matchChessMatchResult) {
@@ -207,7 +207,7 @@ public abstract class Match implements MatchEndingEventListener {
     }
 
     public Collection<Coordinate> getPossibleMoves(Coordinate origin) {
-        return moveExpert.getLegalDestinations(origin, chessboard, matchHistory);
+        return moveExpert.getLegalDestinations(origin, matchHistory);
     }
 
     private Turn getTurn(@NonNull Turn turn) throws MatchActivity.MatchOverException, InterruptedException {
