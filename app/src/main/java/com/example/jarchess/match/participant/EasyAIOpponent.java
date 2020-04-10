@@ -1,8 +1,9 @@
 package com.example.jarchess.match.participant;
 
 import com.example.jarchess.match.ChessColor;
-import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.events.MatchResultIsInEvent;
+import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.turn.Turn;
 
 /**
@@ -26,15 +27,16 @@ public class EasyAIOpponent extends AIOpponent {
      * {@inheritDoc}
      */
     @Override
-    public Turn getFirstTurn() throws MatchActivity.MatchOverException {
+    public Turn getFirstTurn() throws MatchOverException {
         return null;//FIXME
     }
 
     /**
      * {@inheritDoc}
+     * @param lastTurnFromOtherParticipant
      */
     @Override
-    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws MatchActivity.MatchOverException {
+    public Turn getNextTurn(MatchHistory lastTurnFromOtherParticipant) throws MatchOverException {
         return null;//FIXME
     }
 

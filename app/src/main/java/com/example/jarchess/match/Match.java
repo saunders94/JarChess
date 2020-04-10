@@ -30,6 +30,7 @@ import com.example.jarchess.match.result.CheckmateResult;
 import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.match.result.ExceptionResult;
 import com.example.jarchess.match.result.FlagFallResult;
+import com.example.jarchess.match.result.InvalidTurnReceivedResult;
 import com.example.jarchess.match.result.RepetitionRuleDrawResult;
 import com.example.jarchess.match.result.StalemateDrawResult;
 import com.example.jarchess.match.result.XMoveRuleDrawResult;
@@ -92,8 +93,8 @@ public abstract class Match implements MatchEndingEventListener {
                         throw new IllegalStateException(msg);
                     }
                     setMatchChessMatchResult(new FlagFallResult(colorOfWinner));
-                } else if (!moveExpert.hasMoves(nextTurnColor, chessboard, matchHistory)) {
-                    if (moveExpert.isInCheck(nextTurnColor, chessboard, matchHistory)) {
+                } else if (!moveExpert.hasMoves(nextTurnColor, matchHistory)) {
+                    if (moveExpert.isInCheck(nextTurnColor, matchHistory)) {
                         setMatchChessMatchResult(new CheckmateResult(ChessColor.getOther(nextTurnColor)));
                     } else {
                         setMatchChessMatchResult(new StalemateDrawResult());
@@ -164,7 +165,7 @@ public abstract class Match implements MatchEndingEventListener {
     public abstract ChessColor getForceExitWinningColor();
 
     public Collection<? extends PieceMovement> getLegalCastleMovements(Coordinate origin, Coordinate destination) {
-        return moveExpert.getLegalCastleMovements(origin, destination, chessboard, matchHistory);
+        return moveExpert.getLegalCastleMovements(origin, destination, matchHistory);
     }
 
     private synchronized void setMatchChessMatchResult(ChessMatchResult matchChessMatchResult) {
@@ -207,11 +208,14 @@ public abstract class Match implements MatchEndingEventListener {
     }
 
     public Collection<Coordinate> getPossibleMoves(Coordinate origin) {
-        return moveExpert.getLegalDestinations(origin, chessboard, matchHistory);
+        return moveExpert.getLegalDestinations(origin, matchHistory);
     }
 
-    private Turn getTurn(@NonNull Turn turn) throws MatchActivity.MatchOverException, InterruptedException {
-        return getParticipant(ChessColor.getOther(turn.getColor())).getNextTurn(turn);
+    private Turn getTurn() throws MatchOverException, InterruptedException {
+        if (matchHistory.getLastTurn() == null) {
+            return getParticipant(WHITE).getFirstTurn();
+        }
+        return getParticipant(matchHistory.getNextTurnColor()).getNextTurn(matchHistory);
     }
 
     public MatchParticipant getWhiteParticipant() {
@@ -227,7 +231,7 @@ public abstract class Match implements MatchEndingEventListener {
             try {
                 matchClock.start();
                 matchActivity.setCurrentControllerColorIfNeeded();
-                turn = getWhiteParticipant().getFirstTurn();
+                turn = getTurn();
                 matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
                 validate(turn);
                 execute(turn);
@@ -235,7 +239,7 @@ public abstract class Match implements MatchEndingEventListener {
 
                 while (!isDone()) {
                     matchActivity.changeCurrentControllerColorIfNeeded();
-                    turn = getTurn(turn);
+                    turn = getTurn();
                     matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
                     validate(turn);
                     execute(turn);
@@ -243,12 +247,12 @@ public abstract class Match implements MatchEndingEventListener {
                 }
             } catch (InterruptedException e) {
                 forceEndMatch("Thread was Interrupted");
-                throw new MatchActivity.MatchOverException(new ExceptionResult(getForceExitWinningColor(), "The thread was interrupted", e));
+                throw new MatchOverException(new ExceptionResult(getForceExitWinningColor(), "The thread was interrupted", e));
             } catch (ClockSyncException e1) {
                 // match ends due to clock sync exception
                 MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(ChessColor.getOther(e1.getColorOutOfSync()), "reported time out of tolerance", e1)));
             }
-        } catch (MatchActivity.MatchOverException e2) {
+        } catch (MatchOverException e2) {
             // the match is over... just continue
         }
 
@@ -311,7 +315,11 @@ public abstract class Match implements MatchEndingEventListener {
 
     }
 
-    private void validate(Turn turn) {
-        //TODO
+    private void validate(Turn turn) throws MatchOverException {
+        if (!moveExpert.isLegalMove(turn.getMove(), matchHistory)) {
+            ChessColor winningColor = ChessColor.getOther(turn.getColor());
+            ChessMatchResult result = new InvalidTurnReceivedResult(winningColor);
+            throw new MatchOverException(result);
+        }
     }
 }

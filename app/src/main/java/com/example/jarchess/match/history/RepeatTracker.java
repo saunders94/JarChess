@@ -15,6 +15,16 @@ class RepeatTracker implements Clearable {
     private int maxRepeat = 0;
     private int lastRepetitionCount;
 
+    public RepeatTracker() {
+        super();
+    }
+
+    private RepeatTracker(RepeatTracker repeatTracker) {
+        repeatNodeStack.addAll(repeatTracker.repeatNodeStack);
+        maxRepeat = repeatTracker.maxRepeat;
+        lastRepetitionCount = repeatTracker.lastRepetitionCount;
+    }
+
     public int add(ChessColor color, Collection<PieceMovement> possiblePieceMovements) {
         int repeats = 0;
         Stack<RepeatNode> checked = new Stack<>();
@@ -55,6 +65,10 @@ class RepeatTracker implements Clearable {
         repeatNodeStack.clear();
     }
 
+    public RepeatTracker getCopy() {
+        return new RepeatTracker(this);
+    }
+
     public int getLastRepetitionCount() {
         return lastRepetitionCount;
     }
@@ -64,9 +78,9 @@ class RepeatTracker implements Clearable {
     }
 
     private class RepeatNode {
-        ChessColor color;
-        Collection<PieceMovement> possiblePieceMovements;
-        int repeats = 0;
+        final ChessColor color;
+        final Collection<PieceMovement> possiblePieceMovements;
+        final int repeats;
 
         public RepeatNode(ChessColor color, Collection<PieceMovement> possiblePieceMovements, int repeats) {
             this.color = color;

@@ -11,6 +11,7 @@ import com.example.jarchess.R;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
+import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.clock.HiddenCasualMatchClock;
 import com.example.jarchess.match.clock.MatchClock;
 import com.example.jarchess.match.events.MatchClearableManager;
@@ -25,7 +26,6 @@ import com.example.jarchess.match.events.RequestDrawButtonPressedEventManager;
 import com.example.jarchess.match.events.SquareClickEvent;
 import com.example.jarchess.match.events.SquareClickEventListener;
 import com.example.jarchess.match.events.SquareClickEventManager;
-import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.LocalParticipant;
@@ -522,17 +522,4 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
 
-    public static class MatchOverException extends Exception {
-
-        private final ChessMatchResult matchChessMatchResult;
-
-        public MatchOverException(ChessMatchResult matchChessMatchResult) {
-            super("MatchOverException with result: " + matchChessMatchResult);
-            this.matchChessMatchResult = matchChessMatchResult;
-        }
-
-        public ChessMatchResult getMatchChessMatchResult() {
-            return matchChessMatchResult;
-        }
-    }
 }
