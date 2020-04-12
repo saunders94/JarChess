@@ -136,7 +136,7 @@ public class Turn implements JSONConvertible<Turn> {
             long elapsedTime = jsonObject.getLong(JSON_PROPERTY_NAME_ELAPSED_TIME);
 
             PromotionChoice promotionChoice = null;
-            if (!jsonObject.isNull(JSON_PROPERTY_NAME_PROMOTION_CHOICE)) {
+            if (!jsonObject.getString(JSON_PROPERTY_NAME_PROMOTION_CHOICE).equals("None")) {
                 JSONObject promotionChoiceJSON = jsonObject.getJSONObject(JSON_PROPERTY_NAME_PROMOTION_CHOICE);
                 promotionChoice = PromotionChoice.JSON_CONVERTER.convertFromJSONObject(promotionChoiceJSON);
             }

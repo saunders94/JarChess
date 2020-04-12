@@ -84,8 +84,9 @@ public class GameIO {
             int resp = in.read(buffer);
             String respString = new String(buffer).trim();
             Log.i(TAG, "ResponseStr: " + respString);
+            JSONObject responseObject = new JSONObject(respString);
             datapackageQueue.insertClientBoundDatapackageQueue(
-                    Datapackage.DatapackageJSONConverter.getInstance().convertFromJSONObject(initialObject));
+                    Datapackage.DatapackageJSONConverter.getInstance().convertFromJSONObject(responseObject));
         }else{
             JSONObject jsonObj = new JSONObject();
             jsonObj.put("requestType","MakeMove");
@@ -117,8 +118,9 @@ public class GameIO {
             String respSting = new String(buffer).trim();
             Log.i(TAG,"Response: " + respSting);
             Log.i(TAG,"insertClientBoundDatapackageQueue");
+            JSONObject responseObject = new JSONObject(respSting);
             datapackageQueue.insertClientBoundDatapackageQueue(
-                    Datapackage.DatapackageJSONConverter.getInstance().convertFromJSONObject(jsonObject));
+                    Datapackage.DatapackageJSONConverter.getInstance().convertFromJSONObject(responseObject));
         }
     }
 

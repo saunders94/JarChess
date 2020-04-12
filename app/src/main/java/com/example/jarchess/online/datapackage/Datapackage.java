@@ -154,7 +154,9 @@ public class Datapackage implements JSONConvertible<Datapackage> {
         @Override
         public Datapackage convertFromJSONObject(JSONObject jsonObject) throws JSONException {
 
-            DatapackageType type = DatapackageType.JSON_CONVERTER.convertFromJSONObject(jsonObject.getJSONObject(JSON_PROPERTY_NAME_TYPE));
+            JSONObject obj = jsonObject.getJSONObject(JSON_PROPERTY_NAME_TYPE);
+
+            DatapackageType type = DatapackageType.JSON_CONVERTER.convertFromJSONObject(obj);
             String destinationIP = jsonObject.getString(JSON_PROPERTY_NAME_DESTINATION_IP);
             int destinationPort = jsonObject.getInt(JSON_PROPERTY_NAME_DESTINATION_PORT);
 
