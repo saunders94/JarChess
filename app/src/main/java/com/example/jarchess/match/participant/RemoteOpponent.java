@@ -101,7 +101,7 @@ public class RemoteOpponent implements MatchParticipant {
      * {@inheritDoc}
      */
     @Override
-    public Turn getFirstTurn() {
+    public Turn getFirstTurn(MatchHistory matchHistory) {
         try {
             return turnReceiver.receiveNextTurn();
         } catch (InterruptedException e) {

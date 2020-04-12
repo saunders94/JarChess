@@ -46,7 +46,7 @@ public abstract class LocalParticipant implements MatchParticipant {
     }
 
     @Override
-    public Turn getFirstTurn() throws MatchOverException, InterruptedException {
+    public Turn getFirstTurn(MatchHistory matchHistory) throws MatchOverException, InterruptedException {
         return getTurnFromInput();
     }
 

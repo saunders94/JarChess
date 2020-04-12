@@ -12,6 +12,7 @@ import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.pieces.King;
 import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.pieces.Rook;
 import com.example.jarchess.match.pieces.movementpatterns.CastleMovementPattern;
 import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
@@ -64,6 +65,26 @@ public class MoveExpert {
         }
 
         return movements;
+    }
+
+    public Collection<Move> getAllLegalMoves(ChessColor color, MatchHistory matchHistory) {
+        ChessboardReader chessboard = matchHistory.getLastChessboardReader();
+        Collection<Move> moves = new LinkedList<>();
+        for (Coordinate origin : Coordinate.values()) {
+            Piece movingPiece = chessboard.getPieceAt(origin);
+            if (movingPiece != null && movingPiece.getColor() == color) {
+                for (Coordinate destination : getLegalDestinations(origin, matchHistory)) {
+                    Collection<PieceMovement> castleMovements = getLegalCastleMovements(origin, destination, matchHistory);
+                    if (castleMovements != null && !castleMovements.isEmpty()) {
+                        moves.add(new Move(castleMovements));
+                    } else {
+                        moves.add(new Move(origin, destination));
+                    }
+                }
+            }
+        }
+
+        return moves;
     }
 
     public Collection<PieceMovement> getLegalCastleMovements(@NonNull Coordinate kingOrigin, @NonNull Coordinate kingDestination, MatchHistory matchHistory) {
@@ -126,7 +147,7 @@ public class MoveExpert {
         char rookEndingFile = (char) (kingMovesQueenward ? expectedEndFile + 1 : expectedEndFile - 1);
         int rank = expectedRank;
 
-
+        //set and check rook
         {
             Piece tmp = chessboardToCheck.getPieceAt(Coordinate.getByFileAndRank(rookStartingFile, rank));
             if (tmp instanceof Rook && !tmp.hasMoved()) {
@@ -254,7 +275,7 @@ public class MoveExpert {
                 boolean isLegalIgnoringCheck = isLegalMoveIgnoringChecks(move, matchHistory);
 
                 if (isLegalIgnoringCheck) {
-                    boolean leavesKingInCheck = isInCheck(pieceToMove.getColor(), matchHistory.getCopyWithMoveApplied(move));
+                    boolean leavesKingInCheck = isInCheck(pieceToMove.getColor(), matchHistory.getCopyWithMoveApplied(move, PromotionChoice.PROMOTE_TO_QUEEN));
 
                     return !leavesKingInCheck; // you can't make a move that would leave your king in check
                 } else {
@@ -412,4 +433,17 @@ public class MoveExpert {
         return false;
     }
 
+    public boolean moveRequiresPromotion(Move move, MatchHistory matchHistory) {
+        ChessboardReader reader = matchHistory.getLastChessboardReader();
+
+        for (PieceMovement movement : move) {
+            Coordinate origin = movement.getOrigin();
+            Coordinate destination = movement.getDestination();
+            Piece p = reader.getPieceAt(origin);
+            if (p instanceof Pawn && (destination.getRank() == 1 || destination.getRank() == 8)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

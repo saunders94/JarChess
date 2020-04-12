@@ -33,7 +33,7 @@ public interface MatchParticipant extends MatchResultIsInEventListener {
      *
      * @return the turn that this participant takes
      */
-    Turn getFirstTurn() throws InterruptedException, MatchOverException;
+    Turn getFirstTurn(MatchHistory matchHistory) throws InterruptedException, MatchOverException;
 
     /**
      * Gets the name of this participant.
