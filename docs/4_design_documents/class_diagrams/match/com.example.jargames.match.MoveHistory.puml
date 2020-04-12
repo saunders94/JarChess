@@ -1,9 +1,0 @@
-@startuml
-class MoveHistory{
--moveList:List<Move>
-+add(Move):void
-+hasMoved(Piece):boolean
-}
-
-MoveHistory "*" o-- "*" Move
-@enduml

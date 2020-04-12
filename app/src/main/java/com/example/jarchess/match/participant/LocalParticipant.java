@@ -3,9 +3,10 @@ package com.example.jarchess.match.participant;
 import android.util.Log;
 
 import com.example.jarchess.match.ChessColor;
-import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.events.MatchResultIsInEvent;
 import com.example.jarchess.match.events.MatchResultIsInEventManager;
+import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.styles.avatar.AvatarStyle;
@@ -45,12 +46,12 @@ public abstract class LocalParticipant implements MatchParticipant {
     }
 
     @Override
-    public Turn getFirstTurn() throws MatchActivity.MatchOverException, InterruptedException {
+    public Turn getFirstTurn() throws MatchOverException, InterruptedException {
         return getTurnFromInput();
     }
 
     @Override
-    public Turn getNextTurn(Turn lastTurnFromOtherParticipant) throws MatchActivity.MatchOverException, InterruptedException {
+    public Turn getNextTurn(MatchHistory lastTurnFromOtherParticipant) throws MatchOverException, InterruptedException {
         return getTurnFromInput();
     }
 
@@ -89,7 +90,7 @@ public abstract class LocalParticipant implements MatchParticipant {
      * @return the turn that this participant takes
      * @throws InterruptedException if the thread is interupted during the turn
      */
-    private Turn getTurnFromInput() throws MatchActivity.MatchOverException, InterruptedException {
+    private Turn getTurnFromInput() throws MatchOverException, InterruptedException {
         long start, end, elapsed;
         Move move;
 

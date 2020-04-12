@@ -1,7 +1,7 @@
 package com.example.jarchess.match.participant;
 
 import com.example.jarchess.match.ChessColor;
-import com.example.jarchess.match.activity.MatchActivity;
+import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.pieces.PromotionChoice;
 
@@ -13,9 +13,9 @@ import com.example.jarchess.match.pieces.PromotionChoice;
 public interface LocalParticipantController {
     void cancelInput();
 
-    Move getMoveInput(ChessColor color) throws InterruptedException, MatchActivity.MatchOverException;
+    Move getMoveInput(ChessColor color) throws InterruptedException, MatchOverException;
 
-    PromotionChoice getPromotionChoice(Move move) throws InterruptedException, MatchActivity.MatchOverException;
+    PromotionChoice getPromotionChoice(Move move) throws InterruptedException, MatchOverException;
 
 
 }

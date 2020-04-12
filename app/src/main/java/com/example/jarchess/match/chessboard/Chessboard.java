@@ -28,6 +28,7 @@ public class Chessboard {
     private static final int COLUMN_COUNT = 8;
     private final Piece[][] pieces;
     private final boolean isCopy;
+    private final ChessboardReader reader;
 
     /**
      * Private constructor used to create the instance of chessboard
@@ -55,7 +56,7 @@ public class Chessboard {
             add(new Queen(c));
             add(new King(c));
         }
-
+        reader = new ChessboardReader(this);
         isCopy = false;
     }
 
@@ -75,6 +76,7 @@ public class Chessboard {
                 }
             }
         }
+        reader = new ChessboardReader(this);
         isCopy = true;
     }
 
@@ -141,6 +143,10 @@ public class Chessboard {
         final int row = coordinate.getRow();
         final int column = coordinate.getColumn();
         return pieces[column][row];
+    }
+
+    public ChessboardReader getReader() {
+        return reader;
     }
 
     /**
