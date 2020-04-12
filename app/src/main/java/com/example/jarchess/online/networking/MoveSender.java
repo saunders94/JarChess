@@ -8,9 +8,9 @@ import java.io.IOException;
 public class MoveSender {
     private DatapackageQueue queue;
     private DatapackageFormatter formatter;
-    private LogonIO sender;
+    private DataSender sender;
 
-    public MoveSender(DatapackageQueue queue, LogonIO sender) {
+    public MoveSender(DatapackageQueue queue, DataSender sender) {
         this.queue = queue;
         this.formatter = new DatapackageFormatter();
         this.sender = sender;

@@ -1,26 +1,27 @@
 package com.example.jarchess.online.usermanagement;
 
+import android.util.JsonReader;
 import android.util.Log;
 
 import com.example.jarchess.JarAccount;
 import com.example.jarchess.online.JSONCompiler.JSONAccount;
-import com.example.jarchess.online.networking.LogonIO;
+import com.example.jarchess.online.networking.DataSender;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class Account {
+public class  Account {
     private JSONAccount jsonAccount;
-    private LogonIO logonIO;
+    private DataSender dataSender;
     private String username;
     private String password;
     private static final String TAG = "Account";
 
     public Account(){
         this.jsonAccount = new JSONAccount();
-        this.logonIO = new LogonIO();
+        this.dataSender = new DataSender();
     }
 
     public boolean signin(String username, String password){
@@ -38,7 +39,7 @@ public class Account {
         }
         JSONObject jsonObject =  jsonAccount.signin(username, password);
         try {
-            JSONObject jsonResponse = logonIO.send(jsonObject);
+            JSONObject jsonResponse = dataSender.send(jsonObject);
             String statusResp = (String) jsonResponse.get("status");
             if(statusResp.equals("succes")){
                 status = true;
@@ -56,6 +57,28 @@ public class Account {
             e.printStackTrace();
         }
 
+        return status;
+    }
+
+    public boolean registerAccount(String username, String password){
+        boolean status = false;
+        JSONObject jsonObject = jsonAccount.registerAccount(username, password);
+        try {
+            JSONObject jsonResponse = dataSender.send(jsonObject);
+            String statusResp = (String) jsonResponse.get("status");
+            if(statusResp.equals("succes")){
+                status = true;
+                Log.i(TAG,"Registration Status: " + (String) jsonResponse.get("status"));
+            }else{
+                status = false;
+                Log.i(TAG,"Registration Status: " + (String) jsonResponse.get("status"));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            status = false;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         return status;
     }
 

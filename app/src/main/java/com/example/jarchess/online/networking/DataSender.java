@@ -15,7 +15,7 @@ import java.net.Socket;
 
 
 
-public class LogonIO {
+public class DataSender {
     private String logonServer = "ChessGame-edd728ce6eceeae0.elb.us-east-2.amazonaws.com";
     //private String logonServer = "3.20.74.62";
     private String testServer = "192.168.1.174";
@@ -26,9 +26,9 @@ public class LogonIO {
     private JSONObject jsonObject;
     private JSONObject responseObject;
     private final Object lock;
-    private static final String TAG = "LogonIO";
+    private static final String TAG = "DataSender";
 
-    public LogonIO() {
+    public DataSender() {
         this.lock = new Object();
     }
 

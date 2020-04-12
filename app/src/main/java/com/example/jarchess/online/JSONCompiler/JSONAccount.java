@@ -34,6 +34,18 @@ public class JSONAccount {
         return jsonObj;
     }
 
+    public JSONObject signout(String username, String signonToken){
+        JSONObject jsonObj = new JSONObject();
+        try {
+            jsonObj.put("requestType", "signout");
+            jsonObj.put("username", username);
+            jsonObj.put("signonToken", signonToken);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObj;
+    }
+
     public JSONObject getUserStats(String username){
         JSONObject jsonObj = new JSONObject();
         try {
@@ -76,6 +88,21 @@ public class JSONAccount {
             jsonObj.put("username", username);
             jsonObj.put("signonToken", signonToken);
             jsonObj.put("friendsUsername", friendsName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObj;
+    }
+
+    public JSONObject registerAccount(String username, String password){
+        JSONObject jsonObj = new JSONObject();
+        try {
+            jsonObj.put("requestType", "createAccount");
+            jsonObj.put("username", username);
+            jsonObj.put("firstName", "");
+            jsonObj.put("lastName", "");
+            jsonObj.put("email", "");
+            jsonObj.put("password", password);
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -181,13 +181,14 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
 //use this method to get registration details, return true if registration succeeded
     public boolean onRegister(CharSequence username, CharSequence password) {
 
-        //if(call to method that does registration) {
-        onLogin(username, password);
+        boolean registerStatus = new Account().registerAccount(String.valueOf(username),
+                String.valueOf(password));
+        if(registerStatus){
+            onLogin(username, password);
+        }
 
-        return true;
-        //} else {
-        //return false;
-        //}
+        return registerStatus;
+
     }
 
     @Override
@@ -219,6 +220,13 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     public boolean onLogout() {
         usernameLabel.setText("Logged Out");
         loggedIn = false;
+        //boolean logoutStatus = new Account().registerAccount(String.valueOf(username),
+        //        String.valueOf(password));
+        //if(registerStatus){
+        //    onLogin(username, password);
+        //}
+
+        //return registerStatus;
         return true;
     }
 
