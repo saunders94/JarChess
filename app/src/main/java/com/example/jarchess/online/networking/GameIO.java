@@ -22,6 +22,7 @@ public class GameIO {
     private final String TAG = "GameIO";
     private String gameToken;
     private String gameServer = "AppLB-f1eb9121f64bbd52.elb.us-east-2.amazonaws.com";
+    private String serverIp = "3.18.79.149";
     private int serverPort = 12345;
     private DatapackageQueue datapackageQueue;
     private Socket socket;
@@ -30,10 +31,21 @@ public class GameIO {
     private RemoteOpponentInfoBundle remoteOpponentInfoBundle;
 
 
-    public GameIO(DatapackageQueue datapackageQueue, String gameToken, RemoteOpponentInfoBundle remoteOpponentInfoBundle){
+    public GameIO(DatapackageQueue datapackageQueue, String gameToken,
+                  RemoteOpponentInfoBundle remoteOpponentInfoBundle) throws IOException {
         this.datapackageQueue = datapackageQueue;
         this.remoteOpponentInfoBundle = remoteOpponentInfoBundle;
         this.gameToken = gameToken;
+        this.socket = new Socket(serverIp, serverPort);
+        this.socket.setSoTimeout(300000);
+
+        this.in = new DataInputStream(
+                new BufferedInputStream(
+                        socket.getInputStream()));
+        this.out = new DataOutputStream(
+                new BufferedOutputStream(
+                        socket.getOutputStream()));
+
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -52,24 +64,37 @@ public class GameIO {
         Log.d(TAG, "processMoves() called");
         Log.d(TAG, "processMoves is running on thread: " + Thread.currentThread().getName());
 
-        socket = new Socket(gameServer, serverPort);
-        DataInputStream in = new DataInputStream(
-                new BufferedInputStream(
-                        socket.getInputStream()));
-        DataOutputStream out = new DataOutputStream(
-                new BufferedOutputStream(
-                        socket.getOutputStream()));
+        //socket = new Socket(gameServer, serverPort);
+
+        String response;
         final byte[] buffer = new byte[1024];
+        Log.i(TAG, "Socket :" + socket.toString() + "   in: " + in + "      out: "+ out);
         JSONObject initialObject = new JSONObject();
         Log.i(TAG, "remoteOpponentInfoBundle Color = " + remoteOpponentInfoBundle.getColor().toString());
         if(remoteOpponentInfoBundle.getColor().toString().equals("WHITE")){
+            JSONObject jsonObj = new JSONObject();
             Log.i(TAG,"Initial move - waiting for oponent to move");
-            int response = in.read(buffer);
+            jsonObj.put("requestType","MakeMove");
+            jsonObj.put("username", JarAccount.getInstance().getName());
+            jsonObj.put("game_token",gameToken);
+            jsonObj.put("signon_token",JarAccount.getInstance().getSignonToken());
+            jsonObj.put("move","black");
+            out.writeUTF(jsonObj.toString());
+            out.flush();
+            int resp = in.read(buffer);
             String respString = new String(buffer).trim();
-            String respSting = new String(buffer).trim();
-            Log.i(TAG, "Response: " + respSting);
+            Log.i(TAG, "ResponseStr: " + respString);
             datapackageQueue.insertClientBoundDatapackageQueue(
                     Datapackage.DatapackageJSONConverter.getInstance().convertFromJSONObject(initialObject));
+        }else{
+            JSONObject jsonObj = new JSONObject();
+            jsonObj.put("requestType","MakeMove");
+            jsonObj.put("username", JarAccount.getInstance().getName());
+            jsonObj.put("game_token",gameToken);
+            jsonObj.put("signon_token",JarAccount.getInstance().getSignonToken());
+            jsonObj.put("move","white");
+            out.writeUTF(jsonObj.toString());
+            out.flush();
         }
         while(true){
             JSONObject jsonObject = new JSONObject();
@@ -83,11 +108,14 @@ public class GameIO {
             jsonObject.put("move",datapackage.getJSONObject());
             Log.i(TAG,"JsonObject: " + jsonObject.toString());
             Log.i(TAG,"sending datapackage");
+            Log.i(TAG, String.valueOf(socket));
             out.writeUTF(jsonObject.toString());
             out.flush();
             Log.i(TAG,"waiting on IO");
-            int response = in.read(buffer);
+            Log.i(TAG, String.valueOf(socket));
+            int resp = in.read(buffer);
             String respSting = new String(buffer).trim();
+            Log.i(TAG,"Response: " + respSting);
             Log.i(TAG,"insertClientBoundDatapackageQueue");
             datapackageQueue.insertClientBoundDatapackageQueue(
                     Datapackage.DatapackageJSONConverter.getInstance().convertFromJSONObject(jsonObject));
