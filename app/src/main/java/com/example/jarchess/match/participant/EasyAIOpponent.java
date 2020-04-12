@@ -4,7 +4,10 @@ import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.events.MatchResultIsInEvent;
 import com.example.jarchess.match.history.MatchHistory;
+import com.example.jarchess.match.move.Move;
+import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.turn.Turn;
+import com.example.jarchess.testmode.TestableCurrentTime;
 
 /**
  * An easy AI Opponent is an AI opponent that is considered easy difficulty to play against.
@@ -13,6 +16,8 @@ import com.example.jarchess.match.turn.Turn;
  */
 public class EasyAIOpponent extends AIOpponent {
 
+    private static final int DEPTH_LIMIT = 5;
+    private final Minimax minimax;
     public static final boolean IS_IMPLEMENTED = false; // TODO change this when we implement Easy AI Opponent
     /**
      * Creates an easy AI opponent.
@@ -21,14 +26,22 @@ public class EasyAIOpponent extends AIOpponent {
      */
     public EasyAIOpponent(ChessColor color) {
         super(color, "Easy AI");
+        minimax = new Minimax(10, 10, 5, 3, 3, 3, 1);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Turn getFirstTurn() throws MatchOverException {
-        return null;//FIXME
+    public Turn getFirstTurn(MatchHistory matchHistory) throws MatchOverException {
+        long start, elapsed;
+        Move move;
+        PromotionChoice choice = null;
+        start = TestableCurrentTime.currentTimeMillis();
+        move = minimax.findMove(DEPTH_LIMIT, matchHistory);
+        //TODO get promotion choice
+        elapsed = TestableCurrentTime.currentTimeMillis() - start;
+        return new Turn(getColor(), move, elapsed, choice);//FIXME
     }
 
     /**

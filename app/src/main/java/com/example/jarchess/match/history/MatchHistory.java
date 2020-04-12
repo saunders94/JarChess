@@ -14,6 +14,7 @@ import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.turn.Turn;
 
 import java.util.Iterator;
@@ -78,7 +79,8 @@ public class MatchHistory implements Iterable<Turn> {
      * @param capturedPiece           the piece that was captured, may be null
      * @param capturedPieceCoordinate the location that the captured piece was captured, may be null
      */
-    public void add(Turn turn, Chessboard updatedChessboard, Piece capturedPiece, Coordinate capturedPieceCoordinate) {
+    public void add(Turn turn, Chessboard updatedChessboard, Piece capturedPiece, Coordinate capturedPieceCoordinate) /**TODO remove? throws MatchOverException**/
+    {
         Log.v(TAG, "add is running on thread: " + Thread.currentThread().getName());
 
         // Needs to add the starting state before adding anything else but can't do it during construction
@@ -86,6 +88,15 @@ public class MatchHistory implements Iterable<Turn> {
             addHasBeenCalled = true;
             repeatTracker.add(WHITE, MoveExpert.getInstance().getAllPossibleMovements(WHITE, this));
         }
+
+        MoveExpert moveExpert = MoveExpert.getInstance();
+//        TODO remove?
+//        //Validate the turn
+//        if (!moveExpert.isLegalMove(turn.getMove(), this)) {
+//            ChessColor winningColor = ChessColor.getOther(turn.getColor());
+//            ChessMatchResult result = new InvalidTurnReceivedResult(winningColor);
+//            throw new MatchOverException(result);
+//        }
 
 
         ChessColor color = turn.getColor();
@@ -135,8 +146,38 @@ public class MatchHistory implements Iterable<Turn> {
         Log.i(TAG, repeats + " repeats detected for " + nextColor);
     }
 
-    public MatchHistory getCopyWithMoveApplied(Move move) {
-        return new MatchHistory(this);
+    public MatchHistory getCopyWithMoveApplied(Move move, PromotionChoice desiredPromotionChoice) {
+        MatchHistory matchHistory = new MatchHistory(this);
+        PromotionChoice promotionChoice = null;
+
+        //check color of moving pieces
+        for (PieceMovement movement : move) {
+            Piece p = chessboardAfterLastMove.getPieceAt(movement.getOrigin());
+
+            if (p == null) {
+                throw new RuntimeException("no piece at origin of movement " + movement);
+            } else if (p.getColor() != getNextTurnColor()) {
+                throw new RuntimeException("piece color would not be able to move");
+            }
+        }
+
+        // handle promotion
+        if (move.size() == 1) {
+            for (PieceMovement movement : move) {
+                Coordinate origin = movement.getOrigin();
+                Coordinate destination = movement.getDestination();
+                Piece p = chessboardAfterLastMove.getPieceAt(origin);
+                if (p instanceof Pawn && (destination.getRank() == 1 || destination.getRank() == 8)) {
+                    // promotion is required
+                    promotionChoice = desiredPromotionChoice;
+                }
+            }
+        }
+
+        Turn turn = new Turn(getNextTurnColor(), move, 0L, promotionChoice);
+
+        //TODO determine captured pieces and make a chessboard copy.
+        matchHistory.add(turn);
     }
 
     /**

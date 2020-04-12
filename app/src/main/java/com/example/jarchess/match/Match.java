@@ -315,7 +315,7 @@ public abstract class Match implements MatchEndingEventListener {
 
     }
 
-    private void validate(Turn turn) throws MatchOverException {
+    private void validate(Turn turn) throws MatchOverException { // TODO remove?
         if (!moveExpert.isLegalMove(turn.getMove(), matchHistory)) {
             ChessColor winningColor = ChessColor.getOther(turn.getColor());
             ChessMatchResult result = new InvalidTurnReceivedResult(winningColor);
