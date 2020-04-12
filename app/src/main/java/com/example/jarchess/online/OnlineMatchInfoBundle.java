@@ -11,6 +11,11 @@ import com.example.jarchess.online.networking.GameIO;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+
 public class OnlineMatchInfoBundle {
     private RemoteOpponentInfoBundle remoteOpponentInfoBundle;
     private RemoteOpponentInfoBundle playerInfoBundle;
@@ -24,10 +29,12 @@ public class OnlineMatchInfoBundle {
         this.responseObject = responseObject;
         this.datapackageQueue = new DatapackageQueue();
         setRemoteOpponentInfoBundle();
-        // TODO create and set the datapackage queue
-
         // establish connection
-        this.gameIO = new GameIO(datapackageQueue, gameToken, remoteOpponentInfoBundle);
+        try {
+            this.gameIO = new GameIO(datapackageQueue, gameToken, remoteOpponentInfoBundle);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public RemoteOpponentInfoBundle getBlackOpponentInfoBundle() {
