@@ -74,7 +74,7 @@ public class OnlineMatchMaker {
 
 
                 } finally {
-                    //close the socket to stop the match making thread
+                    //close the socket to stop the match making thread TODO make sure this actually stops thread
                     try {
                         socket.close();
                     } catch (IOException e) {
