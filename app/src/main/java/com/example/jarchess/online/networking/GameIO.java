@@ -66,7 +66,7 @@ public class GameIO {
 
         //socket = new Socket(gameServer, serverPort);
 
-        int response;
+        String response;
         final byte[] buffer = new byte[1024];
         Log.i(TAG, "Socket :" + socket.toString() + "   in: " + in + "      out: "+ out);
         JSONObject initialObject = new JSONObject();
@@ -81,9 +81,9 @@ public class GameIO {
             jsonObj.put("move","black");
             out.writeUTF(jsonObj.toString());
             out.flush();
-            response = in.read(buffer);
+            int resp = in.read(buffer);
             String respString = new String(buffer).trim();
-            Log.i(TAG, "Response: " + respString);
+            Log.i(TAG, "ResponseStr: " + respString);
             datapackageQueue.insertClientBoundDatapackageQueue(
                     Datapackage.DatapackageJSONConverter.getInstance().convertFromJSONObject(initialObject));
         }else{
@@ -108,10 +108,12 @@ public class GameIO {
             jsonObject.put("move",datapackage.getJSONObject());
             Log.i(TAG,"JsonObject: " + jsonObject.toString());
             Log.i(TAG,"sending datapackage");
+            Log.i(TAG, String.valueOf(socket));
             out.writeUTF(jsonObject.toString());
             out.flush();
             Log.i(TAG,"waiting on IO");
-            response = in.read(buffer);
+            Log.i(TAG, String.valueOf(socket));
+            int resp = in.read(buffer);
             String respSting = new String(buffer).trim();
             Log.i(TAG,"Response: " + respSting);
             Log.i(TAG,"insertClientBoundDatapackageQueue");

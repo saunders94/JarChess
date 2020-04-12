@@ -90,7 +90,7 @@ public class OnlineMatchMaker {
     public OnlineMatchInfoBundle getOnlineMatchInfoBundle() throws SearchCanceledException, IOException, InterruptedException {
         Log.v(TAG, "getOnlineMatchInfoBundle() called");
         Log.v(TAG, "getOnlineMatchInfoBundle is running on thread: " + Thread.currentThread().getName());
-        this.socket = new Socket(serverIp, serverPort);
+        this.socket = new Socket(gameServer, serverPort);
         socket.setSoTimeout(500);
         boolean failed;
         final byte[] buffer = new byte[1024];
@@ -159,6 +159,7 @@ public class OnlineMatchMaker {
                         String respString = new String(buffer).trim();
                         Log.i(TAG, "response: \"" + respString + "\"");
                         socket.close();
+                        Log.i(TAG,"Socket closed: " + socket);
 
 
                         try {
