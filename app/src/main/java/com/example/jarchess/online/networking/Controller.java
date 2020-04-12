@@ -1,11 +1,8 @@
 package com.example.jarchess.online.networking;
 
-import android.media.audiofx.AcousticEchoCanceler;
-
 import com.example.jarchess.online.move.DatapackageFormatter;
 import com.example.jarchess.online.move.DatapackageQueue;
 import com.example.jarchess.online.move.MoveAvailableQueue;
-import com.example.jarchess.online.usermanagement.Account;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +15,7 @@ public class Controller {
     private String testServer = "192.168.1.174";
     private int serverPort = 12345;
     private NetworkReceiver receiver;
-    private LogonIO logonIO;
+    private DataSender dataSender;
     private DatapackageQueue moveQueue;
     private DatapackageFormatter moveFormatter;
     private MoveAvailableQueue moveAvailableQueue;
@@ -42,7 +39,7 @@ public class Controller {
             e.printStackTrace();
         }
         try {
-            logonIO.send(obj);
+            dataSender.send(obj);
         } catch (IOException e) {
             e.printStackTrace();
         }
