@@ -9,6 +9,9 @@ import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.testmode.TestableCurrentTime;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 /**
  * An easy AI Opponent is an AI opponent that is considered easy difficulty to play against.
  *
@@ -16,9 +19,15 @@ import com.example.jarchess.testmode.TestableCurrentTime;
  */
 public class EasyAIOpponent extends AIOpponent {
 
-    private static final int DEPTH_LIMIT = 5;
+    public static final boolean IS_IMPLEMENTED = true;
+    private static final int DEPTH_LIMIT = 3;
     private final Minimax minimax;
-    public static final boolean IS_IMPLEMENTED = false; // TODO change this when we implement Easy AI Opponent
+    private static final Collection<PromotionChoice> PROMOTION_OPTIONS = new LinkedList<>();
+
+    {
+        PROMOTION_OPTIONS.add(PromotionChoice.PROMOTE_TO_QUEEN);
+    }
+
     /**
      * Creates an easy AI opponent.
      *
@@ -26,36 +35,31 @@ public class EasyAIOpponent extends AIOpponent {
      */
     public EasyAIOpponent(ChessColor color) {
         super(color, "Easy AI");
-        minimax = new Minimax(10, 10, 5, 3, 3, 3, 1);
+        minimax = new Minimax(10, 1, 10, 5, 3, 3, 3, 1, PROMOTION_OPTIONS);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Turn getFirstTurn(MatchHistory matchHistory) throws MatchOverException {
-        long start, elapsed;
-        Move move;
-        PromotionChoice choice = null;
-        start = TestableCurrentTime.currentTimeMillis();
-        move = minimax.findMove(DEPTH_LIMIT, matchHistory);
-        //TODO get promotion choice
-        elapsed = TestableCurrentTime.currentTimeMillis() - start;
-        return new Turn(getColor(), move, elapsed, choice);//FIXME
+        return getTurn(matchHistory);
     }
 
-    /**
-     * {@inheritDoc}
-     * @param lastTurnFromOtherParticipant
-     */
     @Override
-    public Turn getNextTurn(MatchHistory lastTurnFromOtherParticipant) throws MatchOverException {
-        return null;//FIXME
+    public Turn getNextTurn(MatchHistory matchHistory) throws MatchOverException {
+        return getTurn(matchHistory);
     }
 
+    private Turn getTurn(MatchHistory matchHistory) {
+        long start, elapsed;
+        start = TestableCurrentTime.currentTimeMillis();
+        Minimax.MinimaxNode node = minimax.find(DEPTH_LIMIT, matchHistory);
+        Move move = node.getChosenMove();
+        PromotionChoice choice = node.getPromotionChoice();
+        elapsed = TestableCurrentTime.currentTimeMillis() - start;
+        return new Turn(getColor(), move, elapsed, choice);
+    }
 
     @Override
     public void observe(MatchResultIsInEvent event) {
-        //FIXME
+        //do nothing
     }
 }

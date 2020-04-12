@@ -12,6 +12,7 @@ import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.pieces.King;
 import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.pieces.Rook;
 import com.example.jarchess.match.pieces.movementpatterns.CastleMovementPattern;
 import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
@@ -274,7 +275,7 @@ public class MoveExpert {
                 boolean isLegalIgnoringCheck = isLegalMoveIgnoringChecks(move, matchHistory);
 
                 if (isLegalIgnoringCheck) {
-                    boolean leavesKingInCheck = isInCheck(pieceToMove.getColor(), matchHistory.getCopyWithMoveApplied(move));
+                    boolean leavesKingInCheck = isInCheck(pieceToMove.getColor(), matchHistory.getCopyWithMoveApplied(move, PromotionChoice.PROMOTE_TO_QUEEN));
 
                     return !leavesKingInCheck; // you can't make a move that would leave your king in check
                 } else {
@@ -432,4 +433,17 @@ public class MoveExpert {
         return false;
     }
 
+    public boolean moveRequiresPromotion(Move move, MatchHistory matchHistory) {
+        ChessboardReader reader = matchHistory.getLastChessboardReader();
+
+        for (PieceMovement movement : move) {
+            Coordinate origin = movement.getOrigin();
+            Coordinate destination = movement.getDestination();
+            Piece p = reader.getPieceAt(origin);
+            if (p instanceof Pawn && (destination.getRank() == 1 || destination.getRank() == 8)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

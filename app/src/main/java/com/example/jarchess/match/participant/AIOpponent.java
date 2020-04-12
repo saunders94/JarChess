@@ -10,12 +10,14 @@ import com.example.jarchess.match.events.MatchResultIsInEventManager;
 import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.pieces.Piece;
+import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.styles.avatar.AIAvatarStyle;
 import com.example.jarchess.match.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import static com.example.jarchess.match.pieces.Piece.Type.BISHOP;
@@ -84,13 +86,17 @@ public abstract class AIOpponent implements MatchParticipant {
     protected class Minimax {
         private static final String TAG = "AIOpponent.Minimax";
         private final int checkMateValue;
+        private final int checkValue;
         private final Map<Piece.Type, Integer> pieceValues;
         private final ChessColor myColor = color;
         private final ChessColor theirColor = ChessColor.getOther(color);
         private final MoveExpert moveExpert = MoveExpert.getInstance();
+        private final Collection<PromotionChoice> promotionChoicesToConsider;
 
-        public Minimax(int checkMateValue, int kingValue, int queenValue, int bishopValue, int knightValue, int rookValue, int pawnValue) {
+        public Minimax(int checkMateValue, int checkValue, int kingValue, int queenValue, int bishopValue, int knightValue, int rookValue, int pawnValue, Collection<PromotionChoice> promotionChoicesToConsider) {
             this.checkMateValue = checkMateValue;
+            this.checkValue = checkValue;
+            this.promotionChoicesToConsider = promotionChoicesToConsider;
 
             pieceValues = new EnumMap<Piece.Type, Integer>(Piece.Type.class);
 
@@ -107,6 +113,21 @@ public abstract class AIOpponent implements MatchParticipant {
             int value = 0;
             ChessboardReader chessboardReader = matchHistory.getLastChessboardReader();
 
+            if (moveExpert.isInCheck(theirColor, matchHistory)) {
+                if (!moveExpert.hasMoves(theirColor, matchHistory)) {
+                    value += checkMateValue;
+                } else {
+                    value += checkValue;
+                }
+
+            } else if (moveExpert.isInCheck(myColor, matchHistory)) {
+                if (!moveExpert.hasMoves(myColor, matchHistory)) {
+                    value -= checkMateValue;
+                } else {
+                    value -= checkValue;
+                }
+            }
+
             for (Coordinate c : Coordinate.values()) {
                 value += getValueOfPiece(chessboardReader.getPieceAt(c));
             }
@@ -115,8 +136,8 @@ public abstract class AIOpponent implements MatchParticipant {
             return value;
         }
 
-        protected Move findMove(int depthLimit, MatchHistory matchHistory) {
-            return new MinimaxNode(depthLimit, matchHistory).chosenMove;
+        protected MinimaxNode find(int depthLimit, MatchHistory matchHistory) {
+            return new MinimaxNode(depthLimit, matchHistory);
         }
 
         protected int getValueOfPiece(Piece piece) {
@@ -143,9 +164,10 @@ public abstract class AIOpponent implements MatchParticipant {
             private final MatchHistory matchHistory;
             private final int value;
             private final Move chosenMove;
+            private final PromotionChoice promotionChoice;
             private MinimaxNode min, max;
 
-            public MinimaxNode(int depthLimit, MatchHistory matchHistory) {
+            private MinimaxNode(int depthLimit, MatchHistory matchHistory) {
                 this(depthLimit, 0, null, null, matchHistory);
             }
 
@@ -154,86 +176,97 @@ public abstract class AIOpponent implements MatchParticipant {
                 this.min = bestMinChoice;
                 this.max = bestMaxChoice;
 
+
+                if (depth < 0) {
+                    throw new IllegalArgumentException("depth was less than zero");
+                }
+                if (depthLimit < 1) {
+                    throw new IllegalArgumentException("depth limit was less than one");
+                }
+
                 if (depth >= depthLimit) {
                     value = calculateValue(matchHistory);
                     chosenMove = null;
+                    promotionChoice = null;
                 } else {
                     int tmp;
 
                     Collection<Move> moves;
                     MinimaxNode n;
                     moves = moveExpert.getAllLegalMoves(matchHistory.getNextTurnColor(), matchHistory);
-                    if (depth % 2 == 0) {
-                        // looking for max
+                    Move chosenMoveTmp = null;
+                    PromotionChoice chosenPromotionChoiceTmp = null;
+                    MinimaxNode chosenNode = null;
 
-                        MinimaxNode maxNode = null;
-                        Move chosenMoveTmp = null;
+                    for (Move move : moves) {
+                        Collection<PromotionChoice> choices = new LinkedList<>();
+                        if (moveExpert.moveRequiresPromotion(move, matchHistory)) {
+                            choices.addAll(promotionChoicesToConsider);
+                        } else {
+                            choices.add(null);
+                        }
+                        for (PromotionChoice choice : choices) {
+                            n = new MinimaxNode(depthLimit, depth + 1, min, max, matchHistory.getCopyWithMoveApplied(move, choice));
 
-                        for (Move move : moves) {
-                            n = new MinimaxNode(depthLimit, depth + 1, min, max, matchHistory.getCopyWithMoveApplied(move));
+                            if (depth % 2 == 0) {
+                                // looking for max
 
-                            //prune if possible
-                            if (min != null && n.compareTo(min) >= 0) {
-                                value = n.getValue();
-                                chosenMove = move;
-                                return;
-                            }
+                                //prune if possible
+                                if (min != null && n.compareTo(min) >= 0) {
+                                    Log.i(TAG, "MinimaxNode: Pruneing");
+                                    value = n.value;
+                                    chosenMove = move;
+                                    promotionChoice = choice;
+                                    return;
+                                }
 
-                            // check for new max node
-                            if (maxNode == null || maxNode.compareTo(n) < 0) {
-                                // we found a new max
-                                maxNode = n;
-                                chosenMoveTmp = move;
+                                // check for new max node
+                                if (chosenNode == null || chosenNode.compareTo(n) < 0) {
+                                    // we found a new max
+                                    chosenNode = n;
+                                    chosenMoveTmp = move;
+                                    chosenPromotionChoiceTmp = choice;
 
-                                if (max == null || maxNode.compareTo(max) > 0) {
-                                    max = maxNode;
+                                    if (max == null || chosenNode.compareTo(max) > 0) {
+                                        max = chosenNode;
+                                    }
+                                }
+
+
+                            } else {
+                                //looking for min
+
+                                //prune if possible
+                                if (max != null && n.compareTo(max) <= 0) {
+                                    Log.i(TAG, "MinimaxNode: Pruneing");
+                                    value = n.getValue();
+                                    chosenMove = move;
+                                    promotionChoice = choice;
+                                    return;
+                                }
+
+                                // check for new min node
+                                if (chosenNode == null || chosenNode.compareTo(n) > 0) {
+                                    // we found a new min
+                                    chosenNode = n;
+                                    chosenMoveTmp = move;
+                                    chosenPromotionChoiceTmp = choice;
+
+                                    if (min == null || chosenNode.compareTo(min) < 0) {
+                                        max = chosenNode;
+                                    }
                                 }
                             }
-                        }
-
-                        chosenMove = chosenMoveTmp;
-                        if (maxNode == null) {
-                            // there where no possible moves
-                            value = calculateValue(matchHistory);
-                        } else {
-                            value = maxNode.getValue();
-                        }
-
-                    } else {
-                        //looking for min
-                        MinimaxNode minNode = null;
-                        Move chosenMoveTmp = null;
-
-                        for (Move move : moves) {
-                            n = new MinimaxNode(depthLimit, depth + 1, min, max, matchHistory.getCopyWithMoveApplied(move));
-
-                            //prune if possible
-                            if (max != null && n.compareTo(max) <= 0) {
-                                value = n.getValue();
-                                chosenMove = move;
-                                return;
-                            }
-
-                            // check for new min node
-                            if (minNode == null || minNode.compareTo(n) > 0) {
-                                // we found a new min
-                                minNode = n;
-                                chosenMoveTmp = move;
-
-                                if (min == null || minNode.compareTo(min) < 0) {
-                                    max = minNode;
-                                }
-                            }
-                        }
-
-                        chosenMove = chosenMoveTmp;
-                        if (minNode == null) {
-                            // there where no possible moves
-                            value = calculateValue(matchHistory);
-                        } else {
-                            value = minNode.getValue();
                         }
                     }
+                    if (chosenNode == null) {
+                        // there where no possible moves
+                        value = calculateValue(matchHistory);
+                    } else {
+                        value = chosenNode.getValue();
+                    }
+                    chosenMove = chosenMoveTmp;
+                    promotionChoice = chosenPromotionChoiceTmp;
                 }
             }
 
@@ -246,8 +279,12 @@ public abstract class AIOpponent implements MatchParticipant {
                 return chosenMove;
             }
 
-            protected Turn getTurn() {
+            protected Turn getLastTurn() {
                 return matchHistory.getLastTurn();
+            }
+
+            protected PromotionChoice getPromotionChoice() {
+                return promotionChoice;
             }
 
             public int getValue() {

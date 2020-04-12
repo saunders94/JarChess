@@ -39,7 +39,6 @@ import com.example.jarchess.match.view.MatchView;
 
 import java.util.Collection;
 
-import static androidx.constraintlayout.widget.Constraints.TAG;
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
 
@@ -54,6 +53,7 @@ public abstract class Match implements MatchEndingEventListener {
     private final MatchActivity matchActivity;
     private ChessMatchResult matchChessMatchResult = null;
     private String gameToken;
+    private static final String TAG = "Match";
 
     public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2, MatchClockChoice matchClockChoice, MatchActivity matchActivity) {
         this.matchActivity = matchActivity;
@@ -135,7 +135,7 @@ public abstract class Match implements MatchEndingEventListener {
             } else if (matchHistory.getEnPassantVulnerableCoordinate() == destination && getPieceAt(origin) instanceof Pawn) {
                 // perform en passant capture
                 capturedPieceCoordinate = matchHistory.getEnPassantRiskedPieceLocation();
-                capturedPiece = capture(matchHistory.getEnPassantRiskedPieceLocation());
+                capturedPiece = capture(capturedPieceCoordinate);
                 matchActivity.getMatchView().addCapturedPiece(capturedPiece);
                 matchActivity.getMatchView().updatePiece(matchHistory.getEnPassantRiskedPieceLocation());
             }
@@ -145,12 +145,8 @@ public abstract class Match implements MatchEndingEventListener {
                 promote(destination, choice);
             }
         }
-        matchHistory.add(turn, chessboard, capturedPiece, capturedPieceCoordinate);
+        matchHistory.add(turn);
         checkForGameEnd(ChessColor.getOther(turn.getColor()));
-    }
-
-    public ChessMatchResult getMatchChessMatchResult() {
-        return matchChessMatchResult;
     }
 
     public void forceEndMatch(String msg) {
@@ -161,11 +157,14 @@ public abstract class Match implements MatchEndingEventListener {
         return blackPlayer;
     }
 
-
     public abstract ChessColor getForceExitWinningColor();
 
     public Collection<? extends PieceMovement> getLegalCastleMovements(Coordinate origin, Coordinate destination) {
         return moveExpert.getLegalCastleMovements(origin, destination, matchHistory);
+    }
+
+    public ChessMatchResult getMatchChessMatchResult() {
+        return matchChessMatchResult;
     }
 
     private synchronized void setMatchChessMatchResult(ChessMatchResult matchChessMatchResult) {
@@ -177,10 +176,6 @@ public abstract class Match implements MatchEndingEventListener {
             notifyAll();
             MatchResultIsInEventManager.getInstance().notifyAllListeners(new MatchResultIsInEvent(matchChessMatchResult));
         }
-    }
-
-    public boolean isDone() {
-        return matchChessMatchResult != null;
     }
 
     public MatchClock getMatchClock() {
@@ -213,13 +208,29 @@ public abstract class Match implements MatchEndingEventListener {
 
     private Turn getTurn() throws MatchOverException, InterruptedException {
         if (matchHistory.getLastTurn() == null) {
-            return getParticipant(WHITE).getFirstTurn();
+            return getParticipant(WHITE).getFirstTurn(matchHistory);
         }
         return getParticipant(matchHistory.getNextTurnColor()).getNextTurn(matchHistory);
     }
 
     public MatchParticipant getWhiteParticipant() {
         return whitePlayer;
+    }
+
+    public boolean isDone() {
+        return matchChessMatchResult != null;
+    }
+
+    public void move(Coordinate origin, Coordinate destination) {
+        chessboard.move(origin, destination);
+    }
+
+    @Override
+    public void observe(MatchEndingEvent matchEndingEvent) {
+
+        setMatchChessMatchResult(matchEndingEvent.getResult());
+
+
     }
 
     private void playMatch() {
@@ -259,18 +270,6 @@ public abstract class Match implements MatchEndingEventListener {
         matchClock.stop();
 
         matchActivity.showMatchResult();
-    }
-
-    public void move(Coordinate origin, Coordinate destination) {
-        chessboard.move(origin, destination);
-    }
-
-    @Override
-    public void observe(MatchEndingEvent matchEndingEvent) {
-
-        setMatchChessMatchResult(matchEndingEvent.getResult());
-
-
     }
 
     public void promote(Coordinate coordinate, PromotionChoice choice) {
@@ -315,7 +314,7 @@ public abstract class Match implements MatchEndingEventListener {
 
     }
 
-    private void validate(Turn turn) throws MatchOverException { // TODO remove?
+    private void validate(Turn turn) throws MatchOverException {
         if (!moveExpert.isLegalMove(turn.getMove(), matchHistory)) {
             ChessColor winningColor = ChessColor.getOther(turn.getColor());
             ChessMatchResult result = new InvalidTurnReceivedResult(winningColor);

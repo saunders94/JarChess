@@ -12,9 +12,13 @@ import com.example.jarchess.match.chessboard.ChessboardReader;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.MatchParticipant;
+import com.example.jarchess.match.pieces.Bishop;
+import com.example.jarchess.match.pieces.Knight;
 import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.pieces.PromotionChoice;
+import com.example.jarchess.match.pieces.Queen;
+import com.example.jarchess.match.pieces.Rook;
 import com.example.jarchess.match.turn.Turn;
 
 import java.util.Iterator;
@@ -40,6 +44,7 @@ public class MatchHistory implements Iterable<Turn> {
     private Coordinate enPassantVulnerableCoordinate = null;
     private Coordinate enPassantRiskedPieceLocation = null;
     private boolean addHasBeenCalled = false;
+    private final boolean isCopy;
 
     /**
      * Creates a new instance of MatchHistory
@@ -53,6 +58,7 @@ public class MatchHistory implements Iterable<Turn> {
         chessboardAfterLastMove = new Chessboard();
         chessboardBeforeLastMove = null;
         repeatTracker = new RepeatTracker();
+        isCopy = false;
     }
 
     private MatchHistory(MatchHistory original) {
@@ -69,19 +75,15 @@ public class MatchHistory implements Iterable<Turn> {
         enPassantRiskedPieceLocation = original.enPassantRiskedPieceLocation;
         enPassantVulnerableCoordinate = original.enPassantVulnerableCoordinate;
         addHasBeenCalled = original.addHasBeenCalled;
+        isCopy = true;
     }
 
     /**
-     * adds a turn to the history
+     * adds a pre-validated turn to the history.
      *
-     * @param turn                    the turn that was taken, not null
-     * @param updatedChessboard       the chessboard after the turn was taken, not null
-     * @param capturedPiece           the piece that was captured, may be null
-     * @param capturedPieceCoordinate the location that the captured piece was captured, may be null
+     * @param turn the valid turn that was taken, not null
      */
-    public void add(Turn turn, Chessboard updatedChessboard, Piece capturedPiece, Coordinate capturedPieceCoordinate) /**TODO remove? throws MatchOverException**/
-    {
-        Log.v(TAG, "add is running on thread: " + Thread.currentThread().getName());
+    public void add(Turn turn) {
 
         // Needs to add the starting state before adding anything else but can't do it during construction
         if (!addHasBeenCalled) {
@@ -90,26 +92,71 @@ public class MatchHistory implements Iterable<Turn> {
         }
 
         MoveExpert moveExpert = MoveExpert.getInstance();
-//        TODO remove?
-//        //Validate the turn
-//        if (!moveExpert.isLegalMove(turn.getMove(), this)) {
-//            ChessColor winningColor = ChessColor.getOther(turn.getColor());
-//            ChessMatchResult result = new InvalidTurnReceivedResult(winningColor);
-//            throw new MatchOverException(result);
-//        }
 
 
         ChessColor color = turn.getColor();
         ChessColor nextColor = ChessColor.getOther(color);
-        enPassantVulnerableCoordinate = null;
-        enPassantRiskedPieceLocation = null;
 
         movesSinceCaptureOrPawnMovement[color.getIntValue()]++;
-        chessboardBeforeLastMove = chessboardAfterLastMove;
-        chessboardAfterLastMove = updatedChessboard.getCopy();
+        chessboardBeforeLastMove = chessboardAfterLastMove.getCopy();
+
+        //execute turn on copy chessboard
+        Piece capturedPiece = null;
+        Coordinate capturedPieceCoordinate = null;
+        Move move = turn.getMove();
+        for (PieceMovement movement : move) {
+
+            Coordinate origin = movement.getOrigin();
+            Coordinate destination = movement.getDestination();
+
+            if (chessboardAfterLastMove.getPieceAt(destination) != null) {
+                //perform normal capture
+                capturedPieceCoordinate = destination;
+                capturedPiece = chessboardAfterLastMove.remove(capturedPieceCoordinate);
+            } else if (getEnPassantVulnerableCoordinate() == destination && chessboardAfterLastMove.getPieceAt(origin) instanceof Pawn) {
+                // perform en passant capture
+                capturedPieceCoordinate = getEnPassantRiskedPieceLocation();
+                capturedPiece = chessboardAfterLastMove.remove(getEnPassantRiskedPieceLocation());
+            }
+            chessboardAfterLastMove.move(origin, destination);
+            PromotionChoice choice = turn.getPromotionChoice();
+            if (choice != null) {
+                // promote the pawn
+                Piece oldPiece = chessboardAfterLastMove.getPieceAt(destination);
+
+                if (oldPiece instanceof Pawn && destination.getRank() == 1 || destination.getRank() == 8) {
+                    Pawn pawn = (Pawn) oldPiece;
+                    Piece newPiece;
+
+                    switch (choice.getPieceType()) {
+                        case ROOK:
+                            newPiece = new Rook(pawn);
+                            break;
+                        case KNIGHT:
+                            newPiece = new Knight(pawn);
+                            break;
+                        case BISHOP:
+                            newPiece = new Bishop(pawn);
+                            break;
+                        case QUEEN:
+                            newPiece = new Queen(pawn);
+                            break;
+                        default:
+                            throw new IllegalStateException("Unexpected value piece type from promotion choice: " + choice.getPieceType());
+                    }
+
+                    chessboardAfterLastMove.remove(destination);
+                    chessboardAfterLastMove.add(newPiece, destination);
+                }
+            }
+        }
+
+        // add the turn to the turn list
         turnList.addLast(turn);
 
         // track en passant vulnerabilities
+        enPassantVulnerableCoordinate = null;
+        enPassantRiskedPieceLocation = null;
         for (PieceMovement movement : turn.getMove()) {
             Piece movingPiece = chessboardBeforeLastMove.getPieceAt(movement.getOrigin());
 
@@ -123,8 +170,11 @@ public class MatchHistory implements Iterable<Turn> {
                 if (destinationRow != singleMoveRow) { // the move was a double forward move
                     enPassantVulnerableCoordinate = Coordinate.getByColumnAndRow(originColumn, singleMoveRow);
                     enPassantRiskedPieceLocation = Coordinate.getByColumnAndRow(originColumn, destinationRow);
-                    Log.v(TAG, "add: enPassantVulnerableCoordinate = " + enPassantVulnerableCoordinate);
-                    Log.v(TAG, "add: enPassantRiskedCoordinate = " + enPassantRiskedPieceLocation);
+
+                    if (!isCopy) {
+                        Log.v(TAG, "add: enPassantVulnerableCoordinate = " + enPassantVulnerableCoordinate);
+                        Log.v(TAG, "add: enPassantRiskedCoordinate = " + enPassantRiskedPieceLocation);
+                    }
                 }
             }
         }
@@ -137,16 +187,24 @@ public class MatchHistory implements Iterable<Turn> {
         if (movesSinceCaptureOrPawnMovement[color.getIntValue()] == 0) {
             movesSinceCaptureOrPawnMovement[nextColor.getIntValue()] = 0;
             repeatTracker.clear();
-            Log.i(TAG, "add: repeatTracker cleared");
+
+            if (!isCopy) {
+                Log.i(TAG, "add: repeatTracker cleared");
+            }
         }
 
-        Log.i(TAG, "add: moves since capture or pawn move: " + movesSinceCaptureOrPawnMovement[color.getIntValue()]);
 
-        int repeats = repeatTracker.add(nextColor, MoveExpert.getInstance().getAllPossibleMovements(nextColor, this));
-        Log.i(TAG, repeats + " repeats detected for " + nextColor);
+        if (!isCopy) {
+            Log.i(TAG, "add: moves since capture or pawn move: " + movesSinceCaptureOrPawnMovement[color.getIntValue()]);
+        }
+
+        if (!isCopy) {
+            int repeats = repeatTracker.add(nextColor, MoveExpert.getInstance().getAllPossibleMovements(nextColor, this));
+            Log.i(TAG, repeats + " repeats detected for " + nextColor);
+        }
     }
 
-    public MatchHistory getCopyWithMoveApplied(Move move, PromotionChoice desiredPromotionChoice) {
+    public MatchHistory getCopyWithMoveApplied(@NonNull Move move, @NonNull PromotionChoice desiredPromotionChoice) {
         MatchHistory matchHistory = new MatchHistory(this);
         PromotionChoice promotionChoice = null;
 
@@ -162,29 +220,15 @@ public class MatchHistory implements Iterable<Turn> {
         }
 
         // handle promotion
-        if (move.size() == 1) {
-            for (PieceMovement movement : move) {
-                Coordinate origin = movement.getOrigin();
-                Coordinate destination = movement.getDestination();
-                Piece p = chessboardAfterLastMove.getPieceAt(origin);
-                if (p instanceof Pawn && (destination.getRank() == 1 || destination.getRank() == 8)) {
-                    // promotion is required
-                    promotionChoice = desiredPromotionChoice;
-                }
-            }
+        if (MoveExpert.getInstance().moveRequiresPromotion(move, this)) {
+            promotionChoice = desiredPromotionChoice;
         }
 
         Turn turn = new Turn(getNextTurnColor(), move, 0L, promotionChoice);
 
-        //TODO determine captured pieces and make a chessboard copy.
         matchHistory.add(turn);
-    }
 
-    /**
-     * @return the coordinate that a pawn can make a capturing movement into to capture en passant
-     */
-    public Coordinate getEnPassantVulnerableCoordinate() {
-        return enPassantVulnerableCoordinate;
+        return matchHistory;
     }
 
     /**
@@ -192,6 +236,13 @@ public class MatchHistory implements Iterable<Turn> {
      */
     public Coordinate getEnPassantRiskedPieceLocation() {
         return enPassantRiskedPieceLocation;
+    }
+
+    /**
+     * @return the coordinate that a pawn can make a capturing movement into to capture en passant
+     */
+    public Coordinate getEnPassantVulnerableCoordinate() {
+        return enPassantVulnerableCoordinate;
     }
 
     public ChessboardReader getLastChessboardReader() {
@@ -204,6 +255,16 @@ public class MatchHistory implements Iterable<Turn> {
     public Move getLastMove() {
         Log.v(TAG, "getLastMove is running on thread: " + Thread.currentThread().getName());
         return turnList.peekLast().getMove();
+    }
+
+    /**
+     * gets the last turn that was taken
+     *
+     * @return the last turn that was taken
+     */
+    public Turn getLastTurn() {
+        Log.v(TAG, "getlastTurn is running on thread: " + Thread.currentThread().getName());
+        return turnList.peekLast();
     }
 
     /**
@@ -226,16 +287,6 @@ public class MatchHistory implements Iterable<Turn> {
 
     public int getRepetitions() {
         return repeatTracker.getLastRepetitionCount();
-    }
-
-    /**
-     * gets the last turn that was taken
-     *
-     * @return the last turn that was taken
-     */
-    public Turn getLastTurn() {
-        Log.v(TAG, "getlastTurn is running on thread: " + Thread.currentThread().getName());
-        return turnList.peekLast();
     }
 
     @NonNull
