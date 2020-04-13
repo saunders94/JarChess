@@ -14,6 +14,7 @@ import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.styles.avatar.AIAvatarStyle;
 import com.example.jarchess.match.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
+import com.example.jarchess.testmode.TestableRandom;
 
 import java.util.Collection;
 import java.util.EnumMap;
@@ -165,6 +166,7 @@ public abstract class AIOpponent implements MatchParticipant {
             private final int value;
             private final Move chosenMove;
             private final PromotionChoice promotionChoice;
+            private final TestableRandom random;
             private MinimaxNode min, max;
 
             private MinimaxNode(int depthLimit, MatchHistory matchHistory) {
@@ -175,6 +177,7 @@ public abstract class AIOpponent implements MatchParticipant {
                 this.matchHistory = matchHistory;
                 this.min = bestMinChoice;
                 this.max = bestMaxChoice;
+                random = TestableRandom.getInstance();
 
 
                 if (depth < 0) {
@@ -212,8 +215,8 @@ public abstract class AIOpponent implements MatchParticipant {
                                 // looking for max
 
                                 //prune if possible
-                                if (min != null && n.compareTo(min) >= 0) {
-                                    Log.i(TAG, "MinimaxNode: Pruneing");
+                                if (min != null && (n.compareTo(min) > 0 || (n.compareTo(min) == 0 && random.getNextBoolean()))) {
+
                                     value = n.value;
                                     chosenMove = move;
                                     promotionChoice = choice;
@@ -221,7 +224,8 @@ public abstract class AIOpponent implements MatchParticipant {
                                 }
 
                                 // check for new max node
-                                if (chosenNode == null || chosenNode.compareTo(n) < 0) {
+                                if (chosenNode == null || chosenNode.compareTo(n) < 0 || (chosenNode.compareTo(n) == 0 && random.getNextBoolean())) {
+
                                     // we found a new max
                                     chosenNode = n;
                                     chosenMoveTmp = move;
@@ -237,8 +241,8 @@ public abstract class AIOpponent implements MatchParticipant {
                                 //looking for min
 
                                 //prune if possible
-                                if (max != null && n.compareTo(max) <= 0) {
-                                    Log.i(TAG, "MinimaxNode: Pruneing");
+                                if (max != null && (n.compareTo(max) < 0 || (n.compareTo(max) == 0 && random.getNextBoolean()))) {
+
                                     value = n.getValue();
                                     chosenMove = move;
                                     promotionChoice = choice;
@@ -246,7 +250,8 @@ public abstract class AIOpponent implements MatchParticipant {
                                 }
 
                                 // check for new min node
-                                if (chosenNode == null || chosenNode.compareTo(n) > 0) {
+                                if (chosenNode == null || chosenNode.compareTo(n) > 0 || (chosenNode.compareTo(n) == 0 && random.getNextBoolean())) {
+
                                     // we found a new min
                                     chosenNode = n;
                                     chosenMoveTmp = move;

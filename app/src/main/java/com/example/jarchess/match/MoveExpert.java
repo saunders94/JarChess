@@ -52,6 +52,26 @@ public class MoveExpert {
         return instance;
     }
 
+    public Collection<Move> getAllLegalMoves(ChessColor color, MatchHistory matchHistory) {
+        ChessboardReader chessboard = matchHistory.getLastChessboardReader();
+        Collection<Move> moves = new LinkedList<>();
+        for (Coordinate origin : Coordinate.values()) {
+            Piece movingPiece = chessboard.getPieceAt(origin);
+            if (movingPiece != null && movingPiece.getColor() == color) {
+                for (Coordinate destination : getLegalDestinations(origin, matchHistory)) {
+                    Collection<PieceMovement> castleMovements = getLegalCastleMovements(origin, destination, matchHistory);
+                    if (castleMovements != null && !castleMovements.isEmpty()) {
+                        moves.add(new Move(castleMovements));
+                    } else {
+                        moves.add(new Move(origin, destination));
+                    }
+                }
+            }
+        }
+
+        return moves;
+    }
+
     public Collection<PieceMovement> getAllPossibleMovements(ChessColor color, MatchHistory matchHistory) {
         ChessboardReader chessboard = matchHistory.getLastChessboardReader();
         Collection<PieceMovement> movements = new LinkedList<>();
@@ -90,8 +110,6 @@ public class MoveExpert {
     public Collection<PieceMovement> getLegalCastleMovements(@NonNull Coordinate kingOrigin, @NonNull Coordinate kingDestination, MatchHistory matchHistory) {
         final Collection<PieceMovement> movements = new LinkedList<PieceMovement>();
         final ChessboardReader chessboardToCheck = matchHistory.getLastChessboardReader();
-
-        Log.v(TAG, "getLegalCastleMovements() called with: kingOrigin = [" + kingOrigin + "], kingDestination = [" + kingDestination + "], chessboardToCheck = [" + chessboardToCheck + "]");
         final King king;
         final Rook rook;
         final ChessColor color;
@@ -102,8 +120,6 @@ public class MoveExpert {
         CastleMovementPattern pattern = null;
 
         if (!(pieceAtOrigin instanceof King) || pieceAtOrigin.hasMoved()) {
-            Log.v(TAG, "getLegalCastleMovements: not instance of king or it has moved");
-            Log.v(TAG, "getLegalCastleMovements() returned: " + movements);
             return movements;
         }
 
@@ -122,8 +138,6 @@ public class MoveExpert {
                 throw new IllegalStateException("Unexpected value: " + color);
         }
         if (kingOrigin.getFile() != expectedStartingFile || kingOrigin.getRank() != expectedRank || kingDestination.getRank() != expectedRank) {
-            Log.v(TAG, "getLegalCastleMovements: start coordinate check failed");
-            Log.v(TAG, "getLegalCastleMovements() returned: " + movements);
             return movements;
         }
 
@@ -135,8 +149,6 @@ public class MoveExpert {
         }
 
         if (pattern == null) {
-            Log.v(TAG, "getLegalCastleMovements: No pattern found");
-            Log.v(TAG, "getLegalCastleMovements() returned: " + movements);
             return movements;
         }
 
@@ -153,8 +165,6 @@ public class MoveExpert {
             if (tmp instanceof Rook && !tmp.hasMoved()) {
                 rook = (Rook) tmp;
             } else {
-                Log.v(TAG, "getLegalCastleMovements: piece at " + Coordinate.getByFileAndRank(rookStartingFile, rank) + " was not a rook");
-                Log.v(TAG, "getLegalCastleMovements() returned: " + movements);
                 return movements;
             }
         }
@@ -162,8 +172,7 @@ public class MoveExpert {
         // check for any pieces between king and rook
         for (char file = expectedStartingFile; file != rookStartingFile; file += kingMovesQueenward ? -1 : 1) {
             if (file != expectedStartingFile && !chessboardToCheck.isEmptyAt(Coordinate.getByFileAndRank(file, rank))) {
-                Log.v(TAG, "getLegalCastleMovements: piece was found between king and rook");
-                Log.v(TAG, "getLegalCastleMovements() returned: " + movements);
+
                 return movements;
             }
         }
@@ -173,23 +182,16 @@ public class MoveExpert {
             int offset = kingMovesQueenward ? -i : i;
             char f = (char) (expectedStartingFile + offset);
             Coordinate newPosition = Coordinate.getByFileAndRank(f, rank);
-            Log.v(TAG, "getLegalCastleMovements: newPosition = " + newPosition);
+
             Chessboard tmpChessboard = chessboardToCheck.getCopyWithMovementsApplied(kingOrigin, newPosition);
-            Log.v(TAG, "getLegalCastleMovements: tmpChessboard" + tmpChessboard);
+
             if (isInCheck(color, matchHistory)) {
-                Log.v(TAG, "getLegalCastleMovements: king would be in danger before during or after move");
-                Log.v(TAG, "getLegalCastleMovements() returned: " + movements);
                 return movements;
             }
         }
 
         movements.add(new PieceMovement(kingOrigin, kingDestination));
         movements.add(new PieceMovement(Coordinate.getByFileAndRank(rookStartingFile, rank), Coordinate.getByFileAndRank(rookEndingFile, rank)));
-
-        for (Object o : movements) {
-            Log.v(TAG, "getLegalCastleMovements: added " + o + " to movements");
-        }
-        Log.v(TAG, "getLegalCastleMovements() returned: " + movements);
         return movements;
     }
 
@@ -356,7 +358,6 @@ public class MoveExpert {
         }
 
         if (movementPattern instanceof CastleMovementPattern) {
-            Log.v(TAG, "isLegalMoveIgnoringChecks: was instance of CastleMovementPattern");
             return (getLegalCastleMovements(origin, movementPattern.getDestinationFrom(origin), matchHistory).size() > 0);
 
 
