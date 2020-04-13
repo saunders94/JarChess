@@ -87,6 +87,26 @@ public class MoveExpert {
         return movements;
     }
 
+    public Collection<Move> getAllLegalMoves(ChessColor color, MatchHistory matchHistory) {
+        ChessboardReader chessboard = matchHistory.getLastChessboardReader();
+        Collection<Move> moves = new LinkedList<>();
+        for (Coordinate origin : Coordinate.values()) {
+            Piece movingPiece = chessboard.getPieceAt(origin);
+            if (movingPiece != null && movingPiece.getColor() == color) {
+                for (Coordinate destination : getLegalDestinations(origin, matchHistory)) {
+                    Collection<PieceMovement> castleMovements = getLegalCastleMovements(origin, destination, matchHistory);
+                    if (castleMovements != null && !castleMovements.isEmpty()) {
+                        moves.add(new Move(castleMovements));
+                    } else {
+                        moves.add(new Move(origin, destination));
+                    }
+                }
+            }
+        }
+
+        return moves;
+    }
+
     public Collection<PieceMovement> getLegalCastleMovements(@NonNull Coordinate kingOrigin, @NonNull Coordinate kingDestination, MatchHistory matchHistory) {
         final Collection<PieceMovement> movements = new LinkedList<PieceMovement>();
         final ChessboardReader chessboardToCheck = matchHistory.getLastChessboardReader();

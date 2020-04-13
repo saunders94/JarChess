@@ -216,6 +216,7 @@ public abstract class AIOpponent implements MatchParticipant {
 
                                 //prune if possible
                                 if (min != null && (n.compareTo(min) > 0 || (n.compareTo(min) == 0 && random.getNextBoolean()))) {
+
                                     value = n.value;
                                     chosenMove = move;
                                     promotionChoice = choice;
@@ -224,6 +225,7 @@ public abstract class AIOpponent implements MatchParticipant {
 
                                 // check for new max node
                                 if (chosenNode == null || chosenNode.compareTo(n) < 0 || (chosenNode.compareTo(n) == 0 && random.getNextBoolean())) {
+
                                     // we found a new max
                                     chosenNode = n;
                                     chosenMoveTmp = move;
@@ -240,6 +242,7 @@ public abstract class AIOpponent implements MatchParticipant {
 
                                 //prune if possible
                                 if (max != null && (n.compareTo(max) < 0 || (n.compareTo(max) == 0 && random.getNextBoolean()))) {
+
                                     value = n.getValue();
                                     chosenMove = move;
                                     promotionChoice = choice;
@@ -248,6 +251,7 @@ public abstract class AIOpponent implements MatchParticipant {
 
                                 // check for new min node
                                 if (chosenNode == null || chosenNode.compareTo(n) > 0 || (chosenNode.compareTo(n) == 0 && random.getNextBoolean())) {
+
                                     // we found a new min
                                     chosenNode = n;
                                     chosenMoveTmp = move;
