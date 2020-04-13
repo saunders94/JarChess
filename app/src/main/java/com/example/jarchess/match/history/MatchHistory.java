@@ -61,6 +61,16 @@ public class MatchHistory implements Iterable<Turn> {
         isCopy = false;
     }
 
+    /**
+     * @return the last move taken
+     */
+    public Move getLastMove() {
+        if (!isCopy) {
+            Log.v(TAG, "getLastMove is running on thread: " + Thread.currentThread().getName());
+        }
+        return turnList.peekLast().getMove();
+    }
+
     private MatchHistory(MatchHistory original) {
         white = original.white;
         black = original.black;
@@ -249,12 +259,8 @@ public class MatchHistory implements Iterable<Turn> {
         return chessboardAfterLastMove.getReader();
     }
 
-    /**
-     * @return the last move taken
-     */
-    public Move getLastMove() {
-        Log.v(TAG, "getLastMove is running on thread: " + Thread.currentThread().getName());
-        return turnList.peekLast().getMove();
+    public boolean isCopy() {
+        return isCopy;
     }
 
     /**
@@ -263,7 +269,6 @@ public class MatchHistory implements Iterable<Turn> {
      * @return the last turn that was taken
      */
     public Turn getLastTurn() {
-        Log.v(TAG, "getlastTurn is running on thread: " + Thread.currentThread().getName());
         return turnList.peekLast();
     }
 
@@ -292,7 +297,9 @@ public class MatchHistory implements Iterable<Turn> {
     @NonNull
     @Override
     public Iterator<Turn> iterator() {
-        Log.v(TAG, "iterator is running on thread: " + Thread.currentThread().getName());
+        if (!isCopy) {
+            Log.v(TAG, "iterator is running on thread: " + Thread.currentThread().getName());
+        }
         return turnList.iterator();
     }
 }
