@@ -12,6 +12,7 @@ import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
 import com.example.jarchess.match.MatchOverException;
+import com.example.jarchess.match.PlayerMatch;
 import com.example.jarchess.match.clock.HiddenCasualMatchClock;
 import com.example.jarchess.match.clock.MatchClock;
 import com.example.jarchess.match.events.MatchClearableManager;
@@ -308,6 +309,10 @@ public abstract class MatchActivity extends AppCompatActivity
             MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new AgreedUponDrawResult()));
 
             exitActivity();
+        } else if (match instanceof PlayerMatch) {
+            PlayerMatch playerMatch = (PlayerMatch) match;
+
+            playerMatch.requestDraw();
         }
     }
 

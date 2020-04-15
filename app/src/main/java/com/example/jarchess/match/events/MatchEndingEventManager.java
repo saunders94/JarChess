@@ -31,16 +31,16 @@ public class MatchEndingEventManager implements Clearable {
         return instance;
     }
 
-    public boolean add(MatchEndingEventListener listener) {
+    public synchronized boolean add(MatchEndingEventListener listener) {
         return listeners.add(listener);
     }
 
     @Override
-    public void clear() {
+    public synchronized void clear() {
         listeners.clear();
     }
 
-    public void notifyAllListeners(MatchEndingEvent event) {
+    public synchronized void notifyAllListeners(MatchEndingEvent event) {
         Log.d(TAG, "notifyAllListeners() called with: event = [" + event + "]");
         Log.d(TAG, "notifyAllListeners is running on thread: " + Thread.currentThread().getName());
         Log.d(TAG, "notifyAllListeners: number of listeners = " + listeners.size());
@@ -50,7 +50,7 @@ public class MatchEndingEventManager implements Clearable {
         }
     }
 
-    public boolean remove(MatchEndingEventListener listener) {
+    public synchronized boolean remove(MatchEndingEventListener listener) {
         return listeners.remove(listener);
     }
 }
