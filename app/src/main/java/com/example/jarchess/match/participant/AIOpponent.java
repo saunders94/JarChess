@@ -2,6 +2,8 @@ package com.example.jarchess.match.participant;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.MoveExpert;
@@ -27,6 +29,7 @@ import static com.example.jarchess.match.pieces.Piece.Type.KNIGHT;
 import static com.example.jarchess.match.pieces.Piece.Type.PAWN;
 import static com.example.jarchess.match.pieces.Piece.Type.QUEEN;
 import static com.example.jarchess.match.pieces.Piece.Type.ROOK;
+import static java.lang.Math.abs;
 
 /**
  * An AI opponent is a match participant that is controlled by an algorithm.
@@ -34,8 +37,11 @@ import static com.example.jarchess.match.pieces.Piece.Type.ROOK;
  * @author Joshua Zierman
  */
 public abstract class AIOpponent implements MatchParticipant {
+    private static final String TAG = "AIOpponent";
     private final ChessColor color;
     private final String name;
+    private long lastNodeNumber = 0; // used for log
+    private long pruneCount = 0; // used for log
 
     /**
      * Creates an AI opponent.
@@ -49,6 +55,7 @@ public abstract class AIOpponent implements MatchParticipant {
 
         MatchResultIsInEventManager.getInstance().add(this);
     }
+
 
     /**
      * {@inheritDoc}
@@ -76,16 +83,16 @@ public abstract class AIOpponent implements MatchParticipant {
         return name;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void resign() {
-        //TODO
+    public void acknowledgeResignation() {
+        // do nothing
     }
 
+
     protected class Minimax {
+
         private static final String TAG = "AIOpponent.Minimax";
+
         private final int checkMateValue;
         private final int checkValue;
         private final Map<Piece.Type, Integer> pieceValues;
@@ -93,26 +100,32 @@ public abstract class AIOpponent implements MatchParticipant {
         private final ChessColor theirColor = ChessColor.getOther(color);
         private final MoveExpert moveExpert = MoveExpert.getInstance();
         private final Collection<PromotionChoice> promotionChoicesToConsider;
+        private final int drawValue;
+        private final int repetitionValue;
 
-        public Minimax(int checkMateValue, int checkValue, int kingValue, int queenValue, int bishopValue, int knightValue, int rookValue, int pawnValue, Collection<PromotionChoice> promotionChoicesToConsider) {
-            this.checkMateValue = checkMateValue;
-            this.checkValue = checkValue;
+        public Minimax(int checkMateValue, int checkValue, int drawValue, int repetitionValue, int pawnValue, int rookValue, int knightValue, int bishopValue, int queenValue, int kingValue, Collection<PromotionChoice> promotionChoicesToConsider) {
+            this.checkMateValue = abs(checkMateValue);
+            this.checkValue = abs(checkValue);
+            this.drawValue = abs(drawValue);
+            this.repetitionValue = abs(repetitionValue);
             this.promotionChoicesToConsider = promotionChoicesToConsider;
 
             pieceValues = new EnumMap<Piece.Type, Integer>(Piece.Type.class);
 
-            pieceValues.put(KING, kingValue);
-            pieceValues.put(QUEEN, queenValue);
-            pieceValues.put(BISHOP, bishopValue);
-            pieceValues.put(KNIGHT, knightValue);
-            pieceValues.put(ROOK, rookValue);
-            pieceValues.put(PAWN, pawnValue);
+            pieceValues.put(KING, abs(kingValue));
+            pieceValues.put(QUEEN, abs(queenValue));
+            pieceValues.put(BISHOP, abs(bishopValue));
+            pieceValues.put(KNIGHT, abs(knightValue));
+            pieceValues.put(ROOK, abs(rookValue));
+            pieceValues.put(PAWN, abs(pawnValue));
 
         }
 
         protected int calculateValue(MatchHistory matchHistory) {
             int value = 0;
             ChessboardReader chessboardReader = matchHistory.getLastChessboardReader();
+            int repetitions = matchHistory.getRepetitions();
+            int movesSinceCaptureOrPawnMovement = matchHistory.getMovesSinceCaptureOrPawnMovement(matchHistory.getNextTurnColor());
 
             if (moveExpert.isInCheck(theirColor, matchHistory)) {
                 if (!moveExpert.hasMoves(theirColor, matchHistory)) {
@@ -129,6 +142,21 @@ public abstract class AIOpponent implements MatchParticipant {
                 }
             }
 
+            Turn turn = matchHistory.getLastTurn();
+            ChessColor turnColor = turn == null ? null : turn.getColor();
+
+            if (turn != null && turnColor == myColor) {
+                value -= repetitions * repetitionValue;
+
+                if (movesSinceCaptureOrPawnMovement > 50) {
+                    return -drawValue;
+                } else if (repetitions > 3) {
+                    return -drawValue;
+                }
+            }
+
+
+            // add the sum of the values of the pieces
             for (Coordinate c : Coordinate.values()) {
                 value += getValueOfPiece(chessboardReader.getPieceAt(c));
             }
@@ -162,21 +190,49 @@ public abstract class AIOpponent implements MatchParticipant {
         }
 
         protected class MinimaxNode implements Comparable<MinimaxNode> {
+
             private final MatchHistory matchHistory;
             private final int value;
+            private final int depth;
+            private final int depthLimit;
             private final Move chosenMove;
             private final PromotionChoice promotionChoice;
             private final TestableRandom random;
-            private MinimaxNode min, max;
+
+            /**
+             * the choice out of explored nodes that maximizes AI value
+             */
+            private MinimaxNode alpha;
+
+            /**
+             * the choice out of explored nodes that minimizes the AI's Opponent's Value
+             */
+            private MinimaxNode beta;
+
+            private MinimaxNode chosen;
+
+            private long nodeNumber;
 
             private MinimaxNode(int depthLimit, MatchHistory matchHistory) {
                 this(depthLimit, 0, null, null, matchHistory);
+
+                Log.i(TAG, "Minimax: generated " + lastNodeNumber + " nodes recursively");
+                Log.i(TAG, "Minimax: pruneCount = " + pruneCount);
+                Log.i(TAG, "Minimax: selected node's Value Change: " + (this.value - calculateValue(matchHistory)));
+                Log.i(TAG, "Minimax: selected node's Chosen Move: " + this.chosenMove);
+                Log.i(TAG, "Minimax: " + this);
+                pruneCount = 0;
+                lastNodeNumber = 0;
             }
 
-            private MinimaxNode(int depthLimit, int depth, MinimaxNode bestMinChoice, MinimaxNode bestMaxChoice, MatchHistory matchHistory) {
+            private MinimaxNode(int depthLimit, int depth, MinimaxNode alpha, MinimaxNode beta, MatchHistory matchHistory) {
+
+                this.depth = depth;
+                this.depthLimit = depthLimit;
+                this.nodeNumber = getNextNodeNumber();
                 this.matchHistory = matchHistory;
-                this.min = bestMinChoice;
-                this.max = bestMaxChoice;
+                this.alpha = alpha;
+                this.beta = beta;
                 random = TestableRandom.getInstance();
 
 
@@ -188,6 +244,7 @@ public abstract class AIOpponent implements MatchParticipant {
                 }
 
                 if (depth >= depthLimit) {
+                    chosen = this;
                     value = calculateValue(matchHistory);
                     chosenMove = null;
                     promotionChoice = null;
@@ -209,14 +266,16 @@ public abstract class AIOpponent implements MatchParticipant {
                             choices.add(null);
                         }
                         for (PromotionChoice choice : choices) {
-                            n = new MinimaxNode(depthLimit, depth + 1, min, max, matchHistory.getCopyWithMoveApplied(move, choice));
 
-                            if (depth % 2 == 0) {
-                                // looking for max
+                            if (matchHistory.getNextTurnColor() == myColor) {
+                                // looking for max value
+
+                                n = new MinimaxNode(depthLimit, depth + 1, this.alpha, this.beta, matchHistory.getCopyWithMoveApplied(move, choice));
 
                                 //prune if possible
-                                if (min != null && (n.compareTo(min) > 0 || (n.compareTo(min) == 0 && random.getNextBoolean()))) {
-
+                                if (this.beta != null && (n.compareTo(this.beta) > 0 || (n.compareTo(this.beta) == 0 && random.getNextBoolean()))) {
+                                    pruneCount++;
+                                    chosen = n;
                                     value = n.value;
                                     chosenMove = move;
                                     promotionChoice = choice;
@@ -226,23 +285,26 @@ public abstract class AIOpponent implements MatchParticipant {
                                 // check for new max node
                                 if (chosenNode == null || chosenNode.compareTo(n) < 0 || (chosenNode.compareTo(n) == 0 && random.getNextBoolean())) {
 
-                                    // we found a new max
+                                    // we found a new max node
                                     chosenNode = n;
                                     chosenMoveTmp = move;
                                     chosenPromotionChoiceTmp = choice;
 
-                                    if (max == null || chosenNode.compareTo(max) > 0) {
-                                        max = chosenNode;
+                                    if (this.alpha == null || chosenNode.compareTo(this.alpha) > 0 || (chosenNode.compareTo(this.alpha) == 0 && random.getNextBoolean())) {
+                                        this.alpha = chosenNode;
                                     }
                                 }
 
 
                             } else {
-                                //looking for min
+                                //looking for min value
+
+                                n = new MinimaxNode(depthLimit, depth, this.alpha, this.beta, matchHistory.getCopyWithMoveApplied(move, choice));
 
                                 //prune if possible
-                                if (max != null && (n.compareTo(max) < 0 || (n.compareTo(max) == 0 && random.getNextBoolean()))) {
-
+                                if (this.alpha != null && (n.compareTo(this.alpha) < 0 || (n.compareTo(this.alpha) == 0 && random.getNextBoolean()))) {
+                                    pruneCount++;
+                                    chosen = n;
                                     value = n.getValue();
                                     chosenMove = move;
                                     promotionChoice = choice;
@@ -252,13 +314,13 @@ public abstract class AIOpponent implements MatchParticipant {
                                 // check for new min node
                                 if (chosenNode == null || chosenNode.compareTo(n) > 0 || (chosenNode.compareTo(n) == 0 && random.getNextBoolean())) {
 
-                                    // we found a new min
+                                    // we found a new min node
                                     chosenNode = n;
                                     chosenMoveTmp = move;
                                     chosenPromotionChoiceTmp = choice;
 
-                                    if (min == null || chosenNode.compareTo(min) < 0) {
-                                        max = chosenNode;
+                                    if (this.beta == null || chosenNode.compareTo(this.beta) < 0 || (chosenNode.compareTo(this.beta) == 0 && random.getNextBoolean())) {
+                                        this.beta = chosenNode;
                                     }
                                 }
                             }
@@ -266,13 +328,16 @@ public abstract class AIOpponent implements MatchParticipant {
                     }
                     if (chosenNode == null) {
                         // there where no possible moves
+                        chosen = this;
                         value = calculateValue(matchHistory);
                     } else {
+                        chosen = chosenNode;
                         value = chosenNode.getValue();
                     }
                     chosenMove = chosenMoveTmp;
                     promotionChoice = chosenPromotionChoiceTmp;
                 }
+
             }
 
             @Override
@@ -288,6 +353,10 @@ public abstract class AIOpponent implements MatchParticipant {
                 return matchHistory.getLastTurn();
             }
 
+            private synchronized long getNextNodeNumber() {
+                return lastNodeNumber++;
+            }
+
             protected PromotionChoice getPromotionChoice() {
                 return promotionChoice;
             }
@@ -295,7 +364,22 @@ public abstract class AIOpponent implements MatchParticipant {
             public int getValue() {
                 return value;
             }
+
+            @NonNull
+            @Override
+            public String toString() {
+                StringBuilder s = new StringBuilder("\n");
+                s.append(matchHistory.getLastChessboardReader()).append("\n");
+                s.append("node[").append(nodeNumber).append("]").append(" ");
+                s.append("value[").append(value).append("] ");
+                s.append("move[").append(chosenMove).append("]\n");
+                if (chosen != this) {
+                    s.append(chosen);
+                }
+                return s.toString();
+            }
         }
     }
+
 
 }

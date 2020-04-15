@@ -28,6 +28,12 @@ public class ChessboardReader {
         return chessboard.getCopyWithMovementsApplied(origin, destination, captureCoordinate);
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return chessboard.toString();
+    }
+
     @Nullable
     public Piece getPieceAt(@NonNull Coordinate coordinate) {
         Piece original = chessboard.getPieceAt(coordinate);
