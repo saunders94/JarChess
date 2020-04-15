@@ -303,7 +303,7 @@ public abstract class MatchActivity extends AppCompatActivity
 
     @Override
     public void observe(RequestDrawButtonPressedEvent event) {
-
+        Log.i(TAG, "observe: draw button pressed event");
         if (this instanceof LocalMultiplayerMatchActivity) {
             // we don't need to check for agreement
             MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new AgreedUponDrawResult()));
@@ -311,7 +311,6 @@ public abstract class MatchActivity extends AppCompatActivity
             exitActivity();
         } else if (match instanceof PlayerMatch) {
             PlayerMatch playerMatch = (PlayerMatch) match;
-
             playerMatch.requestDraw();
         }
     }
@@ -412,7 +411,7 @@ public abstract class MatchActivity extends AppCompatActivity
     private synchronized void processNextInput() throws MatchOverException, InterruptedException {
         Coordinate coordinateToProcess = null;
         boolean commitButtonPressNeedsProcessing = false;
-        synchronized (this) {
+
             while (observedSquareClickCoordinate == null && !commitButtonHasBeenPressed) {
                 myWait();
             }
@@ -427,7 +426,7 @@ public abstract class MatchActivity extends AppCompatActivity
                 commitButtonHasBeenPressed = false;
                 notifyAll();
             }
-        }
+
         if (coordinateToProcess != null && commitButtonPressNeedsProcessing) {
             String msg = "processNextInput: Both square click and commit button click needs processing";
             Log.e(TAG, msg);

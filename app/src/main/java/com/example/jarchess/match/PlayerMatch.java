@@ -43,6 +43,7 @@ public class PlayerMatch extends Match {
     }
 
     public synchronized void requestDraw() {
+        Log.d(TAG, "requestDraw() called");
         if (getCurrentTurnColor() == player.getColor()) {
             Log.i(TAG, "requestDraw: player requested draw");
 
