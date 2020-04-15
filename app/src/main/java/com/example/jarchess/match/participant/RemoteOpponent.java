@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.example.jarchess.RemoteOpponentInfoBundle;
 import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.DrawResponse;
 import com.example.jarchess.match.MatchNetworkIO;
 import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.events.MatchResultIsInEvent;
@@ -119,18 +120,21 @@ public class RemoteOpponent implements MatchParticipant {
     }
 
     @Override
+    public void acknowledgeResignation() {
+        //FIXME
+    }
+
+    @Override
+    public DrawResponse respondToDrawRequest(MatchHistory matchHistory) {
+        //FIXME
+        return null;
+    }
+
+    @Override
     public void observe(MatchResultIsInEvent event) {
 //
 //        // send the match result
 //        matchResultSender.send();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void resign() {
-        //
     }
 
     @Override

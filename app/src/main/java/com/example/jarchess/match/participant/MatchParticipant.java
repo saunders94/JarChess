@@ -1,6 +1,7 @@
 package com.example.jarchess.match.participant;
 
 import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.DrawResponse;
 import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.events.MatchResultIsInEventListener;
 import com.example.jarchess.match.history.MatchHistory;
@@ -43,9 +44,16 @@ public interface MatchParticipant extends MatchResultIsInEventListener {
     String getName();
 
     /**
-     * Resigns from the match.
+     * Acknowledges resignation.
      */
-    void resign();
+    void acknowledgeResignation();
+
+    /**
+     * Responds to a draw request
+     *
+     * @return a response
+     */
+    DrawResponse respondToDrawRequest(MatchHistory matchHistory);
 
     /**
      * Takes a turn in response to the last turn from the other participant.

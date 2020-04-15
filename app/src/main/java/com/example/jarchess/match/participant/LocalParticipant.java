@@ -3,6 +3,7 @@ package com.example.jarchess.match.participant;
 import android.util.Log;
 
 import com.example.jarchess.match.ChessColor;
+import com.example.jarchess.match.DrawResponse;
 import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.events.MatchResultIsInEvent;
 import com.example.jarchess.match.events.MatchResultIsInEventManager;
@@ -75,13 +76,15 @@ public abstract class LocalParticipant implements MatchParticipant {
         return color;
     }
 
-    /**
-     * Resigns from the match.
-     */
     @Override
-    public void resign() {
+    public void acknowledgeResignation() {
+        // do nothing
+    }
 
-        //TODO
+    @Override
+    public DrawResponse respondToDrawRequest(MatchHistory matchHistory) {
+        //TODO implement this
+        return new DrawResponse(false);
     }
 
     /**

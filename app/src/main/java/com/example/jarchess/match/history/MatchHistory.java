@@ -272,15 +272,6 @@ public class MatchHistory implements Iterable<Turn> {
         return turnList.peekLast();
     }
 
-    /**
-     * gets the last turn that was taken
-     *
-     * @return the last turn that was taken
-     */
-    public Turn getLastTurn() {
-        Log.v(TAG, "getlastTurn is running on thread: " + Thread.currentThread().getName());
-        return turnList.peekLast();
-    }
 
     /**
      * gets the last move that was made
