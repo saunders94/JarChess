@@ -6,8 +6,6 @@ import com.example.jarchess.LoggedThread;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.DrawResponse;
 import com.example.jarchess.match.MatchOverException;
-import com.example.jarchess.match.events.MatchResultIsInEvent;
-import com.example.jarchess.match.events.MatchResultIsInEventListener;
 import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.pieces.PromotionChoice;
@@ -35,7 +33,7 @@ public class EasyAIOpponent extends AIOpponent {
     public static final int BISHOP_VALUE = 3;
     public static final int QUEEN_VALUE = 5;
     public static final int KING_VALUE = 10;
-    private static final int DEPTH_LIMIT = 2;
+    private static final int DEPTH_LIMIT = 1;
     private static final int DRAW_VALUE = -5;
     private final Minimax minimax;
     private static final Collection<PromotionChoice> PROMOTION_OPTIONS = new LinkedList<>();
@@ -59,6 +57,11 @@ public class EasyAIOpponent extends AIOpponent {
     @Override
     public Turn getFirstTurn(MatchHistory matchHistory) throws MatchOverException {
         return getTurn(matchHistory);
+    }
+
+    @Override
+    protected long getMaxTimeBeforeShortcutSeconds() {
+        return 60;
     }
 
     @Override

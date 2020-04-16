@@ -43,8 +43,9 @@ public class PlayerMatch extends Match {
 
     public synchronized void handlePlayerDrawRequest() {
         if (matchHistory.getNextTurnColor() == player.getColor()) {
+            Log.d(TAG, "handlePlayerDrawRequest: a");
             DrawResponse response = opponent.respondToDrawRequest(matchHistory);
-
+            Log.d(TAG, "handlePlayerDrawRequest: b");
             if (response.isAccepted()) {
                 Log.i(TAG, "handlePlayerDrawRequest: accepted");
                 ChessMatchResult result = new AgreedUponDrawResult();

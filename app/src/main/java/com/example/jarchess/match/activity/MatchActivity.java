@@ -33,7 +33,6 @@ import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.participant.AIOpponent;
 import com.example.jarchess.match.participant.LocalParticipant;
 import com.example.jarchess.match.participant.LocalParticipantController;
-import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.pieces.PromotionChoice;
@@ -540,7 +539,9 @@ public abstract class MatchActivity extends AppCompatActivity
         }
 
         if (r instanceof AgreedUponDrawResult) {
-            return; // without showing the result dialog because the local participant agreed to draw
+            if (this instanceof LocalMultiplayerMatchActivity) {
+                return; // without showing the result dialog because the local participant agreed to draw
+            }
         }
 
         matchView.showMatchResultDialog(match.getMatchChessMatchResult());
