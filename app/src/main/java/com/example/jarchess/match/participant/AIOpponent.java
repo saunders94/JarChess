@@ -340,7 +340,7 @@ public abstract class AIOpponent implements MatchParticipant {
                                 } else {
                                     //looking for min value
 
-                                    n = new MinimaxNode(depthLimit, depth, this.alpha, this.beta, matchHistory.getCopyWithMoveApplied(move, choice));
+                                    n = new MinimaxNode(depthLimit, depth + 1, this.alpha, this.beta, matchHistory.getCopyWithMoveApplied(move, choice));
 
                                     //prune if possible
                                     if (this.alpha != null && (n.compareTo(this.alpha) < 0 || (n.compareTo(this.alpha) == 0 && random.getNextBoolean()))) {
