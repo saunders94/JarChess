@@ -6,8 +6,10 @@ import androidx.annotation.NonNull;
 
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
+import com.example.jarchess.match.DrawResponse;
 import com.example.jarchess.match.MoveExpert;
 import com.example.jarchess.match.chessboard.ChessboardReader;
+import com.example.jarchess.match.events.MatchResultIsInEvent;
 import com.example.jarchess.match.events.MatchResultIsInEventManager;
 import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.move.Move;
@@ -42,6 +44,10 @@ public abstract class AIOpponent implements MatchParticipant {
     private final String name;
     private long lastNodeNumber = 0; // used for log
     private long pruneCount = 0; // used for log
+    protected boolean isCanceled = false;
+    protected DrawResponse drawResponse = null;
+    protected Turn turn = null;
+    protected AIOpponent me = this;
 
     /**
      * Creates an AI opponent.
@@ -56,6 +62,12 @@ public abstract class AIOpponent implements MatchParticipant {
         MatchResultIsInEventManager.getInstance().add(this);
     }
 
+    @Override
+    public synchronized void observe(MatchResultIsInEvent event) {
+        Log.d(TAG, "observe: MatchResultIsInEvent");
+        isCanceled = true;
+        notifyAll();
+    }
 
     /**
      * {@inheritDoc}
@@ -84,14 +96,17 @@ public abstract class AIOpponent implements MatchParticipant {
     }
 
     @Override
-    public void acknowledgeResignation() {
-        // do nothing
+    public synchronized void acknowledgeResignation() {
+        isCanceled = true;
+        notifyAll();
     }
 
 
     protected class Minimax {
 
         private static final String TAG = "AIOpponent.Minimax";
+        private static final long WAIT_LENGTH_MILLIS = 10;
+        public static final int NODES_BETWEEN_WAIT = 1000;
 
         private final int checkMateValue;
         private final int checkValue;
@@ -165,7 +180,8 @@ public abstract class AIOpponent implements MatchParticipant {
             return value;
         }
 
-        protected MinimaxNode find(int depthLimit, MatchHistory matchHistory) {
+        protected MinimaxNode find(int depthLimit, MatchHistory matchHistory) throws IsCanceledException {
+
             return new MinimaxNode(depthLimit, matchHistory);
         }
 
@@ -187,6 +203,11 @@ public abstract class AIOpponent implements MatchParticipant {
                     return -value;
                 }
             }
+        }
+
+
+        protected class IsCanceledException extends Exception{
+
         }
 
         protected class MinimaxNode implements Comparable<MinimaxNode> {
@@ -213,7 +234,7 @@ public abstract class AIOpponent implements MatchParticipant {
 
             private long nodeNumber;
 
-            private MinimaxNode(int depthLimit, MatchHistory matchHistory) {
+            private MinimaxNode(int depthLimit, MatchHistory matchHistory) throws IsCanceledException {
                 this(depthLimit, 0, null, null, matchHistory);
 
                 Log.i(TAG, "Minimax: generated " + lastNodeNumber + " nodes recursively");
@@ -225,8 +246,9 @@ public abstract class AIOpponent implements MatchParticipant {
                 lastNodeNumber = 0;
             }
 
-            private MinimaxNode(int depthLimit, int depth, MinimaxNode alpha, MinimaxNode beta, MatchHistory matchHistory) {
+            private MinimaxNode(int depthLimit, int depth, MinimaxNode alpha, MinimaxNode beta, MatchHistory matchHistory) throws IsCanceledException {
 
+                synchronized (AIOpponent.this){
                 this.depth = depth;
                 this.depthLimit = depthLimit;
                 this.nodeNumber = getNextNodeNumber();
@@ -243,6 +265,19 @@ public abstract class AIOpponent implements MatchParticipant {
                     throw new IllegalArgumentException("depth limit was less than one");
                 }
 
+                if(nodeNumber % NODES_BETWEEN_WAIT == 0){
+                    try {
+                        AIOpponent.this.wait(WAIT_LENGTH_MILLIS);
+                    } catch (InterruptedException e) {
+                        isCanceled = true;
+                        AIOpponent.this.notifyAll();
+                    }
+                }
+
+                if(isCanceled){
+                    Log.i(TAG, "MinimaxNode: canceled!");
+                    throw new IsCanceledException();
+                }
                 if (depth >= depthLimit) {
                     chosen = this;
                     value = calculateValue(matchHistory);
@@ -337,7 +372,7 @@ public abstract class AIOpponent implements MatchParticipant {
                     chosenMove = chosenMoveTmp;
                     promotionChoice = chosenPromotionChoiceTmp;
                 }
-
+            }
             }
 
             @Override
@@ -364,6 +399,8 @@ public abstract class AIOpponent implements MatchParticipant {
             public int getValue() {
                 return value;
             }
+
+
 
             @NonNull
             @Override

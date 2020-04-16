@@ -44,13 +44,13 @@ import static com.example.jarchess.match.ChessColor.WHITE;
 
 //TODO javadocs
 public abstract class Match implements MatchEndingEventListener {
-    private final MatchHistory matchHistory;
+    protected final MatchHistory matchHistory;
     private final MatchParticipant blackPlayer;
     private final MatchParticipant whitePlayer;
     private final Chessboard chessboard;
     private final MoveExpert moveExpert;
     private final MatchClock matchClock;
-    private final MatchActivity matchActivity;
+    protected final MatchActivity matchActivity;
     private ChessMatchResult matchChessMatchResult = null;
     private String gameToken;
     private static final String TAG = "Match";
@@ -69,11 +69,11 @@ public abstract class Match implements MatchEndingEventListener {
 
     }
 
-    private synchronized Piece capture(Coordinate destination) {
+    private Piece capture(Coordinate destination) {
         return chessboard.remove(destination);
     }
 
-    private synchronized void checkForGameEnd(ChessColor nextTurnColor) {
+    private void checkForGameEnd(ChessColor nextTurnColor) {
 
         if (matchChessMatchResult == null) {
 
@@ -109,7 +109,7 @@ public abstract class Match implements MatchEndingEventListener {
         }
     }
 
-    private synchronized void checkForTimeout() {
+    private void checkForTimeout() {
         if (matchClock.flagHasFallen()) {
             ChessColor colorOfWinner;
             colorOfWinner = matchClock.getColorOfFallenFlag();
@@ -117,7 +117,7 @@ public abstract class Match implements MatchEndingEventListener {
         }
     }
 
-    private synchronized void execute(Turn turn) {
+    private void execute(Turn turn) {
         Piece capturedPiece = null;
         Coordinate capturedPieceCoordinate = null;
         Log.v(TAG, "execute is running on thread: " + Thread.currentThread().getName());
@@ -149,11 +149,11 @@ public abstract class Match implements MatchEndingEventListener {
         checkForGameEnd(ChessColor.getOther(turn.getColor()));
     }
 
-    public synchronized void forceEndMatch(String msg) {
+    public void forceEndMatch(String msg) {
         MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(getForceExitWinningColor(), msg, new Exception("Match end was forced"))));
     }
 
-    public synchronized MatchParticipant getBlackParticipant() {
+    public MatchParticipant getBlackParticipant() {
         return blackPlayer;
     }
 
@@ -178,19 +178,15 @@ public abstract class Match implements MatchEndingEventListener {
         }
     }
 
-    public synchronized ChessColor getCurrentTurnColor() {
-        return matchHistory.getNextTurnColor();
-    }
-
-    public synchronized MatchClock getMatchClock() {
+    public MatchClock getMatchClock() {
         return matchClock;
     }
 
-    public synchronized MatchHistory getMatchHistory() {
+    public MatchHistory getMatchHistory() {
         return matchHistory;
     }
 
-    public synchronized MatchParticipant getParticipant(ChessColor color) {
+    public MatchParticipant getParticipant(ChessColor color) {
         switch (color) {
 
             case BLACK:
@@ -202,42 +198,39 @@ public abstract class Match implements MatchEndingEventListener {
         }
     }
 
-    public synchronized Piece getPieceAt(@NonNull Coordinate coordinate) {
+    public Piece getPieceAt(@NonNull Coordinate coordinate) {
         return chessboard.getPieceAt(coordinate);
     }
 
-    public synchronized Collection<Coordinate> getPossibleMoves(Coordinate origin) {
+    public Collection<Coordinate> getPossibleMoves(Coordinate origin) {
         return moveExpert.getLegalDestinations(origin, matchHistory);
     }
 
-    private synchronized Turn getTurn() throws MatchOverException, InterruptedException {
+    private Turn getTurn() throws MatchOverException, InterruptedException {
         if (matchHistory.getLastTurn() == null) {
             return getParticipant(WHITE).getFirstTurn(matchHistory);
         }
         return getParticipant(matchHistory.getNextTurnColor()).getNextTurn(matchHistory);
     }
 
-    public synchronized MatchParticipant getWhiteParticipant() {
+    public MatchParticipant getWhiteParticipant() {
         return whitePlayer;
     }
 
-    public synchronized boolean isDone() {
+    public boolean isDone() {
         return matchChessMatchResult != null;
     }
 
-    public synchronized void move(Coordinate origin, Coordinate destination) {
+    public void move(Coordinate origin, Coordinate destination) {
         chessboard.move(origin, destination);
     }
 
     @Override
-    public synchronized void observe(MatchEndingEvent matchEndingEvent) {
-
+    public void observe(MatchEndingEvent matchEndingEvent) {
         setMatchChessMatchResult(matchEndingEvent.getResult());
-
-
     }
 
-    private synchronized void playMatch() {
+    private void playMatch() {
         Turn turn;
 
         MatchView matchView = matchActivity.getMatchView();
@@ -276,7 +269,7 @@ public abstract class Match implements MatchEndingEventListener {
         matchActivity.showMatchResult();
     }
 
-    public synchronized void promote(Coordinate coordinate, PromotionChoice choice) {
+    public void promote(Coordinate coordinate, PromotionChoice choice) {
         Log.d(TAG, "promote is running on thread: " + Thread.currentThread().getName());
         Log.d(TAG, "promote() called with: coordinate = [" + coordinate + "], choice = [" + choice + "]");
         Piece oldPiece = chessboard.getPieceAt(coordinate);
@@ -307,7 +300,7 @@ public abstract class Match implements MatchEndingEventListener {
         }
     }
 
-    public synchronized void start() {
+    public void start() {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -318,7 +311,7 @@ public abstract class Match implements MatchEndingEventListener {
 
     }
 
-    private synchronized void validate(Turn turn) throws MatchOverException {
+    private void validate(Turn turn) throws MatchOverException {
         if (!moveExpert.isLegalMove(turn.getMove(), matchHistory)) {
             ChessColor winningColor = ChessColor.getOther(turn.getColor());
             ChessMatchResult result = new InvalidTurnReceivedResult(winningColor);

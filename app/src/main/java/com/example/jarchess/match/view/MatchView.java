@@ -64,11 +64,13 @@ public class MatchView extends View implements ClockTickEventListener {
     private final PawnPromotionChoiceDialog pawnPromotionChoiceDialog;
     private final Activity activity;
     private final Button pauseButton;
+    private final View drawPendingDialog;
 
     public MatchView(Match match, MatchActivity activity) {
         super(activity.getBaseContext());
         commitButtonClickObserver = activity;
         this.activity = activity;
+        drawPendingDialog = activity.findViewById(R.id.pendingDrawDialog);
         participantInfoBarView = activity.findViewById(R.id.participant_info_bar);
         pauseButton = participantInfoBarView.findViewById(R.id.pauseButton);
         leftParticipantInfoView = participantInfoBarView.findViewById(R.id.player_info);
@@ -85,6 +87,7 @@ public class MatchView extends View implements ClockTickEventListener {
         leaveMatchDialog = new LeaveMatchDialog(activity);
         matchResultDialog = new MatchResultDialog(activity);
         pawnPromotionChoiceDialog = new PawnPromotionChoiceDialog(activity);
+
 
         commitButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -202,6 +205,10 @@ public class MatchView extends View implements ClockTickEventListener {
         });
     }
 
+    public void makeDrawButtonClickable() {
+        leaveMatchDialog.makeDrawButtonClickable();
+    }
+
     @Override
     public void observe(ClockTickEvent clockTickEvent) {
         updateParticipantTime(leftParticipantTimeTextView, clockTickEvent.getDisplayedTimeMillis(leftParticipant.getColor()));
@@ -247,6 +254,26 @@ public class MatchView extends View implements ClockTickEventListener {
         for (Coordinate possibleDestination : possibleDestinations) {
             chessboardView.setPossibleDestinationIndicator(possibleDestination);
         }
+    }
+
+    public void showPendingDrawDialog() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                drawPendingDialog.setVisibility(VISIBLE);
+            }
+        });
+    }
+
+
+
+    public void hidePendingDrawDialog() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                drawPendingDialog.setVisibility(GONE);
+            }
+        });
     }
 
     public void updatePiece(@NonNull Coordinate coordinate) {

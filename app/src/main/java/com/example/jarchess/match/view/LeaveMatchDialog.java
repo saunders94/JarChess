@@ -12,6 +12,8 @@ import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.events.RequestDrawButtonPressedEvent;
 import com.example.jarchess.match.events.RequestDrawButtonPressedEventManager;
 
+import static androidx.constraintlayout.widget.Constraints.TAG;
+
 class LeaveMatchDialog {
 
     private final MatchActivity activity;
@@ -19,7 +21,6 @@ class LeaveMatchDialog {
     private ImageView backgroundFadeImageView;
     private Button resignButton;
     private Button requestDrawButton;
-    private static final String TAG = "LeaveMatchDialog";
 
     public LeaveMatchDialog(@NonNull MatchActivity matchActivity) {
         activity = matchActivity;
@@ -41,8 +42,6 @@ class LeaveMatchDialog {
         resignButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "onClick: resignButton clicked");
-                hide();
                 activity.observeResignButtonClick();
             }
         });
@@ -50,7 +49,8 @@ class LeaveMatchDialog {
         requestDrawButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "onClick: requestDrawButton clicked");
+                requestDrawButton.setVisibility(View.INVISIBLE);
+                requestDrawButton.setClickable(false);
                 hide();
                 RequestDrawButtonPressedEventManager.getInstance().notifyAllListeners(new RequestDrawButtonPressedEvent());
             }
@@ -61,8 +61,18 @@ class LeaveMatchDialog {
         view.setVisibility(View.INVISIBLE);
     }
 
+    public void makeDrawButtonClickable(){
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                requestDrawButton.setVisibility(View.VISIBLE);
+                requestDrawButton.setClickable(true);
+            }
+        });
+    }
+
     public void show() {
         view.setVisibility(View.VISIBLE);
-        Log.d(TAG, "show: leave match dialog should be visible");
+        Log.d(TAG, "show: should be visible");
     }
 }

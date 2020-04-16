@@ -1,10 +1,10 @@
 package com.example.jarchess.match;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.jarchess.LoggedThread;
 import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.clock.MatchClockChoice;
 import com.example.jarchess.match.events.MatchEndingEvent;
@@ -18,10 +18,9 @@ import com.example.jarchess.match.result.ChessMatchResult;
 //TODO javadocs
 public class PlayerMatch extends Match {
 
-    private static final String TAG = "PlayerMatch";
-
     private final Player player;
     private final MatchParticipant opponent;
+    private static final String TAG = "PlayerMatch";
 
     public PlayerMatch(@NonNull MatchParticipant opponent, MatchClockChoice matchClockChoice, LocalParticipantController localParticipantController, MatchActivity matchActivity) {
         super(new Player(ChessColor.getOther(opponent.getColor()), localParticipantController), opponent, matchClockChoice, matchActivity);
@@ -42,26 +41,37 @@ public class PlayerMatch extends Match {
         return player;
     }
 
-    public synchronized void requestDraw() {
-        if (getCurrentTurnColor() == player.getColor()) {
-            Log.i(TAG, "requestDraw: player requested draw");
+    public synchronized void handlePlayerDrawRequest() {
+        if (matchHistory.getNextTurnColor() == player.getColor()) {
+            DrawResponse response = opponent.respondToDrawRequest(matchHistory);
 
-            // TODO show draw request pending view
+            if (response.isAccepted()) {
+                Log.i(TAG, "handlePlayerDrawRequest: accepted");
+                ChessMatchResult result = new AgreedUponDrawResult();
+                MatchEndingEvent event = new MatchEndingEvent(result);
+                MatchEndingEventManager.getInstance().notifyAllListeners(event);
 
-            new LoggedThread(TAG, new Runnable() {
+            } else {
+                Log.i(TAG, "handlePlayerDrawRequest: rejected");
+                final int duration = Toast.LENGTH_SHORT;
+                matchActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(matchActivity, "Draw request rejected. Make your move.", duration).show();
+
+                    }
+                });
+            }
+        } else {
+
+            final int duration = Toast.LENGTH_SHORT;
+            matchActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    DrawResponse response = opponent.respondToDrawRequest(getMatchHistory());
-                    // TODO hide draw request pending view
-                    if (response.isAccepted()) {
-                        Log.i(TAG, "requestDraw: draw was accepted");
-                        ChessMatchResult result = new AgreedUponDrawResult();
-                        MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(result));
-                    } else {
-                        Log.i(TAG, "requestDraw: draw was rejected");
-                    }
+                    Toast.makeText(matchActivity, "Draw requests can only be issued when it is your move.", duration).show();
+
                 }
-            }, "drawRequestThread").start();
+            });
         }
     }
 }
