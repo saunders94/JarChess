@@ -1,12 +1,17 @@
 package com.example.jarchess.match.participant;
 
+import android.util.Log;
+
+import com.example.jarchess.LoggedThread;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.DrawResponse;
 import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.events.MatchResultIsInEvent;
+import com.example.jarchess.match.events.MatchResultIsInEventListener;
 import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.pieces.PromotionChoice;
+import com.example.jarchess.match.result.ExceptionResult;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.testmode.TestableCurrentTime;
 
@@ -34,6 +39,8 @@ public class EasyAIOpponent extends AIOpponent {
     private static final int DRAW_VALUE = -5;
     private final Minimax minimax;
     private static final Collection<PromotionChoice> PROMOTION_OPTIONS = new LinkedList<>();
+    private static final String TAG = "EasyAIOpponent";
+
 
     {
         PROMOTION_OPTIONS.add(PromotionChoice.PROMOTE_TO_QUEEN);
@@ -55,9 +62,38 @@ public class EasyAIOpponent extends AIOpponent {
     }
 
     @Override
-    public DrawResponse respondToDrawRequest(MatchHistory matchHistory) {
-        boolean accepted = minimax.find(DEPTH_LIMIT, matchHistory).getValue() < DRAW_VALUE;
-        return new DrawResponse(accepted);
+    public synchronized DrawResponse respondToDrawRequest(final MatchHistory matchHistory) {
+        new LoggedThread(TAG, new Runnable() {
+            @Override
+            public void run() {
+                synchronized (me) {
+                    int value = 0;
+                    try {
+                        boolean accepted;
+                        value = minimax.find(DEPTH_LIMIT, matchHistory).getValue();
+                        accepted = value < DRAW_VALUE;
+                        Log.i(TAG, "respondToDrawRequest: value of " + value + (accepted ? " <" : " >=") + " draw_value of " + DRAW_VALUE);
+                        drawResponse = new DrawResponse(accepted);
+                        me.notifyAll();
+                    } catch (Minimax.IsCanceledException e) {
+                        isCanceled = true;
+                        me.notifyAll();
+                    }
+                }
+            }
+        }, "AI_drawRequestEvaluationThread").start();
+
+
+        while (drawResponse == null && !isCanceled)
+        {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                return new DrawResponse(false);
+            }
+        }
+
+        return drawResponse;
     }
 
     @Override
@@ -65,18 +101,45 @@ public class EasyAIOpponent extends AIOpponent {
         return getTurn(matchHistory);
     }
 
-    private Turn getTurn(MatchHistory matchHistory) {
-        long start, elapsed;
-        start = TestableCurrentTime.currentTimeMillis();
-        Minimax.MinimaxNode node = minimax.find(DEPTH_LIMIT, matchHistory);
-        Move move = node.getChosenMove();
-        PromotionChoice choice = node.getPromotionChoice();
-        elapsed = TestableCurrentTime.currentTimeMillis() - start;
-        return new Turn(getColor(), move, elapsed, choice);
+    private synchronized Turn getTurn(final MatchHistory matchHistory) throws MatchOverException {
+        turn = null;
+        notifyAll();
+        new LoggedThread(TAG, new Runnable() {
+            @Override
+            public void run() {
+                synchronized (me) {
+                    long start, elapsed;
+                    start = TestableCurrentTime.currentTimeMillis();
+                    Minimax.MinimaxNode node = null;
+                    try {
+                        node = minimax.find(DEPTH_LIMIT, matchHistory);
+                        Move move = node.getChosenMove();
+                        PromotionChoice choice = node.getPromotionChoice();
+                        elapsed = TestableCurrentTime.currentTimeMillis() - start;
+                        turn = new Turn(getColor(), move, elapsed, choice);
+                        me.notifyAll();
+                    } catch (Minimax.IsCanceledException e) {
+                        isCanceled = true;
+                        me.notifyAll();
+                    }
+                }
+
+            }
+        }, "AI_turnDecisionThread").start();
+
+        while(turn == null && !isCanceled){
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new MatchOverException(new ExceptionResult(getColor(), "Thread Inturupt", e));
+            }
+        }
+
+        if(isCanceled){
+            throw new MatchOverException(null); // this should only happen if another cause ended the match
+        }
+
+        return turn;
     }
 
-    @Override
-    public void observe(MatchResultIsInEvent event) {
-        //do nothing
-    }
 }

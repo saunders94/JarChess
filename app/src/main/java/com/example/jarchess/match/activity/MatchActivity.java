@@ -7,11 +7,13 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.jarchess.JarAccount;
+import com.example.jarchess.LoggedThread;
 import com.example.jarchess.R;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
 import com.example.jarchess.match.MatchOverException;
+import com.example.jarchess.match.PlayerMatch;
 import com.example.jarchess.match.clock.HiddenCasualMatchClock;
 import com.example.jarchess.match.clock.MatchClock;
 import com.example.jarchess.match.events.MatchClearableManager;
@@ -28,8 +30,10 @@ import com.example.jarchess.match.events.SquareClickEventListener;
 import com.example.jarchess.match.events.SquareClickEventManager;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
+import com.example.jarchess.match.participant.AIOpponent;
 import com.example.jarchess.match.participant.LocalParticipant;
 import com.example.jarchess.match.participant.LocalParticipantController;
+import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.pieces.Pawn;
 import com.example.jarchess.match.pieces.Piece;
 import com.example.jarchess.match.pieces.PromotionChoice;
@@ -226,8 +230,18 @@ public abstract class MatchActivity extends AppCompatActivity
             match.forceEndMatch("Activity was exited");
         }
         MatchClearableManager.clearAll();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                exitActivityHelper();
+            }
+        });
+    }
+
+    private synchronized void exitActivityHelper(){
         super.onBackPressed();
     }
+
 
     public synchronized ChessColor getCurrentControllerColor() {
         return currentControllerColor;
@@ -303,17 +317,34 @@ public abstract class MatchActivity extends AppCompatActivity
     @Override
     public void observe(RequestDrawButtonPressedEvent event) {
 
-        if (this instanceof LocalMultiplayerMatchActivity) {
-            // we don't need to check for agreement
-            MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new AgreedUponDrawResult()));
+        final MatchActivity activity = this;
+        new LoggedThread(TAG, new Runnable(){
+            @Override
+            public void run() {
+                if (activity instanceof LocalMultiplayerMatchActivity) {
+                    // we don't need to check for agreement
+                    MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new AgreedUponDrawResult()));
 
-            exitActivity();
-        }
+                    exitActivity();
+                }else if(match instanceof PlayerMatch) {
+
+                    matchView.showPendingDrawDialog();
+                    ((PlayerMatch) match).handlePlayerDrawRequest();
+                }
+
+                matchView.hidePendingDrawDialog();
+                matchView.makeDrawButtonClickable();
+            }
+        }, "drawButtonEventHandlingThread").start();
+
+
     }
 
     @Override
     public void observe(PauseButtonPressedEvent event) {
-        if (this instanceof LocalMultiplayerMatchActivity) {
+        // if a local multiplayer or AI match, just pause
+        if (this instanceof LocalMultiplayerMatchActivity ||
+                (match instanceof PlayerMatch && ((PlayerMatch)match).getOpponent() instanceof AIOpponent)) {
 
             // we don't need to check for agreement
             if (matchClock.isRunning()) {

@@ -44,13 +44,13 @@ import static com.example.jarchess.match.ChessColor.WHITE;
 
 //TODO javadocs
 public abstract class Match implements MatchEndingEventListener {
-    private final MatchHistory matchHistory;
+    protected final MatchHistory matchHistory;
     private final MatchParticipant blackPlayer;
     private final MatchParticipant whitePlayer;
     private final Chessboard chessboard;
     private final MoveExpert moveExpert;
     private final MatchClock matchClock;
-    private final MatchActivity matchActivity;
+    protected final MatchActivity matchActivity;
     private ChessMatchResult matchChessMatchResult = null;
     private String gameToken;
     private static final String TAG = "Match";
@@ -227,10 +227,7 @@ public abstract class Match implements MatchEndingEventListener {
 
     @Override
     public void observe(MatchEndingEvent matchEndingEvent) {
-
         setMatchChessMatchResult(matchEndingEvent.getResult());
-
-
     }
 
     private void playMatch() {

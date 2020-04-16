@@ -49,6 +49,9 @@ class LeaveMatchDialog {
         requestDrawButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                requestDrawButton.setVisibility(View.INVISIBLE);
+                requestDrawButton.setClickable(false);
+                hide();
                 RequestDrawButtonPressedEventManager.getInstance().notifyAllListeners(new RequestDrawButtonPressedEvent());
             }
         });
@@ -56,6 +59,16 @@ class LeaveMatchDialog {
 
     public void hide() {
         view.setVisibility(View.INVISIBLE);
+    }
+
+    public void makeDrawButtonClickable(){
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                requestDrawButton.setVisibility(View.VISIBLE);
+                requestDrawButton.setClickable(true);
+            }
+        });
     }
 
     public void show() {
