@@ -65,11 +65,13 @@ public class MatchView extends View implements ClockTickEventListener {
     private final Activity activity;
     private final Button pauseButton;
     private final View drawPendingDialog;
+    private final View backgroundFadeImageView;
 
     public MatchView(Match match, MatchActivity activity) {
         super(activity.getBaseContext());
         commitButtonClickObserver = activity;
         this.activity = activity;
+        backgroundFadeImageView = activity.findViewById(R.id.fadeFrameLayoutBottom);
         drawPendingDialog = activity.findViewById(R.id.pendingDrawDialog);
         participantInfoBarView = activity.findViewById(R.id.participant_info_bar);
         pauseButton = participantInfoBarView.findViewById(R.id.pauseButton);
@@ -256,22 +258,22 @@ public class MatchView extends View implements ClockTickEventListener {
         }
     }
 
-    public void showPendingDrawDialog() {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                drawPendingDialog.setVisibility(VISIBLE);
-            }
-        });
-    }
-
-
-
     public void hidePendingDrawDialog() {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 drawPendingDialog.setVisibility(GONE);
+                backgroundFadeImageView.setVisibility(GONE);
+            }
+        });
+    }
+
+    public void showPendingDrawDialog() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                drawPendingDialog.setVisibility(VISIBLE);
+                backgroundFadeImageView.setVisibility(VISIBLE);
             }
         });
     }

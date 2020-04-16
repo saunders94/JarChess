@@ -18,6 +18,7 @@ import com.example.jarchess.match.pieces.PromotionChoice;
 import com.example.jarchess.match.styles.avatar.AIAvatarStyle;
 import com.example.jarchess.match.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
+import com.example.jarchess.testmode.TestableCurrentTime;
 import com.example.jarchess.testmode.TestableRandom;
 
 import java.util.Collection;
@@ -42,12 +43,12 @@ public abstract class AIOpponent implements MatchParticipant {
     private static final String TAG = "AIOpponent";
     private final ChessColor color;
     private final String name;
-    private long lastNodeNumber = 0; // used for log
-    private long pruneCount = 0; // used for log
     protected boolean isCanceled = false;
     protected DrawResponse drawResponse = null;
     protected Turn turn = null;
     protected AIOpponent me = this;
+    private long lastNodeNumber = 0; // used for log
+    private long pruneCount = 0; // used for log
 
     /**
      * Creates an AI opponent.
@@ -60,13 +61,6 @@ public abstract class AIOpponent implements MatchParticipant {
         this.name = name;
 
         MatchResultIsInEventManager.getInstance().add(this);
-    }
-
-    @Override
-    public synchronized void observe(MatchResultIsInEvent event) {
-        Log.d(TAG, "observe: MatchResultIsInEvent");
-        isCanceled = true;
-        notifyAll();
     }
 
     /**
@@ -101,13 +95,20 @@ public abstract class AIOpponent implements MatchParticipant {
         notifyAll();
     }
 
+    protected abstract long getMaxTimeBeforeShortcutSeconds();
+
+    @Override
+    public synchronized void observe(MatchResultIsInEvent event) {
+        Log.d(TAG, "observe: MatchResultIsInEvent");
+        isCanceled = true;
+        notifyAll();
+    }
 
     protected class Minimax {
 
+        public static final int NODES_BETWEEN_WAIT = 1000;
         private static final String TAG = "AIOpponent.Minimax";
         private static final long WAIT_LENGTH_MILLIS = 10;
-        public static final int NODES_BETWEEN_WAIT = 1000;
-
         private final int checkMateValue;
         private final int checkValue;
         private final Map<Piece.Type, Integer> pieceValues;
@@ -135,6 +136,7 @@ public abstract class AIOpponent implements MatchParticipant {
             pieceValues.put(PAWN, abs(pawnValue));
 
         }
+
 
         protected int calculateValue(MatchHistory matchHistory) {
             int value = 0;
@@ -206,7 +208,7 @@ public abstract class AIOpponent implements MatchParticipant {
         }
 
 
-        protected class IsCanceledException extends Exception{
+        protected class IsCanceledException extends Exception {
 
         }
 
@@ -233,6 +235,7 @@ public abstract class AIOpponent implements MatchParticipant {
             private MinimaxNode chosen;
 
             private long nodeNumber;
+            private Long startMillis = null;
 
             private MinimaxNode(int depthLimit, MatchHistory matchHistory) throws IsCanceledException {
                 this(depthLimit, 0, null, null, matchHistory);
@@ -248,131 +251,134 @@ public abstract class AIOpponent implements MatchParticipant {
 
             private MinimaxNode(int depthLimit, int depth, MinimaxNode alpha, MinimaxNode beta, MatchHistory matchHistory) throws IsCanceledException {
 
-                synchronized (AIOpponent.this){
-                this.depth = depth;
-                this.depthLimit = depthLimit;
-                this.nodeNumber = getNextNodeNumber();
-                this.matchHistory = matchHistory;
-                this.alpha = alpha;
-                this.beta = beta;
-                random = TestableRandom.getInstance();
-
-
-                if (depth < 0) {
-                    throw new IllegalArgumentException("depth was less than zero");
-                }
-                if (depthLimit < 1) {
-                    throw new IllegalArgumentException("depth limit was less than one");
-                }
-
-                if(nodeNumber % NODES_BETWEEN_WAIT == 0){
-                    try {
-                        AIOpponent.this.wait(WAIT_LENGTH_MILLIS);
-                    } catch (InterruptedException e) {
-                        isCanceled = true;
-                        AIOpponent.this.notifyAll();
+                synchronized (AIOpponent.this) {
+                    if (startMillis == null) {
+                        startMillis = TestableCurrentTime.currentTimeMillis();
                     }
-                }
+                    this.depth = depth;
+                    this.depthLimit = depthLimit;
+                    this.nodeNumber = getNextNodeNumber();
+                    this.matchHistory = matchHistory;
+                    this.alpha = alpha;
+                    this.beta = beta;
+                    random = TestableRandom.getInstance();
 
-                if(isCanceled){
-                    Log.i(TAG, "MinimaxNode: canceled!");
-                    throw new IsCanceledException();
-                }
-                if (depth >= depthLimit) {
-                    chosen = this;
-                    value = calculateValue(matchHistory);
-                    chosenMove = null;
-                    promotionChoice = null;
-                } else {
-                    int tmp;
 
-                    Collection<Move> moves;
-                    MinimaxNode n;
-                    moves = moveExpert.getAllLegalMoves(matchHistory.getNextTurnColor(), matchHistory);
-                    Move chosenMoveTmp = null;
-                    PromotionChoice chosenPromotionChoiceTmp = null;
-                    MinimaxNode chosenNode = null;
+                    if (depth < 0) {
+                        throw new IllegalArgumentException("depth was less than zero");
+                    }
+                    if (depthLimit < 1) {
+                        throw new IllegalArgumentException("depth limit was less than one");
+                    }
 
-                    for (Move move : moves) {
-                        Collection<PromotionChoice> choices = new LinkedList<>();
-                        if (moveExpert.moveRequiresPromotion(move, matchHistory)) {
-                            choices.addAll(promotionChoicesToConsider);
-                        } else {
-                            choices.add(null);
+                    if (nodeNumber % NODES_BETWEEN_WAIT == 0) {
+                        try {
+                            AIOpponent.this.wait(WAIT_LENGTH_MILLIS);
+                        } catch (InterruptedException e) {
+                            isCanceled = true;
+                            AIOpponent.this.notifyAll();
                         }
-                        for (PromotionChoice choice : choices) {
+                    }
 
-                            if (matchHistory.getNextTurnColor() == myColor) {
-                                // looking for max value
+                    if (isCanceled) {
+                        Log.i(TAG, "MinimaxNode: canceled!");
+                        throw new IsCanceledException();
+                    }
+                    if (depth >= depthLimit || TestableCurrentTime.currentTimeMillis() - startMillis > getMaxTimeBeforeShortcutSeconds() * 1000) {
+                        chosen = this;
+                        value = calculateValue(matchHistory);
+                        chosenMove = null;
+                        promotionChoice = null;
+                    } else {
+                        int tmp;
 
-                                n = new MinimaxNode(depthLimit, depth + 1, this.alpha, this.beta, matchHistory.getCopyWithMoveApplied(move, choice));
+                        Collection<Move> moves;
+                        MinimaxNode n;
+                        moves = moveExpert.getAllLegalMoves(matchHistory.getNextTurnColor(), matchHistory);
+                        Move chosenMoveTmp = null;
+                        PromotionChoice chosenPromotionChoiceTmp = null;
+                        MinimaxNode chosenNode = null;
 
-                                //prune if possible
-                                if (this.beta != null && (n.compareTo(this.beta) > 0 || (n.compareTo(this.beta) == 0 && random.getNextBoolean()))) {
-                                    pruneCount++;
-                                    chosen = n;
-                                    value = n.value;
-                                    chosenMove = move;
-                                    promotionChoice = choice;
-                                    return;
-                                }
-
-                                // check for new max node
-                                if (chosenNode == null || chosenNode.compareTo(n) < 0 || (chosenNode.compareTo(n) == 0 && random.getNextBoolean())) {
-
-                                    // we found a new max node
-                                    chosenNode = n;
-                                    chosenMoveTmp = move;
-                                    chosenPromotionChoiceTmp = choice;
-
-                                    if (this.alpha == null || chosenNode.compareTo(this.alpha) > 0 || (chosenNode.compareTo(this.alpha) == 0 && random.getNextBoolean())) {
-                                        this.alpha = chosenNode;
-                                    }
-                                }
-
-
+                        for (Move move : moves) {
+                            Collection<PromotionChoice> choices = new LinkedList<>();
+                            if (moveExpert.moveRequiresPromotion(move, matchHistory)) {
+                                choices.addAll(promotionChoicesToConsider);
                             } else {
-                                //looking for min value
+                                choices.add(null);
+                            }
+                            for (PromotionChoice choice : choices) {
 
-                                n = new MinimaxNode(depthLimit, depth, this.alpha, this.beta, matchHistory.getCopyWithMoveApplied(move, choice));
+                                if (matchHistory.getNextTurnColor() == myColor) {
+                                    // looking for max value
 
-                                //prune if possible
-                                if (this.alpha != null && (n.compareTo(this.alpha) < 0 || (n.compareTo(this.alpha) == 0 && random.getNextBoolean()))) {
-                                    pruneCount++;
-                                    chosen = n;
-                                    value = n.getValue();
-                                    chosenMove = move;
-                                    promotionChoice = choice;
-                                    return;
-                                }
+                                    n = new MinimaxNode(depthLimit, depth + 1, this.alpha, this.beta, matchHistory.getCopyWithMoveApplied(move, choice));
 
-                                // check for new min node
-                                if (chosenNode == null || chosenNode.compareTo(n) > 0 || (chosenNode.compareTo(n) == 0 && random.getNextBoolean())) {
+                                    //prune if possible
+                                    if (this.beta != null && (n.compareTo(this.beta) > 0 || (n.compareTo(this.beta) == 0 && random.getNextBoolean()))) {
+                                        pruneCount++;
+                                        chosen = n;
+                                        value = n.value;
+                                        chosenMove = move;
+                                        promotionChoice = choice;
+                                        return;
+                                    }
 
-                                    // we found a new min node
-                                    chosenNode = n;
-                                    chosenMoveTmp = move;
-                                    chosenPromotionChoiceTmp = choice;
+                                    // check for new max node
+                                    if (chosenNode == null || chosenNode.compareTo(n) < 0 || (chosenNode.compareTo(n) == 0 && random.getNextBoolean())) {
 
-                                    if (this.beta == null || chosenNode.compareTo(this.beta) < 0 || (chosenNode.compareTo(this.beta) == 0 && random.getNextBoolean())) {
-                                        this.beta = chosenNode;
+                                        // we found a new max node
+                                        chosenNode = n;
+                                        chosenMoveTmp = move;
+                                        chosenPromotionChoiceTmp = choice;
+
+                                        if (this.alpha == null || chosenNode.compareTo(this.alpha) > 0 || (chosenNode.compareTo(this.alpha) == 0 && random.getNextBoolean())) {
+                                            this.alpha = chosenNode;
+                                        }
+                                    }
+
+
+                                } else {
+                                    //looking for min value
+
+                                    n = new MinimaxNode(depthLimit, depth, this.alpha, this.beta, matchHistory.getCopyWithMoveApplied(move, choice));
+
+                                    //prune if possible
+                                    if (this.alpha != null && (n.compareTo(this.alpha) < 0 || (n.compareTo(this.alpha) == 0 && random.getNextBoolean()))) {
+                                        pruneCount++;
+                                        chosen = n;
+                                        value = n.getValue();
+                                        chosenMove = move;
+                                        promotionChoice = choice;
+                                        return;
+                                    }
+
+                                    // check for new min node
+                                    if (chosenNode == null || chosenNode.compareTo(n) > 0 || (chosenNode.compareTo(n) == 0 && random.getNextBoolean())) {
+
+                                        // we found a new min node
+                                        chosenNode = n;
+                                        chosenMoveTmp = move;
+                                        chosenPromotionChoiceTmp = choice;
+
+                                        if (this.beta == null || chosenNode.compareTo(this.beta) < 0 || (chosenNode.compareTo(this.beta) == 0 && random.getNextBoolean())) {
+                                            this.beta = chosenNode;
+                                        }
                                     }
                                 }
                             }
                         }
+                        if (chosenNode == null) {
+                            // there where no possible moves
+                            chosen = this;
+                            value = calculateValue(matchHistory);
+                        } else {
+                            chosen = chosenNode;
+                            value = chosenNode.getValue();
+                        }
+                        chosenMove = chosenMoveTmp;
+                        promotionChoice = chosenPromotionChoiceTmp;
                     }
-                    if (chosenNode == null) {
-                        // there where no possible moves
-                        chosen = this;
-                        value = calculateValue(matchHistory);
-                    } else {
-                        chosen = chosenNode;
-                        value = chosenNode.getValue();
-                    }
-                    chosenMove = chosenMoveTmp;
-                    promotionChoice = chosenPromotionChoiceTmp;
                 }
-            }
             }
 
             @Override
@@ -399,7 +405,6 @@ public abstract class AIOpponent implements MatchParticipant {
             public int getValue() {
                 return value;
             }
-
 
 
             @NonNull

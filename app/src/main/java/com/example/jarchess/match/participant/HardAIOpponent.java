@@ -6,7 +6,6 @@ import com.example.jarchess.LoggedThread;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.DrawResponse;
 import com.example.jarchess.match.MatchOverException;
-import com.example.jarchess.match.events.MatchResultIsInEvent;
 import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.pieces.PromotionChoice;
@@ -25,7 +24,7 @@ import java.util.LinkedList;
 public class HardAIOpponent extends AIOpponent {
 
     public static final boolean IS_IMPLEMENTED = true;
-    private static final int DEPTH_LIMIT = 3;
+    public static final int MAX_TIME_BEFORE_SHORTCUT_SECONDS = 60;
     private static final Collection<PromotionChoice> PROMOTION_OPTIONS = new LinkedList<>();
     private static final int DRAW_VALUE = -5;
     private static final int CHECK_MATE_VALUE = 100;
@@ -37,6 +36,7 @@ public class HardAIOpponent extends AIOpponent {
     private static final int BISHOP_VALUE = 6;
     private static final int QUEEN_VALUE = 14;
     private static final int KING_VALUE = 100;
+    private static final int DEPTH_LIMIT = 2;
     private final Minimax minimax;
     private static final String TAG = "HardAIOpponent";
 
@@ -63,7 +63,56 @@ public class HardAIOpponent extends AIOpponent {
         return getTurn(matchHistory);
     }
 
+    @Override
+    protected long getMaxTimeBeforeShortcutSeconds() {
+        return MAX_TIME_BEFORE_SHORTCUT_SECONDS;
+    }
 
+    private synchronized Turn getTurn(final MatchHistory matchHistory) throws MatchOverException {
+        turn = null;
+        notifyAll();
+        new LoggedThread(TAG, new Runnable() {
+            @Override
+            public void run() {
+                synchronized (me) {
+                    try {
+                        long start, elapsed;
+                        start = TestableCurrentTime.currentTimeMillis();
+                        Minimax.MinimaxNode node = null;
+                        node = minimax.find(DEPTH_LIMIT, matchHistory);
+                        Move move = node.getChosenMove();
+                        PromotionChoice choice = node.getPromotionChoice();
+                        elapsed = TestableCurrentTime.currentTimeMillis() - start;
+                        turn = new Turn(getColor(), move, elapsed, choice);
+                        me.notifyAll();
+                        Log.d(TAG, "run() returned: " + turn);
+                    } catch (Minimax.IsCanceledException e) {
+                        isCanceled = true;
+                        me.notifyAll();
+                    }
+                }
+            }
+        }, "AI_turnDecisionThread").start();
+
+        while(turn == null && !isCanceled){
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                Log.e(TAG, "getTurn: ", e);
+                throw new MatchOverException(new ExceptionResult(getColor(), "Thread Inturupt", e));
+            }
+        }
+
+        if(isCanceled){
+            throw new MatchOverException(null); // this should only happen if another cause ended the match
+        }
+        return turn;
+    }
+
+    @Override
+    public Turn getNextTurn(MatchHistory matchHistory) throws MatchOverException {
+        return getTurn(matchHistory);
+    }
 
     @Override
     public synchronized DrawResponse respondToDrawRequest(final MatchHistory matchHistory) {
@@ -86,63 +135,17 @@ public class HardAIOpponent extends AIOpponent {
             }
         }, "AI_drawRequestEvaluationThread").start();
 
-
-        while (drawResponse == null && !isCanceled)
-        {
+        long start = TestableCurrentTime.currentTimeMillis();
+        while (drawResponse == null && !isCanceled) {
             try {
                 wait();
+
             } catch (InterruptedException e) {
                 return new DrawResponse(false);
             }
         }
 
         return drawResponse;
-    }
-
-    @Override
-    public Turn getNextTurn(MatchHistory matchHistory) throws MatchOverException {
-        return getTurn(matchHistory);
-    }
-
-    private synchronized Turn getTurn(final MatchHistory matchHistory) throws MatchOverException {
-        turn = null;
-        notifyAll();
-        new LoggedThread(TAG, new Runnable() {
-            @Override
-            public void run() {
-                synchronized (me) {
-                    try {
-                        long start, elapsed;
-                        start = TestableCurrentTime.currentTimeMillis();
-                        Minimax.MinimaxNode node = null;
-                        node = minimax.find(DEPTH_LIMIT, matchHistory);
-                        Move move = node.getChosenMove();
-                        PromotionChoice choice = node.getPromotionChoice();
-                        elapsed = TestableCurrentTime.currentTimeMillis() - start;
-                        turn = new Turn(getColor(), move, elapsed, choice);
-                        me.notifyAll();
-                        Log.d(TAG, "run() returned: " + turn);;
-                    } catch (Minimax.IsCanceledException e) {
-                        isCanceled = true;
-                        me.notifyAll();
-                    }
-                }
-            }
-        }, "AI_turnDecisionThread").start();
-
-        while(turn == null && !isCanceled){
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                Log.e(TAG, "getTurn: ", e);
-                throw new MatchOverException(new ExceptionResult(getColor(), "Thread Inturupt", e));
-            }
-        }
-
-        if(isCanceled){
-            throw new MatchOverException(null); // this should only happen if another cause ended the match
-        }
-        return turn;
     }
 
 
