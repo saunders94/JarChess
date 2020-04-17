@@ -8,7 +8,8 @@ public enum DatapackageType implements JSONConvertible<DatapackageType> {
     RESIGNATION(1),
     PAUSE_REQUEST(2),
     PAUSE_ACCEPT(3),
-    PAUSE_REJECT(4);
+    PAUSE_REJECT(4),
+    MATCH_RESULT(5);
 
 
     public static final String JSON_PROPERTY_NAME_INT_VALUE = "intValue";
