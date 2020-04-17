@@ -42,7 +42,7 @@ public enum ResultType implements JSONConvertible<ResultType> {
     public JSONObject getJSONObject() throws JSONException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(JSON_PROPERTY_NAME_NAME, this.toString());
-        jsonObject.put(JSON_PROPERTY_NAME_INT_VALUE, this.toString());
+        jsonObject.put(JSON_PROPERTY_NAME_INT_VALUE, getIntValue());
         return jsonObject;
     }
 
