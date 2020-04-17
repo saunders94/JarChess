@@ -5,6 +5,15 @@ import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.pieces.PromotionChoice;
+import com.example.jarchess.match.result.AgreedUponDrawResult;
+import com.example.jarchess.match.result.CheckmateResult;
+import com.example.jarchess.match.result.ExceptionResult;
+import com.example.jarchess.match.result.FlagFallResult;
+import com.example.jarchess.match.result.InvalidTurnReceivedResult;
+import com.example.jarchess.match.result.RepetitionRuleDrawResult;
+import com.example.jarchess.match.result.ResignationResult;
+import com.example.jarchess.match.result.StalemateDrawResult;
+import com.example.jarchess.match.result.XMoveRuleDrawResult;
 import com.example.jarchess.match.turn.Turn;
 
 import org.json.JSONException;
@@ -12,6 +21,7 @@ import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
@@ -31,6 +41,103 @@ public class DatapackageJSONTest {
     private static final int EXPECTED = 0;
     private static final int ACTUAL = 1;
 
+    @RunWith(JUnit4.class)
+    public static class ResultDatapackage {
+
+        @Test
+        public void agreedUponDraw() throws JSONException {
+            System.out.println(new Datapackage(new AgreedUponDrawResult(), "1.1.1.1", 1).getJSONObject().toString());
+        }
+
+        @Test
+        public void checkmate() throws JSONException {
+            System.out.println(new Datapackage(new CheckmateResult(BLACK), "1.1.1.1", 1).getJSONObject().toString());
+        }
+
+        @Test
+        public void exception() throws JSONException {
+            System.out.println(new Datapackage(new ExceptionResult(BLACK, "this is a message", new RuntimeException("this is an exception message")), "1.1.1.1", 1).getJSONObject().toString());
+        }
+
+        @Test
+        public void flagFall() throws JSONException {
+            System.out.println(new Datapackage(new FlagFallResult(BLACK), "1.1.1.1", 1).getJSONObject().toString());
+        }
+
+        @Test
+        public void invalidTurn() throws JSONException {
+            System.out.println(new Datapackage(new InvalidTurnReceivedResult(BLACK), "1.1.1.1", 1).getJSONObject().toString());
+        }
+
+        @Test
+        public void repetitionDraw() throws JSONException {
+            System.out.println(new Datapackage(new RepetitionRuleDrawResult(5), "1.1.1.1", 1).getJSONObject().toString());
+        }
+
+        @Test
+        public void resignation() throws JSONException {
+            System.out.println(new Datapackage(new ResignationResult(BLACK), "1.1.1.1", 1).getJSONObject().toString());
+        }
+
+        @Test
+        public void stalemate() throws JSONException {
+            System.out.println(new Datapackage(new StalemateDrawResult(), "1.1.1.1", 1).getJSONObject().toString());
+        }
+
+        @Test
+        public void xMoveRule() throws JSONException {
+            System.out.println(new Datapackage(new XMoveRuleDrawResult(75), "1.1.1.1", 1).getJSONObject().toString());
+        }
+    }
+
+    @RunWith(JUnit4.class)
+    public static class ResultsJSON {
+
+        @Test
+        public void agreedUponDraw() throws JSONException {
+            System.out.println("new AgreedUponDrawResult().getJSONObject().toString() = \"" + new AgreedUponDrawResult().getJSONObject().toString() + "\"");
+        }
+
+        @Test
+        public void checkmate() throws JSONException {
+            System.out.println("new CheckmateResult(BLACK).getJSONObject().toString() = \"" + new CheckmateResult(BLACK).getJSONObject().toString() + "\"");
+        }
+
+        @Test
+        public void exception() throws JSONException {
+            System.out.println("new ExceptionResult(BLACK, \"this is a message\", new RuntimeException(\"this is an exception message\")).getJSONObject().toString() = \"" + new ExceptionResult(BLACK, "this is a message", new RuntimeException("this is an exception message")).getJSONObject().toString() + "\"");
+        }
+
+        @Test
+        public void flagFall() throws JSONException {
+            System.out.println("new FlagFallResult(BLACK).getJSONObject().toString() = \"" + new FlagFallResult(BLACK).getJSONObject().toString() + "\"");
+        }
+
+        @Test
+        public void invalidTurn() throws JSONException {
+            System.out.println("new InvalidTurnReceivedResult(BLACK).getJSONObject().toString() = \"" + new InvalidTurnReceivedResult(BLACK).getJSONObject().toString() + "\"");
+        }
+
+        @Test
+        public void repetitionDraw() throws JSONException {
+            System.out.println("new RepetitionRuleDrawResult(5).getJSONObject().toString() = \"" + new RepetitionRuleDrawResult(5).getJSONObject().toString() + "\"");
+        }
+
+        @Test
+        public void resignation() throws JSONException {
+            System.out.println("new ResignationResult(BLACK).getJSONObject().toString() = \"" + new ResignationResult(BLACK).getJSONObject().toString() + "\"");
+        }
+
+        @Test
+        public void stalemate() throws JSONException {
+            System.out.println("new StalemateDrawResult().getJSONObject().toString() = \"" + new StalemateDrawResult().getJSONObject().toString() + "\"");
+        }
+
+        @Test
+        public void xMoveRule() throws JSONException {
+            System.out.println("new XMoveRuleDrawResult(75).getJSONObject().toString() = \"" + new XMoveRuleDrawResult(75).getJSONObject().toString() + "\"");
+        }
+    }
 
     @RunWith(Parameterized.class)
     public static class turnSingleMovement {
