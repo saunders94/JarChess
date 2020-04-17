@@ -109,7 +109,11 @@ public enum ChessColor implements JSONConvertible<ChessColor> {
 
         @Override
         public ChessColor convertFromJSONObject(JSONObject jsonObject) throws JSONException {
-            return ChessColor.getFromInt(jsonObject.getInt(JSON_PROPERTY_NAME_INT_VALUE));
+            if (jsonObject != null && jsonObject != JSONObject.NULL && jsonObject.has(JSON_PROPERTY_NAME_INT_VALUE)) {
+                return ChessColor.getFromInt(jsonObject.getInt(JSON_PROPERTY_NAME_INT_VALUE));
+            } else {
+                return null;
+            }
         }
     }
 }

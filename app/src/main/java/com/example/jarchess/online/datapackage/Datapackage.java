@@ -4,10 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.jarchess.match.move.Move;
+import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.match.turn.Turn;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import static org.json.JSONObject.NULL;
 
 
 /**
@@ -28,8 +31,10 @@ public class Datapackage implements JSONConvertible<Datapackage> {
     public static final String JSON_PROPERTY_NAME_TURN = "turn";
     public static final String JSON_PROPERTY_NAME_DESTINATION_IP = "destinationIP";
     public static final String JSON_PROPERTY_NAME_DESTINATION_PORT = "destinationPort";
+    public static final String JSON_PROPERTY_NAME_MATCH_RESULT = "matchResult";
     private final DatapackageType datapackageType;
     private final Turn turn;
+    private final ChessMatchResult result;
     private final String destinationIP;
     private final int destinationPort;
 
@@ -45,6 +50,7 @@ public class Datapackage implements JSONConvertible<Datapackage> {
         this.turn = turn;
         this.destinationIP = destinationIP;
         this.destinationPort = destinationPort;
+        this.result = null;
 
         if (turn.getMove() == null) {
             throw new IllegalStateException("unexpected null move contained in a turn");
@@ -58,15 +64,29 @@ public class Datapackage implements JSONConvertible<Datapackage> {
     /**
      * Creates a Datapackage from a DatapackageType object.
      *
-     * @param type            the type of datapackage
      * @param destinationIP
      * @param destinationPort
      */
-    public Datapackage(@NonNull DatapackageType type, String destinationIP, int destinationPort) {
+    public Datapackage(DatapackageType type, String destinationIP, int destinationPort) {
+        if (type == DatapackageType.TURN) {
+            throw new IllegalArgumentException("Creating a datapackage with the type of TURN requires providing the turn as an argument");
+        }
+        if (type == DatapackageType.MATCH_RESULT) {
+            throw new IllegalArgumentException("Creating a datapackage with the type of MATCH_RESULT requires providing the result as an argument");
+        }
         this.destinationIP = destinationIP;
         this.destinationPort = destinationPort;
         this.turn = null;
+        this.result = null;
         datapackageType = type;
+    }
+
+    public Datapackage(ChessMatchResult result, String destinationIP, int destinationPort) {
+        this.destinationIP = destinationIP;
+        this.destinationPort = destinationPort;
+        this.turn = null;
+        this.result = result;
+        datapackageType = DatapackageType.MATCH_RESULT;
     }
 
     public DatapackageType getDatapackageType() {
@@ -89,7 +109,8 @@ public class Datapackage implements JSONConvertible<Datapackage> {
     public JSONObject getJSONObject() throws JSONException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(JSON_PROPERTY_NAME_TYPE, datapackageType.getJSONObject());
-        jsonObject.put(JSON_PROPERTY_NAME_TURN, turn.getJSONObject());
+        jsonObject.put(JSON_PROPERTY_NAME_TURN, turn == null ? NULL : turn.getJSONObject());
+        jsonObject.put(JSON_PROPERTY_NAME_MATCH_RESULT, result == null ? NULL : result.getJSONObject());
         jsonObject.put(JSON_PROPERTY_NAME_DESTINATION_IP, destinationIP);
         jsonObject.put(JSON_PROPERTY_NAME_DESTINATION_PORT, destinationPort);
         return jsonObject;
@@ -99,7 +120,6 @@ public class Datapackage implements JSONConvertible<Datapackage> {
     public Move getMove() {
         return turn != null ? turn.getMove() : null;
     }
-
 
 
     /**
@@ -164,10 +184,12 @@ public class Datapackage implements JSONConvertible<Datapackage> {
             switch (type) {
 
                 case TURN:
-
                     Turn turn = Turn.JSON_CONVERTER.convertFromJSONObject(jsonObject.getJSONObject(JSON_PROPERTY_NAME_TURN));
-
                     return new Datapackage(turn, destinationIP, destinationPort);
+
+                case MATCH_RESULT:
+                    ChessMatchResult result = ChessMatchResult.ResultJSONConverter.getInstance().convertFromJSONObject(jsonObject.getJSONObject(JSON_PROPERTY_NAME_MATCH_RESULT));
+                    return new Datapackage(result, destinationIP, destinationPort);
 
                 default:
                     return new Datapackage(type, destinationIP, destinationPort);

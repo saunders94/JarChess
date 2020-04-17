@@ -41,12 +41,14 @@ import static java.lang.Math.abs;
  */
 public abstract class AIOpponent implements MatchParticipant {
     private static final String TAG = "AIOpponent";
+    private static final long TIME_BETWEEN_WAITS_MILLIS = 400L;
     private final ChessColor color;
     private final String name;
     protected boolean isCanceled = false;
     protected DrawResponse drawResponse = null;
     protected Turn turn = null;
     protected AIOpponent me = this;
+    private Long lastWaitTimeMillis = null;
     private long lastNodeNumber = 0; // used for log
     private long pruneCount = 0; // used for log
 
@@ -271,14 +273,19 @@ public abstract class AIOpponent implements MatchParticipant {
                         throw new IllegalArgumentException("depth limit was less than one");
                     }
 
-                    if (nodeNumber % NODES_BETWEEN_WAIT == 0) {
+                    if (lastWaitTimeMillis == null) {
+                        lastWaitTimeMillis = TestableCurrentTime.currentTimeMillis();
+                    } else if (TestableCurrentTime.currentTimeMillis() - lastWaitTimeMillis > TIME_BETWEEN_WAITS_MILLIS) {
+
                         try {
                             AIOpponent.this.wait(WAIT_LENGTH_MILLIS);
                         } catch (InterruptedException e) {
                             isCanceled = true;
                             AIOpponent.this.notifyAll();
                         }
+                        lastWaitTimeMillis = TestableCurrentTime.currentTimeMillis();
                     }
+
 
                     if (isCanceled) {
                         Log.i(TAG, "MinimaxNode: canceled!");
