@@ -18,9 +18,9 @@ import com.example.jarchess.match.result.ChessMatchResult;
 //TODO javadocs
 public class PlayerMatch extends Match {
 
+    private static final String TAG = "PlayerMatch";
     private final Player player;
     private final MatchParticipant opponent;
-    private static final String TAG = "PlayerMatch";
 
     public PlayerMatch(@NonNull MatchParticipant opponent, MatchClockChoice matchClockChoice, LocalParticipantController localParticipantController, MatchActivity matchActivity) {
         super(new Player(ChessColor.getOther(opponent.getColor()), localParticipantController), opponent, matchClockChoice, matchActivity);
@@ -41,12 +41,15 @@ public class PlayerMatch extends Match {
         return player;
     }
 
-    public synchronized void handlePlayerDrawRequest() {
+    public void handlePlayerDrawRequest() {
+
         if (matchHistory.getNextTurnColor() == player.getColor()) {
             Log.d(TAG, "handlePlayerDrawRequest: a");
             DrawResponse response = opponent.respondToDrawRequest(matchHistory);
             Log.d(TAG, "handlePlayerDrawRequest: b");
-            if (response.isAccepted()) {
+            if (response == null) {
+                //do nothing
+            } else if (response.isAccepted()) {
                 Log.i(TAG, "handlePlayerDrawRequest: accepted");
                 ChessMatchResult result = new AgreedUponDrawResult();
                 MatchEndingEvent event = new MatchEndingEvent(result);

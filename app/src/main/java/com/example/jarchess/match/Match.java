@@ -167,13 +167,23 @@ public abstract class Match implements MatchEndingEventListener {
         return matchChessMatchResult;
     }
 
-    private synchronized void setMatchChessMatchResult(ChessMatchResult matchChessMatchResult) {
+    private void setMatchChessMatchResult(ChessMatchResult matchChessMatchResult) {
         Log.d(TAG, "setMatchResult() called with: matchResult = [" + matchChessMatchResult + "]");
         Log.d(TAG, "setMatchResult is running on thread: " + Thread.currentThread().getName());
-        if (this.matchChessMatchResult == null) {
-            Log.i(TAG, "setMatchResult: " + matchChessMatchResult);
-            this.matchChessMatchResult = matchChessMatchResult;
-            notifyAll();
+
+        boolean wasSet;
+        Log.d(TAG, "setMatchChessMatchResult: waiting for lock");
+        synchronized (this) {
+            Log.d(TAG, "setMatchChessMatchResult: got lock");
+            wasSet = this.matchChessMatchResult == null;
+
+            if (wasSet) {
+                Log.i(TAG, "setMatchResult: " + matchChessMatchResult);
+                this.matchChessMatchResult = matchChessMatchResult;
+                notifyAll();
+            }
+        }
+        if (wasSet) {
             MatchResultIsInEventManager.getInstance().notifyAllListeners(new MatchResultIsInEvent(matchChessMatchResult));
         }
     }
