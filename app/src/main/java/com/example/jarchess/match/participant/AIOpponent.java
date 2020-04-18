@@ -91,12 +91,6 @@ public abstract class AIOpponent implements MatchParticipant {
         return name;
     }
 
-    @Override
-    public synchronized void acknowledgeResignation() {
-        isCanceled = true;
-        notifyAll();
-    }
-
     protected abstract long getMaxTimeBeforeShortcutSeconds();
 
     @Override

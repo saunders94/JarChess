@@ -44,11 +44,6 @@ public interface MatchParticipant extends MatchResultIsInEventListener {
     String getName();
 
     /**
-     * Acknowledges resignation.
-     */
-    void acknowledgeResignation();
-
-    /**
      * Responds to a draw request
      *
      * @return a response

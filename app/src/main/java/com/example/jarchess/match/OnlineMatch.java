@@ -27,4 +27,9 @@ public class OnlineMatch extends PlayerMatch {
         return new RemoteOpponent(opponentInfoBundle.getColor(), opponentInfoBundle, sender, receiver);
     }
 
+    @Override
+    public RemoteOpponent getOpponent() {
+        return (RemoteOpponent) super.getOpponent();
+    }
+
 }

@@ -76,10 +76,6 @@ public abstract class LocalParticipant implements MatchParticipant {
         return color;
     }
 
-    @Override
-    public void acknowledgeResignation() {
-        // do nothing
-    }
 
     @Override
     public DrawResponse respondToDrawRequest(MatchHistory matchHistory) {
