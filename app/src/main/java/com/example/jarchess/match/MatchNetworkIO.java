@@ -3,12 +3,13 @@ package com.example.jarchess.match;
 import android.util.Log;
 
 import com.example.jarchess.LoggedThread;
-import com.example.jarchess.match.resignation.ResignationReciever;
-import com.example.jarchess.match.resignation.ResignationSender;
-import com.example.jarchess.match.result.ResignationResult;
+import com.example.jarchess.match.events.MatchEndingEvent;
+import com.example.jarchess.match.events.MatchEndingEventManager;
+import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.turn.TurnReceiver;
 import com.example.jarchess.match.turn.TurnSender;
+import com.example.jarchess.online.datapackage.ChessMatchResultSender;
 import com.example.jarchess.online.datapackage.Datapackage;
 import com.example.jarchess.online.datapackage.DatapackageReceiver;
 import com.example.jarchess.online.datapackage.DatapackageSender;
@@ -26,7 +27,7 @@ import static com.example.jarchess.online.datapackage.DatapackageType.RESIGNATIO
 public class MatchNetworkIO {
 
 
-    public static class Sender implements TurnSender, ResignationSender, Closeable {
+    public static class Sender implements TurnSender, ChessMatchResultSender, Closeable {
 
         private static final String TAG = "MatchNetworkIO.Sender";
         private final Collection<Closeable> closeables = new LinkedList<Closeable>();
@@ -48,8 +49,6 @@ public class MatchNetworkIO {
             if (datapackageSender instanceof Closeable) {
                 closeables.add((Closeable) datapackageSender);
             }
-
-            //TODO Establish connection
 
             final Runnable runnable = new Runnable() {
                 @Override
@@ -121,41 +120,47 @@ public class MatchNetworkIO {
             synchronized (lock) {
                 Log.d(TAG, "send: got lock");
                 outGoingDatapackages.add(new Datapackage(turn, destinationIP, destinationPort));
+                lock.notifyAll();
             }
             Log.d(TAG, "send() returned: ");
         }
 
         @Override
-        public void send(ResignationResult resignationResult) {
-            Log.d(TAG, "send() called with: resignationResult = [" + resignationResult + "]");
+        public void send(ChessMatchResult chessMatchResult) {
+            Log.d(TAG, "send() called with: chessMatchResult = [" + chessMatchResult + "]");
             Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
 
+            Log.d(TAG, "send: waiting for lock");
             synchronized (lock) {
+                Log.d(TAG, "send: got lock");
                 Datapackage datapackage = new Datapackage(RESIGNATION, destinationIP, destinationPort);
                 outGoingDatapackages.add(datapackage);
                 lock.notifyAll();
             }
+            Log.d(TAG, "send() returned ");
         }
 
         private synchronized void waitWhileEmpty(Queue<?> queue) throws InterruptedException {
             Log.d(TAG, "waitWhileEmpty() called with: queue = [" + queue + "]");
             Log.d(TAG, "waitWhileEmpty is running on thread: " + Thread.currentThread().getName());
 
+            Log.d(TAG, "waitWhileEmpty: waiting for lock");
             synchronized (lock) {
+                Log.d(TAG, "waitWhileEmpty: got lock");
                 while (queue.isEmpty()) {
-                    lock.wait(50);
+                    lock.wait(); //TODO test to make sure this works with the 50 millis time removed
                 }
             }
+            Log.d(TAG, "waitWhileEmpty() returned");
         }
     }
 
-    public static class Receiver implements TurnReceiver, ResignationReciever, Closeable {
+    public static class Receiver implements TurnReceiver, Closeable {
 
         private static final String TAG = "MatchNetworkIO.Receiver";
         private final Collection<Closeable> closeables = new LinkedList<Closeable>();
         private final DatapackageReceiver datapackageReceiver;
         private final Queue<Turn> incomingTurns = new LinkedList<Turn>();
-        private final Queue<ResignationResult> incomingResignationResults = new LinkedList<ResignationResult>();
         private final Object lock = new Object();
 
         private boolean isAlive;
@@ -168,7 +173,7 @@ public class MatchNetworkIO {
                 closeables.add((Closeable) datapackageReceiver);
             }
 
-            //TODO Establish connection
+
             final Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
@@ -176,27 +181,45 @@ public class MatchNetworkIO {
                     try {
                         while (isAlive) {
                             Datapackage datapackage = datapackageReceiver.recieveNextDatapackage();
+                            Log.d(TAG, "run: waiting for lock");
+                            synchronized (lock) {
+                                Log.d(TAG, "run: got lock");
+                                switch (datapackage.getDatapackageType()) {
 
-                            switch (datapackage.getDatapackageType()) {
-
-                                case TURN:
-                                    incomingTurns.add(datapackage.getTurn());
-                                    break;
-                                case PAUSE_REQUEST:
-//                                    incomingPauseRequest.add(datapackage.getPauseRequest());
-//                                    break;
+                                    case TURN:
+                                        Log.d(TAG, "run: add turn to incoming turns queue");
+                                        incomingTurns.add(datapackage.getTurn());
+                                        lock.notifyAll();
+                                        break;
+                                    case MATCH_RESULT:
+                                        Log.d(TAG, "run: handling received match result");
+                                        MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(datapackage.getMatchResult()));
+                                        isAlive = false;
+                                        lock.notifyAll();
+                                        break;
+                                    case PAUSE_REQUEST:
+                                        Log.d(TAG, "run: handling received pause request");
+//                                        incomingPauseRequest.add(datapackage.getPauseRequest());
+//                                        lock.notifyAll();
+//                                        break;
                                     throw new RuntimeException("Pause Request not implemented");
-                                case PAUSE_ACCEPT:
+                                    case PAUSE_ACCEPT:
+                                        Log.d(TAG, "run: handling received pause request acceptance");
 //                                    incomingPauseAccept.add(datapackage.getPauseAccept());
+//                                        lock.notifyAll();
 //                                    break;
-                                    throw new RuntimeException("Pause Accept not implemented");
-                                case PAUSE_REJECT:
-//                                    incomingPauseReject.add(datapackage.getPauseReject());
-//                                    break;
-                                    throw new RuntimeException("Pause Reject not implemented");
 
-                                default:
-                                    throw new IllegalStateException("Unexpected datapackage type: " + datapackage.getDatapackageType());
+                                        throw new RuntimeException("Pause Accept not implemented");
+                                    case PAUSE_REJECT:
+                                        Log.d(TAG, "run: handling received pause request rejection");
+//                                    incomingPauseReject.add(datapackage.getPauseReject());
+//                                        lock.notifyAll();
+//                                    break;
+                                        throw new RuntimeException("Pause Reject not implemented");
+
+                                    default:
+                                        throw new IllegalStateException("Unexpected datapackage type: " + datapackage.getDatapackageType());
+                                }
                             }
                         }
                     } catch (InterruptedException e1) {
@@ -211,7 +234,7 @@ public class MatchNetworkIO {
                 }
             };
 
-            new Thread(runnable, "MatchNetworkReceiver").start();
+            new LoggedThread(TAG, runnable, "MatchNetworkReceiver").start();
         }
 
         @Override
@@ -252,23 +275,13 @@ public class MatchNetworkIO {
             }
         }
 
-        @Override
-        public ResignationResult recieveNextResignation() throws InterruptedException {
-            Log.d(TAG, "recieveNextResignation() called");
-            Log.d(TAG, "recieveNextResignation is running on thread: " + Thread.currentThread().getName());
-            synchronized (lock) {
-                waitWhileEmpty(incomingResignationResults);
-                return incomingResignationResults.remove();
-            }
-        }
-
 
         private synchronized void waitWhileEmpty(Queue<?> queue) throws InterruptedException {
             Log.d(TAG, "waitWhileEmpty() called with: queue = [" + queue + "]");
             Log.d(TAG, "waitWhileEmpty is running on thread: " + Thread.currentThread().getName());
             synchronized (lock) {
                 while (queue.isEmpty()) {
-                    lock.wait(50);
+                    lock.wait();//TODO test that this will work without the 50 millis time
                 }
             }
         }

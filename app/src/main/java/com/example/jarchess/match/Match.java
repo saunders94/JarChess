@@ -275,7 +275,6 @@ public abstract class Match implements MatchEndingEventListener {
         }
 
         matchClock.stop();
-
         matchActivity.showMatchResult();
     }
 
