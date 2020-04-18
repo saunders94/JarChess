@@ -16,9 +16,11 @@ import java.util.ArrayList;
 
 public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedListener {
 
-
+    private LeaderboardCommunicator callback;
     private Spinner sortSpinner;
     private ListView leaderboardList;
+    private ArrayAdapter<String> listAdapter;
+    private ArrayList<String> supposedlyEmptyList;
 
     public Leaderboard() {
         // Required empty public constructor
@@ -30,43 +32,53 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_leaderboard, container, false);
+        supposedlyEmptyList = new ArrayList<>();
+        supposedlyEmptyList.add("No Leaderboard Results Were Found");
 
         sortSpinner = view.findViewById(R.id.sortingSpinner);
+        leaderboardList = view.findViewById(R.id.leaderList);
+
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(view.getContext(),
                 R.array.sortLabels, R.layout.spinner_item_style);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sortSpinner.setAdapter(spinnerAdapter);
         sortSpinner.setOnItemSelectedListener(this);
-        //handle onclick listener by using onItemSelected and onNothingSelected
-        //Here's a demo to show the leaderboard list
-
-        ArrayList<String> listItems = new ArrayList<>();
-
-        listItems.add("(1)    100  wins - KyleIsNeat");
-        listItems.add("(2)    45   wins - Goober03");
-        listItems.add("(3)    23   wins - earthDude21");
-        listItems.add("(4)    9    wins - kratos69");
 
 
-
-        ArrayAdapter<String> listAdapter = new ArrayAdapter<>
-                (view.getContext(), R.layout.leaderboard_item_style,listItems);
-        leaderboardList = view.findViewById(R.id.leaderList);
+        listAdapter = new ArrayAdapter<>
+                (view.getContext(), R.layout.list_item_style, supposedlyEmptyList);
         leaderboardList.setAdapter(listAdapter);
 
-
+        displayOnLeaderboard(callback.onLeaderboardUpdate(0));
         return view;
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+    private void displayOnLeaderboard(ArrayList<String> content) {
+        listAdapter.clear();
 
+        if(content == null){ listAdapter.addAll(supposedlyEmptyList);
+        } else { listAdapter.addAll(content); }
     }
 
-    @Override
+
+    @Override//For spinner
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        displayOnLeaderboard(callback.onLeaderboardUpdate(position));
+    }
+
+    @Override//For spinner
     public void onNothingSelected(AdapterView<?> parent) {
 
     }
 
+    public void setCommunicator(LeaderboardCommunicator callback) {
+        this.callback = callback;
+    }
+
+    public interface LeaderboardCommunicator {
+        ArrayList<String> onLeaderboardUpdate(int criteriaType);
+    }
+
 
 }
+
