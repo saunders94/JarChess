@@ -29,6 +29,7 @@ public class OnlineMatchInfoBundle {
         this.responseObject = responseObject;
         this.datapackageQueue = new DatapackageQueue();
         setRemoteOpponentInfoBundle();
+
         // establish connection
         try {
             this.gameIO = new GameIO(datapackageQueue, gameToken, remoteOpponentInfoBundle);
