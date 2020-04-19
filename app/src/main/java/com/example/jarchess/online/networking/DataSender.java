@@ -79,7 +79,7 @@ public class DataSender {
 
             String data = jsonObject.toString();
             Log.i("Sender",data);
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[10240];
             in = new DataInputStream(
                     new BufferedInputStream(
                             socket.getInputStream()));

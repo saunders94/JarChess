@@ -165,9 +165,13 @@ public class OnlineMatchMaker {
                         try {
                             JSONObject jsonResp = new JSONObject(respString);
                             Log.i(TAG, jsonResp.toString());
-                            onlineMatchInfoBundle = new OnlineMatchInfoBundle(jsonResp);
-                            //MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
-                            Log.i(TAG, "run: set online match: " + onlineMatchInfoBundle);
+                            if(jsonResp.getString("status").equals("success")){
+                                onlineMatchInfoBundle = new OnlineMatchInfoBundle(jsonResp);
+                                Log.i(TAG, "run: set online match: " + onlineMatchInfoBundle);
+                            }else{
+                                Log.i(TAG, "Server send failure response");
+                                throw  new SearchCanceledException();
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                             Log.i(TAG, "Error");
