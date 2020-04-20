@@ -113,31 +113,35 @@ public class MatchNetworkIO {
 
         @Override
         public void send(Turn turn) {
-            Log.d(TAG, "send() called with: turn = [" + turn + "]");
-            Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
+            if (turn != null) {
+                Log.d(TAG, "send() called with: turn = [" + turn + "]");
+                Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
 
-            Log.d(TAG, "send: waiting for lock");
-            synchronized (lock) {
-                Log.d(TAG, "send: got lock");
-                outGoingDatapackages.add(new Datapackage(turn, destinationIP, destinationPort));
-                lock.notifyAll();
+                Log.d(TAG, "send: waiting for lock");
+                synchronized (lock) {
+                    Log.d(TAG, "send: got lock");
+                    outGoingDatapackages.add(new Datapackage(turn, destinationIP, destinationPort));
+                    lock.notifyAll();
+                }
+                Log.d(TAG, "send() returned: ");
             }
-            Log.d(TAG, "send() returned: ");
         }
 
         @Override
         public void send(ChessMatchResult chessMatchResult) {
-            Log.d(TAG, "send() called with: chessMatchResult = [" + chessMatchResult + "]");
-            Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
+            if (chessMatchResult != null) {
+                Log.d(TAG, "send() called with: chessMatchResult = [" + chessMatchResult + "]");
+                Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
 
-            Log.d(TAG, "send: waiting for lock");
-            synchronized (lock) {
-                Log.d(TAG, "send: got lock");
-                Datapackage datapackage = new Datapackage(RESIGNATION, destinationIP, destinationPort);
-                outGoingDatapackages.add(datapackage);
-                lock.notifyAll();
+                Log.d(TAG, "send: waiting for lock");
+                synchronized (lock) {
+                    Log.d(TAG, "send: got lock");
+                    Datapackage datapackage = new Datapackage(RESIGNATION, destinationIP, destinationPort);
+                    outGoingDatapackages.add(datapackage);
+                    lock.notifyAll();
+                }
+                Log.d(TAG, "send() returned ");
             }
-            Log.d(TAG, "send() returned ");
         }
 
         private synchronized void waitWhileEmpty(Queue<?> queue) throws InterruptedException {
@@ -148,7 +152,7 @@ public class MatchNetworkIO {
             synchronized (lock) {
                 Log.d(TAG, "waitWhileEmpty: got lock");
                 while (queue.isEmpty()) {
-                    lock.wait(); //TODO test to make sure this works with the 50 millis time removed
+                    lock.wait();
                 }
             }
             Log.d(TAG, "waitWhileEmpty() returned");
@@ -266,13 +270,18 @@ public class MatchNetworkIO {
 
         @Override
         public Turn receiveNextTurn() throws InterruptedException {
+
             Log.d(TAG, "receiveNextTurn() called");
             Log.d(TAG, "receiveNextTurn is running on thread: " + Thread.currentThread().getName());
+            Turn turn = null;
+            while (turn == null) {
+                synchronized (lock) {
+                    waitWhileEmpty(incomingTurns);
+                    turn = incomingTurns.remove();
 
-            synchronized (lock) {
-                waitWhileEmpty(incomingTurns);
-                return incomingTurns.remove();
+                }
             }
+            return turn;
         }
 
 
@@ -281,7 +290,7 @@ public class MatchNetworkIO {
             Log.d(TAG, "waitWhileEmpty is running on thread: " + Thread.currentThread().getName());
             synchronized (lock) {
                 while (queue.isEmpty()) {
-                    lock.wait();//TODO test that this will work without the 50 millis time
+                    lock.wait();
                 }
             }
         }

@@ -78,7 +78,7 @@ public class OnlineMatchMaker {
                     try {
                         socket.close();
                     } catch (IOException e) {
-                        Log.e(TAG, "cancel: ", e);
+                        Log.e(TAG, "cancel: socket close failed. ", e);
                     }
                 }
 
@@ -88,9 +88,14 @@ public class OnlineMatchMaker {
     }
 
     public OnlineMatchInfoBundle getOnlineMatchInfoBundle() throws SearchCanceledException, IOException, InterruptedException {
+
         Log.v(TAG, "getOnlineMatchInfoBundle() called");
         Log.v(TAG, "getOnlineMatchInfoBundle is running on thread: " + Thread.currentThread().getName());
-        this.socket = new Socket(gameServer, serverPort);
+        try {
+            this.socket = new Socket(gameServer, serverPort);
+        } catch (IOException e) {
+            throw e;
+        }
         socket.setSoTimeout(500);
         boolean failed;
         final byte[] buffer = new byte[1024];
