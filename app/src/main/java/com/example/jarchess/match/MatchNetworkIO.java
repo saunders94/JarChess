@@ -148,7 +148,7 @@ public class MatchNetworkIO {
             synchronized (lock) {
                 Log.d(TAG, "waitWhileEmpty: got lock");
                 while (queue.isEmpty()) {
-                    lock.wait(); //TODO test to make sure this works with the 50 millis time removed
+                    lock.wait();
                 }
             }
             Log.d(TAG, "waitWhileEmpty() returned");
@@ -281,7 +281,7 @@ public class MatchNetworkIO {
             Log.d(TAG, "waitWhileEmpty is running on thread: " + Thread.currentThread().getName());
             synchronized (lock) {
                 while (queue.isEmpty()) {
-                    lock.wait();//TODO test that this will work without the 50 millis time
+                    lock.wait();
                 }
             }
         }
