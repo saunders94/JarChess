@@ -36,7 +36,7 @@ public class HardAIOpponent extends AIOpponent {
     private static final int BISHOP_VALUE = 6;
     private static final int QUEEN_VALUE = 14;
     private static final int KING_VALUE = 100;
-    private static final int DEPTH_LIMIT = 6;
+    private static final int DEPTH_LIMIT = 4;
     private final Minimax minimax;
     private static final String TAG = "HardAIOpponent";
 
