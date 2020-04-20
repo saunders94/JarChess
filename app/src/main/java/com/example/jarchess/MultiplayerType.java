@@ -103,6 +103,12 @@ public class MultiplayerType extends Fragment {
             Log.d(TAG, "cancel() called");
             Log.d(TAG, "cancel is running on thread: " + Thread.currentThread().getName());
             OnlineMatchMaker.getInstance().cancel();
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getActivity().onBackPressed();
+                }
+            });
         }
 
         @Override
@@ -129,9 +135,18 @@ public class MultiplayerType extends Fragment {
                     } catch (OnlineMatchMaker.SearchCanceledException e) {
                         Log.d(TAG, "onCreateView's run caught:", e);
                     } catch (IOException e) {
+                        final String msg = "Connection Failure";
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                         Log.e(TAG, "onCreateView's run caught: ", e);
                     } catch (InterruptedException e) {
                         Log.e(TAG, "onCreateView's run caught: ", e);
+                    } finally {
+                        cancel();
                     }
                 }
             }, "matchMakerLauncherThread").start();
@@ -146,7 +161,6 @@ public class MultiplayerType extends Fragment {
                 public void onClick(View v) {
                     Log.i(TAG, "cancel button clicked");
                     cancel();
-                    getActivity().onBackPressed();
                 }
             });
 
