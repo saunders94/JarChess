@@ -106,6 +106,7 @@ public class MatchNetworkIO {
                         ioExceptions.add(e);
                     }
                 }
+                closeables.clear();
             }
 
             for (IOException e : ioExceptions) {
@@ -368,6 +369,8 @@ public class MatchNetworkIO {
                         ioExceptions.add(e);
                     }
                 }
+
+                closeables.clear();
             }
 
             for (IOException e : ioExceptions) {
