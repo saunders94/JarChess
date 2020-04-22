@@ -1,6 +1,5 @@
 package com.example.jarchess.online.usermanagement;
 
-import android.util.JsonReader;
 import android.util.Log;
 
 import com.example.jarchess.JarAccount;
@@ -40,7 +39,7 @@ public class  Account {
         JSONObject jsonObject =  jsonAccount.signin(username, password);
         try {
             JSONObject jsonResponse = dataSender.send(jsonObject);
-            String statusResp = (String) jsonResponse.get("status");
+            String statusResp = jsonResponse == null ? "" : (String) jsonResponse.get("status");
             if(statusResp.equals("success")){
                 status = true;
                 JarAccount.getInstance().setSignonToken((String) jsonResponse.get("token"));
@@ -55,6 +54,7 @@ public class  Account {
             status = false;
         } catch (JSONException e) {
             e.printStackTrace();
+            status = false;
         }
 
         return status;
