@@ -64,12 +64,12 @@ public class  Account {
         Log.d(TAG, "signout() called with: username = [" + username + "], signonToken = [" + signonToken + "]");
         Log.d(TAG, "signout is running on thread: " + Thread.currentThread().getName());
         boolean status = false;
-        if(username.equals("")){
-            Log.i(TAG, "signout: username was empty string");
+        if (username == null) {
+            Log.i(TAG, "signout: username was null");
             Log.d(TAG, "signout() returned: " + false);
             return false;
-        }else if(username == null){
-            Log.i(TAG, "signout: username was null");
+        } else if (username.equals("")) {
+            Log.i(TAG, "signout: username was empty string");
             Log.d(TAG, "signout() returned: " + false);
             return false;
         }
