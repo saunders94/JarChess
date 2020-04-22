@@ -5,6 +5,7 @@ import android.util.Log;
 import com.example.jarchess.LoggedThread;
 import com.example.jarchess.match.events.MatchEndingEvent;
 import com.example.jarchess.match.events.MatchEndingEventManager;
+import com.example.jarchess.match.participant.RemoteOpponent;
 import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.turn.TurnReceiver;
@@ -13,6 +14,7 @@ import com.example.jarchess.online.datapackage.ChessMatchResultSender;
 import com.example.jarchess.online.datapackage.Datapackage;
 import com.example.jarchess.online.datapackage.DatapackageReceiver;
 import com.example.jarchess.online.datapackage.DatapackageSender;
+import com.example.jarchess.online.datapackage.DatapackageType;
 import com.example.jarchess.online.move.DatapackageQueue;
 
 import java.io.Closeable;
@@ -27,7 +29,7 @@ import static com.example.jarchess.online.datapackage.DatapackageType.RESIGNATIO
 public class MatchNetworkIO {
 
 
-    public static class Sender implements TurnSender, ChessMatchResultSender, Closeable {
+    public static class Sender implements TurnSender, ChessMatchResultSender, DrawResponseSender, DrawRequestSender, PauseResponseSender, PauseRequestSender, Closeable {
 
         private static final String TAG = "MatchNetworkIO.Sender";
         private final Collection<Closeable> closeables = new LinkedList<Closeable>();
@@ -144,6 +146,80 @@ public class MatchNetworkIO {
             }
         }
 
+        @Override
+        public void send(DrawResponse drawResponse) {
+            if (drawResponse != null) {
+                Log.d(TAG, "send() called with: drawResponse = [" + drawResponse + "]");
+                Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
+                DatapackageType datapackageType;
+                if (drawResponse.isAccepted()) {
+                    datapackageType = DatapackageType.DRAW_ACCEPT;
+                } else {
+                    datapackageType = DatapackageType.DRAW_REJECT;
+                }
+                Log.d(TAG, "send: waiting for lock");
+                synchronized (lock) {
+                    Log.d(TAG, "send: got lock");
+                    Datapackage datapackage = new Datapackage(datapackageType, destinationIP, destinationPort);
+                    outGoingDatapackages.add(datapackage);
+                    lock.notifyAll();
+                }
+                Log.d(TAG, "send() returned ");
+            }
+        }
+
+        @Override
+        public void send(PauseResponse pauseResponse) {
+
+            if (pauseResponse != null) {
+                Log.d(TAG, "send() called with: pauseResponse = [" + pauseResponse + "]");
+                Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
+                DatapackageType datapackageType;
+                if (pauseResponse.isAccepted()) {
+                    datapackageType = DatapackageType.PAUSE_ACCEPT;
+                } else {
+                    datapackageType = DatapackageType.PAUSE_REJECT;
+                }
+                Log.d(TAG, "send: waiting for lock");
+                synchronized (lock) {
+                    Log.d(TAG, "send: got lock");
+                    Datapackage datapackage = new Datapackage(datapackageType, destinationIP, destinationPort);
+                    outGoingDatapackages.add(datapackage);
+                    lock.notifyAll();
+                }
+                Log.d(TAG, "send() returned ");
+            }
+        }
+
+        @Override
+        public void sendDrawRequest() {
+            Log.d(TAG, "sendDrawRequest() called");
+            Log.d(TAG, "sendDrawRequest is running on thread: " + Thread.currentThread().getName());
+            Log.d(TAG, "send: waiting for lock");
+            synchronized (lock) {
+                Log.d(TAG, "send: got lock");
+                Datapackage datapackage = new Datapackage(DatapackageType.DRAW_REQUEST, destinationIP, destinationPort);
+                outGoingDatapackages.add(datapackage);
+                lock.notifyAll();
+            }
+            Log.d(TAG, "send() returned ");
+        }
+
+        @Override
+        public void sendPauseRequest() {
+            Log.d(TAG, "sendPauseRequest() called");
+            Log.d(TAG, "sendPauseRequest is running on thread: " + Thread.currentThread().getName());
+            Log.d(TAG, "send: waiting for lock");
+            synchronized (lock) {
+                Log.d(TAG, "send: got lock");
+                Datapackage datapackage = new Datapackage(DatapackageType.PAUSE_REQUEST, destinationIP, destinationPort);
+                outGoingDatapackages.add(datapackage);
+                lock.notifyAll();
+            }
+            Log.d(TAG, "send() returned ");
+
+        }
+
         private synchronized void waitWhileEmpty(Queue<?> queue) throws InterruptedException {
             Log.d(TAG, "waitWhileEmpty() called with: queue = [" + queue + "]");
             Log.d(TAG, "waitWhileEmpty is running on thread: " + Thread.currentThread().getName());
@@ -162,14 +238,17 @@ public class MatchNetworkIO {
     public static class Receiver implements TurnReceiver, Closeable {
 
         private static final String TAG = "MatchNetworkIO.Receiver";
-        private final Collection<Closeable> closeables = new LinkedList<Closeable>();
+        private final Collection<Closeable> closeables = new LinkedList<>();
         private final DatapackageReceiver datapackageReceiver;
-        private final Queue<Turn> incomingTurns = new LinkedList<Turn>();
+        private final Queue<Turn> incomingTurns = new LinkedList<>();
+        private final Queue<DrawResponse> incomingDrawResponses = new LinkedList<>();
+        private final Queue<PauseResponse> incomingPauseResponses = new LinkedList<>();
         private final Object lock = new Object();
-
+        private final RemoteOpponent listener;
         private boolean isAlive;
 
-        public Receiver(final DatapackageReceiver datapackageReceiver) {
+        public Receiver(final DatapackageReceiver datapackageReceiver, RemoteOpponent remoteOpponent) {
+            this.listener = remoteOpponent;
             Log.d(TAG, "Receiver() called with: datapackageReceiver = [" + datapackageReceiver + "]");
             Log.d(TAG, "Receiver is running on thread: " + Thread.currentThread().getName());
             this.datapackageReceiver = datapackageReceiver;
@@ -195,31 +274,59 @@ public class MatchNetworkIO {
                                         incomingTurns.add(datapackage.getTurn());
                                         lock.notifyAll();
                                         break;
+
                                     case MATCH_RESULT:
                                         Log.d(TAG, "run: handling received match result");
                                         MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(datapackage.getMatchResult()));
                                         isAlive = false;
                                         lock.notifyAll();
                                         break;
+
                                     case PAUSE_REQUEST:
                                         Log.d(TAG, "run: handling received pause request");
-//                                        incomingPauseRequest.add(datapackage.getPauseRequest());
-//                                        lock.notifyAll();
-//                                        break;
-                                    throw new RuntimeException("Pause Request not implemented");
+                                        new LoggedThread(TAG, new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                listener.processRemotePauseRequest();
+                                            }
+                                        }, "pauseRequestThread").start();
+                                        break;
+
                                     case PAUSE_ACCEPT:
                                         Log.d(TAG, "run: handling received pause request acceptance");
-//                                    incomingPauseAccept.add(datapackage.getPauseAccept());
-//                                        lock.notifyAll();
-//                                    break;
+                                        if (incomingPauseResponses.isEmpty()) {
+                                            incomingPauseResponses.add(PauseResponse.ACCEPT);
+                                        }
+                                        break;
 
-                                        throw new RuntimeException("Pause Accept not implemented");
                                     case PAUSE_REJECT:
                                         Log.d(TAG, "run: handling received pause request rejection");
-//                                    incomingPauseReject.add(datapackage.getPauseReject());
-//                                        lock.notifyAll();
-//                                    break;
-                                        throw new RuntimeException("Pause Reject not implemented");
+                                        if (incomingPauseResponses.isEmpty()) {
+                                            incomingPauseResponses.add(PauseResponse.REJECT);
+                                        }
+                                        break;
+
+                                    case DRAW_REQUEST:
+                                        Log.d(TAG, "run: handling received draw request");
+                                        new LoggedThread(TAG, new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                listener.processRemoteDrawRequest();
+                                            }
+                                        }, "drawRequestThread").start();
+                                        break;
+
+                                    case DRAW_ACCEPT:
+                                        Log.d(TAG, "run: handling received draw request acceptance");
+                                        if (incomingDrawResponses.isEmpty()) {
+                                            incomingDrawResponses.add(DrawResponse.ACCEPT);
+                                        }
+                                        break;
+
+                                    case DRAW_REJECT:
+                                        Log.d(TAG, "run: handling received draw request rejection");
+                                        //add to queue TODO
+                                        break;
 
                                     default:
                                         throw new IllegalStateException("Unexpected datapackage type: " + datapackage.getDatapackageType());
@@ -268,6 +375,39 @@ public class MatchNetworkIO {
             }
         }
 
+        public DrawResponse receiveNextDrawResponse() throws InterruptedException {
+            Log.d(TAG, "receiveNextDrawRequest() called");
+            Log.d(TAG, "receiveNextDrawRequest is running on thread: " + Thread.currentThread().getName());
+            DrawResponse drawResponse = null;
+            while (drawResponse == null) {
+                Log.d(TAG, "receiveNextDrawRequest: waiting for lock");
+                synchronized (lock) {
+                    Log.d(TAG, "receiveNextDrawRequest: got lock");
+                    Log.d(TAG, "receiveNextDrawRequest: waiting while empty");
+                    waitWhileEmpty(incomingDrawResponses);
+                    drawResponse = incomingDrawResponses.remove();
+                    Log.d(TAG, "receiveNextDrawRequest: drawResponse = " + drawResponse);
+                }
+            }
+            return drawResponse;
+        }
+
+        public PauseResponse receiveNextPauseResponse() throws InterruptedException {
+            Log.d(TAG, "receiveNextPauseRequest() called");
+            Log.d(TAG, "receiveNextPauseRequest is running on thread: " + Thread.currentThread().getName());
+            PauseResponse pauseResponse = null;
+            while (pauseResponse == null) {
+                Log.d(TAG, "receiveNextPauseRequest: waiting for lock");
+                synchronized (lock) {
+                    Log.d(TAG, "receiveNextPauseRequest: got lock");
+                    Log.d(TAG, "receiveNextPauseRequest: waiting while empty");
+                    waitWhileEmpty(incomingPauseResponses);
+                    pauseResponse = incomingPauseResponses.remove();
+                    Log.d(TAG, "receiveNextPauseRequest: pauseResponse = " + pauseResponse);
+                }
+            }
+            return pauseResponse;
+        }
         @Override
         public Turn receiveNextTurn() throws InterruptedException {
 

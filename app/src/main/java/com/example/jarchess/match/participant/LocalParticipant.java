@@ -78,9 +78,9 @@ public abstract class LocalParticipant implements MatchParticipant {
 
 
     @Override
-    public DrawResponse respondToDrawRequest(MatchHistory matchHistory) {
-        //TODO implement this
-        return new DrawResponse(false);
+    public DrawResponse getDrawResponse(MatchHistory matchHistory) {
+        //FIXME implement this
+        return DrawResponse.REJECT;
     }
 
     /**

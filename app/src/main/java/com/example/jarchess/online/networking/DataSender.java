@@ -2,6 +2,8 @@ package com.example.jarchess.online.networking;
 
 import android.util.Log;
 
+import com.example.jarchess.LoggedThread;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -10,12 +12,13 @@ import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 
-
-
 public class DataSender {
+    private static final String TAG = "DataSender";
+    private final Object lock;
     private String logonServer = "ChessGame-edd728ce6eceeae0.elb.us-east-2.amazonaws.com";
     //private String logonServer = "3.20.74.62";
     private String testServer = "192.168.1.174";
@@ -25,8 +28,6 @@ public class DataSender {
     private Socket socket;
     private JSONObject jsonObject;
     private JSONObject responseObject;
-    private final Object lock;
-    private static final String TAG = "DataSender";
 
     public DataSender() {
         this.lock = new Object();
@@ -39,18 +40,19 @@ public class DataSender {
 
 
         responseObject = null;
+
         Runnable r = new Runnable() {
             @Override
             public void run() {
                 try {
                     sendData();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "run: ", e);
                 }
             }
         };
 
-        Thread t = new Thread(r);
+        LoggedThread t = new LoggedThread(TAG, r, "sendThread");
         synchronized (lock){
             try {
                 t.start();
@@ -64,38 +66,46 @@ public class DataSender {
         return this.responseObject;
     }
 
-    private void sendData()throws IOException{
+    private void sendData() throws IOException {
         Log.d(TAG, "sendData() called");
         Log.d(TAG, "sendData is running on thread: " + Thread.currentThread().getName());
 
         Log.d(TAG, "sendData: waiting for lock: ");
-        synchronized (lock){
+        synchronized (lock) {
             Log.d(TAG, "sendData: got lock");
 
             Log.d(TAG, "sendData: creating socket");
-            // TODO if the server cannot be reached the app hangs... we need to give the player a way to cancel login attempt or gracefully timeout (and a lot faster per our NFR).
-            socket = new Socket(logonServer, serverPort);
-            Log.d(TAG, "sendData: socket created");
+            String respString = null;
+            try {
+                socket = new Socket();
+                socket.setSoTimeout(400);
+                InetSocketAddress inetSocketAddress = new InetSocketAddress(logonServer, serverPort);
+                socket.connect(inetSocketAddress);
+                Log.d(TAG, "sendData: socket created");
 
-            String data = jsonObject.toString();
-            Log.i("Sender",data);
-            byte[] buffer = new byte[10240];
-            in = new DataInputStream(
-                    new BufferedInputStream(
-                            socket.getInputStream()));
-            out = new DataOutputStream(
-                    new BufferedOutputStream(
-                            socket.getOutputStream()));
-            out.writeUTF(data);
-            out.flush();
-            int response = in.read(buffer);
-            String respString = new String(buffer).trim();
-            //Log.i("Sender",respString);
-
-            socket.close();
+                String data = jsonObject.toString();
+                Log.i("Sender", data);
+                byte[] buffer = new byte[10240];
+                in = new DataInputStream(
+                        new BufferedInputStream(
+                                socket.getInputStream()));
+                out = new DataOutputStream(
+                        new BufferedOutputStream(
+                                socket.getOutputStream()));
+                out.writeUTF(data);
+                out.flush();
+                int response = in.read(buffer);
+                respString = new String(buffer).trim();
+                //Log.i("Sender",respString);
+            } catch (IOException e) {
+                throw e;
+            } finally {
+                socket.close();
+                lock.notifyAll();
+            }
             try {
                 JSONObject jsonObj = new JSONObject(respString);
-                Log.i("LogonIO","JSON response object: " + jsonObj.toString());
+                Log.i("LogonIO", "JSON response object: " + jsonObj.toString());
                 //String reqType = jsonObj.getString("ERROR");
                 //Log.i("reqType",respString);
                 this.responseObject = jsonObj;
@@ -103,7 +113,6 @@ public class DataSender {
                 e.printStackTrace();
                 this.responseObject = null;
             }
-            lock.notifyAll();
 
             Log.d(TAG, "sendData() returned");
         }

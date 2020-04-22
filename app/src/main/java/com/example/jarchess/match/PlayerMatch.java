@@ -45,7 +45,7 @@ public class PlayerMatch extends Match {
 
         if (matchHistory.getNextTurnColor() == player.getColor()) {
             Log.d(TAG, "handlePlayerDrawRequest: a");
-            DrawResponse response = opponent.respondToDrawRequest(matchHistory);
+            DrawResponse response = opponent.getDrawResponse(matchHistory);
             Log.d(TAG, "handlePlayerDrawRequest: b");
             if (response == null) {
                 //do nothing
