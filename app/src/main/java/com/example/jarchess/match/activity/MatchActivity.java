@@ -11,8 +11,10 @@ import com.example.jarchess.LoggedThread;
 import com.example.jarchess.R;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
+import com.example.jarchess.match.DrawResponse;
 import com.example.jarchess.match.Match;
 import com.example.jarchess.match.MatchOverException;
+import com.example.jarchess.match.PauseResponse;
 import com.example.jarchess.match.PlayerMatch;
 import com.example.jarchess.match.clock.HiddenCasualMatchClock;
 import com.example.jarchess.match.clock.MatchClock;
@@ -60,13 +62,13 @@ public abstract class MatchActivity extends AppCompatActivity
     private final Collection<Coordinate> possibleDestinations;
     private  ChessColor waitingForMove;
     private volatile Move move;
-    private volatile PromotionChoice promotionChoiceInput = null;
+    protected Match match;
     private volatile Coordinate observedSquareClickCoordinate = null;
     private volatile boolean commitButtonHasBeenPressed = false;
-    private Match match;
+    protected MatchView matchView;
     private Coordinate originInput;
     private Coordinate destinationInput;
-    private MatchView matchView;
+    private volatile PromotionChoice choice = null;
     private boolean resultWasShown = false;
     private MatchClock matchClock;
     private boolean inputRequestWasCanceled;
@@ -85,6 +87,39 @@ public abstract class MatchActivity extends AppCompatActivity
         Log.d(TAG, "cancelInput is running on thread: " + Thread.currentThread().getName());
         inputRequestWasCanceled = true;
         notifyAll();
+    }
+
+    @Override
+    public synchronized PromotionChoice getPromotionChoice(Move move) throws InterruptedException, MatchOverException {
+
+        if (choice != null) {
+            choice = null;
+            this.notifyAll();// promotionChoiceInput has been changed
+        }
+
+        Piece p;
+        for (PieceMovement movement : move) {
+            p = match.getPieceAt(movement.getOrigin());
+
+
+            if (p instanceof Pawn && (movement.getDestination().getRank() == 1 || movement.getDestination().getRank() == 8)) {
+
+                matchView.setPromotionIndicator(movement.getDestination());
+                matchView.showPawnPromotionChoiceDialog();
+                while (choice == null) {
+                    myWait();
+                }
+                matchView.clearPromotionIndicator(movement);
+            }
+        }
+
+        return choice;
+    }
+
+    @Override
+    public DrawResponse getDrawRequestResponse() throws InterruptedException, MatchOverException {
+
+        return null;
     }
 
     @Override
@@ -109,30 +144,8 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     @Override
-    public synchronized PromotionChoice getPromotionChoice(Move move) throws InterruptedException, MatchOverException {
-
-        if (promotionChoiceInput != null) {
-            promotionChoiceInput = null;
-            this.notifyAll();// promotionChoiceInput has been changed
-        }
-
-        Piece p;
-        for (PieceMovement movement : move) {
-            p = match.getPieceAt(movement.getOrigin());
-
-
-            if (p instanceof Pawn && (movement.getDestination().getRank() == 1 || movement.getDestination().getRank() == 8)) {
-
-                matchView.setPromotionIndicator(movement.getDestination());
-                matchView.showPawnPromotionChoiceDialog();
-                while (promotionChoiceInput == null) {
-                    myWait();
-                }
-                matchView.clearPromotionIndicator(movement);
-            }
-        }
-
-        return promotionChoiceInput;
+    public PauseResponse getPauseRequestResponse() throws InterruptedException, MatchOverException {
+        return null;
     }
 
 
@@ -521,7 +534,7 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     public synchronized void setPromotionChoiceInput(PromotionChoice promoteToRook) {
-        promotionChoiceInput = promoteToRook;
+        choice = promoteToRook;
         this.notifyAll();
     }
 

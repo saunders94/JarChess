@@ -35,10 +35,9 @@ public class EasyAIOpponent extends AIOpponent {
     public static final int KING_VALUE = 10;
     private static final int DEPTH_LIMIT = 2;
     private static final int DRAW_VALUE = -5;
-    private final Minimax minimax;
     private static final Collection<PromotionChoice> PROMOTION_OPTIONS = new LinkedList<>();
     private static final String TAG = "EasyAIOpponent";
-
+    private final Minimax minimax;
 
     {
         PROMOTION_OPTIONS.add(PromotionChoice.PROMOTE_TO_QUEEN);
@@ -60,12 +59,7 @@ public class EasyAIOpponent extends AIOpponent {
     }
 
     @Override
-    protected long getMaxTimeBeforeShortcutSeconds() {
-        return 60;
-    }
-
-    @Override
-    public synchronized DrawResponse respondToDrawRequest(final MatchHistory matchHistory) {
+    public synchronized DrawResponse getDrawResponse(final MatchHistory matchHistory) {
         new LoggedThread(TAG, new Runnable() {
             @Override
             public void run() {
@@ -76,7 +70,7 @@ public class EasyAIOpponent extends AIOpponent {
                         value = minimax.find(DEPTH_LIMIT, matchHistory).getValue();
                         accepted = value < DRAW_VALUE;
                         Log.i(TAG, "respondToDrawRequest: value of " + value + (accepted ? " <" : " >=") + " draw_value of " + DRAW_VALUE);
-                        drawResponse = new DrawResponse(accepted);
+                        drawResponse = accepted ? DrawResponse.ACCEPT : DrawResponse.REJECT;
                         me.notifyAll();
                     } catch (Minimax.IsCanceledException e) {
                         isCanceled = true;
@@ -87,12 +81,11 @@ public class EasyAIOpponent extends AIOpponent {
         }, "AI_drawRequestEvaluationThread").start();
 
 
-        while (drawResponse == null && !isCanceled)
-        {
+        while (drawResponse == null && !isCanceled) {
             try {
                 wait();
             } catch (InterruptedException e) {
-                return new DrawResponse(false);
+                return DrawResponse.REJECT;
             }
         }
 
@@ -102,6 +95,11 @@ public class EasyAIOpponent extends AIOpponent {
     @Override
     public Turn getNextTurn(MatchHistory matchHistory) throws MatchOverException {
         return getTurn(matchHistory);
+    }
+
+    @Override
+    protected long getMaxTimeBeforeShortcutSeconds() {
+        return 60;
     }
 
     private synchronized Turn getTurn(final MatchHistory matchHistory) throws MatchOverException {
@@ -130,7 +128,7 @@ public class EasyAIOpponent extends AIOpponent {
             }
         }, "AI_turnDecisionThread").start();
 
-        while(turn == null && !isCanceled){
+        while (turn == null && !isCanceled) {
             try {
                 wait();
             } catch (InterruptedException e) {
@@ -138,7 +136,7 @@ public class EasyAIOpponent extends AIOpponent {
             }
         }
 
-        if(isCanceled){
+        if (isCanceled) {
             throw new MatchOverException(null); // this should only happen if another cause ended the match
         }
 

@@ -5,11 +5,14 @@ import org.json.JSONObject;
 
 public enum DatapackageType implements JSONConvertible<DatapackageType> {
     TURN(0),
-    RESIGNATION(1),
+    RESIGNATION(1),// this is obsolete with match_result
     PAUSE_REQUEST(2),
     PAUSE_ACCEPT(3),
     PAUSE_REJECT(4),
-    MATCH_RESULT(5);
+    MATCH_RESULT(5),
+    DRAW_REQUEST(6),
+    DRAW_ACCEPT(7),
+    DRAW_REJECT(8);
 
 
     public static final String JSON_PROPERTY_NAME_INT_VALUE = "intValue";

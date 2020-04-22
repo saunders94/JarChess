@@ -15,6 +15,7 @@ import com.example.jarchess.match.participant.HardAIOpponent;
 import com.example.jarchess.match.participant.LocalOpponent;
 import com.example.jarchess.match.participant.LocalParticipantController;
 import com.example.jarchess.match.participant.MatchParticipant;
+import com.example.jarchess.match.participant.RemoteOpponentController;
 import com.example.jarchess.online.OnlineMatchInfoBundle;
 
 import static com.example.jarchess.match.MatchNetworkIO.DatapackageQueueAdapter;
@@ -70,7 +71,7 @@ public class MatchBuilder {
         return new PlayerMatch(opponent, matchClockChoice, localParticipantController, localMultiplayerMatchActivity);
     }
 
-    public Match startRemoteMultiplayerMatch(OnlineMultiplayerMatchActivity onlineMultiplayerMatchActivity, LocalParticipantController localParticipantController) {
+    public Match startRemoteMultiplayerMatch(OnlineMultiplayerMatchActivity onlineMultiplayerMatchActivity, LocalParticipantController localParticipantController, RemoteOpponentController remoteOpponentController) {
         Log.d(TAG, "startRemoteMultiplayerMatch() called with: onlineMultiplayerMatchActivity = [" + onlineMultiplayerMatchActivity + "], localParticipantController = [" + localParticipantController + "]");
         Log.d(TAG, "startRemoteMultiplayerMatch is running on thread: " + Thread.currentThread().getName());
         if (onlineMatchInfoBundle == null) {
@@ -82,6 +83,6 @@ public class MatchBuilder {
         DatapackageQueueAdapter adapter = new DatapackageQueueAdapter(onlineMatchInfoBundle.getDatapackageQueue());
 
 
-        return new OnlineMatch(onlineMatchInfoBundle, adapter, adapter, localParticipantController, onlineMultiplayerMatchActivity);
+        return new OnlineMatch(onlineMatchInfoBundle, adapter, adapter, localParticipantController, remoteOpponentController, onlineMultiplayerMatchActivity);
     }
 }

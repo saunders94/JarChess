@@ -115,7 +115,7 @@ public class HardAIOpponent extends AIOpponent {
     }
 
     @Override
-    public synchronized DrawResponse respondToDrawRequest(final MatchHistory matchHistory) {
+    public synchronized DrawResponse getDrawResponse(final MatchHistory matchHistory) {
         new LoggedThread(TAG, new Runnable() {
             @Override
             public void run() {
@@ -125,7 +125,7 @@ public class HardAIOpponent extends AIOpponent {
                         value = minimax.find(DEPTH_LIMIT, matchHistory).getValue();
                         boolean accepted = value < DRAW_VALUE;
                         Log.i(TAG, "respondToDrawRequest: value of " + value + (accepted ? " <" : " >=") + " draw_value of " + DRAW_VALUE);
-                        drawResponse = new DrawResponse(accepted);
+                        drawResponse = accepted ? DrawResponse.ACCEPT : DrawResponse.REJECT;
                         me.notifyAll();
                     } catch (Minimax.IsCanceledException e) {
                         isCanceled = true;
@@ -141,7 +141,7 @@ public class HardAIOpponent extends AIOpponent {
                 wait();
 
             } catch (InterruptedException e) {
-                return new DrawResponse(false);
+                return DrawResponse.REJECT;
             }
         }
 

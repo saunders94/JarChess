@@ -48,7 +48,7 @@ public interface MatchParticipant extends MatchResultIsInEventListener {
      *
      * @return a response
      */
-    DrawResponse respondToDrawRequest(MatchHistory matchHistory);
+    DrawResponse getDrawResponse(MatchHistory matchHistory);
 
     /**
      * Takes a turn in response to the last turn from the other participant.
