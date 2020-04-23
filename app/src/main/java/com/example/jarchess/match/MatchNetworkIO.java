@@ -279,7 +279,11 @@ public class MatchNetworkIO {
                                     case MATCH_RESULT:
                                         Log.d(TAG, "run: handling received match result");
                                         MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(datapackage.getMatchResult()));
-                                        isAlive = false;
+                                        try {
+                                            close();
+                                        } catch (IOException e) {
+                                            Log.e(TAG, "run: ", e);
+                                        }
                                         lock.notifyAll();
                                         break;
 
@@ -411,6 +415,7 @@ public class MatchNetworkIO {
             }
             return pauseResponse;
         }
+
         @Override
         public Turn receiveNextTurn() throws InterruptedException {
 
