@@ -182,6 +182,15 @@ public class RemoteOpponent implements MatchParticipant {
         }
     }
 
+    public void notifyAndWaitForResume() {
+        sender.sendResumeRequest();
+        try {
+            receiver.receiveNextResumeRequest();
+        } catch (InterruptedException e) {
+            // just continue;
+        }
+    }
+
     @Override
     public void observe(MatchResultIsInEvent event) {
         synchronized (this) {

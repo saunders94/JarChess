@@ -37,6 +37,7 @@ import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
 
 public class MatchView extends View implements ClockTickEventListener {
+    private static final String TAG = "MatchView";
     private final MatchParticipant leftParticipant;
     private final MatchParticipant rightParticipant;
     private final View participantInfoBarView;
@@ -56,7 +57,6 @@ public class MatchView extends View implements ClockTickEventListener {
     private final int leftParticipantTextColor;
     private final int rightParticipantTextColor;
     private final Button commitButton;
-    private static final String TAG = "MatchView";
     private final LeaveMatchDialog leaveMatchDialog;
     private final CommitButtonClickObserver commitButtonClickObserver;
     private final CapturedPiecesView capturedPieceView;
@@ -65,6 +65,7 @@ public class MatchView extends View implements ClockTickEventListener {
     private final Activity activity;
     private final Button pauseButton;
     private final View drawPendingDialog;
+    private final PausePendingDialog pausePendingDialog;
     private final View backgroundFadeImageView;
     private final PauseResponseDialog pauseResponseDialog;
     private final DrawResponseDialog drawResponseDialog;
@@ -96,6 +97,7 @@ public class MatchView extends View implements ClockTickEventListener {
         pawnPromotionChoiceDialog = new PawnPromotionChoiceDialog(activity);
         drawResponseDialog = new DrawResponseDialog(activity);
         pauseResponseDialog = new PauseResponseDialog(activity);
+        pausePendingDialog = new PausePendingDialog(activity);
 
 
         commitButton.setOnClickListener(new OnClickListener() {
@@ -184,24 +186,38 @@ public class MatchView extends View implements ClockTickEventListener {
     }
 
     public void clearOriginSelectionIndicator(Coordinate coordinate) {
-        if(coordinate == null){
+        if (coordinate == null) {
             return;
         }
         chessboardView.clearOriginSelectionIndicator(coordinate);
     }
 
     public void clearPossibleDestinationIndicators(Collection<Coordinate> coordinates) {
-        if(coordinates == null || coordinates.isEmpty()){
+        if (coordinates == null || coordinates.isEmpty()) {
             return;
         }
         chessboardView.clearPossibleDestinationIndicator(coordinates);
     }
 
     public void clearPromotionIndicator(PieceMovement movement) {
-        if(movement == null || movement.getDestination() == null){
+        if (movement == null || movement.getDestination() == null) {
             return;
         }
         chessboardView.clearDestinationSelectionIndicator(movement.getDestination());
+    }
+
+    public void hidePendingDrawDialog() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                drawPendingDialog.setVisibility(GONE);
+                backgroundFadeImageView.setVisibility(GONE);
+            }
+        });
+    }
+
+    public void hidePendingPauseDialog() {
+        pausePendingDialog.hide();
     }
 
     public void makeClockDisappear() {
@@ -228,6 +244,11 @@ public class MatchView extends View implements ClockTickEventListener {
         chessboardView.setDestinationSelectionIndicator(coordinate);
     }
 
+    public void setOriginSelectionIndicator(Coordinate origin) {
+
+        chessboardView.setOriginSelectionIndicator(origin);
+    }
+
     public void setPauseButtonText(final String string) {
         activity.runOnUiThread(new Runnable() {
             @Override
@@ -237,8 +258,19 @@ public class MatchView extends View implements ClockTickEventListener {
         });
     }
 
+    public void setPossibleDestinationIndicators(Collection<Coordinate> possibleDestinations) {
+        //TODO optimize
+        for (Coordinate possibleDestination : possibleDestinations) {
+            chessboardView.setPossibleDestinationIndicator(possibleDestination);
+        }
+    }
+
     public void setPromotionIndicator(Coordinate coordinate) {
         chessboardView.setPromotionIndicator(coordinate);
+    }
+
+    public void showAcceptedPauseDialog() {
+        pausePendingDialog.showPauseRequestAccepted();
     }
 
     public void showDrawRequestResponseDialog() {
@@ -261,28 +293,6 @@ public class MatchView extends View implements ClockTickEventListener {
         pawnPromotionChoiceDialog.show();
     }
 
-    public void setOriginSelectionIndicator(Coordinate origin) {
-
-        chessboardView.setOriginSelectionIndicator(origin);
-    }
-
-    public void setPossibleDestinationIndicators(Collection<Coordinate> possibleDestinations) {
-        //TODO optimize
-        for (Coordinate possibleDestination : possibleDestinations) {
-            chessboardView.setPossibleDestinationIndicator(possibleDestination);
-        }
-    }
-
-    public void hidePendingDrawDialog() {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                drawPendingDialog.setVisibility(GONE);
-                backgroundFadeImageView.setVisibility(GONE);
-            }
-        });
-    }
-
     public void showPendingDrawDialog() {
         activity.runOnUiThread(new Runnable() {
             @Override
@@ -293,8 +303,14 @@ public class MatchView extends View implements ClockTickEventListener {
         });
     }
 
-    public void updatePiece(@NonNull Coordinate coordinate) {
-        chessboardView.updatePiece(coordinate);
+    public void showPendingPauseDialog() {
+        Log.d(TAG, "showPendingPauseDialog() called");
+        Log.d(TAG, "showPendingPauseDialog is running on thread: " + Thread.currentThread().getName());
+        pausePendingDialog.showPauseRequestPending();
+    }
+
+    public void showPendingResumeDialog() {
+        pausePendingDialog.showResumeRequestPending();
     }
 
     private void updateParticipantTime(final TextView participantTimeTextView, final long displayedTimeMillis) {
@@ -312,6 +328,10 @@ public class MatchView extends View implements ClockTickEventListener {
         });
 
 
+    }
+
+    public void updatePiece(@NonNull Coordinate coordinate) {
+        chessboardView.updatePiece(coordinate);
     }
 
 //TODO remove
@@ -337,7 +357,6 @@ public class MatchView extends View implements ClockTickEventListener {
         updatePiece(movement.getOrigin());
         updatePiece(movement.getDestination());
     }
-
 
 
     public void updateViewBefore(Turn turn) {

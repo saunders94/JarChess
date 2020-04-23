@@ -32,7 +32,6 @@ import com.example.jarchess.match.events.SquareClickEventListener;
 import com.example.jarchess.match.events.SquareClickEventManager;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
-import com.example.jarchess.match.participant.AIOpponent;
 import com.example.jarchess.match.participant.LocalParticipant;
 import com.example.jarchess.match.participant.LocalParticipantController;
 import com.example.jarchess.match.pieces.Pawn;
@@ -283,6 +282,24 @@ public abstract class MatchActivity extends AppCompatActivity
         return matchView;
     }
 
+    public synchronized void handleResumeButtonClick() {
+        Log.d(TAG, "handleResumeButtonClick() called");
+        Log.d(TAG, "handleResumeButtonClick is running on thread: " + Thread.currentThread().getName());
+        if (match instanceof PlayerMatch) {
+            new LoggedThread(TAG, new Runnable() {
+                @Override
+                public void run() {
+
+                    matchView.showPendingResumeDialog();
+                    ((PlayerMatch) match).handlePlayerResumeRequest();
+                    matchView.hidePendingPauseDialog();
+                }
+            }, "pauseButtonEventHandlingThread").start();
+        } else {
+            throw new IllegalStateException("handling resign button click on unexpected match type");
+        }
+    }
+
     private void handleSquareClick(Coordinate coordinateClicked) {
         // log the click
         Log.v(TAG, "observeSquareClick() called with: coordinateClicked = " + coordinateClicked);
@@ -374,21 +391,18 @@ public abstract class MatchActivity extends AppCompatActivity
 
     @Override
     public void observe(PauseButtonPressedEvent event) {
-        // if a local multiplayer or AI match, just pause
-        if (this instanceof LocalMultiplayerMatchActivity ||
-                (match instanceof PlayerMatch && ((PlayerMatch) match).getOpponent() instanceof AIOpponent)) {
+        if (match instanceof PlayerMatch) {
+            new LoggedThread(TAG, new Runnable() {
+                @Override
+                public void run() {
+                    matchView.showPendingPauseDialog();
+                    ((PlayerMatch) match).handlePlayerPauseRequest();
+                }
+            }, "pauseButtonEventHandlingThread").start();
 
-            // we don't need to check for agreement
-            if (matchClock.isRunning()) {
-                matchClock.stop();
-                matchView.setPauseButtonText("Resume");
-            } else {
-                matchClock.resume();
-                matchView.setPauseButtonText("Pause");
-            }
+
         } else {
-            //TODO
-            // we need to start a thread to deal with pause request otherwise GUI will freeze
+            throw new IllegalStateException("unexpected match type for pause button observation");
         }
     }
 
