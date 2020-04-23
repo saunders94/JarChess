@@ -93,10 +93,8 @@ public class OnlineMatchInfoBundle {
             playerTwoIp = (String) responseObject.get("player_two_ip");
             playerOnePort = (int) responseObject.get("player_one_port");
             playerTwoPort = (int) responseObject.get("player_two_port");
-
-            //TODO enable this when it is working on the server side
-//            playerOnePort = (int) responseObject.get("player_one_avatar");
-//            playerTwoPort = (int) responseObject.get("player_two_avatar");
+            playerOnePort = (int) responseObject.get("player_one_avatar");
+            playerTwoPort = (int) responseObject.get("player_two_avatar");
 
 
         } catch (JSONException e) {
