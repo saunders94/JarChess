@@ -60,12 +60,12 @@ public abstract class MatchActivity extends AppCompatActivity
         RequestDrawButtonPressedEventListener {
     private static final String TAG = "MatchActivity";
     private final Collection<Coordinate> possibleDestinations;
-    private  ChessColor waitingForMove;
-    private volatile Move move;
     protected Match match;
+    protected MatchView matchView;
+    private ChessColor waitingForMove;
+    private volatile Move move;
     private volatile Coordinate observedSquareClickCoordinate = null;
     private volatile boolean commitButtonHasBeenPressed = false;
-    protected MatchView matchView;
     private Coordinate originInput;
     private Coordinate destinationInput;
     private volatile PromotionChoice choice = null;
@@ -73,6 +73,8 @@ public abstract class MatchActivity extends AppCompatActivity
     private MatchClock matchClock;
     private boolean inputRequestWasCanceled;
     private ChessColor currentControllerColor;
+    private DrawResponse drawResponse = null;
+    private PauseResponse pauseResponse = null;
 
     public MatchActivity() {
         this.possibleDestinations = new LinkedList<Coordinate>();
@@ -87,6 +89,10 @@ public abstract class MatchActivity extends AppCompatActivity
         Log.d(TAG, "cancelInput is running on thread: " + Thread.currentThread().getName());
         inputRequestWasCanceled = true;
         notifyAll();
+    }
+
+    private synchronized void exitActivityHelper() {
+        super.onBackPressed();
     }
 
     @Override
@@ -117,38 +123,36 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     @Override
-    public DrawResponse getDrawRequestResponse() throws InterruptedException, MatchOverException {
-
-        return null;
-    }
-
-    @Override
-    public synchronized Move getMoveInput(ChessColor color) throws InterruptedException, MatchOverException {
-        Log.v(TAG, "getMove() called with: color = [" + color + "]");
-
-        inputRequestWasCanceled = false;
-
-        // clear all of the move related fields to make sure we start fresh.
-        clearInputValues();
-
-        // set the color that is waiting for move
-        waitingForMove = color;
-
-        // process input until the move is constructed
-        while (move == null) {
-            processNextInput();
+    public synchronized DrawResponse getDrawRequestResponse() throws InterruptedException, MatchOverException {
+        Log.d(TAG, "getDrawRequestResponse() called");
+        Log.d(TAG, "getDrawRequestResponse is running on thread: " + Thread.currentThread().getName());
+        try {
+            matchView.showDrawRequestResponseDialog();
+            while (drawResponse == null) {
+                wait();
+            }
+            Log.d(TAG, "getDrawRequestResponse() returned: " + drawResponse);
+            return drawResponse;
+        } finally {
+            drawResponse = null;
         }
-
-        // return the move
-        return move;
     }
 
     @Override
-    public PauseResponse getPauseRequestResponse() throws InterruptedException, MatchOverException {
-        return null;
+    public synchronized PauseResponse getPauseRequestResponse() throws InterruptedException, MatchOverException {
+        Log.d(TAG, "getPauseRequestResponse() called");
+        Log.d(TAG, "getPauseRequestResponse is running on thread: " + Thread.currentThread().getName());
+        try {
+            matchView.showPauseRequestResponseDialog();
+            while (pauseResponse == null) {
+                wait();
+            }
+            Log.d(TAG, "getPauseRequestResponse() returned: " + pauseResponse);
+            return pauseResponse;
+        } finally {
+            pauseResponse = null;
+        }
     }
-
-
 
     public void changeCurrentControllerColorIfNeeded() {
         if (currentControllerColor != null) {
@@ -250,10 +254,26 @@ public abstract class MatchActivity extends AppCompatActivity
         });
     }
 
-    private synchronized void exitActivityHelper(){
-        super.onBackPressed();
-    }
+    @Override
+    public synchronized Move getMoveInput(ChessColor color) throws InterruptedException, MatchOverException {
+        Log.v(TAG, "getMove() called with: color = [" + color + "]");
 
+        inputRequestWasCanceled = false;
+
+        // clear all of the move related fields to make sure we start fresh.
+        clearInputValues();
+
+        // set the color that is waiting for move
+        waitingForMove = color;
+
+        // process input until the move is constructed
+        while (move == null) {
+            processNextInput();
+        }
+
+        // return the move
+        return move;
+    }
 
     public synchronized ChessColor getCurrentControllerColor() {
         return currentControllerColor;
@@ -330,7 +350,7 @@ public abstract class MatchActivity extends AppCompatActivity
     public void observe(RequestDrawButtonPressedEvent event) {
 
         final MatchActivity activity = this;
-        new LoggedThread(TAG, new Runnable(){
+        new LoggedThread(TAG, new Runnable() {
             @Override
             public void run() {
                 if (activity instanceof LocalMultiplayerMatchActivity) {
@@ -338,7 +358,7 @@ public abstract class MatchActivity extends AppCompatActivity
                     MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new AgreedUponDrawResult()));
 
                     exitActivity();
-                }else if(match instanceof PlayerMatch) {
+                } else if (match instanceof PlayerMatch) {
 
                     matchView.showPendingDrawDialog();
                     ((PlayerMatch) match).handlePlayerDrawRequest();
@@ -356,7 +376,7 @@ public abstract class MatchActivity extends AppCompatActivity
     public void observe(PauseButtonPressedEvent event) {
         // if a local multiplayer or AI match, just pause
         if (this instanceof LocalMultiplayerMatchActivity ||
-                (match instanceof PlayerMatch && ((PlayerMatch)match).getOpponent() instanceof AIOpponent)) {
+                (match instanceof PlayerMatch && ((PlayerMatch) match).getOpponent() instanceof AIOpponent)) {
 
             // we don't need to check for agreement
             if (matchClock.isRunning()) {
@@ -440,8 +460,7 @@ public abstract class MatchActivity extends AppCompatActivity
         matchView = new MatchView(match, this);
 
         matchClock = match.getMatchClock();
-        if(matchClock instanceof HiddenCasualMatchClock)
-        {
+        if (matchClock instanceof HiddenCasualMatchClock) {
             matchView.makeClockDisappear();
         }
         match.start();
@@ -517,6 +536,15 @@ public abstract class MatchActivity extends AppCompatActivity
 
     }
 
+    public synchronized void setDrawResponse(DrawResponse drawResponse) {
+        if (drawResponse != null && this.drawResponse == null) {
+            Log.d(TAG, "setDrawResponse() called with: drawResponse = [" + drawResponse + "]");
+            Log.d(TAG, "setDrawResponse is running on thread: " + Thread.currentThread().getName());
+            this.drawResponse = drawResponse;
+            notifyAll();
+        }
+    }
+
     /**
      * Sets the originInput.
      *
@@ -531,6 +559,15 @@ public abstract class MatchActivity extends AppCompatActivity
         originInput = origin;
         matchView.setOriginSelectionIndicator(origin);
 
+    }
+
+    public synchronized void setPauseResponse(PauseResponse pauseResponse) {
+        if (pauseResponse != null && this.pauseResponse == null) {
+            Log.d(TAG, "setPauseResponse() called with: pauseResponse = [" + pauseResponse + "]");
+            Log.d(TAG, "setPauseResponse is running on thread: " + Thread.currentThread().getName());
+            this.pauseResponse = pauseResponse;
+            notifyAll();
+        }
     }
 
     public synchronized void setPromotionChoiceInput(PromotionChoice promoteToRook) {

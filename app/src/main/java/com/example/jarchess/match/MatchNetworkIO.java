@@ -103,14 +103,19 @@ public class MatchNetworkIO {
                         }
                         closeable.close();
                     } catch (IOException e) {
+                        Log.e(TAG, "close: ", e);
                         ioExceptions.add(e);
                     }
                 }
                 closeables.clear();
             }
 
-            for (IOException e : ioExceptions) {
-                throw e;
+            try {
+                for (IOException e : ioExceptions) {
+                    throw e;
+                }
+            } finally {
+                ioExceptions.clear();
             }
         }
 
@@ -279,7 +284,11 @@ public class MatchNetworkIO {
                                     case MATCH_RESULT:
                                         Log.d(TAG, "run: handling received match result");
                                         MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(datapackage.getMatchResult()));
-                                        isAlive = false;
+                                        try {
+                                            close();
+                                        } catch (IOException e) {
+                                            Log.e(TAG, "run: ", e);
+                                        }
                                         lock.notifyAll();
                                         break;
 
@@ -355,7 +364,9 @@ public class MatchNetworkIO {
             Log.d(TAG, "close is running on thread: " + Thread.currentThread().getName());
             Queue<IOException> ioExceptions = new LinkedList<IOException>();
 
+            Log.d(TAG, "close: waiting for lock");
             synchronized (lock) {
+                Log.d(TAG, "close: got lock");
 
                 isAlive = false;
 
@@ -367,14 +378,19 @@ public class MatchNetworkIO {
                         closeable.close();
                     } catch (IOException e) {
                         ioExceptions.add(e);
+                        Log.e(TAG, "close: ", e);
                     }
                 }
 
                 closeables.clear();
             }
 
-            for (IOException e : ioExceptions) {
-                throw e;
+            try {
+                for (IOException e : ioExceptions) {
+                    throw e;
+                }
+            } finally {
+                ioExceptions.clear();
             }
         }
 
@@ -411,6 +427,7 @@ public class MatchNetworkIO {
             }
             return pauseResponse;
         }
+
         @Override
         public Turn receiveNextTurn() throws InterruptedException {
 

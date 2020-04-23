@@ -78,9 +78,9 @@ public class DataSender {
             String respString = null;
             try {
                 socket = new Socket();
-                socket.setSoTimeout(400);
+                socket.setSoTimeout(500);
                 InetSocketAddress inetSocketAddress = new InetSocketAddress(logonServer, serverPort);
-                socket.connect(inetSocketAddress);
+                socket.connect(inetSocketAddress, 500);
                 Log.d(TAG, "sendData: socket created");
 
                 String data = jsonObject.toString();

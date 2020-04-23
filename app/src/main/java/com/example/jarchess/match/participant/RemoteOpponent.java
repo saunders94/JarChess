@@ -76,7 +76,15 @@ public class RemoteOpponent implements MatchParticipant {
         }
     }
 
+    public void acceptDrawRequest() {
+        Log.d(TAG, "acceptDrawRequest() called");
+        Log.d(TAG, "acceptDrawRequest is running on thread: " + Thread.currentThread().getName());
+        sender.send(DrawResponse.ACCEPT);
+    }
+
     public void acceptPauseRequest() {
+        Log.d(TAG, "acceptPauseRequest() called");
+        Log.d(TAG, "acceptPauseRequest is running on thread: " + Thread.currentThread().getName());
         sender.send(PauseResponse.ACCEPT);
     }
 
@@ -240,6 +248,12 @@ public class RemoteOpponent implements MatchParticipant {
             sender.send(PauseResponse.REJECT);
         }
         Log.d(TAG, "processRemotePauseRequest() returned: ");
+    }
+
+    public void rejectDrawRequest() {
+        Log.d(TAG, "rejectDrawRequest() called");
+        Log.d(TAG, "rejectDrawRequest is running on thread: " + Thread.currentThread().getName());
+        sender.send(PauseResponse.REJECT);
     }
 
 

@@ -6,11 +6,16 @@ public enum PlayerAvatarStyles {
 
     private final int intValue;
     private final AvatarStyle avatarStyle;
+    private final int unlockedAt;
 
     PlayerAvatarStyles(int i, AvatarStyle avatarStyle) {
+        this(i, 0, avatarStyle);
+    }
+
+    PlayerAvatarStyles(int i, int unlockedAt, AvatarStyle avatarStyle) {
         intValue = i;
         this.avatarStyle = avatarStyle;
-
+        this.unlockedAt = unlockedAt;
     }
 
     public static PlayerAvatarStyles getFromInt(int i) {
