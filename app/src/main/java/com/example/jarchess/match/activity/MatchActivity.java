@@ -120,12 +120,14 @@ public abstract class MatchActivity extends AppCompatActivity
 
     @Override
     public synchronized DrawResponse getDrawRequestResponse() throws InterruptedException, MatchOverException {
+        Log.d(TAG, "getDrawRequestResponse() called");
+        Log.d(TAG, "getDrawRequestResponse is running on thread: " + Thread.currentThread().getName());
         try {
             matchView.showDrawRequestResponseDialog();
             while (drawResponse == null) {
                 wait();
             }
-
+            Log.d(TAG, "getDrawRequestResponse() returned: " + drawResponse);
             return drawResponse;
         } finally {
             drawResponse = null;
@@ -133,13 +135,15 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     @Override
-    public PauseResponse getPauseRequestResponse() throws InterruptedException, MatchOverException {
+    public synchronized PauseResponse getPauseRequestResponse() throws InterruptedException, MatchOverException {
+        Log.d(TAG, "getPauseRequestResponse() called");
+        Log.d(TAG, "getPauseRequestResponse is running on thread: " + Thread.currentThread().getName());
         try {
             matchView.showPauseRequestResponseDialog();
             while (pauseResponse == null) {
                 wait();
             }
-
+            Log.d(TAG, "getPauseRequestResponse() returned: " + pauseResponse);
             return pauseResponse;
         } finally {
             pauseResponse = null;
