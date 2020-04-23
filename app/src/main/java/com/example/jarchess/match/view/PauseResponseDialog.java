@@ -4,19 +4,17 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.jarchess.match.PauseResponse;
 import com.example.jarchess.match.activity.MatchActivity;
-import com.example.jarchess.match.participant.RemoteOpponent;
 
-public class PauseRequestDialog extends BinaryChoiceDialog {
+public class PauseResponseDialog extends BinaryChoiceDialog {
 
     public static final String ACCEPT = "Accept";
     public static final String REJECT = "Reject";
     private static final String TAG = "PauseRequestDialog";
-    private final RemoteOpponent remoteOpponent;
 
-    public PauseRequestDialog(@NonNull MatchActivity matchActivity, RemoteOpponent remoteOpponent) {
+    public PauseResponseDialog(@NonNull MatchActivity matchActivity) {
         super(matchActivity, "Pause Request", "Will you accept the request?", ACCEPT, REJECT);
-        this.remoteOpponent = remoteOpponent;
     }
 
     @Override
@@ -24,12 +22,12 @@ public class PauseRequestDialog extends BinaryChoiceDialog {
         switch (buttonTextClicked) {
             case ACCEPT:
                 Log.i(TAG, "onClickOption: " + ACCEPT);
-                remoteOpponent.acceptPauseRequest();
+                activity.setPauseResponse(PauseResponse.ACCEPT);
                 break;
 
             case REJECT:
                 Log.i(TAG, "onClickOption: " + REJECT);
-                remoteOpponent.rejectPauseRequest();
+                activity.setPauseResponse(PauseResponse.REJECT);
                 break;
 
 

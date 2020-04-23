@@ -12,7 +12,7 @@ import com.example.jarchess.match.activity.MatchActivity;
 
 abstract class BinaryChoiceDialog {
     private static final int MINIMUM_HEIGHT = 120;
-    private final MatchActivity activity;
+    protected final MatchActivity activity;
     private final String title;
     private final String body;
     private final Button[] buttons = new Button[2];

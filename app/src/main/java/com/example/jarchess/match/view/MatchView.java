@@ -66,6 +66,8 @@ public class MatchView extends View implements ClockTickEventListener {
     private final Button pauseButton;
     private final View drawPendingDialog;
     private final View backgroundFadeImageView;
+    private final PauseResponseDialog pauseRequestResponseDialog;
+    private final DrawResponseDialog drawResponseDialog;
 
     public MatchView(Match match, MatchActivity activity) {
         super(activity.getBaseContext());
@@ -89,6 +91,7 @@ public class MatchView extends View implements ClockTickEventListener {
         leaveMatchDialog = new LeaveMatchDialog(activity);
         matchResultDialog = new MatchResultDialog(activity);
         pawnPromotionChoiceDialog = new PawnPromotionChoiceDialog(activity);
+        drawResponseDialog = new DrawResponseDialog(activity);
 
 
         commitButton.setOnClickListener(new OnClickListener() {
@@ -234,12 +237,20 @@ public class MatchView extends View implements ClockTickEventListener {
         chessboardView.setPromotionIndicator(coordinate);
     }
 
+    public void showDrawRequestResponseDialog() {
+        drawResponseDialog.show();
+    }
+
     public void showLeaveMatchDialog() {
         leaveMatchDialog.show();
     }
 
     public void showMatchResultDialog(ChessMatchResult matchChessMatchResult) {
         matchResultDialog.show(matchChessMatchResult);
+    }
+
+    public void showPauseRequestResponseDialog() {
+        pauseRequestResponseDialog.show();
     }
 
     public void showPawnPromotionChoiceDialog() {

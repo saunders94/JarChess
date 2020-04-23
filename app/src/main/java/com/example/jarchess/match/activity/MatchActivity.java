@@ -73,6 +73,8 @@ public abstract class MatchActivity extends AppCompatActivity
     private MatchClock matchClock;
     private boolean inputRequestWasCanceled;
     private ChessColor currentControllerColor;
+    private DrawResponse drawResponse = null;
+    private PauseResponse pauseResponse = null;
 
     public MatchActivity() {
         this.possibleDestinations = new LinkedList<Coordinate>();
@@ -117,9 +119,40 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     @Override
-    public DrawResponse getDrawRequestResponse() throws InterruptedException, MatchOverException {
+    public synchronized DrawResponse getDrawRequestResponse() throws InterruptedException, MatchOverException {
+        try {
+            matchView.showDrawRequestResponseDialog();
+            while (drawResponse == null) {
+                wait();
+            }
 
-        return null;
+            return drawResponse;
+        } finally {
+            drawResponse = null;
+        }
+    }
+
+    @Override
+    public PauseResponse getPauseRequestResponse() throws InterruptedException, MatchOverException {
+        try {
+            matchView.showPauseRequestResponseDialog();
+            while (pauseResponse == null) {
+                wait();
+            }
+
+            return pauseResponse;
+        } finally {
+            pauseResponse = null;
+        }
+    }
+
+    public synchronized void setDrawResponse(DrawResponse drawResponse) {
+        if (drawResponse != null && this.drawResponse == null) {
+            Log.d(TAG, "setDrawResponse() called with: drawResponse = [" + drawResponse + "]");
+            Log.d(TAG, "setDrawResponse is running on thread: " + Thread.currentThread().getName());
+            this.drawResponse = drawResponse;
+            notifyAll();
+        }
     }
 
     @Override
@@ -143,9 +176,13 @@ public abstract class MatchActivity extends AppCompatActivity
         return move;
     }
 
-    @Override
-    public PauseResponse getPauseRequestResponse() throws InterruptedException, MatchOverException {
-        return null;
+    public synchronized void setPauseResponse(PauseResponse pauseResponse) {
+        if (pauseResponse != null && this.pauseResponse == null) {
+            Log.d(TAG, "setPauseResponse() called with: pauseResponse = [" + pauseResponse + "]");
+            Log.d(TAG, "setPauseResponse is running on thread: " + Thread.currentThread().getName());
+            this.pauseResponse = pauseResponse;
+            notifyAll();
+        }
     }
 
 
