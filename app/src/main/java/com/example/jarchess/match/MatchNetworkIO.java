@@ -226,6 +226,19 @@ public class MatchNetworkIO {
 
         }
 
+        public void sendResumeRequest() {
+            Log.d(TAG, "sendResumeRequest() called");
+            Log.d(TAG, "sendResumeRequest is running on thread: " + Thread.currentThread().getName());
+            Log.d(TAG, "send: waiting for lock");
+            synchronized (lock) {
+                Log.d(TAG, "send: got lock");
+                Datapackage datapackage = new Datapackage(DatapackageType.RESUME_REQUEST, destinationIP, destinationPort);
+                outGoingDatapackages.add(datapackage);
+                lock.notifyAll();
+            }
+            Log.d(TAG, "send() returned ");
+        }
+
         private synchronized void waitWhileEmpty(Queue<?> queue) throws InterruptedException {
             Log.d(TAG, "waitWhileEmpty() called with: queue = [" + queue + "]");
             Log.d(TAG, "waitWhileEmpty is running on thread: " + Thread.currentThread().getName());
@@ -252,6 +265,7 @@ public class MatchNetworkIO {
         private final Object lock = new Object();
         private final RemoteOpponent listener;
         private boolean isAlive;
+        private Queue<ResumeRequest> incomingResumeRequests;
 
         public Receiver(final DatapackageReceiver datapackageReceiver, RemoteOpponent remoteOpponent) {
             this.listener = remoteOpponent;
@@ -335,7 +349,16 @@ public class MatchNetworkIO {
 
                                     case DRAW_REJECT:
                                         Log.d(TAG, "run: handling received draw request rejection");
-                                        //add to queue TODO
+                                        if (incomingDrawResponses.isEmpty()) {
+                                            incomingDrawResponses.add(DrawResponse.REJECT);
+                                        }
+                                        break;
+
+                                    case RESUME_REQUEST:
+                                        Log.d(TAG, "run: handling received resume request rejection");
+                                        if (incomingDrawResponses.isEmpty()) {
+                                            incomingDrawResponses.add(DrawResponse.REJECT);
+                                        }
                                         break;
 
                                     default:
@@ -426,6 +449,23 @@ public class MatchNetworkIO {
                 }
             }
             return pauseResponse;
+        }
+
+        public ResumeRequest receiveNextResumeRequest() throws InterruptedException {
+            Log.d(TAG, "receiveNextResumeRequest() called");
+            Log.d(TAG, "receiveNextResumeRequest is running on thread: " + Thread.currentThread().getName());
+            ResumeRequest resumeRequest = null;
+            while (resumeRequest == null) {
+                Log.d(TAG, "receiveNextResumeRequest: waiting for lock");
+                synchronized (lock) {
+                    Log.d(TAG, "receiveNextResumeRequest: got lock");
+                    Log.d(TAG, "receiveNextResumeRequest: waiting while empty");
+                    waitWhileEmpty(incomingResumeRequests);
+                    resumeRequest = incomingResumeRequests.remove();
+                    Log.d(TAG, "receiveNextResumeRequest: resumeRequest = " + resumeRequest);
+                }
+            }
+            return resumeRequest;
         }
 
         @Override
