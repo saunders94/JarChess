@@ -88,6 +88,9 @@ public class MatchView extends View implements ClockTickEventListener {
         rightParticipantTimeTextView = rightParticipantInfoView.findViewById(R.id.timeTextView);
         rightParticipantAvatarImageView = rightParticipantInfoView.findViewById(R.id.avatarImageView);
         commitButton = participantInfoBarView.findViewById(R.id.commitButton);
+        if (!JarAccount.getInstance().getCommitButtonClickIsRequired()) {
+            commitButton.setVisibility(INVISIBLE);
+        }
         leaveMatchDialog = new LeaveMatchDialog(activity);
         matchResultDialog = new MatchResultDialog(activity);
         pawnPromotionChoiceDialog = new PawnPromotionChoiceDialog(activity);
