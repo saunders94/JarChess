@@ -9,25 +9,25 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public enum ResultType implements JSONConvertible<ResultType> {
-    CHECKMATE(0, CheckmateResult.JSON_CONVERTER),
-    RESIGNATION(1, ResignationResult.JSON_CONVERTER),
-    FLAG_FALL(2, FlagFallResult.JSON_CONVERTER),
-    INVALID_TURN_RECEIVED(3, InvalidTurnReceivedResult.JSON_CONVERTER),
-    EXCEPTION(4, ExceptionResult.JSON_CONVERTER),
-    AGREED_UPON_DRAW(5, AgreedUponDrawResult.JSON_CONVERTER),
-    REPETITION_RULE_DRAW(6, RepetitionRuleDrawResult.JSON_CONVERTER),
-    STALEMATE_DRAW(7, StalemateDrawResult.JSON_CONVERTER),
-    X_MOVE_RULE_DRAW(8, XMoveRuleDrawResult.JSON_CONVERTER);
+    CHECKMATE(0),
+    RESIGNATION(1),
+    FLAG_FALL(2),
+    INVALID_TURN_RECEIVED(3),
+    EXCEPTION(4),
+    AGREED_UPON_DRAW(5),
+    REPETITION_RULE_DRAW(6),
+    STALEMATE_DRAW(7),
+    X_MOVE_RULE_DRAW(8);
 
+    private static final JSONConverter[] jsonConverters = new JSONConverter[values().length];
+    private static boolean convertersNeedToBeSetUp = true;
     public static final JSONConverter<ResultType> JSON_CONVERTER = ResultTypeJSONConverter.getInstance();
     public static final String JSON_PROPERTY_NAME_NAME = "name";
     public static final String JSON_PROPERTY_NAME_INT_VALUE = "intValue";
     private final int intValue;
-    private final JSONConverter<? extends ChessMatchResult> JSONConverter;
 
-    ResultType(int i, JSONConverter<? extends ChessMatchResult> converter) {
+    ResultType(int i) {
         intValue = i;
-        JSONConverter = converter;
     }
 
     public int getIntValue() {
@@ -35,7 +35,18 @@ public enum ResultType implements JSONConvertible<ResultType> {
     }
 
     public JSONConverter getJSONConverter() {
-        return JSONConverter;
+        if (convertersNeedToBeSetUp) {
+            jsonConverters[CHECKMATE.intValue] = CheckmateResult.JSON_CONVERTER;
+            jsonConverters[RESIGNATION.intValue] = ResignationResult.JSON_CONVERTER;
+            jsonConverters[FLAG_FALL.intValue] = FlagFallResult.JSON_CONVERTER;
+            jsonConverters[INVALID_TURN_RECEIVED.intValue] = InvalidTurnReceivedResult.JSON_CONVERTER;
+            jsonConverters[EXCEPTION.intValue] = ExceptionResult.JSON_CONVERTER;
+            jsonConverters[AGREED_UPON_DRAW.intValue] = AgreedUponDrawResult.JSON_CONVERTER;
+            jsonConverters[REPETITION_RULE_DRAW.intValue] = RepetitionRuleDrawResult.JSON_CONVERTER;
+            jsonConverters[STALEMATE_DRAW.intValue] = StalemateDrawResult.JSON_CONVERTER;
+            jsonConverters[X_MOVE_RULE_DRAW.intValue] = XMoveRuleDrawResult.JSON_CONVERTER;
+        }
+        return jsonConverters[intValue];
     }
 
     @Override

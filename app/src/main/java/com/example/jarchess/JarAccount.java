@@ -17,15 +17,44 @@ public class JarAccount {
     private ChessboardStyle boardStyle;
     private ChesspieceStyle pieceStyle;
     private boolean commitButtonClickIsRequired;
+    private boolean automaticQueening;
+    private boolean pausingDisabled;
     private String signonToken;
-    private MatchClockChoice preferedMatchClock;
+    private MatchClockChoice preferredMatchClock;
     private JarAccount() {
         name = "Display Name";//FIXME needs to get this from account/preference file/database
         avatarStyle = LeopardPrintAvatarStyle.getInstance();//FIXME needs to get this from preference file/database
         boardStyle = MarbleChessboardStyle.getInstance();//FIXME needs to get this from preference file/database
         pieceStyle = NeonLetterChesspieceStyle.getInstance();//FIXME needs to get this from preference file/database
         commitButtonClickIsRequired = false;//FIXME needs to get this from preference file/database
-        preferedMatchClock = MatchClockChoice.CLASSIC_FIDE_MATCH_CLOCK;//FIXME needs to get this from file/database
+        preferredMatchClock = MatchClockChoice.CLASSIC_FIDE_MATCH_CLOCK;//FIXME needs to get this from file/database
+        automaticQueening = false; //FIXME needs to get this from file/database
+        pausingDisabled = false; //FIXME needs to get this from file/database
+    }
+
+    public MatchClockChoice getPreferredMatchClock() {
+
+//        TestMode.turnOn();//TODO remove the test clock
+//        if (TestMode.isOn()) {
+//            return MatchClockChoice.TEST_MATCH_CLOCK;
+//        }
+        return preferredMatchClock;
+    }
+
+    public void setPreferredMatchClock(MatchClockChoice preferredMatchClock) {
+        this.preferredMatchClock = preferredMatchClock;
+    }
+
+    public boolean isAutomaticQueening() {
+        return automaticQueening;
+    }
+
+    public void setAutomaticQueening(boolean automaticQueening) {
+        this.automaticQueening = automaticQueening;
+    }
+
+    public boolean isPausingDisabled() {
+        return pausingDisabled;
     }
 
     public String getSignonToken() {
@@ -60,13 +89,8 @@ public class JarAccount {
         this.pieceStyle = pieceStyle;
     }
 
-    public MatchClockChoice getPreferredMatchClock() {
-
-//        TestMode.turnOn();//TODO remove the test clock
-//        if (TestMode.isOn()) {
-//            return MatchClockChoice.TEST_MATCH_CLOCK;
-//        }
-        return preferedMatchClock;
+    public void setPausingDisabled(boolean pausingDisabled) {
+        this.pausingDisabled = pausingDisabled;
     }
 
     public static JarAccount getInstance() {

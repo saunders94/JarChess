@@ -12,10 +12,9 @@ import com.example.jarchess.online.datapackage.DatapackageReceiver;
 import com.example.jarchess.online.datapackage.DatapackageSender;
 
 public class OnlineMatch extends PlayerMatch {
-    public final static MatchClockChoice ONLINE_MATCH_CLOCK_CHOICE = MatchClockChoice.CLASSIC_FIDE_MATCH_CLOCK;
 
-    public OnlineMatch(OnlineMatchInfoBundle onlineMatchInfoBundle, DatapackageSender sender, DatapackageReceiver receiver, LocalParticipantController localParticipantController, RemoteOpponentController remoteOpponentController, MatchActivity matchActivity) {
-        super(extractOpponent(onlineMatchInfoBundle, sender, receiver, remoteOpponentController), ONLINE_MATCH_CLOCK_CHOICE, localParticipantController, matchActivity);
+    public OnlineMatch(OnlineMatchInfoBundle onlineMatchInfoBundle, MatchClockChoice clockChoice, DatapackageSender sender, DatapackageReceiver receiver, LocalParticipantController localParticipantController, RemoteOpponentController remoteOpponentController, MatchActivity matchActivity) {
+        super(extractOpponent(onlineMatchInfoBundle, sender, receiver, remoteOpponentController), clockChoice, localParticipantController, matchActivity);
     }
 
     private static MatchParticipant extractOpponent(OnlineMatchInfoBundle onlineMatchInfoBundle, DatapackageSender sender, DatapackageReceiver receiver, RemoteOpponentController remoteOpponentController) {

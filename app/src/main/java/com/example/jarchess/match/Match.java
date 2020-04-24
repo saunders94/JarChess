@@ -263,6 +263,13 @@ public abstract class Match implements MatchEndingEventListener {
                     execute(turn);
                     matchView.updateViewAfter(turn);
                 }
+
+                if (this instanceof OnlineMatch) {
+
+                    ((OnlineMatch) this).getOpponent().sendLastTurn(matchHistory);
+
+                }
+
             } catch (InterruptedException e) {
                 forceEndMatch("Thread was Interrupted");
                 throw new MatchOverException(new ExceptionResult(getForceExitWinningColor(), "The thread was interrupted", e));
@@ -274,8 +281,22 @@ public abstract class Match implements MatchEndingEventListener {
             // the match is over... just continue
         }
 
+        Log.i(TAG, "playMatch: Match should be over... stopping clock");
         matchClock.stop();
+        if (this instanceof OnlineMatch) {
+
+            Log.i(TAG, "playMatch: trying to send the match result");
+            if (matchChessMatchResult != null) {
+                ((OnlineMatch) this).getOpponent().observe(matchChessMatchResult);
+            } else {
+                ((OnlineMatch) this).getOpponent().observe(new ExceptionResult(null, "no match result", new IllegalStateException("no match result to send")));
+            }
+
+        }
+
+        Log.i(TAG, "playMatch: showing match result");
         matchActivity.showMatchResult();
+
     }
 
     public void promote(Coordinate coordinate, PromotionChoice choice) {

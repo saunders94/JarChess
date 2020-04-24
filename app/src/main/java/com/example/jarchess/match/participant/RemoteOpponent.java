@@ -11,8 +11,8 @@ import com.example.jarchess.match.MatchNetworkIO;
 import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.PauseResponse;
 import com.example.jarchess.match.events.MatchResultIsInEvent;
-import com.example.jarchess.match.events.MatchResultIsInEventManager;
 import com.example.jarchess.match.history.MatchHistory;
+import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.match.result.ExceptionResult;
 import com.example.jarchess.match.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
@@ -61,7 +61,6 @@ public class RemoteOpponent implements MatchParticipant {
         MatchNetworkIO.Receiver mNIOReceiver = new MatchNetworkIO.Receiver(receiver, this);
         this.sender = mNIOSender;
         this.receiver = mNIOReceiver;
-        MatchResultIsInEventManager.getInstance().add(this);
 
 
         switch (color) {
@@ -164,6 +163,11 @@ public class RemoteOpponent implements MatchParticipant {
     }
 
     @Override
+    public void observe(MatchResultIsInEvent matchResultIsInEvent) {
+        Log.i(TAG, "observe: Doing nothing!!!");
+    }
+
+    @Override
     public DrawResponse getDrawResponse(MatchHistory matchHistory) {
         return getDrawResponse();
     }
@@ -191,15 +195,15 @@ public class RemoteOpponent implements MatchParticipant {
         }
     }
 
-    @Override
-    public void observe(MatchResultIsInEvent event) {
+    public void observe(ChessMatchResult result) {
         synchronized (this) {
-            if (alive) {
-                Log.d(TAG, "observe() called with: event = [" + event + "]");
+//            if (alive) {
+                Log.d(TAG, "observe() called with: result = [" + result + "]");
                 Log.d(TAG, "observe is running on thread: " + Thread.currentThread().getName());
 
                 // send the match result
-                sender.send(event.getMatchChessMatchResult());
+                Log.i(TAG, "observe: Sending Match Result!");
+                sender.send(result);
                 try {
                     sender.close();
                 } catch (IOException e) {
@@ -211,8 +215,12 @@ public class RemoteOpponent implements MatchParticipant {
                     Log.e(TAG, "observe: ", e);
                 }
                 alive = false;
-            }
+//            }
         }
+    }
+
+    public void sendLastTurn(MatchHistory matchHistory) {
+        sender.send(matchHistory.getLastTurn());
     }
 
     public void processRemoteDrawRequest() {

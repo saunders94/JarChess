@@ -24,8 +24,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import static com.example.jarchess.online.datapackage.DatapackageType.RESIGNATION;
-
 public class MatchNetworkIO {
 
 
@@ -144,7 +142,7 @@ public class MatchNetworkIO {
                 Log.d(TAG, "send: waiting for lock");
                 synchronized (lock) {
                     Log.d(TAG, "send: got lock");
-                    Datapackage datapackage = new Datapackage(RESIGNATION, destinationIP, destinationPort);
+                    Datapackage datapackage = new Datapackage(chessMatchResult, destinationIP, destinationPort);
                     outGoingDatapackages.add(datapackage);
                     lock.notifyAll();
                 }

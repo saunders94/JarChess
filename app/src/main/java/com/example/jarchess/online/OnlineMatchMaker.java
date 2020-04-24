@@ -130,19 +130,6 @@ public class OnlineMatchMaker {
                             e.printStackTrace();
                         }
 
-
-//
-//                        if (!wasCanceled) {
-//                            do {
-//                                failed = false;
-//                                try {
-//                                    out.flush();
-//                                } catch (SocketTimeoutException e) {
-//                                    failed = true;
-//                                }
-//                            } while (failed && !wasCanceled);
-//                        }
-
                         final JSONObject jsonObjFinal = jsonObj;
                         tryUntilSuccessOrCancel(new SocketRunnable() {
                             @Override
@@ -190,7 +177,7 @@ public class OnlineMatchMaker {
                         Log.i(TAG, e1.toString());
                     } catch (SearchCanceledException e2) {
                         // just get out
-                        Log.i(TAG, e2.toString());
+                        Log.i(TAG, "run: caught the cancel exception");
                     } catch (InterruptedException e3) {
                         //just get out
                         Log.i(TAG, e3.toString());
@@ -226,10 +213,12 @@ public class OnlineMatchMaker {
             }
 
             if (wasCanceled) {
+                Log.d(TAG, "getOnlineMatchInfoBundle: was canceled");
                 wasCanceled = false;
                 throw new SearchCanceledException();
             } else if (ioException != null) {
                 try {
+                    Log.e(TAG, "getOnlineMatchInfoBundle: ", ioException);
                     throw ioException;
                 } finally {
                     ioException = null;

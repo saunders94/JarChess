@@ -32,6 +32,11 @@ public class XMoveRuleDrawResult extends DrawResult {
         }
     }
 
+    @Override
+    public JSONObject getJSONObject() throws JSONException {
+        return super.getJSONObject().put(JSON_PROPERTY_NAME_TURNS_SINCE_CAP_OR_PAWN_MOVE, turnsSinceCaptureOrPawnMovement);
+    }
+
     public static class XMoveRuleDrawResultJSONConverter extends JSONConverter<ChessMatchResult> {
 
         private static final ResultType EXPECTED_TYPE = X_MOVE_RULE_DRAW;
