@@ -78,7 +78,7 @@ public class OnlineMatchMaker {
                     try {
                         socket.close();
                     } catch (IOException e) {
-                        Log.e(TAG, "cancel: ", e);
+                        Log.e(TAG, "cancel: socket close failed. ", e);
                     }
                 }
 
@@ -88,9 +88,14 @@ public class OnlineMatchMaker {
     }
 
     public OnlineMatchInfoBundle getOnlineMatchInfoBundle() throws SearchCanceledException, IOException, InterruptedException {
+
         Log.v(TAG, "getOnlineMatchInfoBundle() called");
         Log.v(TAG, "getOnlineMatchInfoBundle is running on thread: " + Thread.currentThread().getName());
-        this.socket = new Socket(gameServer, serverPort);
+        try {
+            this.socket = new Socket(gameServer, serverPort);
+        } catch (IOException e) {
+            throw e;
+        }
         socket.setSoTimeout(500);
         boolean failed;
         final byte[] buffer = new byte[1024];
@@ -165,9 +170,13 @@ public class OnlineMatchMaker {
                         try {
                             JSONObject jsonResp = new JSONObject(respString);
                             Log.i(TAG, jsonResp.toString());
-                            onlineMatchInfoBundle = new OnlineMatchInfoBundle(jsonResp);
-                            //MatchStarter.getInstance().multiplayerSetup(onlineMatchInfoBundle);
-                            Log.i(TAG, "run: set online match: " + onlineMatchInfoBundle);
+                            if(jsonResp.getString("status").equals("success")){
+                                onlineMatchInfoBundle = new OnlineMatchInfoBundle(jsonResp);
+                                Log.i(TAG, "run: set online match: " + onlineMatchInfoBundle);
+                            }else{
+                                Log.i(TAG, "Server send failure response");
+                                throw  new SearchCanceledException();
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                             Log.i(TAG, "Error");

@@ -4,17 +4,15 @@ import android.util.Log;
 
 import com.example.jarchess.JarAccount;
 import com.example.jarchess.RemoteOpponentInfoBundle;
-import com.example.jarchess.match.styles.avatar.YellowBlackYellowCircleAvatarStyle;
+import com.example.jarchess.match.styles.avatar.AvatarStyle;
+import com.example.jarchess.match.styles.avatar.PlayerAvatarStyles;
 import com.example.jarchess.online.move.DatapackageQueue;
 import com.example.jarchess.online.networking.GameIO;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
 
 public class OnlineMatchInfoBundle {
     private RemoteOpponentInfoBundle remoteOpponentInfoBundle;
@@ -29,6 +27,7 @@ public class OnlineMatchInfoBundle {
         this.responseObject = responseObject;
         this.datapackageQueue = new DatapackageQueue();
         setRemoteOpponentInfoBundle();
+
         // establish connection
         try {
             this.gameIO = new GameIO(datapackageQueue, gameToken, remoteOpponentInfoBundle);
@@ -82,6 +81,8 @@ public class OnlineMatchInfoBundle {
         String playerTwoIp = "";
         int playerOnePort = 0;
         int playerTwoPort = 0;
+        int playerOneAvatarStyleInt = 0;
+        int playerTwoAvatarStyleInt = 0;
         try {
             playerOne = (String) responseObject.get("player_one");
             playerTwo = (String) responseObject.get("player_two");
@@ -92,15 +93,22 @@ public class OnlineMatchInfoBundle {
             playerTwoIp = (String) responseObject.get("player_two_ip");
             playerOnePort = (int) responseObject.get("player_one_port");
             playerTwoPort = (int) responseObject.get("player_two_port");
+//            TODO uncomment when this is ready to be tested!
+//            playerOnePort = (int) responseObject.get("player_one_avatar");
+//            playerTwoPort = (int) responseObject.get("player_two_avatar");
+
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
         if(JarAccount.getInstance().getName().equals(playerOne)){
-            remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerTwo,YellowBlackYellowCircleAvatarStyle.getInstance(),playerTwoColor, playerOneIp, playerOnePort);
-            playerInfoBundle = new RemoteOpponentInfoBundle(playerOne, YellowBlackYellowCircleAvatarStyle.getInstance(), playerOneColor, playerOneIp, playerOnePort);
+            AvatarStyle avatarStyle = PlayerAvatarStyles.getFromInt(playerTwoAvatarStyleInt).getAvatarStyle();
+            remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerTwo, avatarStyle, playerTwoColor, playerOneIp, playerOnePort);
+            playerInfoBundle = new RemoteOpponentInfoBundle(playerOne, JarAccount.getInstance().getAvatarStyle(), playerOneColor, playerOneIp, playerOnePort);
         }else if(JarAccount.getInstance().getName().equals(playerTwo)){
-            remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerOne, YellowBlackYellowCircleAvatarStyle.getInstance(), playerOneColor, playerOneIp, playerOnePort);
-            playerInfoBundle = new RemoteOpponentInfoBundle(playerTwo, YellowBlackYellowCircleAvatarStyle.getInstance(), playerTwoColor, playerTwoIp, playerTwoPort);
+            AvatarStyle avatarStyle = PlayerAvatarStyles.getFromInt(playerOneAvatarStyleInt).getAvatarStyle();
+            remoteOpponentInfoBundle = new RemoteOpponentInfoBundle(playerOne, avatarStyle, playerOneColor, playerOneIp, playerOnePort);
+            playerInfoBundle = new RemoteOpponentInfoBundle(playerTwo, JarAccount.getInstance().getAvatarStyle(), playerTwoColor, playerTwoIp, playerTwoPort);
         }
 
         this.gameToken = gameToken;

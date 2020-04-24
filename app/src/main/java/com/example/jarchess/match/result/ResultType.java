@@ -25,7 +25,7 @@ public enum ResultType implements JSONConvertible<ResultType> {
     private final int intValue;
     private final JSONConverter<? extends ChessMatchResult> JSONConverter;
 
-    ResultType(int i, JSONConverter converter) {
+    ResultType(int i, JSONConverter<? extends ChessMatchResult> converter) {
         intValue = i;
         JSONConverter = converter;
     }

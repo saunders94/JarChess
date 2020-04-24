@@ -75,6 +75,4 @@ public class MultiplayerType extends Fragment {
         });
     }
 
-
-
 }

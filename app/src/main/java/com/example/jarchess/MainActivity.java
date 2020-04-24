@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     private MenuItem avatarIcon;
     private TextView usernameLabel;
     private TextView unseenNotificationView;
+    private String TAG = "MainActivity";
 
     @Override
     public void onBackPressed() {
@@ -236,13 +238,13 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
 //use this method to get registration details, return true if registration succeeded
     public boolean onRegister(CharSequence username, CharSequence password) {
 
-        //if(call to method that does registration) {
-        onLogin(username, password);
-
-        return true;
-        //} else {
-        //return false;
-        //}
+        boolean registerStatus = new Account().registerAccount(String.valueOf(username),
+                String.valueOf(password));
+        if(registerStatus){
+            onLogin(username, password);
+        }
+        Log.i(TAG, "registerStatus: " + registerStatus);
+        return registerStatus;
     }
 
 
@@ -301,6 +303,15 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     @Override
     public ArrayList<String> onManagerLoad() {
         return null;
+    }
+    
+    @Override
+    public boolean onLogout() {
+        usernameLabel.setText("Logged Out");
+        loggedIn = false;
+        boolean logoutStatus = new Account().signout(JarAccount.getInstance().getName(),
+                JarAccount.getInstance().getSignonToken());
+        return logoutStatus;
     }
 
 

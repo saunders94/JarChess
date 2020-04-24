@@ -3,6 +3,7 @@ package com.example.jarchess;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import com.example.jarchess.online.JSONCompiler.JSONLeaderboard;
+import com.example.jarchess.online.networking.DataSender;
+import com.google.gson.JsonObject;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -21,6 +30,9 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
     private ListView leaderboardList;
     private ArrayAdapter<String> listAdapter;
     private ArrayList<String> supposedlyEmptyList;
+
+    private String TAG = "Leaderboard";
+
 
     public Leaderboard() {
         // Required empty public constructor
@@ -45,11 +57,11 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
         sortSpinner.setOnItemSelectedListener(this);
 
 
+        ArrayList<String> listItems = getLeaderboard();
         listAdapter = new ArrayAdapter<>
-                (view.getContext(), R.layout.list_item_style, supposedlyEmptyList);
+                (view.getContext(), R.layout.list_item_style, listItems);
         leaderboardList.setAdapter(listAdapter);
 
-        displayOnLeaderboard(callback.onLeaderboardUpdate(0));
         return view;
     }
 
@@ -77,6 +89,43 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
 
     public interface LeaderboardCommunicator {
         ArrayList<String> onLeaderboardUpdate(int criteriaType);
+    }
+
+    private ArrayList<String> getLeaderboard(){
+        ArrayList<String> listItems = new ArrayList<>();
+
+        JSONObject requestObject = new JSONObject();
+        JSONObject data = null;
+        JSONObject user = null;
+
+        DataSender sender = new DataSender();
+
+        try {
+            requestObject = sender.send(new JSONLeaderboard().getMostGamesWon(10));
+            Log.i(TAG, requestObject.toString());
+            data = new JSONObject(requestObject.getString("data"));
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }catch (JSONException e2){
+            e2.printStackTrace();
+        }
+
+        for(int i = 0; i < 10; i++){
+
+            try {
+                user = new JSONObject(data.getString("user" + String.valueOf(i)));
+                String username = user.getString("username");
+                String gamesWon = user.getString("games_won");
+                String displayString = String.valueOf(i+1) + ")    " + gamesWon + " wins  -  " + username;
+                listItems.add(displayString);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+
+        return listItems;
     }
 
 
