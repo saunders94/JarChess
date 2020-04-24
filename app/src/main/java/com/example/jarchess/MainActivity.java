@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     private MenuItem avatarIcon;
     private TextView usernameLabel;
     private TextView unseenNotificationView;
+    private String TAG = "MainActivity";
 
     @Override
     public void onBackPressed() {
@@ -213,14 +215,9 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     }
 
 
-
-
-
     public void setUnseenNotificationQuantity(int unseenNotificationQuantity) {
         this.unseenNotificationQuantity = unseenNotificationQuantity;
     }
-
-
 
 
     @Override
@@ -241,22 +238,17 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
 //use this method to get registration details, return true if registration succeeded
     public boolean onRegister(CharSequence username, CharSequence password) {
 
-        //if(call to method that does registration) {
-        onLogin(username, password);
-
-        return true;
-        //} else {
-        //return false;
-        //}
+        boolean registerStatus = new Account().registerAccount(String.valueOf(username),
+                String.valueOf(password));
+        if(registerStatus){
+            onLogin(username, password);
+        }
+        Log.i(TAG, "registerStatus: " + registerStatus);
+        return registerStatus;
     }
 
 
-    @Override
-    public boolean onLogout() {
-        usernameLabel.setText("Logged Out");
-        signonStatus = false;
-        return true;
-    }
+
 
     @Override
     public ArrayList<String> onSelectorLoad() {
@@ -283,18 +275,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     public ArrayList<String> onLeaderboardUpdate(int criteriaType) {
         //call a method that gets leaderboard arraylist here
         //null can be sent to represent nothing found
-        ArrayList<String> list = new ArrayList<>();
-
-        switch (criteriaType) {
-            case 0: list.add("First");
-                break;
-            case 1: list.add("Second");
-                break;
-            case 2: list.add("Third");
-                break;
-        }
-
-        return list;
+        return null;
     }
 
     @Override
@@ -306,6 +287,15 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     @Override
     public ArrayList<String> onManagerLoad() {
         return null;
+    }
+    
+    @Override
+    public boolean onLogout() {
+        usernameLabel.setText("Logged Out");
+
+        boolean logoutStatus = new Account().signout(JarAccount.getInstance().getName(),
+                JarAccount.getInstance().getSignonToken());
+        return logoutStatus;
     }
 
 
