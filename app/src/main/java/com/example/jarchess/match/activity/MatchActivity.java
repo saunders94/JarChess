@@ -109,6 +109,9 @@ public abstract class MatchActivity extends AppCompatActivity
 
             if (p instanceof Pawn && (movement.getDestination().getRank() == 1 || movement.getDestination().getRank() == 8)) {
 
+                if (JarAccount.getInstance().isAutomaticQueening()) {
+                    return PromotionChoice.PROMOTE_TO_QUEEN;
+                }
                 matchView.setPromotionIndicator(movement.getDestination());
                 matchView.showPawnPromotionChoiceDialog();
                 while (choice == null) {
@@ -141,6 +144,9 @@ public abstract class MatchActivity extends AppCompatActivity
     public synchronized PauseResponse getPauseRequestResponse() throws InterruptedException, MatchOverException {
         Log.d(TAG, "getPauseRequestResponse() called");
         Log.d(TAG, "getPauseRequestResponse is running on thread: " + Thread.currentThread().getName());
+        if (JarAccount.getInstance().isPausingDisabled()) {
+            return PauseResponse.REJECT;
+        }
         try {
             matchView.showPauseRequestResponseDialog();
             while (pauseResponse == null) {
@@ -474,8 +480,10 @@ public abstract class MatchActivity extends AppCompatActivity
         matchView = new MatchView(match, this);
 
         matchClock = match.getMatchClock();
+
         if (matchClock instanceof HiddenCasualMatchClock) {
             matchView.makeClockDisappear();
+            matchView.hidePauseButton();
         }
         match.start();
     }

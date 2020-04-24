@@ -108,14 +108,17 @@ public class MatchView extends View implements ClockTickEventListener {
             }
         });
 
-
-        pauseButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i(TAG, "pauseButton onClick: ");
-                PauseButtonPressedEventManager.getInstance().notifyAllListeners(new PauseButtonPressedEvent());
-            }
-        });
+        if (JarAccount.getInstance().isPausingDisabled()) {
+            pauseButton.setVisibility(INVISIBLE);
+        } else {
+            pauseButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.i(TAG, "pauseButton onClick: ");
+                    PauseButtonPressedEventManager.getInstance().notifyAllListeners(new PauseButtonPressedEvent());
+                }
+            });
+        }
 
 
         // update the view's style
@@ -204,6 +207,15 @@ public class MatchView extends View implements ClockTickEventListener {
             return;
         }
         chessboardView.clearDestinationSelectionIndicator(movement.getDestination());
+    }
+
+    public void hidePauseButton() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                pauseButton.setVisibility(INVISIBLE);
+            }
+        });
     }
 
     public void hidePendingDrawDialog() {

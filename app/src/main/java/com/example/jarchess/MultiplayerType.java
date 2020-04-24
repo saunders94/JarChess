@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-
 import java.io.IOException;
 
 
@@ -75,6 +74,90 @@ public class MultiplayerType extends Fragment {
         });
     }
 
+//    public static class MatchMakerLauncher extends Fragment {
+//
+//        private OnlineMatchInfoBundle onlineMatchInfoBundle;
+//        private Button cancelMatchMakingButton;
+//
+//        public MatchMakerLauncher() {
+//        }
+//
+//        public void cancel() {
+//            Log.d(TAG, "cancel() called");
+//            Log.d(TAG, "cancel is running on thread: " + Thread.currentThread().getName());
+//            OnlineMatchMaker.getInstance().cancel();
+//            if (getActivity() != null) {
+//                getActivity().runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        getActivity().onBackPressed();
+//                    }
+//                });
+//            }
+//        }
+//
+//        @Nullable
+//        @Override
+//        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+//
+//            // start a new thread to launch the online match maker.
+//            new LoggedThread(TAG, new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        Log.i(TAG, "Creating onlinematchMakerBundle");
+//                        onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle();
+//                        Log.i(TAG, "Online match info bundle = " + onlineMatchInfoBundle);
+//                        MatchBuilder.getInstance().multiplayerSetup(onlineMatchInfoBundle);
+//                        final Activity activity = getActivity();
+//                        activity.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                activity.onBackPressed();
+//                            }
+//                        });
+//                        Intent intent = new Intent(activity, OnlineMultiplayerMatchActivity.class);
+//                        startActivity(intent);
+//                    } catch (OnlineMatchMaker.SearchCanceledException e) {
+//                        // just get out... nothing more needs to be done;
+//                    } catch (IOException e) {
+//                        final String msg = "Connection Failure";
+//                        if (getActivity() != null) {
+//                            getActivity().runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+//                                }
+//                            });
+//                        }
+//                        Log.e(TAG, "onCreateView's run caught: ", e);
+//
+//                        cancel();
+//                    } catch (InterruptedException e) {
+//                        Log.e(TAG, "onCreateView's run caught: ", e);
+//
+//                        cancel();
+//                    }
+//                }
+//            }, "matchMakerLauncherThread").start();
+//
+//            // Inflate the layout for this fragment
+//
+//            View view = inflater.inflate(R.layout.fragment_match_maker_launcher, container, false);
+//            cancelMatchMakingButton = view.findViewById(R.id.cancel_match_making_button);
+//
+//            cancelMatchMakingButton.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    Log.i(TAG, "cancel button clicked");
+//                    cancel();
+//                }
+//            });
+//
+//
+//            return view;
+//        }
+//    }
 
 
 }

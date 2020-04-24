@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="30dp"
     tools:context=".MainActivity">
 
 
@@ -20,11 +21,31 @@
         android:textColor="#FFFFFF"
         android:textColorHighlight="#000000"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/switch_speed_round"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+    <TextView
+        android:id="@+id/text_view_match_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Match Clock Selection"
+        android:textColor="#FFFFFF"
+        android:textColorHighlight="#000000"
+        app:layout_constraintBottom_toTopOf="@+id/spinner_match_clock"
+        app:layout_constraintStart_toStartOf="@+id/spinner_match_clock" />
+
+    <Spinner
+        android:id="@+id/spinner_match_clock"
+        style="@android:style/Widget.Spinner.DropDown"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"
+        app:layout_constraintBottom_toTopOf="@+id/switch_enable_commit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <Switch
         android:id="@+id/switch_speed_round"
@@ -33,6 +54,7 @@
         android:text="Speed Round"
         android:textColor="#FFFFFF"
         android:textColorHighlight="#000000"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/button_ready"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,15 +62,30 @@
 
     <Switch
         android:id="@+id/switch_enable_commit"
-        android:layout_width="200dp"
-        android:layout_height="100dp"
-        android:text="Enable Commit Button"
-        android:textColor="#FFFFFF"
-        android:textColorHighlight="#000000"
+        style="@style/switchStyle"
+        android:text="Require Explicit Move Commit"
+        app:layout_constraintBottom_toTopOf="@+id/switch_default_to_queening"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinner_match_clock" />
+
+    <Switch
+        android:id="@+id/switch_default_to_queening"
+        style="@style/switchStyle"
+        android:text="Always Promote to Queen"
+        app:layout_constraintBottom_toTopOf="@+id/switch_disable_pause"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/switch_enable_commit" />
+
+    <Switch
+        android:id="@+id/switch_disable_pause"
+        style="@style/switchStyle"
+        android:text="Disable Pausing"
         app:layout_constraintBottom_toTopOf="@+id/button_ready"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switch_speed_round" />
+        app:layout_constraintTop_toBottomOf="@+id/switch_default_to_queening" />
 
     <Button
         android:id="@+id/button_ready"

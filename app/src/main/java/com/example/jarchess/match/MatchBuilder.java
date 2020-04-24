@@ -83,6 +83,6 @@ public class MatchBuilder {
         DatapackageQueueAdapter adapter = new DatapackageQueueAdapter(onlineMatchInfoBundle.getDatapackageQueue());
 
 
-        return new OnlineMatch(onlineMatchInfoBundle, adapter, adapter, localParticipantController, remoteOpponentController, onlineMultiplayerMatchActivity);
+        return new OnlineMatch(onlineMatchInfoBundle, matchClockChoice, adapter, adapter, localParticipantController, remoteOpponentController, onlineMultiplayerMatchActivity);
     }
 }
