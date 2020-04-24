@@ -44,8 +44,6 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_leaderboard, container, false);
-        supposedlyEmptyList = new ArrayList<>();
-        supposedlyEmptyList.add("No Leaderboard Results Were Found");
 
         sortSpinner = view.findViewById(R.id.sortingSpinner);
         leaderboardList = view.findViewById(R.id.leaderList);
