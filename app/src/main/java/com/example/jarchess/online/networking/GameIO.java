@@ -1,6 +1,5 @@
 package com.example.jarchess.online.networking;
 
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.example.jarchess.JarAccount;

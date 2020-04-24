@@ -258,6 +258,7 @@ public class OnlineMatchMaker {
                     }
                 } while (failed && !wasCanceled);
                 if (wasCanceled) {
+                    wasCanceled = false;
                     throw new SearchCanceledException();
                 }
             }
