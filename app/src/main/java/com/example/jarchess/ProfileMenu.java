@@ -49,37 +49,36 @@ public class ProfileMenu extends Fragment {
     }
 
     private void setupListeners() {
-        final int duration = Toast.LENGTH_SHORT;
         changeAvatarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                //AiDifficulty aiDifficulty = new AiDifficulty();
-                //transaction.replace(R.id.fragmentHole, aiDifficulty);
-                //transaction.addToBackStack(null);
-                //transaction.commit();
+                FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
+                AvatarSelection avatarSelection = new AvatarSelection();
+                transaction.replace(R.id.fragmentHole, avatarSelection);
+                transaction.addToBackStack("AvatarSelection");
+                transaction.commit();
             }
         });
 
         friendListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                //AiDifficulty aiDifficulty = new AiDifficulty();
-                //transaction.replace(R.id.fragmentHole, aiDifficulty);
-                //transaction.addToBackStack(null);
-                //transaction.commit();
+                FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
+                FriendManager friendManager = new FriendManager();
+                transaction.replace(R.id.fragmentHole, friendManager);
+                transaction.addToBackStack("FriendManager");
+                transaction.commit();
             }
         });
 
         changePasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                //MultiplayerType multiplayerType = new MultiplayerType();
-                //transaction.replace(R.id.fragmentHole, multiplayerType);
-                //transaction.addToBackStack(null);
-                //transaction.commit();
+                FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
+                PasswordConfig passwordConfig = new PasswordConfig();
+                transaction.replace(R.id.fragmentHole, passwordConfig);
+                transaction.addToBackStack("PasswordConfig");
+                transaction.commit();
             }
         });
 
@@ -92,7 +91,7 @@ public class ProfileMenu extends Fragment {
                     FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
                     MainMenu mainMenu = new MainMenu();
                     transaction.replace(R.id.fragmentHole, mainMenu);
-                    transaction.addToBackStack("mai");
+                    transaction.addToBackStack("MainMenu");
                     transaction.commit();
 
                     Toast toast = Toast.makeText(v.getContext(), "Logout Successful", duration);
