@@ -1,7 +1,5 @@
 package com.example.jarchess;
 
-
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -10,18 +8,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.example.jarchess.online.networking.Controller;
 
 
-/**
- * A simple {@link Fragment} subclass.
- */
-public class AiDifficulty extends Fragment {
+public class MatchmakingType extends Fragment {
 
-    private Button easyButton;
-    private Button hardButton;
-    private static final String TAG = "AiDifficulty";
+    private Button randomOpponentButton;
+    private Button selectFriendButton;
 
-    public AiDifficulty() {
+    public MatchmakingType() {
         // Required empty public constructor
     }
 
@@ -31,9 +26,12 @@ public class AiDifficulty extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        View view = inflater.inflate(R.layout.fragment_ai_difficulty, container, false);
-        easyButton = view.findViewById(R.id.button_easy);
-        hardButton = view.findViewById(R.id.button_hard);
+        View view = inflater.inflate(R.layout.fragment_matchmaking_type, container, false);
+        randomOpponentButton = view.findViewById(R.id.button_random_opponent);
+        selectFriendButton = view.findViewById(R.id.button_select_friend);
+
+        Controller networkController = new Controller();
+        //networkController.testSend();
 
         setupListeners();
 
@@ -42,30 +40,32 @@ public class AiDifficulty extends Fragment {
     }
 
     private void setupListeners() {
-        easyButton.setOnClickListener(new View.OnClickListener() {
+
+        randomOpponentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
                 MatchSettings matchSettings = new MatchSettings();
                 transaction.replace(R.id.fragmentHole, matchSettings);
-                transaction.addToBackStack("EASY");
+                transaction.addToBackStack("RANDOM");
                 transaction.commit();
 
             }
         });
 
-        hardButton.setOnClickListener(new View.OnClickListener() {
+        selectFriendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                MatchSettings matchSettings = new MatchSettings();
-                transaction.replace(R.id.fragmentHole, matchSettings);
-                transaction.addToBackStack("HARD");
+                FriendSelector friendSelector = new FriendSelector();
+                transaction.replace(R.id.fragmentHole, friendSelector);
+                transaction.addToBackStack("FriendSelector");
                 transaction.commit();
 
             }
         });
+
+
     }
-
 
 }

@@ -1,6 +1,6 @@
 package com.example.jarchess;
 
-import com.example.jarchess.online.OnlineMatchMaker;
+
 import com.example.jarchess.online.usermanagement.Account;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,19 +13,27 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import com.example.jarchess.online.usermanagement.Account;
+
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements ProfileSignIn.SignInCommunicator,
-    ProfileMenu.signOutCommunicator {
+        ProfileMenu.signOutCommunicator, FriendSelector.FriendSelectorCommunicator,
+        Leaderboard.LeaderboardCommunicator, PasswordConfig.ConfigCommunicator,
+        FriendManager.FriendManagerCommunicator, FriendAdder.AdderCommunicator,
+        AvatarSelection.AvatarCommunicator {
 
 
 
 
     public static FragmentManager fragmentManager;
-
-    private boolean loggedIn;
+    private FriendSelector friendSelector;
+    private AvatarSelection avatarSelection;
+    //I made signonStatus more visible to get rid of the other redundant variable: loggedIn
+    private boolean signonStatus;
     private int unseenNotificationQuantity;
     private MenuItem notificationItem;
+    private MenuItem avatarIcon;
     private TextView usernameLabel;
     private TextView unseenNotificationView;
     private String TAG = "MainActivity";
@@ -39,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     }
 
 
-    @Override
+    @Override//This sets up fragment communicators
     public void onAttachFragment(Fragment fragment) {
         if (fragment instanceof ProfileSignIn) {
             ProfileSignIn signInFragment = (ProfileSignIn) fragment;
@@ -47,6 +55,24 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
         } else if (fragment instanceof ProfileMenu) {
             ProfileMenu profileMenuFragment = (ProfileMenu) fragment;
             profileMenuFragment.setCommunicator(this);
+        } else if (fragment instanceof FriendSelector) {
+            friendSelector = (FriendSelector) fragment;
+            friendSelector.setCommunicator(this);
+        } else if (fragment instanceof Leaderboard) {
+            Leaderboard leaderboard = (Leaderboard) fragment;
+            leaderboard.setCommunicator(this);
+        } else if (fragment instanceof PasswordConfig) {
+            PasswordConfig passwordConfig = (PasswordConfig) fragment;
+            passwordConfig.setCommunicator(this);
+        } else if (fragment instanceof FriendManager) {
+            FriendManager friendManager = (FriendManager) fragment;
+            friendManager.setCommunicator(this);
+        } else if (fragment instanceof FriendAdder) {
+            FriendAdder friendAdder = (FriendAdder) fragment;
+            friendAdder.setCommunicator(this);
+        } else if (fragment instanceof AvatarSelection) {
+            avatarSelection = (AvatarSelection) fragment;
+            avatarSelection.setCommunicator(this);
         }
     }
 
@@ -57,8 +83,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
         CharSequence usernameDefault = "Logged Out";
         usernameLabel = findViewById(R.id.toolbarTextView);
         usernameLabel.setText(usernameDefault);
-        loggedIn = false;//update this later to check storage
-
+        signonStatus = false;
 
         unseenNotificationQuantity = 3;
 
@@ -72,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
             if (savedInstanceState != null) {
                 return;
             }
-
+            //The only transaction that doesn't need to be backstack'd
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             StartPage start = new StartPage();
             transaction.add(R.id.fragmentHole, start);
@@ -96,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     }
 
     private void setupListeners() {
+
         usernameLabel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -111,20 +137,20 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
 
         try {
 
-            if (loggedIn && !(tag.equals("pro"))) {
+            if (signonStatus && !tag.equals("ProfileMenu") && !tag.equals("ProfileSignIn")) {
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 ProfileMenu profileMenu = new ProfileMenu();
                 transaction.replace(R.id.fragmentHole, profileMenu);
 
-                transaction.addToBackStack("pro");
+                transaction.addToBackStack("ProfileMenu");
                 transaction.commit();
 
-            } else if (!tag.equals("sig")) {
+            } else if (!signonStatus && !tag.equals("ProfileSignIn")) {
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 ProfileSignIn profileSignIn = new ProfileSignIn();
                 transaction.replace(R.id.fragmentHole, profileSignIn);
 
-                transaction.addToBackStack("sig");
+                transaction.addToBackStack("ProfileSignIn");
                 transaction.commit();
 
             }
@@ -141,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
         getMenuInflater().inflate(R.menu.menu_profile, menu);
 
         notificationItem = menu.findItem(R.id.notification_menu);
+        avatarIcon = menu.findItem(R.id.profile_menu);
 
         if (unseenNotificationQuantity <= 0) {
             notificationItem.setActionView(null);
@@ -164,16 +191,44 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
         return true;
     }
 
+
     @Override
-//use this method to get login details, return true if login succeeded
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            case R.id.notification_menu: {
+                item.setActionView(null);
+                return true;
+
+            } case R.id.profile_menu: {
+                openLoginAssociatedPage();
+                return true;
+            }
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void resetUnseenNotificationQuantity() {
+        setUnseenNotificationQuantity(0);
+    }
+
+
+    public void setUnseenNotificationQuantity(int unseenNotificationQuantity) {
+        this.unseenNotificationQuantity = unseenNotificationQuantity;
+    }
+
+
+    @Override
+    //use this method to get login details, return true if login succeeded
     public boolean onLogin(CharSequence username, CharSequence password) {
 
-        //if(call to method that does logging in) {
-        boolean signonStatus = new Account().signin(String.valueOf(username),
+        Account account = new Account();
+        signonStatus = new Account().signin(String.valueOf(username),
                 String.valueOf(password));
         if (signonStatus) {
             usernameLabel.setText(username);
-            loggedIn = true;
             return true;
         }
         return false;
@@ -190,34 +245,66 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
         }
         Log.i(TAG, "registerStatus: " + registerStatus);
         return registerStatus;
+    }
 
+
+    @Override
+    public boolean onLogout() {
+        usernameLabel.setText("Logged Out");
+        signonStatus = false;
+        return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+    public ArrayList<String> onSelectorLoad() {
+        //call method to get friend list information here!
+        //null can be sent to represent nothing found
+        return null;
+    }
 
-            case R.id.notification_menu: {
-                item.setActionView(null);
-                return true;
+    @Override
+    public void onFriendMatchChosen(int index) {
+        //this system assumes that the player's friend list hasn't changed since they last loaded
+        //the friend selector page
+        System.out.println("The chosen index was " + index);
+    }
 
-            } case R.id.profile_menu: {
-                openLoginAssociatedPage();
 
-                return true;
-            }
+    public void onFriendMatchPaired() {
+        friendSelector.proceedToMatch();
+    }
 
+
+
+    @Override
+    public ArrayList<String> onLeaderboardUpdate(int criteriaType) {
+        //call a method that gets leaderboard arraylist here
+        //null can be sent to represent nothing found
+        ArrayList<String> list = new ArrayList<>();
+
+        switch (criteriaType) {
+            case 0: list.add("First");
+                break;
+            case 1: list.add("Second");
+                break;
+            case 2: list.add("Third");
+                break;
         }
 
-        return super.onOptionsItemSelected(item);
+        return list;
     }
 
-    public void resetUnseenNotificationQuantity() {
-        setUnseenNotificationQuantity(0);
+    @Override
+    public boolean onPasswordChange(String oldPass, String newPass) {
+        //put something in here that changes teh password
+        return true;
     }
 
-
-
+    @Override
+    public ArrayList<String> onManagerLoad() {
+        return null;
+    }
+    
     @Override
     public boolean onLogout() {
         usernameLabel.setText("Logged Out");
@@ -228,9 +315,19 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     }
 
 
-    public void setUnseenNotificationQuantity(int unseenNotificationQuantity) {
-        this.unseenNotificationQuantity = unseenNotificationQuantity;
+    @Override
+    public boolean onRemoveFriend(int index) {
+        return false;
     }
 
+    @Override
+    public boolean onAddFriend(String friendName) {
+        return false;
+    }
 
+    @Override
+    public boolean onAvatarSelected(int index) {
+        avatarIcon.setIcon(avatarSelection.getAvatarArray()[index]);
+        return true;
+    }
 }
