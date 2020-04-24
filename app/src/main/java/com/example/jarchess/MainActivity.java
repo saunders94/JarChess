@@ -248,12 +248,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     }
 
 
-    @Override
-    public boolean onLogout() {
-        usernameLabel.setText("Logged Out");
-        signonStatus = false;
-        return true;
-    }
+
 
     @Override
     public ArrayList<String> onSelectorLoad() {
@@ -280,18 +275,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     public ArrayList<String> onLeaderboardUpdate(int criteriaType) {
         //call a method that gets leaderboard arraylist here
         //null can be sent to represent nothing found
-        ArrayList<String> list = new ArrayList<>();
-
-        switch (criteriaType) {
-            case 0: list.add("First");
-                break;
-            case 1: list.add("Second");
-                break;
-            case 2: list.add("Third");
-                break;
-        }
-
-        return list;
+        return null;
     }
 
     @Override
@@ -308,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     @Override
     public boolean onLogout() {
         usernameLabel.setText("Logged Out");
-        loggedIn = false;
+
         boolean logoutStatus = new Account().signout(JarAccount.getInstance().getName(),
                 JarAccount.getInstance().getSignonToken());
         return logoutStatus;
