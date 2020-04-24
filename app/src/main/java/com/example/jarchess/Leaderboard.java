@@ -73,7 +73,7 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
 
     @Override//For spinner
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        displayOnLeaderboard(callback.onLeaderboardUpdate(position));
+//        displayOnLeaderboard(callback.onLeaderboardUpdate(position));
     }
 
     @Override//For spinner
