@@ -13,42 +13,57 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:gravity="center"
         android:text="Match Settings"
         android:textColor="#FFFFFF"
         android:textColorHighlight="#000000"
+
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/switch_speed_round"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <Switch
-        android:id="@+id/switch_speed_round"
-        android:layout_width="200dp"
-        android:layout_height="100dp"
-        android:text="Speed Round"
-        android:textColor="#FFFFFF"
-        android:textColorHighlight="#000000"
+    <LinearLayout
+        android:id="@+id/linearLayout5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/button_ready"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/textView">
 
-    <Switch
-        android:id="@+id/switch_enable_commit"
-        android:layout_width="200dp"
-        android:layout_height="100dp"
-        android:text="Enable Commit Button"
-        android:textColor="#FFFFFF"
-        android:textColorHighlight="#000000"
-        app:layout_constraintBottom_toTopOf="@+id/button_ready"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switch_speed_round" />
+        <Switch
+            android:id="@+id/switch_speed_round"
+            android:layout_width="200dp"
+            android:layout_height="100dp"
+            android:text="Speed Round"
+            android:textColor="#FFFFFF"
+            android:textColorHighlight="#000000"
+            app:layout_constraintBottom_toTopOf="@+id/switch_enable_commit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+        <Switch
+            android:id="@+id/switch_enable_commit"
+            android:layout_width="200dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="16dp"
+            android:text="Enable Commit Button"
+            android:textColor="#FFFFFF"
+            android:textColorHighlight="#000000"
+            app:layout_constraintBottom_toTopOf="@+id/button_ready"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/switch_speed_round" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/button_ready"

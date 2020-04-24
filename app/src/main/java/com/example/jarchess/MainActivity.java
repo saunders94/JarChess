@@ -213,14 +213,9 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     }
 
 
-
-
-
     public void setUnseenNotificationQuantity(int unseenNotificationQuantity) {
         this.unseenNotificationQuantity = unseenNotificationQuantity;
     }
-
-
 
 
     @Override
