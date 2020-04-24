@@ -82,17 +82,6 @@ public class Turn implements JSONConvertible<Turn> {
         return jsonObject;
     }
 
-    @NonNull
-    @Override
-    public String toString() {
-        try {
-            return getJSONObject().toString();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return this.getClass().getSimpleName() + ".toString() failed";
-    }
-
     /**
      * Gets the move that was made during this turn.
      *
@@ -104,6 +93,17 @@ public class Turn implements JSONConvertible<Turn> {
 
     public PromotionChoice getPromotionChoice() {
         return promotionChoice;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        try {
+            return getJSONObject().toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return this.getClass().getSimpleName() + ".toString() failed";
     }
 
     public static class TurnJSONConverter extends JSONConverter<Turn> {
@@ -136,11 +136,19 @@ public class Turn implements JSONConvertible<Turn> {
             long elapsedTime = jsonObject.getLong(JSON_PROPERTY_NAME_ELAPSED_TIME);
 
             PromotionChoice promotionChoice = null;
-            if (!jsonObject.getString(JSON_PROPERTY_NAME_PROMOTION_CHOICE).equals("None")) {
-                JSONObject promotionChoiceJSON = jsonObject.getJSONObject(JSON_PROPERTY_NAME_PROMOTION_CHOICE);
-                promotionChoice = PromotionChoice.JSON_CONVERTER.convertFromJSONObject(promotionChoiceJSON);
+            boolean skip = false;
+            try {
+                if (jsonObject.isNull(JSON_PROPERTY_NAME_PROMOTION_CHOICE) || jsonObject.getString(JSON_PROPERTY_NAME_PROMOTION_CHOICE).equals("None")) {
+                    skip = true;
+                }
+            } finally {
+
+                if (!skip) {
+                    JSONObject promotionChoiceJSON = jsonObject.getJSONObject(JSON_PROPERTY_NAME_PROMOTION_CHOICE);
+                    promotionChoice = PromotionChoice.JSON_CONVERTER.convertFromJSONObject(promotionChoiceJSON);
+                }
+                return new Turn(color, move, elapsedTime, promotionChoice);
             }
-            return new Turn(color, move, elapsedTime, promotionChoice);
         }
 
     }

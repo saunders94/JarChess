@@ -1,5 +1,7 @@
 package com.example.jarchess.match.result;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.example.jarchess.match.ChessColor;
@@ -15,6 +17,7 @@ public abstract class ChessMatchResult implements JSONConvertible<ChessMatchResu
     public static final String JSON_PROPERTY_NAME_TYPE = "type";
     final ChessColor winnerColor;
     private final ResultType type;
+    private static final String TAG = "ChessMatchResult";
 
     public ChessMatchResult(ChessColor winnerColor, ResultType type) {
         this.winnerColor = winnerColor;
@@ -79,9 +82,13 @@ public abstract class ChessMatchResult implements JSONConvertible<ChessMatchResu
         @Override
         public ChessMatchResult convertFromJSONObject(@NonNull JSONObject jsonObject) throws JSONException {
             JSONObject typeJSON = jsonObject.getJSONObject(JSON_PROPERTY_NAME_TYPE);
-            ResultType type = ResultType.JSON_CONVERTER.convertFromJSONObject(typeJSON);
+            Log.d(TAG, "convertFromJSONObject: typeJSON = " + typeJSON.toString());
+            ResultType resultType = ResultType.JSON_CONVERTER.convertFromJSONObject(typeJSON);
+            Log.d(TAG, "convertFromJSONObject: resultType = " + resultType.toString());
 
-            JSONConvertible tmp = type.getJSONConverter().convertFromJSONObject(jsonObject);
+            JSONConverter converter = resultType.getJSONConverter();
+            Log.d(TAG, "convertFromJSONObject: converter = " + converter);
+            JSONConvertible tmp = converter.convertFromJSONObject(jsonObject); //TODO check this
 
             if (tmp instanceof ChessMatchResult) {
                 return (ChessMatchResult) tmp;

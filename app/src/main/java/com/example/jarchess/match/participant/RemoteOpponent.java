@@ -197,7 +197,7 @@ public class RemoteOpponent implements MatchParticipant {
 
     public void observe(ChessMatchResult result) {
         synchronized (this) {
-            if (alive) {
+//            if (alive) {
                 Log.d(TAG, "observe() called with: result = [" + result + "]");
                 Log.d(TAG, "observe is running on thread: " + Thread.currentThread().getName());
 
@@ -215,7 +215,7 @@ public class RemoteOpponent implements MatchParticipant {
                     Log.e(TAG, "observe: ", e);
                 }
                 alive = false;
-            }
+//            }
         }
     }
 

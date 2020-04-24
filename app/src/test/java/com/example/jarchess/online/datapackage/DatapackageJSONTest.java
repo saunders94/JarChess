@@ -1,5 +1,7 @@
 package com.example.jarchess.online.datapackage;
 
+import android.util.Log;
+
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.move.Move;
@@ -18,6 +20,7 @@ import com.example.jarchess.match.turn.Turn;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -25,6 +28,11 @@ import org.junit.runners.JUnit4;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static com.example.jarchess.match.ChessColor.BLACK;
 import static com.example.jarchess.match.ChessColor.WHITE;
@@ -34,6 +42,7 @@ import static com.example.jarchess.match.pieces.PromotionChoice.PROMOTE_TO_QUEEN
 import static com.example.jarchess.match.pieces.PromotionChoice.PROMOTE_TO_ROOK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.mockito.Matchers.anyString;
 
 @RunWith(Enclosed.class)
 public class DatapackageJSONTest {
@@ -41,8 +50,146 @@ public class DatapackageJSONTest {
     private static final int EXPECTED = 0;
     private static final int ACTUAL = 1;
 
+
+    @RunWith(PowerMockRunner.class)
+    @PrepareForTest({Log.class})
+    public static class JSONToResultDatapackage {
+
+        @Test
+        public void agreedUponDraw() throws JSONException {
+            Datapackage d = new Datapackage(new AgreedUponDrawResult(), "1.1.1.1", 1);
+            JSONObject j = d.getJSONObject();
+            try {
+                Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
+                assertEquals(j.toString(), d2.getJSONObject().toString());
+            } catch (Exception e) {
+                System.out.println(e.toString());
+                throw e;
+            }
+        }
+
+        @Test
+        public void checkmate() throws JSONException {
+            Datapackage d = new Datapackage(new CheckmateResult(BLACK), "1.1.1.1", 1);
+            JSONObject j = d.getJSONObject();
+            try {
+                Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
+                assertEquals(j.toString(), d2.getJSONObject().toString());
+            } catch (Exception e) {
+                System.out.println(e.toString());
+                throw e;
+            }
+        }
+
+        @Test
+        public void exception() throws JSONException {
+            Datapackage d = new Datapackage(new ExceptionResult(BLACK, "this is a message", new RuntimeException("this is an exception message")), "1.1.1.1", 1);
+            JSONObject j = d.getJSONObject();
+            try {
+                Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
+                assertEquals(j.toString(), d2.getJSONObject().toString());
+            } catch (Exception e) {
+                System.out.println(e.toString());
+                throw e;
+            }
+        }
+
+        @Test
+        public void flagFall() throws JSONException {
+            Datapackage d = new Datapackage(new FlagFallResult(BLACK), "1.1.1.1", 1);
+            JSONObject j = d.getJSONObject();
+            try {
+                Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
+                assertEquals(j.toString(), d2.getJSONObject().toString());
+            } catch (Exception e) {
+                System.out.println(e.toString());
+                throw e;
+            }
+        }
+
+        @Test
+        public void invalidTurn() throws JSONException {
+            Datapackage d = new Datapackage(new InvalidTurnReceivedResult(BLACK), "1.1.1.1", 1);
+            JSONObject j = d.getJSONObject();
+            try {
+                Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
+                assertEquals(j.toString(), d2.getJSONObject().toString());
+            } catch (Exception e) {
+                System.out.println(e.toString());
+                throw e;
+            }
+        }
+
+        @Test
+        public void repetitionDraw() throws JSONException {
+            Datapackage d = new Datapackage(new RepetitionRuleDrawResult(5), "1.1.1.1", 1);
+            JSONObject j = d.getJSONObject();
+            try {
+                Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
+                assertEquals(j.toString(), d2.getJSONObject().toString());
+            } catch (Exception e) {
+                System.out.println(e.toString());
+                throw e;
+            }
+        }
+
+        @Test
+        public void resignation() throws JSONException {
+            Datapackage d = new Datapackage(new ResignationResult(BLACK), "1.1.1.1", 1);
+            JSONObject j = d.getJSONObject();
+            try {
+                Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
+                assertEquals(j.toString(), d2.getJSONObject().toString());
+            } catch (Exception e) {
+                System.out.println(e.toString());
+                throw e;
+            }
+        }
+
+        @Before
+        public void setup() {
+            PowerMockito.mockStatic(Log.class);
+            PowerMockito.when(Log.d(anyString(), anyString())).thenAnswer(new Answer<Object>() {
+                @Override
+                public Object answer(InvocationOnMock invocation) throws Throwable {
+
+                    Object[] arguments = invocation.getArguments();
+                    System.out.println(arguments[0] + ": " + arguments[1]);
+                    return null;
+                }
+            });
+        }
+
+        @Test
+        public void stalemate() throws JSONException {
+            Datapackage d = new Datapackage(new StalemateDrawResult(), "1.1.1.1", 1);
+            JSONObject j = d.getJSONObject();
+            try {
+                Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
+                assertEquals(j.toString(), d2.getJSONObject().toString());
+            } catch (Exception e) {
+                System.out.println(e.toString());
+                throw e;
+            }
+        }
+
+        @Test
+        public void xMoveRule() throws JSONException {
+            Datapackage d = new Datapackage(new XMoveRuleDrawResult(75), "1.1.1.1", 1);
+            JSONObject j = d.getJSONObject();
+            try {
+                Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
+                assertEquals(j.toString(), d2.getJSONObject().toString());
+            } catch (Exception e) {
+                System.out.println(e.toString());
+                throw e;
+            }
+        }
+    }
+
+
     @RunWith(JUnit4.class)
-    public static class ResultDatapackage {
+    public static class ResultDatapackageToJSON {
 
         @Test
         public void agreedUponDraw() throws JSONException {
@@ -395,7 +542,7 @@ public class DatapackageJSONTest {
 //
 //        @Test
 //        public void test(){
-//            Assert.fail();
+//            throw e;
 //        }
 //    }
 

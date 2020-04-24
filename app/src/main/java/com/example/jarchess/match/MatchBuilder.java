@@ -75,7 +75,7 @@ public class MatchBuilder {
         Log.d(TAG, "startRemoteMultiplayerMatch() called with: onlineMultiplayerMatchActivity = [" + onlineMultiplayerMatchActivity + "], localParticipantController = [" + localParticipantController + "]");
         Log.d(TAG, "startRemoteMultiplayerMatch is running on thread: " + Thread.currentThread().getName());
         if (onlineMatchInfoBundle == null) {
-            throw new IllegalStateException("MatchStarter.multiplayerSetup method must be called before match is started");
+            throw new IllegalStateException("MatchStarter.multiplayer Setup method must be called before match is started");
         }
 
         // adapts the queue to act as a sender and as a receiver of Datapackages

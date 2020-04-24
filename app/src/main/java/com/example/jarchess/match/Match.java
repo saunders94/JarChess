@@ -281,9 +281,11 @@ public abstract class Match implements MatchEndingEventListener {
             // the match is over... just continue
         }
 
+        Log.i(TAG, "playMatch: Match should be over... stopping clock");
         matchClock.stop();
         if (this instanceof OnlineMatch) {
 
+            Log.i(TAG, "playMatch: trying to send the match result");
             if (matchChessMatchResult != null) {
                 ((OnlineMatch) this).getOpponent().observe(matchChessMatchResult);
             } else {
@@ -291,6 +293,8 @@ public abstract class Match implements MatchEndingEventListener {
             }
 
         }
+
+        Log.i(TAG, "playMatch: showing match result");
         matchActivity.showMatchResult();
 
     }

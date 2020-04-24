@@ -138,15 +138,13 @@ public class Datapackage implements JSONConvertible<Datapackage> {
     @NonNull
     @Override
     public String toString() {
-        String s = "";
 
-        s += turn.getColor().toString();
-        s += ", ";
-        s += turn.getMove().toString();
-        s += ", ";
-        s += turn.getElapsedTime();
 
-        return s;
+        try {
+            return getJSONObject().toString();
+        } catch (JSONException e) {
+            return e.toString();
+        }
 
     }
 

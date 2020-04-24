@@ -1,5 +1,6 @@
 package com.example.jarchess;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -103,17 +104,14 @@ public class MultiplayerType extends Fragment {
             Log.d(TAG, "cancel() called");
             Log.d(TAG, "cancel is running on thread: " + Thread.currentThread().getName());
             OnlineMatchMaker.getInstance().cancel();
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    getActivity().onBackPressed();
-                }
-            });
-        }
-
-        @Override
-        public void onCreate(@Nullable Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getActivity().onBackPressed();
+                    }
+                });
+            }
         }
 
         @Nullable
@@ -127,25 +125,35 @@ public class MultiplayerType extends Fragment {
                     try {
                         Log.i(TAG, "Creating onlinematchMakerBundle");
                         onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle();
-                        Log.i(TAG, "Online match info bundle created");
+                        Log.i(TAG, "Online match info bundle = " + onlineMatchInfoBundle);
                         MatchBuilder.getInstance().multiplayerSetup(onlineMatchInfoBundle);
-
-                        Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
-                        startActivity(intent);
-                    } catch (OnlineMatchMaker.SearchCanceledException e) {
-                        Log.d(TAG, "onCreateView's run caught:", e);
-                    } catch (IOException e) {
-                        final String msg = "Connection Failure";
-                        getActivity().runOnUiThread(new Runnable() {
+                        final Activity activity = getActivity();
+                        activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                                activity.onBackPressed();
                             }
                         });
+                        Intent intent = new Intent(activity, OnlineMultiplayerMatchActivity.class);
+                        startActivity(intent);
+                    } catch (OnlineMatchMaker.SearchCanceledException e) {
+                        // just get out... nothing more needs to be done;
+                    } catch (IOException e) {
+                        final String msg = "Connection Failure";
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
                         Log.e(TAG, "onCreateView's run caught: ", e);
+
+                        cancel();
                     } catch (InterruptedException e) {
                         Log.e(TAG, "onCreateView's run caught: ", e);
-                    } finally {
+
                         cancel();
                     }
                 }
