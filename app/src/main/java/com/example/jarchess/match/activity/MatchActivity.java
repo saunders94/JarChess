@@ -145,10 +145,14 @@ public abstract class MatchActivity extends AppCompatActivity
         Log.d(TAG, "getPauseRequestResponse() called");
         Log.d(TAG, "getPauseRequestResponse is running on thread: " + Thread.currentThread().getName());
         if (JarAccount.getInstance().isPausingDisabled()) {
+            Log.d(TAG, "getPauseRequestResponse: pausing is disabled");
+            Log.i(TAG, "getPauseRequestResponse: automatically reject pause request");
             return PauseResponse.REJECT;
         }
         try {
+            Log.d(TAG, "getPauseRequestResponse: showing the dialog");
             matchView.showPauseRequestResponseDialog();
+            Log.d(TAG, "getPauseRequestResponse: waiting for response to be input");
             while (pauseResponse == null) {
                 wait();
             }
