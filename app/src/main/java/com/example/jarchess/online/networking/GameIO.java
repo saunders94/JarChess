@@ -83,9 +83,11 @@ public class GameIO {
             int resp = in.read(buffer);
             String respString = new String(buffer).trim();
             Log.i(TAG, "ResponseStr: " + respString);
-            JSONObject responseObject = new JSONObject(respString);
-            datapackageQueue.insertClientBoundDatapackageQueue(
-                    Datapackage.DatapackageJSONConverter.getInstance().convertFromJSONObject(responseObject));
+            if (respString != null && respString.length() > 0) { //TODO << make sure this works
+                JSONObject responseObject = new JSONObject(respString);
+                datapackageQueue.insertClientBoundDatapackageQueue(
+                        Datapackage.DatapackageJSONConverter.getInstance().convertFromJSONObject(responseObject));
+            } //TODO << Make sure this works
         }else{
             JSONObject jsonObj = new JSONObject();
             jsonObj.put("requestType","MakeMove");

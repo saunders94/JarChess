@@ -12,8 +12,6 @@ import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.events.RequestDrawButtonPressedEvent;
 import com.example.jarchess.match.events.RequestDrawButtonPressedEventManager;
 
-import static androidx.constraintlayout.widget.Constraints.TAG;
-
 class LeaveMatchDialog {
 
     private final MatchActivity activity;
@@ -21,6 +19,7 @@ class LeaveMatchDialog {
     private ImageView backgroundFadeImageView;
     private Button resignButton;
     private Button requestDrawButton;
+    private static final String TAG = "LeaveMatchDialog";
 
     public LeaveMatchDialog(@NonNull MatchActivity matchActivity) {
         activity = matchActivity;
@@ -42,6 +41,7 @@ class LeaveMatchDialog {
         resignButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.i(TAG, "Resign Button Clicked");
                 activity.observeResignButtonClick();
             }
         });
@@ -49,6 +49,7 @@ class LeaveMatchDialog {
         requestDrawButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.i(TAG, "Request Draw Button Clicked");
                 requestDrawButton.setVisibility(View.INVISIBLE);
                 requestDrawButton.setClickable(false);
                 hide();

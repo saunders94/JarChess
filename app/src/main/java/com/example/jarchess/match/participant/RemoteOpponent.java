@@ -42,7 +42,7 @@ public class RemoteOpponent implements MatchParticipant {
     private final MatchNetworkIO.Sender sender;
     private final Queue<Turn> recievedTurns = new ConcurrentLinkedQueue<Turn>();
     private final MatchNetworkIO.Receiver receiver;
-    private boolean alive;
+    private boolean resultWasSent = true;
 
     /**
      * Creates a remote opponent.
@@ -164,7 +164,40 @@ public class RemoteOpponent implements MatchParticipant {
 
     @Override
     public void observe(MatchResultIsInEvent matchResultIsInEvent) {
-        Log.i(TAG, "observe: Doing nothing!!!");
+//        ChessMatchResult result = matchResultIsInEvent.getMatchChessMatchResult();
+//        switch (result.getType()){
+//
+//            case CHECKMATE:
+//                // let the match handle sending the result
+//                break;
+//            case RESIGNATION:
+//                send(result);
+//                break;
+//            case FLAG_FALL:
+//                send(result);
+//                break;
+//            case INVALID_TURN_RECEIVED:
+//                send(result);
+//                break;
+//            case EXCEPTION:
+//                send(result);
+//                break;
+//            case AGREED_UPON_DRAW:
+//                send(result);
+//                break;
+//            case REPETITION_RULE_DRAW:
+//                // let the match handle sending the result
+//                break;
+//            case STALEMATE_DRAW:
+//                // let the match handle sending the result
+//                break;
+//            case X_MOVE_RULE_DRAW:
+//                // let the match handle sending the result
+//                break;
+//
+//            default:
+//                throw new IllegalStateException("Unexpected value: " + result.getType());
+//        }
     }
 
     @Override
@@ -195,27 +228,28 @@ public class RemoteOpponent implements MatchParticipant {
         }
     }
 
-    public void observe(ChessMatchResult result) {
+    public void send(ChessMatchResult result) {
         synchronized (this) {
-//            if (alive) {
-                Log.d(TAG, "observe() called with: result = [" + result + "]");
-                Log.d(TAG, "observe is running on thread: " + Thread.currentThread().getName());
+            if (resultWasSent) {
+                Log.d(TAG, "send() called with: result = [" + result + "]");
+                Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
 
                 // send the match result
-                Log.i(TAG, "observe: Sending Match Result!");
+                Log.i(TAG, "send: Sending Match Result!");
                 sender.send(result);
                 try {
                     sender.close();
                 } catch (IOException e) {
-                    Log.e(TAG, "observe: ", e);
+                    Log.e(TAG, "send: ", e);
                 }
                 try {
                     receiver.close();
                 } catch (IOException e) {
-                    Log.e(TAG, "observe: ", e);
+                    Log.e(TAG, "send: ", e);
                 }
-                alive = false;
-//            }
+                resultWasSent = false;
+                Log.d(TAG, "send() returned");
+            }
         }
     }
 

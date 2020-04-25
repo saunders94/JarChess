@@ -242,6 +242,10 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     private synchronized void conditionallyThrowMatchOverException() throws MatchOverException {
+        Log.d(TAG, "conditionallyThrowMatchOverException() called");
+        Log.d(TAG, "conditionallyThrowMatchOverException is running on thread: " + Thread.currentThread().getName());
+        Log.d(TAG, "conditionallyThrowMatchOverException: match is done = " + match.isDone());
+        Log.d(TAG, "conditionallyThrowMatchOverException: inputRequestWasCanceled" + inputRequestWasCanceled);
         if (match.isDone() || inputRequestWasCanceled) {
             throw new MatchOverException(match.getMatchChessMatchResult());
         }
@@ -443,6 +447,8 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     public synchronized void observeResignButtonClick() {
+        Log.d(TAG, "observeResignButtonClick() called");
+        Log.d(TAG, "observeResignButtonClick is running on thread: " + Thread.currentThread().getName());
 
         // do anything we need to do before match activity ends
         if (currentControllerColor != null) {

@@ -262,6 +262,7 @@ public class MatchNetworkIO {
         private final Queue<PauseResponse> incomingPauseResponses = new LinkedList<>();
         private final Object lock = new Object();
         private final RemoteOpponent listener;
+        private final LoggedThread thread;
         private boolean isAlive;
         private Queue<ResumeRequest> incomingResumeRequests;
 
@@ -376,7 +377,8 @@ public class MatchNetworkIO {
                 }
             };
 
-            new LoggedThread(TAG, runnable, "MatchNetworkReceiver").start();
+            thread = new LoggedThread(TAG, runnable, "MatchNetworkReceiver");
+            thread.start();
         }
 
         @Override
@@ -411,7 +413,12 @@ public class MatchNetworkIO {
                     throw e;
                 }
             } finally {
-                ioExceptions.clear();
+                try {
+                    thread.interrupt();
+                } finally {
+
+                    ioExceptions.clear();
+                }
             }
         }
 
@@ -483,7 +490,7 @@ public class MatchNetworkIO {
         }
 
 
-        private synchronized void waitWhileEmpty(Queue<?> queue) throws InterruptedException {
+        private void waitWhileEmpty(Queue<?> queue) throws InterruptedException {
             Log.d(TAG, "waitWhileEmpty() called with: queue = [" + queue + "]");
             Log.d(TAG, "waitWhileEmpty is running on thread: " + Thread.currentThread().getName());
             synchronized (lock) {

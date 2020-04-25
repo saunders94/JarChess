@@ -247,37 +247,55 @@ public abstract class Match implements MatchEndingEventListener {
 
         try {
             try {
+                Log.d(TAG, "playMatch: start");
                 matchClock.start();
+                Log.d(TAG, "playMatch: set controller color if needed");
                 matchActivity.setCurrentControllerColorIfNeeded();
+                Log.d(TAG, "playMatch: get first turn");
                 turn = getTurn();
+                Log.d(TAG, "playMatch: syncEnd on clock");
                 matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
+                Log.d(TAG, "playMatch: validate turn");
                 validate(turn);
+                Log.d(TAG, "playMatch: execute turn");
                 execute(turn);
+                Log.d(TAG, "playMatch: update view");
                 matchView.updateViewAfter(turn);
 
                 while (!isDone()) {
+                    Log.d(TAG, "playMatch: change controller color if needed");
                     matchActivity.changeCurrentControllerColorIfNeeded();
+                    Log.d(TAG, "playMatch: get next turn");
                     turn = getTurn();
+                    Log.d(TAG, "playMatch: match clock syncEnd");
                     matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
+                    Log.d(TAG, "playMatch: validate turn");
                     validate(turn);
+                    Log.d(TAG, "playMatch: execute turn");
                     execute(turn);
+                    Log.d(TAG, "playMatch: update view");
                     matchView.updateViewAfter(turn);
                 }
 
-                if (this instanceof OnlineMatch) {
+                Log.d(TAG, "playMatch: isDone() is true");
 
+                if (this instanceof OnlineMatch) {
+                    Log.d(TAG, "playMatch: send last turn");
                     ((OnlineMatch) this).getOpponent().sendLastTurn(matchHistory);
 
                 }
 
             } catch (InterruptedException e) {
+                Log.e(TAG, "playMatch: ", e);
                 forceEndMatch("Thread was Interrupted");
                 throw new MatchOverException(new ExceptionResult(getForceExitWinningColor(), "The thread was interrupted", e));
-            } catch (ClockSyncException e1) {
+            } catch (ClockSyncException e) {
+                Log.e(TAG, "playMatch: ", e);
                 // match ends due to clock sync exception
-                MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(ChessColor.getOther(e1.getColorOutOfSync()), "reported time out of tolerance", e1)));
+                MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(ChessColor.getOther(e.getColorOutOfSync()), "reported time out of tolerance", e)));
             }
-        } catch (MatchOverException e2) {
+        } catch (MatchOverException e) {
+            Log.e(TAG, "playMatch: ", e);
             // the match is over... just continue
         }
 
@@ -287,9 +305,10 @@ public abstract class Match implements MatchEndingEventListener {
 
             Log.i(TAG, "playMatch: trying to send the match result");
             if (matchChessMatchResult != null) {
-                ((OnlineMatch) this).getOpponent().observe(matchChessMatchResult);
+                ((OnlineMatch) this).getOpponent().send(matchChessMatchResult);
             } else {
-                ((OnlineMatch) this).getOpponent().observe(new ExceptionResult(null, "no match result", new IllegalStateException("no match result to send")));
+                Log.d(TAG, "playMatch: sending a no match result exception match result");
+                ((OnlineMatch) this).getOpponent().send(new ExceptionResult(null, "no match result", new IllegalStateException("no match result to send")));
             }
 
         }

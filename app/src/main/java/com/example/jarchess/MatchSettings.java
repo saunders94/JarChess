@@ -231,12 +231,7 @@ public class MatchSettings extends Fragment {
                         Log.i(TAG, "Online match info bundle = " + onlineMatchInfoBundle);
                         MatchBuilder.getInstance().multiplayerSetup(onlineMatchInfoBundle);
                         final Activity activity = getActivity();
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                activity.onBackPressed();
-                            }
-                        });
+                        //TODO add something to set the view back to where we want to have it after coming out of match
                         Intent intent = new Intent(activity, OnlineMultiplayerMatchActivity.class);
                         startActivity(intent);
                     } catch (OnlineMatchMaker.SearchCanceledException e) {
