@@ -98,7 +98,7 @@ public class DataSender {
                 respString = new String(buffer).trim();
                 //Log.i("Sender",respString);
             } catch (IOException e) {
-                throw e;
+                e.printStackTrace();
             } finally {
                 socket.close();
                 lock.notifyAll();

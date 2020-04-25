@@ -24,4 +24,5 @@ public class OnlineMultiplayerMatchActivity extends MatchActivity implements Rem
     public PauseResponse getPauseRequestResponseForRemoteOpponent() throws MatchOverException, InterruptedException {
         return getPauseRequestResponse();
     }
+
 }

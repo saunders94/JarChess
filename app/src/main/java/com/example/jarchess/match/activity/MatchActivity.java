@@ -69,7 +69,7 @@ public abstract class MatchActivity extends AppCompatActivity
     private Coordinate destinationInput;
     private volatile PromotionChoice choice = null;
     private boolean resultWasShown = false;
-    private MatchClock matchClock;
+    protected MatchClock matchClock;
     private boolean inputRequestWasCanceled;
     private ChessColor currentControllerColor;
     private DrawResponse drawResponse = null;
@@ -91,12 +91,56 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     private synchronized void exitActivityHelper() {
-        super.onBackPressed();
+        try {
+            super.onBackPressed();
+        } finally {
+            LoggedThread.logAllThreads();
+            LoggedThread.clear();
+        }
+    }
+
+    @Override
+    public synchronized Move getMoveInput(ChessColor color) throws InterruptedException, MatchOverException {
+        Log.d(TAG, "getMoveInput() called with: color = [" + color + "]");
+        Log.d(TAG, "getMoveInput is running on thread: " + Thread.currentThread().getName());
+
+        inputRequestWasCanceled = false;
+
+        // clear all of the move related fields to make sure we start fresh.
+        clearInputValues();
+
+        // set the color that is waiting for move
+        waitingForMove = color;
+
+        // process input until the move is constructed
+        while (move == null) {
+            processNextInput();
+        }
+
+        // return the move
+        return move;
+    }
+
+    @Override
+    public synchronized DrawResponse getDrawRequestResponse() throws InterruptedException, MatchOverException {
+        Log.d(TAG, "getDrawRequestResponse() called");
+        Log.d(TAG, "getDrawRequestResponse is running on thread: " + Thread.currentThread().getName());
+        try {
+            matchView.showDrawRequestResponseDialog();
+            while (drawResponse == null) {
+                wait();
+            }
+            Log.d(TAG, "getDrawRequestResponse() returned: " + drawResponse);
+            return drawResponse;
+        } finally {
+            drawResponse = null;
+        }
     }
 
     @Override
     public synchronized PromotionChoice getPromotionChoice(Move move) throws InterruptedException, MatchOverException {
-
+        Log.d(TAG, "getPromotionChoice() called with: move = [" + move + "]");
+        Log.d(TAG, "getPromotionChoice is running on thread: " + Thread.currentThread().getName());
         if (choice != null) {
             choice = null;
             this.notifyAll();// promotionChoiceInput has been changed
@@ -122,45 +166,6 @@ public abstract class MatchActivity extends AppCompatActivity
         }
 
         return choice;
-    }
-
-    @Override
-    public synchronized DrawResponse getDrawRequestResponse() throws InterruptedException, MatchOverException {
-        Log.d(TAG, "getDrawRequestResponse() called");
-        Log.d(TAG, "getDrawRequestResponse is running on thread: " + Thread.currentThread().getName());
-        try {
-            matchView.showDrawRequestResponseDialog();
-            while (drawResponse == null) {
-                wait();
-            }
-            Log.d(TAG, "getDrawRequestResponse() returned: " + drawResponse);
-            return drawResponse;
-        } finally {
-            drawResponse = null;
-        }
-    }
-
-    @Override
-    public synchronized PauseResponse getPauseRequestResponse() throws InterruptedException, MatchOverException {
-        Log.d(TAG, "getPauseRequestResponse() called");
-        Log.d(TAG, "getPauseRequestResponse is running on thread: " + Thread.currentThread().getName());
-        if (JarAccount.getInstance().isPausingDisabled()) {
-            Log.d(TAG, "getPauseRequestResponse: pausing is disabled");
-            Log.i(TAG, "getPauseRequestResponse: automatically reject pause request");
-            return PauseResponse.REJECT;
-        }
-        try {
-            Log.d(TAG, "getPauseRequestResponse: showing the dialog");
-            matchView.showPauseRequestResponseDialog();
-            Log.d(TAG, "getPauseRequestResponse: waiting for response to be input");
-            while (pauseResponse == null) {
-                wait();
-            }
-            Log.d(TAG, "getPauseRequestResponse() returned: " + pauseResponse);
-            return pauseResponse;
-        } finally {
-            pauseResponse = null;
-        }
     }
 
     public void changeCurrentControllerColorIfNeeded() {
@@ -242,6 +247,10 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     private synchronized void conditionallyThrowMatchOverException() throws MatchOverException {
+        Log.d(TAG, "conditionallyThrowMatchOverException() called");
+        Log.d(TAG, "conditionallyThrowMatchOverException is running on thread: " + Thread.currentThread().getName());
+        Log.d(TAG, "conditionallyThrowMatchOverException: match is done = " + match.isDone());
+        Log.d(TAG, "conditionallyThrowMatchOverException: inputRequestWasCanceled" + inputRequestWasCanceled);
         if (match.isDone() || inputRequestWasCanceled) {
             throw new MatchOverException(match.getMatchChessMatchResult());
         }
@@ -264,24 +273,38 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     @Override
-    public synchronized Move getMoveInput(ChessColor color) throws InterruptedException, MatchOverException {
-        Log.v(TAG, "getMove() called with: color = [" + color + "]");
-
-        inputRequestWasCanceled = false;
-
-        // clear all of the move related fields to make sure we start fresh.
-        clearInputValues();
-
-        // set the color that is waiting for move
-        waitingForMove = color;
-
-        // process input until the move is constructed
-        while (move == null) {
-            processNextInput();
+    public synchronized PauseResponse getPauseRequestResponse() throws InterruptedException, MatchOverException {
+        Log.d(TAG, "getPauseRequestResponse() called");
+        Log.d(TAG, "getPauseRequestResponse is running on thread: " + Thread.currentThread().getName());
+        if (JarAccount.getInstance().isPausingDisabled()) {
+            Log.d(TAG, "getPauseRequestResponse: pausing is disabled");
+            Log.i(TAG, "getPauseRequestResponse: automatically reject pause request");
+            return PauseResponse.REJECT;
         }
+        try {
+            Log.d(TAG, "getPauseRequestResponse: showing the dialog");
+            matchView.showPauseRequestResponseDialog();
+            Log.d(TAG, "getPauseRequestResponse: waiting for response to be input");
+            while (pauseResponse == null) {
+                wait();
+            }
 
-        // return the move
-        return move;
+            if (pauseResponse.isAccepted()) {
+                Log.i(TAG, "getPauseRequestResponse: Accpeted");
+                matchClock.stop();
+                matchView.showAcceptedPauseDialog();
+                matchView.hidePauseRequestResponseDialog();
+            } else {
+                Log.i(TAG, "getPauseRequestResponse: Rejected");
+                matchView.hidePauseRequestResponseDialog();
+            }
+
+            Log.d(TAG, "getPauseRequestResponse() returned: " + pauseResponse);
+            return pauseResponse;
+
+        } finally {
+            pauseResponse = null;
+        }
     }
 
     public synchronized ChessColor getCurrentControllerColor() {
@@ -299,12 +322,9 @@ public abstract class MatchActivity extends AppCompatActivity
             new LoggedThread(TAG, new Runnable() {
                 @Override
                 public void run() {
-
-                    matchView.showPendingResumeDialog();
                     ((PlayerMatch) match).handlePlayerResumeRequest();
-                    matchView.hidePendingPauseDialog();
                 }
-            }, "pauseButtonEventHandlingThread").start();
+            }, "resumeButtonEventHandlingThread").start();
         } else {
             throw new IllegalStateException("handling resign button click on unexpected match type");
         }
@@ -405,7 +425,6 @@ public abstract class MatchActivity extends AppCompatActivity
             new LoggedThread(TAG, new Runnable() {
                 @Override
                 public void run() {
-                    matchView.showPendingPauseDialog();
                     ((PlayerMatch) match).handlePlayerPauseRequest();
                 }
             }, "pauseButtonEventHandlingThread").start();
@@ -443,6 +462,8 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     public synchronized void observeResignButtonClick() {
+        Log.d(TAG, "observeResignButtonClick() called");
+        Log.d(TAG, "observeResignButtonClick is running on thread: " + Thread.currentThread().getName());
 
         // do anything we need to do before match activity ends
         if (currentControllerColor != null) {
@@ -493,6 +514,8 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     private synchronized void processNextInput() throws MatchOverException, InterruptedException {
+        Log.d(TAG, "processNextInput() called");
+        Log.d(TAG, "processNextInput is running on thread: " + Thread.currentThread().getName());
         Coordinate coordinateToProcess = null;
         boolean commitButtonPressNeedsProcessing = false;
         synchronized (this) {
@@ -587,12 +610,15 @@ public abstract class MatchActivity extends AppCompatActivity
 
     }
 
-    public synchronized void setPauseResponse(PauseResponse pauseResponse) {
-        if (pauseResponse != null && this.pauseResponse == null) {
-            Log.d(TAG, "setPauseResponse() called with: pauseResponse = [" + pauseResponse + "]");
-            Log.d(TAG, "setPauseResponse is running on thread: " + Thread.currentThread().getName());
-            this.pauseResponse = pauseResponse;
-            notifyAll();
+    public void setPauseResponse(PauseResponse pauseResponse) {
+        LoggedThread.logThreadHoldingLock(this, "MatchActivity_lock");
+        synchronized (this) {
+            if (pauseResponse != null && this.pauseResponse == null) {
+                Log.d(TAG, "setPauseResponse() called with: pauseResponse = [" + pauseResponse + "]");
+                Log.d(TAG, "setPauseResponse is running on thread: " + Thread.currentThread().getName());
+                this.pauseResponse = pauseResponse;
+                notifyAll();
+            }
         }
     }
 

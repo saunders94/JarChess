@@ -56,6 +56,7 @@ abstract class BinaryChoiceDialog {
 
     public synchronized void hide() {
         if (aDialogIsOpen) {
+            aDialogIsOpen = false;
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -72,6 +73,7 @@ abstract class BinaryChoiceDialog {
     public synchronized void show() {
 
         if (!aDialogIsOpen) {
+            aDialogIsOpen = true;
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

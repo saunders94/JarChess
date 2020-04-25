@@ -4,6 +4,7 @@ package com.example.jarchess;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,14 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.jarchess.online.JSONCompiler.JSONAccount;
+import com.example.jarchess.online.JSONCompiler.JSONLeaderboard;
+import com.example.jarchess.online.networking.DataSender;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -25,6 +34,10 @@ public class FriendManager extends Fragment {
     private ListView friendList;
     private int indexOfLastSelected;
     private boolean listIsEmpty;
+    private ArrayList<String> friendInfo;
+    private ArrayList<String> supposedlyEmptyList;
+    private String TAG = "FriendManager";
+
 
     public FriendManager() {
         // Required empty public constructor
@@ -63,9 +76,12 @@ public class FriendManager extends Fragment {
             }
         });
 
+
+
         removeFriendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (listIsEmpty) {
                     Toast toast = Toast.makeText(v.getContext(),
                             "Cannot Remove From Empty List", duration);
@@ -75,7 +91,8 @@ public class FriendManager extends Fragment {
                             "Please Select a Friend to Remove", duration);
                     toast.show();
                 } else {
-                    if (callback.onRemoveFriend(indexOfLastSelected)) {
+                    String name = supposedlyEmptyList.get(indexOfLastSelected);
+                    if (callback.onRemoveFriend(name)) {
                         populateList();
                         Toast toast = Toast.makeText(v.getContext(),
                                 "Friend Removed", duration);
@@ -107,9 +124,43 @@ public class FriendManager extends Fragment {
 
     private void populateList() {
 
-        ArrayList<String> friendInfo = callback.onManagerLoad();
-        ArrayList<String> supposedlyEmptyList = new ArrayList<>();
-        supposedlyEmptyList.add("No Friends Were Found");
+        friendInfo = callback.onManagerLoad();
+        supposedlyEmptyList = new ArrayList<>();
+        //supposedlyEmptyList.add("No Friends Were Found");
+        JSONObject requestObject = new JSONObject();
+        JSONObject data = null;
+        JSONObject user = null;
+
+        DataSender sender = new DataSender();
+
+        try {
+            requestObject = sender.send(new JSONAccount().getFriendsList(JarAccount.getInstance().getName()));
+            Log.i(TAG, requestObject.toString());
+            data = new JSONObject(requestObject.getString("friends"));
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }catch (JSONException e2){
+            e2.printStackTrace();
+        }
+        int count = 0;
+        try {
+            count = Integer.parseInt(requestObject.getString("count"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        for(int i = 0; i < count; i++){
+
+            try {
+                user = new JSONObject(data.getString("friend" + String.valueOf(i)));
+                String username = user.getString("username");
+                String displayString = String.valueOf(i+1) + ")    " + username;
+                supposedlyEmptyList.add(displayString);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
 
         if(friendInfo == null){
             listAdapter.clear();
@@ -133,7 +184,7 @@ public class FriendManager extends Fragment {
 
     public interface FriendManagerCommunicator {
         ArrayList<String> onManagerLoad();
-        boolean onRemoveFriend(int index);
+        boolean onRemoveFriend(String name);
 
     }
 

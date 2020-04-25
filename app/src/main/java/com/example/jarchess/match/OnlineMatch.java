@@ -3,10 +3,12 @@ package com.example.jarchess.match;
 import com.example.jarchess.RemoteOpponentInfoBundle;
 import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.clock.MatchClockChoice;
+import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.participant.LocalParticipantController;
 import com.example.jarchess.match.participant.MatchParticipant;
 import com.example.jarchess.match.participant.RemoteOpponent;
 import com.example.jarchess.match.participant.RemoteOpponentController;
+import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.online.OnlineMatchInfoBundle;
 import com.example.jarchess.online.datapackage.DatapackageReceiver;
 import com.example.jarchess.online.datapackage.DatapackageSender;
@@ -32,4 +34,9 @@ public class OnlineMatch extends PlayerMatch {
         return (RemoteOpponent) super.getOpponent();
     }
 
+    @Override
+    protected void setMatchChessMatchResult(ChessMatchResult chessMatchResult, MatchHistory matchHistory) {
+        getOpponent().sendLastTurn(matchHistory);
+        super.setMatchChessMatchResult(chessMatchResult, matchHistory);
+    }
 }

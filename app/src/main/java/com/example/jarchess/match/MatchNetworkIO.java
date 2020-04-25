@@ -262,10 +262,11 @@ public class MatchNetworkIO {
         private final Queue<PauseResponse> incomingPauseResponses = new LinkedList<>();
         private final Object lock = new Object();
         private final RemoteOpponent listener;
+        private final LoggedThread thread;
         private boolean isAlive;
-        private Queue<ResumeRequest> incomingResumeRequests;
+        private final Queue<ResumeRequest> incomingResumeRequests = new LinkedList<>();
 
-        public Receiver(final DatapackageReceiver datapackageReceiver, RemoteOpponent remoteOpponent) {
+        public Receiver(final DatapackageReceiver datapackageReceiver, final RemoteOpponent remoteOpponent) {
             this.listener = remoteOpponent;
             Log.d(TAG, "Receiver() called with: datapackageReceiver = [" + datapackageReceiver + "]");
             Log.d(TAG, "Receiver is running on thread: " + Thread.currentThread().getName());
@@ -295,6 +296,9 @@ public class MatchNetworkIO {
 
                                     case MATCH_RESULT:
                                         Log.d(TAG, "run: handling received match result");
+                                        while (!incomingTurns.isEmpty()) {
+                                            lock.wait();
+                                        }
                                         MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(datapackage.getMatchResult()));
                                         try {
                                             close();
@@ -318,6 +322,7 @@ public class MatchNetworkIO {
                                         Log.d(TAG, "run: handling received pause request acceptance");
                                         if (incomingPauseResponses.isEmpty()) {
                                             incomingPauseResponses.add(PauseResponse.ACCEPT);
+                                            lock.notifyAll();
                                         }
                                         break;
 
@@ -325,6 +330,7 @@ public class MatchNetworkIO {
                                         Log.d(TAG, "run: handling received pause request rejection");
                                         if (incomingPauseResponses.isEmpty()) {
                                             incomingPauseResponses.add(PauseResponse.REJECT);
+                                            lock.notifyAll();
                                         }
                                         break;
 
@@ -342,6 +348,7 @@ public class MatchNetworkIO {
                                         Log.d(TAG, "run: handling received draw request acceptance");
                                         if (incomingDrawResponses.isEmpty()) {
                                             incomingDrawResponses.add(DrawResponse.ACCEPT);
+                                            lock.notifyAll();
                                         }
                                         break;
 
@@ -349,13 +356,15 @@ public class MatchNetworkIO {
                                         Log.d(TAG, "run: handling received draw request rejection");
                                         if (incomingDrawResponses.isEmpty()) {
                                             incomingDrawResponses.add(DrawResponse.REJECT);
+                                            lock.notifyAll();
                                         }
                                         break;
 
                                     case RESUME_REQUEST:
                                         Log.d(TAG, "run: handling received resume request rejection");
-                                        if (incomingDrawResponses.isEmpty()) {
-                                            incomingDrawResponses.add(DrawResponse.REJECT);
+                                        if (incomingResumeRequests.isEmpty()) {
+                                            incomingResumeRequests.add(new ResumeRequest());
+                                            lock.notifyAll();
                                         }
                                         break;
 
@@ -376,7 +385,8 @@ public class MatchNetworkIO {
                 }
             };
 
-            new LoggedThread(TAG, runnable, "MatchNetworkReceiver").start();
+            thread = new LoggedThread(TAG, runnable, "MatchNetworkReceiver");
+            thread.start();
         }
 
         @Override
@@ -411,7 +421,12 @@ public class MatchNetworkIO {
                     throw e;
                 }
             } finally {
-                ioExceptions.clear();
+                try {
+                    thread.interrupt();
+                } finally {
+
+                    ioExceptions.clear();
+                }
             }
         }
 
@@ -433,17 +448,17 @@ public class MatchNetworkIO {
         }
 
         public PauseResponse receiveNextPauseResponse() throws InterruptedException {
-            Log.d(TAG, "receiveNextPauseRequest() called");
-            Log.d(TAG, "receiveNextPauseRequest is running on thread: " + Thread.currentThread().getName());
+            Log.d(TAG, "receiveNextPauseResponse() called");
+            Log.d(TAG, "receiveNextPauseResponse is running on thread: " + Thread.currentThread().getName());
             PauseResponse pauseResponse = null;
             while (pauseResponse == null) {
-                Log.d(TAG, "receiveNextPauseRequest: waiting for lock");
+                Log.d(TAG, "receiveNextPauseResponse: waiting for lock");
                 synchronized (lock) {
-                    Log.d(TAG, "receiveNextPauseRequest: got lock");
-                    Log.d(TAG, "receiveNextPauseRequest: waiting while empty");
+                    Log.d(TAG, "receiveNextPauseResponse: got lock");
+                    Log.d(TAG, "receiveNextPauseResponse: waiting while empty");
                     waitWhileEmpty(incomingPauseResponses);
                     pauseResponse = incomingPauseResponses.remove();
-                    Log.d(TAG, "receiveNextPauseRequest: pauseResponse = " + pauseResponse);
+                    Log.d(TAG, "receiveNextPauseResponse: pauseResponse = " + pauseResponse);
                 }
             }
             return pauseResponse;
@@ -476,14 +491,14 @@ public class MatchNetworkIO {
                 synchronized (lock) {
                     waitWhileEmpty(incomingTurns);
                     turn = incomingTurns.remove();
-
+                    lock.notifyAll();
                 }
             }
             return turn;
         }
 
 
-        private synchronized void waitWhileEmpty(Queue<?> queue) throws InterruptedException {
+        private void waitWhileEmpty(Queue<?> queue) throws InterruptedException {
             Log.d(TAG, "waitWhileEmpty() called with: queue = [" + queue + "]");
             Log.d(TAG, "waitWhileEmpty is running on thread: " + Thread.currentThread().getName());
             synchronized (lock) {
@@ -505,9 +520,13 @@ public class MatchNetworkIO {
 
         @Override
         public Datapackage recieveNextDatapackage() throws InterruptedException {
+
             Log.d(TAG, "recieveNextDatapackage() called");
             Log.d(TAG, "recieveNextDatapackage is running on thread: " + Thread.currentThread().getName());
-            Datapackage tmp = queue.getClientBoundDatapackage();
+            Datapackage tmp = null;
+            while (tmp == null) {
+                tmp = queue.getClientBoundDatapackage();
+            }
 
             Log.d(TAG, "recieveNextDatapackage() returned: " + tmp);
             return tmp;

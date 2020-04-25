@@ -101,33 +101,35 @@ public class PlayerMatch extends Match {
                 matchView.showAcceptedPauseDialog();
             }
         } else if (opponent instanceof RemoteOpponent) {
+            Log.d(TAG, "handlePlayerPauseRequest: remoteOpponent detected");
             if (matchHistory.getNextTurnColor() == player.getColor()) {
+
                 final RemoteOpponent remoteOpponent = (RemoteOpponent) opponent;
                 matchView.showPendingPauseDialog();
-                if (matchClock.isRunning()) {
-                    boolean accepted;
-                    try {
-                        accepted = remoteOpponent.getPauseResponse().isAccepted();
-                    } catch (MatchOverException e) {
-                        Log.e(TAG, "handlePlayerPauseRequest: ", e);
-                        accepted = false;
-                    }
-                    if (accepted) {
-                        matchClock.stop();
-                        Log.i(TAG, "handlePlayerPauseRequest: accepted ");
-                        matchView.showAcceptedPauseDialog();
-                    } else {
-                        Log.i(TAG, "handlePlayerPauseRequest: rejected ");
-                        final int duration = Toast.LENGTH_SHORT;
-                        matchActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(matchActivity, "Pause request rejected. Make your move.", duration).show();
-                            }
-                        });
-                    }
+                boolean accepted;
+                try {
+                    Log.i(TAG, "handlePlayerPauseRequest: trying to get pause response from remote opponent");
+                    accepted = remoteOpponent.getPauseResponse().isAccepted();
+                    Log.i(TAG, "handlePlayerPauseRequest: accepted = " + accepted);
+                } catch (MatchOverException e) {
+                    Log.e(TAG, "handlePlayerPauseRequest: ", e);
+                    accepted = false;
+                }
+                if (accepted) {
+                    matchClock.stop();
+                    Log.i(TAG, "handlePlayerPauseRequest: accepted !!!!!!!!!!");
+                    matchView.showAcceptedPauseDialog();
+
                 } else {
-                    Log.i(TAG, "handlePlayerPauseRequest: clock is already not running");
+                    matchView.hidePendingPauseDialog();
+                    Log.i(TAG, "handlePlayerPauseRequest: rejected !!!!!!!!!!");
+                    final int duration = Toast.LENGTH_SHORT;
+                    matchActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(matchActivity, "Pause request rejected. Make your move.", duration).show();
+                        }
+                    });
                 }
             } else {
                 Log.i(TAG, "handlePlayerPauseRequest: it is not the turn of the player making the request");
@@ -148,30 +150,33 @@ public class PlayerMatch extends Match {
 
 
     public synchronized void handlePlayerResumeRequest() {
+        Log.d(TAG, "handlePlayerResumeRequest() called");
+        Log.d(TAG, "handlePlayerResumeRequest is running on thread: " + Thread.currentThread().getName());
 
         MatchView matchView = matchActivity.getMatchView();
 
         // if a local multiplayer or AI match, just resume
         if (opponent instanceof LocalOpponent ||
                 opponent instanceof AIOpponent) {
-
+            Log.i(TAG, "handlePlayerResumeRequest: automatic agreement");
             // we don't need to check for agreement
             if (!matchClock.isRunning()) {
                 matchClock.resume();
                 matchView.hidePendingDrawDialog();
             }
         } else if (opponent instanceof RemoteOpponent) {
+            Log.i(TAG, "handlePlayerResumeRequest: remote opponent detected");
             final RemoteOpponent remoteOpponent = (RemoteOpponent) opponent;
-            matchView.showPendingPauseDialog();
-            if (!matchClock.isRunning()) {
-                matchView.showPendingResumeDialog();
-                remoteOpponent.notifyAndWaitForResume();
-                matchClock.resume();
-                matchView.hidePendingPauseDialog();
 
-            } else {
-                Log.i(TAG, "handlePlayerPauseRequest: clock is already not running");
-            }
+            Log.i(TAG, "handlePlayerResumeRequest: showing resumeDialog");
+            matchView.showPendingResumeDialog();
+            Log.i(TAG, "handlePlayerResumeRequest: notifying and waiting about resume");
+            remoteOpponent.notifyAndWaitForResume();
+            Log.i(TAG, "handlePlayerResumeRequest: resuming match clock");
+            matchClock.resume();
+            Log.i(TAG, "handlePlayerResumeRequest: hide the pending pause dialog");
+            matchView.hidePendingResumeDialog();
+
         } else {
             throw new IllegalStateException("unexpected opponent type");
         }
