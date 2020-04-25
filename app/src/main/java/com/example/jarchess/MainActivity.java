@@ -1,8 +1,11 @@
 package com.example.jarchess;
 
 
+import com.example.jarchess.online.JSONCompiler.JSONAccount;
+import com.example.jarchess.online.networking.DataSender;
 import com.example.jarchess.online.usermanagement.Account;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -15,6 +18,10 @@ import android.view.View;
 import android.widget.TextView;
 
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements ProfileSignIn.SignInCommunicator,
@@ -300,13 +307,57 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
 
 
     @Override
-    public boolean onRemoveFriend(int index) {
-        return false;
+    public boolean onRemoveFriend(String friendName) {
+        JSONObject addFriend = new JSONAccount().sendFriendReq(JarAccount.getInstance().getName(),
+                JarAccount.getInstance().getSignonToken(),friendName);
+        DataSender sender = new DataSender();
+        JSONObject responseObject = null;
+        String resultStr = "";
+        try {
+            responseObject = sender.send(addFriend);
+            resultStr = responseObject.getString("status");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e2){
+            e2.printStackTrace();
+        } catch (NullPointerException e3){
+            e3.printStackTrace();
+            return false;
+        }
+
+        boolean result = false;
+        if(resultStr.equals("success")){
+            result = true;
+        }
+
+        return result;
     }
 
     @Override
     public boolean onAddFriend(String friendName) {
-        return false;
+        JSONObject addFriend = new JSONAccount().sendFriendReq(JarAccount.getInstance().getName(),
+                JarAccount.getInstance().getSignonToken(),friendName);
+        DataSender sender = new DataSender();
+        JSONObject responseObject = null;
+        String resultStr = "";
+        try {
+            responseObject = sender.send(addFriend);
+            resultStr = responseObject.getString("status");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e2){
+            e2.printStackTrace();
+        } catch (NullPointerException e3){
+            e3.printStackTrace();
+            return false;
+        }
+
+        boolean result = false;
+        if(resultStr.equals("success")){
+            result = true;
+        }
+
+        return result;
     }
 
     @Override
