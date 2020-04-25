@@ -11,6 +11,7 @@ import com.example.jarchess.match.MatchNetworkIO;
 import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.PauseResponse;
 import com.example.jarchess.match.events.MatchResultIsInEvent;
+import com.example.jarchess.match.events.MatchResultIsInEventManager;
 import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.match.result.ExceptionResult;
@@ -42,7 +43,8 @@ public class RemoteOpponent implements MatchParticipant {
     private final MatchNetworkIO.Sender sender;
     private final Queue<Turn> recievedTurns = new ConcurrentLinkedQueue<Turn>();
     private final MatchNetworkIO.Receiver receiver;
-    private boolean resultWasSent = true;
+    private boolean resultWasSent = false;
+    private Thread turnRecieverThread;
 
     /**
      * Creates a remote opponent.
@@ -61,6 +63,7 @@ public class RemoteOpponent implements MatchParticipant {
         MatchNetworkIO.Receiver mNIOReceiver = new MatchNetworkIO.Receiver(receiver, this);
         this.sender = mNIOSender;
         this.receiver = mNIOReceiver;
+        MatchResultIsInEventManager.getInstance().add(this);
 
 
         switch (color) {
@@ -74,6 +77,7 @@ public class RemoteOpponent implements MatchParticipant {
                 throw new IllegalStateException("Unexpected color value: " + color);
         }
     }
+
 
     public void acceptDrawRequest() {
         Log.d(TAG, "acceptDrawRequest() called");
@@ -162,42 +166,16 @@ public class RemoteOpponent implements MatchParticipant {
         }
     }
 
-    @Override
-    public void observe(MatchResultIsInEvent matchResultIsInEvent) {
-//        ChessMatchResult result = matchResultIsInEvent.getMatchChessMatchResult();
-//        switch (result.getType()){
-//
-//            case CHECKMATE:
-//                // let the match handle sending the result
-//                break;
-//            case RESIGNATION:
-//                send(result);
-//                break;
-//            case FLAG_FALL:
-//                send(result);
-//                break;
-//            case INVALID_TURN_RECEIVED:
-//                send(result);
-//                break;
-//            case EXCEPTION:
-//                send(result);
-//                break;
-//            case AGREED_UPON_DRAW:
-//                send(result);
-//                break;
-//            case REPETITION_RULE_DRAW:
-//                // let the match handle sending the result
-//                break;
-//            case STALEMATE_DRAW:
-//                // let the match handle sending the result
-//                break;
-//            case X_MOVE_RULE_DRAW:
-//                // let the match handle sending the result
-//                break;
-//
-//            default:
-//                throw new IllegalStateException("Unexpected value: " + result.getType());
-//        }
+    public void notifyAndWaitForResume() {
+        Log.d(TAG, "notifyAndWaitForResume() called");
+        Log.d(TAG, "notifyAndWaitForResume is running on thread: " + Thread.currentThread().getName());
+        sender.sendResumeRequest();
+        try {
+            receiver.receiveNextResumeRequest();
+        } catch (InterruptedException e) {
+            // just continue;
+        }
+        Log.d(TAG, "notifyAndWaitForResume() returned");
     }
 
     @Override
@@ -219,38 +197,38 @@ public class RemoteOpponent implements MatchParticipant {
         }
     }
 
-    public void notifyAndWaitForResume() {
-        sender.sendResumeRequest();
-        try {
-            receiver.receiveNextResumeRequest();
-        } catch (InterruptedException e) {
-            // just continue;
+    @Override
+    public void observe(MatchResultIsInEvent matchResultIsInEvent) {
+        Log.d(TAG, "observe() called with: matchResultIsInEvent = [" + matchResultIsInEvent + "]");
+        Log.d(TAG, "observe is running on thread: " + Thread.currentThread().getName());
+        send(matchResultIsInEvent.getMatchChessMatchResult());
+        if (turnRecieverThread != null) {
+            turnRecieverThread.interrupt();
         }
     }
 
-    public void send(ChessMatchResult result) {
-        synchronized (this) {
-            if (resultWasSent) {
-                Log.d(TAG, "send() called with: result = [" + result + "]");
-                Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
+    public void processRemotePauseRequest() {
+        Log.d(TAG, "processRemotePauseRequest() called");
+        Log.d(TAG, "processRemotePauseRequest is running on thread: " + Thread.currentThread().getName());
+        try {
+            // get response from the controller
+            PauseResponse pauseResponse = remoteOpponentController.getPauseRequestResponseForRemoteOpponent();
+            Log.i(TAG, "processRemotePauseRequest: sending " + pauseResponse);
 
-                // send the match result
-                Log.i(TAG, "send: Sending Match Result!");
-                sender.send(result);
-                try {
-                    sender.close();
-                } catch (IOException e) {
-                    Log.e(TAG, "send: ", e);
-                }
-                try {
-                    receiver.close();
-                } catch (IOException e) {
-                    Log.e(TAG, "send: ", e);
-                }
-                resultWasSent = false;
-                Log.d(TAG, "send() returned");
-            }
+            // send the response
+            sender.send(pauseResponse);
+
+
+        } catch (MatchOverException e) {
+            Log.e(TAG, "processRemotePauseRequest: ", e);
+            Log.i(TAG, "processRemotePauseRequest: sending " + PauseResponse.REJECT);
+            sender.send(PauseResponse.REJECT);
+        } catch (InterruptedException e) {
+            Log.e(TAG, "processRemotePauseRequest: ", e);
+            Log.i(TAG, "processRemotePauseRequest: sending " + PauseResponse.REJECT);
+            sender.send(PauseResponse.REJECT);
         }
+        Log.d(TAG, "processRemotePauseRequest() returned: ");
     }
 
     public void sendLastTurn(MatchHistory matchHistory) {
@@ -279,27 +257,31 @@ public class RemoteOpponent implements MatchParticipant {
         Log.d(TAG, "processRemoteDrawRequest() returned: ");
     }
 
-    public void processRemotePauseRequest() {
-        Log.d(TAG, "processRemotePauseRequest() called");
-        Log.d(TAG, "processRemotePauseRequest is running on thread: " + Thread.currentThread().getName());
-        try {
-            // get response from the controller
-            PauseResponse pauseResponse = remoteOpponentController.getPauseRequestResponseForRemoteOpponent();
-            Log.i(TAG, "processRemotePauseRequest: sending " + pauseResponse);
+    public void send(ChessMatchResult result) {
+        synchronized (this) {
+            if (!resultWasSent) {
+                Log.d(TAG, "send() called with: result = [" + result + "]");
+                Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
 
-            // send the response
-            sender.send(pauseResponse);
-        } catch (MatchOverException e) {
-            Log.e(TAG, "processRemotePauseRequest: ", e);
-            Log.i(TAG, "processRemotePauseRequest: sending " + PauseResponse.REJECT);
-            sender.send(PauseResponse.REJECT);
-        } catch (InterruptedException e) {
-            Log.e(TAG, "processRemotePauseRequest: ", e);
-            Log.i(TAG, "processRemotePauseRequest: sending " + PauseResponse.REJECT);
-            sender.send(PauseResponse.REJECT);
+                // send the match result
+                Log.i(TAG, "send: Sending Match Result!");
+                sender.send(result);
+                try {
+                    sender.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "send: ", e);
+                }
+                try {
+                    receiver.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "send: ", e);
+                }
+                resultWasSent = true;
+                Log.d(TAG, "send() returned");
+            }
         }
-        Log.d(TAG, "processRemotePauseRequest() returned: ");
     }
+
 
     public void rejectDrawRequest() {
         Log.d(TAG, "rejectDrawRequest() called");
@@ -312,5 +294,9 @@ public class RemoteOpponent implements MatchParticipant {
         Log.d(TAG, "rejectPauseRequest() called");
         Log.d(TAG, "rejectPauseRequest is running on thread: " + Thread.currentThread().getName());
         sender.send(PauseResponse.REJECT);
+    }
+
+    public void setTurnRecieverThread(Thread turnRecieverThread) {
+        this.turnRecieverThread = turnRecieverThread;
     }
 }

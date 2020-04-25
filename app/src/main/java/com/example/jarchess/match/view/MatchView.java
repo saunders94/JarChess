@@ -218,6 +218,10 @@ public class MatchView extends View implements ClockTickEventListener {
         });
     }
 
+    public void hidePauseRequestResponseDialog() {
+        pauseResponseDialog.hide();
+    }
+
     public void hidePendingDrawDialog() {
         activity.runOnUiThread(new Runnable() {
             @Override
@@ -229,6 +233,12 @@ public class MatchView extends View implements ClockTickEventListener {
     }
 
     public void hidePendingPauseDialog() {
+        pausePendingDialog.hide();
+    }
+
+    public void hidePendingResumeDialog() {
+        Log.d(TAG, "hidePendingResumeDialog() called");
+        Log.d(TAG, "hidePendingResumeDialog is running on thread: " + Thread.currentThread().getName());
         pausePendingDialog.hide();
     }
 
@@ -322,6 +332,8 @@ public class MatchView extends View implements ClockTickEventListener {
     }
 
     public void showPendingResumeDialog() {
+        Log.d(TAG, "showPendingResumeDialog() called");
+        Log.d(TAG, "showPendingResumeDialog is running on thread: " + Thread.currentThread().getName());
         pausePendingDialog.showResumeRequestPending();
     }
 

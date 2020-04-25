@@ -8,4 +8,5 @@ public interface RemoteOpponentController {
     DrawResponse getDrawRequestResponseForRemoteOpponent() throws MatchOverException, InterruptedException;
 
     PauseResponse getPauseRequestResponseForRemoteOpponent() throws MatchOverException, InterruptedException;
+
 }

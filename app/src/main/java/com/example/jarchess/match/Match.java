@@ -92,21 +92,98 @@ public abstract class Match implements MatchEndingEventListener {
                         Log.wtf(TAG, msg);
                         throw new IllegalStateException(msg);
                     }
-                    setMatchChessMatchResult(new FlagFallResult(colorOfWinner));
+                    setMatchChessMatchResult(new FlagFallResult(colorOfWinner), matchHistory);
                 } else if (!moveExpert.hasMoves(nextTurnColor, matchHistory)) {
                     if (moveExpert.isInCheck(nextTurnColor, matchHistory)) {
-                        setMatchChessMatchResult(new CheckmateResult(ChessColor.getOther(nextTurnColor)));
+                        setMatchChessMatchResult(new CheckmateResult(ChessColor.getOther(nextTurnColor)), matchHistory);
                     } else {
-                        setMatchChessMatchResult(new StalemateDrawResult());
+                        setMatchChessMatchResult(new StalemateDrawResult(), matchHistory);
                     }
                 } else if (matchHistory.getMovesSinceCaptureOrPawnMovement(nextTurnColor) >= XMoveRuleDrawResult.FORCED_DRAW_AMOUNT) {
-                    setMatchChessMatchResult(new XMoveRuleDrawResult(matchHistory.getMovesSinceCaptureOrPawnMovement(nextTurnColor)));
+                    setMatchChessMatchResult(new XMoveRuleDrawResult(matchHistory.getMovesSinceCaptureOrPawnMovement(nextTurnColor)), matchHistory);
 
                 } else if (matchHistory.getRepetitions() >= RepetitionRuleDrawResult.FORCED_DRAW_AMOUNT) {
-                    setMatchChessMatchResult(new RepetitionRuleDrawResult(matchHistory.getRepetitions()));
+                    setMatchChessMatchResult(new RepetitionRuleDrawResult(matchHistory.getRepetitions()), matchHistory);
                 }
             }
         }
+    }
+
+    private void playMatch() {
+        Turn turn;
+
+        MatchView matchView = matchActivity.getMatchView();
+
+        try {
+            try {
+                Log.d(TAG, "playMatch: start");
+                matchClock.start();
+                Log.d(TAG, "playMatch: set controller color if needed");
+                matchActivity.setCurrentControllerColorIfNeeded();
+                Log.d(TAG, "playMatch: get first turn");
+                turn = getTurn();
+                Log.d(TAG, "playMatch: syncEnd on clock");
+                matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
+                Log.d(TAG, "playMatch: validate turn");
+                validate(turn);
+                Log.d(TAG, "playMatch: execute turn");
+                execute(turn);
+                Log.d(TAG, "playMatch: update view");
+                matchView.updateViewAfter(turn);
+
+                while (!isDone()) {
+                    Log.d(TAG, "playMatch: change controller color if needed");
+                    matchActivity.changeCurrentControllerColorIfNeeded();
+                    Log.d(TAG, "playMatch: get next turn");
+                    turn = getTurn();
+                    Log.d(TAG, "playMatch: match clock syncEnd");
+                    matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
+                    Log.d(TAG, "playMatch: validate turn");
+                    validate(turn);
+                    Log.d(TAG, "playMatch: execute turn");
+                    execute(turn);
+                    Log.d(TAG, "playMatch: update view");
+                    matchView.updateViewAfter(turn);
+                }
+
+                Log.d(TAG, "playMatch: isDone() is true");
+
+//                if (this instanceof OnlineMatch) {
+//                    Log.d(TAG, "playMatch: send last turn");
+//                    ((OnlineMatch) this).getOpponent().sendLastTurn(matchHistory);
+//                }
+
+            } catch (InterruptedException e) {
+                Log.e(TAG, "playMatch: ", e);
+                forceEndMatch("Thread was Interrupted");
+                throw new MatchOverException(new ExceptionResult(getForceExitWinningColor(), "The thread was interrupted", e));
+            } catch (ClockSyncException e) {
+                Log.e(TAG, "playMatch: ", e);
+                // match ends due to clock sync exception
+                MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(ChessColor.getOther(e.getColorOutOfSync()), "reported time out of tolerance", e)));
+            }
+        } catch (MatchOverException e) {
+            Log.e(TAG, "playMatch: ", e);
+            // the match is over... just continue
+        }
+
+        Log.i(TAG, "playMatch: Match should be over... stopping clock");
+        matchClock.stop();
+        if (this instanceof OnlineMatch) {
+
+            Log.i(TAG, "playMatch: trying to send the match result");
+            if (matchChessMatchResult != null) {
+                ((OnlineMatch) this).getOpponent().send(matchChessMatchResult);
+            } else {
+                Log.d(TAG, "playMatch: sending a no match result exception match result");
+                ((OnlineMatch) this).getOpponent().send(new ExceptionResult(null, "no match result", new IllegalStateException("no match result to send")));
+            }
+
+        }
+
+        Log.i(TAG, "playMatch: showing match result");
+        matchActivity.showMatchResult();
+
     }
 
     private void checkForTimeout() {
@@ -184,6 +261,7 @@ public abstract class Match implements MatchEndingEventListener {
             }
         }
         if (wasSet) {
+
             MatchResultIsInEventManager.getInstance().notifyAllListeners(new MatchResultIsInEvent(matchChessMatchResult));
         }
     }
@@ -240,82 +318,8 @@ public abstract class Match implements MatchEndingEventListener {
         setMatchChessMatchResult(matchEndingEvent.getResult());
     }
 
-    private void playMatch() {
-        Turn turn;
-
-        MatchView matchView = matchActivity.getMatchView();
-
-        try {
-            try {
-                Log.d(TAG, "playMatch: start");
-                matchClock.start();
-                Log.d(TAG, "playMatch: set controller color if needed");
-                matchActivity.setCurrentControllerColorIfNeeded();
-                Log.d(TAG, "playMatch: get first turn");
-                turn = getTurn();
-                Log.d(TAG, "playMatch: syncEnd on clock");
-                matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
-                Log.d(TAG, "playMatch: validate turn");
-                validate(turn);
-                Log.d(TAG, "playMatch: execute turn");
-                execute(turn);
-                Log.d(TAG, "playMatch: update view");
-                matchView.updateViewAfter(turn);
-
-                while (!isDone()) {
-                    Log.d(TAG, "playMatch: change controller color if needed");
-                    matchActivity.changeCurrentControllerColorIfNeeded();
-                    Log.d(TAG, "playMatch: get next turn");
-                    turn = getTurn();
-                    Log.d(TAG, "playMatch: match clock syncEnd");
-                    matchClock.syncEnd(turn.getColor(), turn.getElapsedTime());
-                    Log.d(TAG, "playMatch: validate turn");
-                    validate(turn);
-                    Log.d(TAG, "playMatch: execute turn");
-                    execute(turn);
-                    Log.d(TAG, "playMatch: update view");
-                    matchView.updateViewAfter(turn);
-                }
-
-                Log.d(TAG, "playMatch: isDone() is true");
-
-                if (this instanceof OnlineMatch) {
-                    Log.d(TAG, "playMatch: send last turn");
-                    ((OnlineMatch) this).getOpponent().sendLastTurn(matchHistory);
-
-                }
-
-            } catch (InterruptedException e) {
-                Log.e(TAG, "playMatch: ", e);
-                forceEndMatch("Thread was Interrupted");
-                throw new MatchOverException(new ExceptionResult(getForceExitWinningColor(), "The thread was interrupted", e));
-            } catch (ClockSyncException e) {
-                Log.e(TAG, "playMatch: ", e);
-                // match ends due to clock sync exception
-                MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(ChessColor.getOther(e.getColorOutOfSync()), "reported time out of tolerance", e)));
-            }
-        } catch (MatchOverException e) {
-            Log.e(TAG, "playMatch: ", e);
-            // the match is over... just continue
-        }
-
-        Log.i(TAG, "playMatch: Match should be over... stopping clock");
-        matchClock.stop();
-        if (this instanceof OnlineMatch) {
-
-            Log.i(TAG, "playMatch: trying to send the match result");
-            if (matchChessMatchResult != null) {
-                ((OnlineMatch) this).getOpponent().send(matchChessMatchResult);
-            } else {
-                Log.d(TAG, "playMatch: sending a no match result exception match result");
-                ((OnlineMatch) this).getOpponent().send(new ExceptionResult(null, "no match result", new IllegalStateException("no match result to send")));
-            }
-
-        }
-
-        Log.i(TAG, "playMatch: showing match result");
-        matchActivity.showMatchResult();
-
+    protected void setMatchChessMatchResult(ChessMatchResult chessMatchResult, MatchHistory matchHistory) {
+        setMatchChessMatchResult(chessMatchResult);
     }
 
     public void promote(Coordinate coordinate, PromotionChoice choice) {
