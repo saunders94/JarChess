@@ -80,7 +80,7 @@ public class DataSender {
                 socket = new Socket();
                 socket.setSoTimeout(500);
                 InetSocketAddress inetSocketAddress = new InetSocketAddress(logonServer, serverPort);
-                socket.connect(inetSocketAddress, 1000);
+                socket.connect(inetSocketAddress, 5000);
                 Log.d(TAG, "sendData: socket created");
 
                 String data = jsonObject.toString();
@@ -91,7 +91,7 @@ public class DataSender {
                                 socket.getInputStream()));
                 out = new DataOutputStream(
                         new BufferedOutputStream(
-                                socket.getOutputStream(),2048));
+                                socket.getOutputStream(),10240));
 
                 out.writeUTF(data);
                 out.flush();
