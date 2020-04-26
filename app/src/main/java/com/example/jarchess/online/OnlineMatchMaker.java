@@ -61,16 +61,37 @@ public class OnlineMatchMaker {
             Log.d(TAG, "cancel() called");
             Log.d(TAG, "cancel is running on thread: " + Thread.currentThread().getName());
 
+            // start by assuming the cancel is accepted
             wasCanceled = true;
-            notifyAll();
+
+            // request a cancel from the server if able
             if (socket != null && !socket.isClosed()) {
                 try {
-                    // tell the server that the request was canceled if you want and prepare to close socket
 
-                    //TODO add any message you want to send to the server to announce that we canceled our search
+                    String responseString = null;
+                    final String successfulCancelString = "successfulCancel";
+                    final String failedCancelString = "failedCancel";
+
+                    //TODO add any messaging you want to send to the server to announce that we canceled our search
                     //        We don't want players to get locked into match making without a way to get out.
                     //        Any thing that gets put here should have a 500 ms timeout, or starts a background thread
                     //        with a longer timeout.
+
+                    if (responseString != null && !responseString.isEmpty()) {
+                        switch (responseString) {
+
+                            case successfulCancelString:
+                                wasCanceled = true;
+                                break;
+
+                            case failedCancelString:
+                                wasCanceled = false;
+                                break;
+
+                            default:
+                                throw new IllegalStateException("Unexpected value: " + responseString);
+                        }
+                    }
 
 
                 } finally {
@@ -80,9 +101,12 @@ public class OnlineMatchMaker {
                     } catch (IOException e) {
                         Log.e(TAG, "cancel: socket close failed. ", e);
                     }
+
                 }
 
             }
+
+            notifyAll();
         }
 
     }
@@ -151,18 +175,18 @@ public class OnlineMatchMaker {
                         String respString = new String(buffer).trim();
                         Log.i(TAG, "response: \"" + respString + "\"");
                         socket.close();
-                        Log.i(TAG,"Socket closed: " + socket);
+                        Log.i(TAG, "Socket closed: " + socket);
 
 
                         try {
                             JSONObject jsonResp = new JSONObject(respString);
                             Log.i(TAG, jsonResp.toString());
-                            if(jsonResp.getString("status").equals("success")){
+                            if (jsonResp.getString("status").equals("success")) {
                                 onlineMatchInfoBundle = new OnlineMatchInfoBundle(jsonResp);
                                 Log.i(TAG, "run: set online match: " + onlineMatchInfoBundle);
-                            }else{
+                            } else {
                                 Log.i(TAG, "Server send failure response");
-                                throw  new SearchCanceledException();
+                                throw new SearchCanceledException();
                             }
                         } catch (JSONException e) {
                             Log.e(TAG, "run: ", e);
