@@ -476,6 +476,34 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     }
 
     @Override
+    public boolean onAcceptFriendRequest(String friendName) {
+        JSONObject addFriend = new JSONAccount().acceptFriendReq(JarAccount.getInstance().getName(),
+                JarAccount.getInstance().getSignonToken(),friendName);
+        DataSender sender = new DataSender();
+        JSONObject responseObject = null;
+        String resultStr = "";
+        System.out.println("this onAcceptFriendRequest method is actually being used");
+        try {
+            responseObject = sender.send(addFriend);
+            resultStr = responseObject.getString("status");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e2){
+            e2.printStackTrace();
+        } catch (NullPointerException e3){
+            e3.printStackTrace();
+            return false;
+        }
+
+        boolean result = false;
+        if(resultStr.equals("true")){
+            result = true;
+        }
+
+        return result;
+    }
+
+    @Override
     public boolean onAvatarSelected(int index) {
         avatarIcon.setIcon(avatarSelection.getAvatarArray()[index]);
         return true;

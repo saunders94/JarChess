@@ -15,7 +15,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.jarchess.online.JSONCompiler.JSONAccount;
-import com.example.jarchess.online.JSONCompiler.JSONLeaderboard;
 import com.example.jarchess.online.networking.DataSender;
 
 import org.json.JSONException;
@@ -35,8 +34,9 @@ public class FriendManager extends Fragment {
     private int indexOfLastSelected;
     private boolean listIsEmpty;
     private ArrayList<String> friendInfo;
-    private ArrayList<String> supposedlyEmptyList;
+    private ArrayList<String> mainList;
     private ArrayList<String> friendsList;
+    private ArrayList<String> requestsList;
     private String TAG = "FriendManager";
 
 
@@ -59,6 +59,8 @@ public class FriendManager extends Fragment {
         ArrayList<String> supposedlyEmptyList = new ArrayList<>();
         listAdapter = new ArrayAdapter<>
                 (getContext(), R.layout.list_item_style, supposedlyEmptyList);
+        mainList = new ArrayList<>();
+
         friendsToAdd();
         populateList();
 
@@ -74,16 +76,22 @@ public class FriendManager extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 indexOfLastSelected = position;
+                int rSize = requestsList.size();
+                if (indexOfLastSelected < rSize) { removeFriendButton.setText("Remove Friend Request");
+                } else {removeFriendButton.setText("Remove Friend");}
             }
         });
+
+
 
 
 
         removeFriendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (listIsEmpty) {
+                int rSize = requestsList.size();
+                int fSize = friendsList.size();
+                if (fSize + rSize == 0) {
                     Toast toast = Toast.makeText(v.getContext(),
                             "Cannot Remove From Empty List", duration);
                     toast.show();
@@ -92,14 +100,18 @@ public class FriendManager extends Fragment {
                             "Please Select a Friend to Remove", duration);
                     toast.show();
                 } else {
-                    String name = friendsList.get(indexOfLastSelected);
+                    String name = null;
+                    if (indexOfLastSelected < rSize) { name = requestsList.get(indexOfLastSelected);
+                    } else { name = friendsList.get(indexOfLastSelected - rSize); }
+
                     if (callback.onRemoveFriend(name)) {
-                        populateList();
+
                         Toast toast = Toast.makeText(v.getContext(),
                                 "Friend Removed", duration);
                         toast.show();
+                        requestsList.clear();
                         friendsList.clear();
-                        supposedlyEmptyList.clear();
+                        mainList.clear();
                         friendsToAdd();
                         populateList();
 
@@ -108,20 +120,39 @@ public class FriendManager extends Fragment {
                                 "Friend Removal Failed", duration);
                         toast.show();
                     }
-
                 }
             }
-
         });
 
         addFriendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                FriendAdder friendAdder = new FriendAdder();
-                transaction.replace(R.id.fragmentHole, friendAdder);
-                transaction.addToBackStack("FriendAdder");
-                transaction.commit();
+                int rSize = requestsList.size();
+                int fSize = friendsList.size();
+                if (indexOfLastSelected < 0 || indexOfLastSelected >= rSize) {
+                    FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
+                    FriendAdder friendAdder = new FriendAdder();
+                    transaction.replace(R.id.fragmentHole, friendAdder);
+                    transaction.addToBackStack("FriendAdder");
+                    transaction.commit();
+                } else {
+                    String name = requestsList.get(indexOfLastSelected);
+
+                    if (callback.onAcceptFriendRequest(name)) {
+                        Toast toast = Toast.makeText(v.getContext(),
+                                "Friend Request Accepted", duration);
+                        toast.show();
+                        requestsList.clear();
+                        friendsList.clear();
+                        mainList.clear();
+                        friendsToAdd();
+                        populateList();
+                    }  else {
+                        Toast toast = Toast.makeText(v.getContext(),
+                                "Accept Friend Request Failed", duration);
+                        toast.show();
+                    }
+                }
             }
         });
 
@@ -129,9 +160,8 @@ public class FriendManager extends Fragment {
     }
 
     private void populateList() {
+        friendsList = new ArrayList<>();
 
-        friendInfo = callback.onManagerLoad();
-        //supposedlyEmptyList.add("No Friends Were Found");
         JSONObject requestObject = new JSONObject();
         JSONObject data = null;
         JSONObject user = null;
@@ -161,33 +191,23 @@ public class FriendManager extends Fragment {
                 String username = user.getString("username");
                 String displayString = String.valueOf(i+1) + ")    " + username;
                 friendsList.add(username);
-                supposedlyEmptyList.add(displayString);
+                mainList.add(displayString);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
         }
 
-        if(friendInfo == null){
-            listAdapter.clear();
-            listAdapter.addAll(supposedlyEmptyList);
-            listAdapter.notifyDataSetChanged();
-            listIsEmpty = false;
-        } else {
-            listAdapter.clear();
-            listAdapter.addAll(friendInfo);
-            listAdapter.notifyDataSetChanged();
-            listIsEmpty = false;
-        }
+        listAdapter.clear();
+        listAdapter.addAll(mainList);
+        listAdapter.notifyDataSetChanged();
+
 
     }
 
     private void friendsToAdd() {
+        requestsList = new ArrayList<>();
 
-        friendInfo = callback.onManagerLoad();
-        supposedlyEmptyList = new ArrayList<>();
-        friendsList = new ArrayList<>();
-        //supposedlyEmptyList.add("No Friends Were Found");
         JSONObject requestObject = new JSONObject();
         JSONObject data = null;
         JSONObject user = null;
@@ -215,26 +235,18 @@ public class FriendManager extends Fragment {
             try {
                 user = new JSONObject(data.getString("friend" + String.valueOf(i)));
                 String username = user.getString("username");
-                String displayString = String.valueOf(i+1) + ") Friend Request   " + username;
-                friendsList.add(username);
-                supposedlyEmptyList.add(displayString);
+                String displayString = " - Friend Request ->  " + username;
+                requestsList.add(username);
+                mainList.add(displayString);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
         }
 
-        if(friendInfo == null){
-            listAdapter.clear();
-            listAdapter.addAll(supposedlyEmptyList);
-            listAdapter.notifyDataSetChanged();
-            listIsEmpty = false;
-        } else {
-            listAdapter.clear();
-            listAdapter.addAll(friendInfo);
-            listAdapter.notifyDataSetChanged();
-            listIsEmpty = false;
-        }
+        listAdapter.clear();
+        listAdapter.addAll(mainList);
+        listAdapter.notifyDataSetChanged();
 
     }
 
@@ -247,6 +259,7 @@ public class FriendManager extends Fragment {
     public interface FriendManagerCommunicator {
         ArrayList<String> onManagerLoad();
         boolean onRemoveFriend(String name);
+        boolean onAcceptFriendRequest(String name);
 
     }
 
