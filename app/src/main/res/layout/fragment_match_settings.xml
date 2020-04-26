@@ -64,6 +64,7 @@
     <Switch
         android:id="@+id/switch_enable_commit"
         style="@style/switchStyle"
+        android:layout_height="40dp"
         android:text="Require Explicit Move Commit"
         app:layout_constraintBottom_toTopOf="@+id/switch_default_to_queening"
         app:layout_constraintEnd_toEndOf="parent"
@@ -73,6 +74,7 @@
     <Switch
         android:id="@+id/switch_default_to_queening"
         style="@style/switchStyle"
+        android:layout_height="40dp"
         android:text="Always Promote to Queen"
         app:layout_constraintBottom_toTopOf="@+id/switch_disable_pause"
         app:layout_constraintEnd_toEndOf="parent"
@@ -82,6 +84,7 @@
     <Switch
         android:id="@+id/switch_disable_pause"
         style="@style/switchStyle"
+        android:layout_height="40dp"
         android:text="Disable Pausing"
         app:layout_constraintBottom_toTopOf="@+id/button_ready"
         app:layout_constraintEnd_toEndOf="parent"

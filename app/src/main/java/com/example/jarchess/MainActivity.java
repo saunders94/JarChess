@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import org.json.JSONException;
@@ -92,12 +93,11 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
         usernameLabel.setText(usernameDefault);
         signonStatus = false;
 
-        unseenNotificationQuantity = 3;
+        unseenNotificationQuantity = 0;
 
         fragmentManager = getSupportFragmentManager();
         setupListeners();
         setupToolbar();
-
 
         //Load the StartScreen fragment
         if (findViewById(R.id.fragmentHole) != null) {
@@ -188,8 +188,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
             //This has to be included so the icon with notification badge can be interacted with
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    onOptionsItemSelected(notificationItem);
+                public void onClick(View v) { onOptionsItemSelected(notificationItem);
                 }
             });
 
@@ -201,14 +200,71 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        boolean loginStatus = false;
+        int duration = Toast.LENGTH_SHORT;
+        try { loginStatus = JarAccount.getInstance().isLoggedIn();
+        } catch (IOException e) { e.printStackTrace(); }
         switch (item.getItemId()) {
 
-            case R.id.notification_menu: {
+            case R.id.profile_menu: {
+                openLoginAssociatedPage();
+                return true;
+
+            } case R.id.notification_menu: {
                 item.setActionView(null);
                 return true;
 
-            } case R.id.profile_menu: {
-                openLoginAssociatedPage();
+            } case R.id.notification_friend_match: {
+                notificationItem.getSubMenu()
+                        .findItem(R.id.notification_friend_match).setVisible(false);
+                if (loginStatus) {
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    FriendSelector friendSelector = new FriendSelector();
+                    transaction.replace(R.id.fragmentHole, friendSelector);
+                    transaction.addToBackStack("FriendSelector");
+                    transaction.commit();
+                } else { Toast.makeText(this,
+                        "Login Required to play Online", duration).show(); }
+                if (unseenNotificationQuantity > 0 ) { unseenNotificationQuantity--; }
+                return true;
+            } case R.id.notification_friend_request: {
+                notificationItem.getSubMenu()
+                        .findItem(R.id.notification_friend_request).setVisible(false);
+                if (loginStatus) {
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    FriendManager friendManager = new FriendManager();
+                    transaction.replace(R.id.fragmentHole, friendManager);
+                    transaction.addToBackStack("FriendManager");
+                    transaction.commit();
+                } else { Toast.makeText(this,
+                        "Login Required to View Friend List", duration).show(); }
+                if (unseenNotificationQuantity > 0 ) { unseenNotificationQuantity--; }
+                return true;
+            } case R.id.notification_added_friend: {
+                notificationItem.getSubMenu()
+                        .findItem(R.id.notification_added_friend).setVisible(false);
+                if (loginStatus) {
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    FriendManager friendManager = new FriendManager();
+                    transaction.replace(R.id.fragmentHole, friendManager);
+                    transaction.addToBackStack("FriendManager");
+                    transaction.commit();
+                } else { Toast.makeText(this,
+                        "Login Required to View Friend List", duration).show(); }
+                if (unseenNotificationQuantity > 0 ) { unseenNotificationQuantity--; }
+                return true;
+            } case R.id.notification_avatar: {
+                notificationItem.getSubMenu()
+                        .findItem(R.id.notification_avatar).setVisible(false);
+                if (loginStatus) {
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    AvatarSelection avatarSelection = new AvatarSelection();
+                    transaction.replace(R.id.fragmentHole, avatarSelection);
+                    transaction.addToBackStack("AvatarSelection");
+                    transaction.commit();
+                } else { Toast.makeText(this,
+                        "Login Required to View Avatar Selection", duration).show(); }
+                if (unseenNotificationQuantity > 0 ) { unseenNotificationQuantity--; }
                 return true;
             }
 
@@ -216,6 +272,63 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
 
         return super.onOptionsItemSelected(item);
     }
+
+    //(This only adds one notification at a time)
+    //type 0 = new friend match request
+    //type 1 = new friend request
+    //type 2 = new friend added to list
+    //type 3 = new avatar unlocked
+    private void addNotification(int type) {
+        MenuItem menuItem = null;
+        switch (type) {
+            case 0:
+                menuItem = notificationItem.getSubMenu()
+                        .findItem(R.id.notification_friend_match);
+                if (!menuItem.isVisible()) {
+                    menuItem.setVisible(true);
+                    unseenNotificationQuantity++;
+                }
+                break;
+            case 1:
+                menuItem = notificationItem.getSubMenu()
+                        .findItem(R.id.notification_friend_request);
+                if (!menuItem.isVisible()) {
+                    menuItem.setVisible(true);
+                    unseenNotificationQuantity++;
+                }
+                break;
+            case 2:
+                menuItem = notificationItem.getSubMenu()
+                        .findItem(R.id.notification_added_friend);
+                if (!menuItem.isVisible()) {
+                    menuItem.setVisible(true);
+                    unseenNotificationQuantity++;
+                }
+                break;
+            case 3:
+                menuItem = notificationItem.getSubMenu()
+                        .findItem(R.id.notification_avatar);
+                if (!menuItem.isVisible()) {
+                    menuItem.setVisible(true);
+                    unseenNotificationQuantity++;
+                }
+                break;
+        }
+
+        if (unseenNotificationQuantity == 0) { notificationItem.setActionView(null);
+        } else {
+            notificationItem.setActionView(R.layout.notification_badge);
+            View view = notificationItem.getActionView();
+            unseenNotificationView = view.findViewById(R.id.notification_quantity);
+            unseenNotificationView.setText(String.valueOf(unseenNotificationQuantity));
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) { onOptionsItemSelected(notificationItem);
+                }
+            });
+        }
+    }
+
 
     public void resetUnseenNotificationQuantity() {
         setUnseenNotificationQuantity(0);
@@ -298,10 +411,9 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     
     @Override
     public boolean onLogout() {
-        usernameLabel.setText("Logged Out");
-
         boolean logoutStatus = new Account().signout(JarAccount.getInstance().getName(),
                 JarAccount.getInstance().getSignonToken());
+
         return logoutStatus;
     }
 
