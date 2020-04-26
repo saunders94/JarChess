@@ -27,19 +27,28 @@
 
         <menu>
             <item
-                android:id="@+id/notification_item1"
-                android:orderInCategory="3"
-                android:title="New Friend Request3!"
+                android:id="@+id/notification_friend_match"
+                android:orderInCategory="0"
+                android:title="You have a new match request!"
+                android:visible="false"
                 app:showAsAction="never" />
             <item
-                android:id="@+id/notification_item2"
-                android:orderInCategory="2"
-                android:title="New Friend Request2!"
-                app:showAsAction="never" />
-            <item
-                android:id="@+id/notification_item3"
+                android:id="@+id/notification_friend_request"
                 android:orderInCategory="1"
-                android:title="New Friend Request1!"
+                android:title="You have a new friend request!"
+                android:visible="false"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/notification_added_friend"
+                android:orderInCategory="2"
+                android:title="A new friend was added!"
+                android:visible="false"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/notification_avatar"
+                android:orderInCategory="3"
+                android:title="You have unlocked a new avatar!"
+                android:visible="false"
                 app:showAsAction="never" />
 
 
