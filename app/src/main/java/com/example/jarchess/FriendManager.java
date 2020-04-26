@@ -36,6 +36,7 @@ public class FriendManager extends Fragment {
     private boolean listIsEmpty;
     private ArrayList<String> friendInfo;
     private ArrayList<String> supposedlyEmptyList;
+    private ArrayList<String> friendsList;
     private String TAG = "FriendManager";
 
 
@@ -91,7 +92,7 @@ public class FriendManager extends Fragment {
                             "Please Select a Friend to Remove", duration);
                     toast.show();
                 } else {
-                    String name = supposedlyEmptyList.get(indexOfLastSelected);
+                    String name = friendsList.get(indexOfLastSelected);
                     if (callback.onRemoveFriend(name)) {
                         populateList();
                         Toast toast = Toast.makeText(v.getContext(),
@@ -126,6 +127,7 @@ public class FriendManager extends Fragment {
 
         friendInfo = callback.onManagerLoad();
         supposedlyEmptyList = new ArrayList<>();
+        friendsList = new ArrayList<>();
         //supposedlyEmptyList.add("No Friends Were Found");
         JSONObject requestObject = new JSONObject();
         JSONObject data = null;
@@ -155,6 +157,7 @@ public class FriendManager extends Fragment {
                 user = new JSONObject(data.getString("friend" + String.valueOf(i)));
                 String username = user.getString("username");
                 String displayString = String.valueOf(i+1) + ")    " + username;
+                friendsList.add(username);
                 supposedlyEmptyList.add(displayString);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -166,7 +169,7 @@ public class FriendManager extends Fragment {
             listAdapter.clear();
             listAdapter.addAll(supposedlyEmptyList);
             listAdapter.notifyDataSetChanged();
-            listIsEmpty = true;
+            listIsEmpty = false;
         } else {
             listAdapter.clear();
             listAdapter.addAll(friendInfo);

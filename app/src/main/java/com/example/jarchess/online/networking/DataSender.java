@@ -80,32 +80,36 @@ public class DataSender {
                 socket = new Socket();
                 socket.setSoTimeout(500);
                 InetSocketAddress inetSocketAddress = new InetSocketAddress(logonServer, serverPort);
-                socket.connect(inetSocketAddress, 500);
+                socket.connect(inetSocketAddress, 1000);
                 Log.d(TAG, "sendData: socket created");
 
                 String data = jsonObject.toString();
-                Log.i("Sender", data);
+                Log.i(TAG, "Data String: " + data);
                 byte[] buffer = new byte[10240];
                 in = new DataInputStream(
                         new BufferedInputStream(
                                 socket.getInputStream()));
                 out = new DataOutputStream(
                         new BufferedOutputStream(
-                                socket.getOutputStream()));
+                                socket.getOutputStream(),2048));
+
                 out.writeUTF(data);
                 out.flush();
                 int response = in.read(buffer);
                 respString = new String(buffer).trim();
-                //Log.i("Sender",respString);
+                Log.i(TAG, "Response String: " + respString);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 socket.close();
+                out.close();
+                in.close();
                 lock.notifyAll();
             }
             try {
+
                 JSONObject jsonObj = new JSONObject(respString);
-                Log.i("LogonIO", "JSON response object: " + jsonObj.toString());
+                Log.i(TAG, "JSON response object: " + jsonObj.toString());
                 //String reqType = jsonObj.getString("ERROR");
                 //Log.i("reqType",respString);
                 this.responseObject = jsonObj;

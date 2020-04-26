@@ -119,4 +119,29 @@ public class  Account {
         return status;
     }
 
+    public boolean changePassword(String oldPass, String newPass){
+        boolean status = false;
+        JSONObject jsonObject = jsonAccount.changePassword(JarAccount.getInstance().getName(), oldPass, newPass);
+        JSONObject testJson = jsonAccount.signin(JarAccount.getInstance().getName(),"a");
+        try {
+            JSONObject jsonResponse = dataSender.send(jsonObject);
+            String statusResp = (String) jsonResponse.get("status");
+            Log.i(TAG, "Status response: " + statusResp);
+            if(statusResp.equals("success")){
+                status = true;
+                Log.i(TAG,"Password change status: " + (String) jsonResponse.get("success"));
+            }else{
+                status = false;
+                Log.i(TAG,"Password change status: " + (String) jsonResponse.get("success"));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            status = false;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return status;
+
+    }
+
 }

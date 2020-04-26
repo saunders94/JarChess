@@ -1,9 +1,13 @@
 package com.example.jarchess.online.JSONCompiler;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class JSONAccount {
+
+    private String TAG = "JSONAccount";
 
     public JSONObject createAccount(String username, String password, String firstName,
                                     String lastname, String email){
@@ -43,6 +47,20 @@ public class JSONAccount {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        return jsonObj;
+    }
+
+    public JSONObject changePassword(String username, String oldPassword, String newPassword){
+        JSONObject jsonObj = new JSONObject();
+        try {
+            jsonObj.put("requestType", "changePassword");
+            jsonObj.put("username", username);
+            jsonObj.put("old_password", oldPassword);
+            jsonObj.put("new_password", newPassword);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.i(TAG, jsonObj.toString());
         return jsonObj;
     }
 
@@ -87,6 +105,30 @@ public class JSONAccount {
             jsonObj.put("requestType", "validateFriendRequest");
             jsonObj.put("username", username);
             jsonObj.put("signonToken", signonToken);
+            jsonObj.put("friendsUsername", friendsName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObj;
+    }
+
+    public JSONObject getFriendRequests(String username){
+        JSONObject jsonObj = new JSONObject();
+        try {
+            jsonObj.put("requestType", "getFriendRequests");
+            jsonObj.put("username", username);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObj;
+    }
+
+
+    public JSONObject removeFriend(String username, String friendsName){
+        JSONObject jsonObj = new JSONObject();
+        try {
+            jsonObj.put("requestType", "removeFriend");
+            jsonObj.put("username", username);
             jsonObj.put("friendsUsername", friendsName);
         } catch (JSONException e) {
             e.printStackTrace();

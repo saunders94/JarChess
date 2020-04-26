@@ -92,14 +92,17 @@ public class Leaderboard extends Fragment implements AdapterView.OnItemSelectedL
     private ArrayList<String> getLeaderboard(){
         ArrayList<String> listItems = new ArrayList<>();
 
-        JSONObject requestObject = new JSONObject();
+        JSONObject requestObject = null;
         JSONObject data = null;
         JSONObject user = null;
 
         DataSender sender = new DataSender();
 
         try {
-            requestObject = sender.send(new JSONLeaderboard().getMostGamesWon(10));
+            while(requestObject == null){
+                requestObject = sender.send(new JSONLeaderboard().getMostGamesWon(10));
+            }
+
             Log.i(TAG, requestObject.toString());
             data = new JSONObject(requestObject.getString("data"));
         } catch (IOException e1) {

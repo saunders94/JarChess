@@ -265,10 +265,10 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     }
 
     @Override
-    public void onFriendMatchChosen(int index) {
+    public void onFriendMatchChosen(String name) {
         //this system assumes that the player's friend list hasn't changed since they last loaded
         //the friend selector page
-        System.out.println("The chosen index was " + index);
+
     }
 
 
@@ -287,8 +287,8 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
 
     @Override
     public boolean onPasswordChange(String oldPass, String newPass) {
-        //put something in here that changes teh password
-        return true;
+        boolean status = new Account().changePassword(oldPass,newPass);
+        return status;
     }
 
     @Override
@@ -308,13 +308,12 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
 
     @Override
     public boolean onRemoveFriend(String friendName) {
-        JSONObject addFriend = new JSONAccount().sendFriendReq(JarAccount.getInstance().getName(),
-                JarAccount.getInstance().getSignonToken(),friendName);
+        JSONObject removeFriend = new JSONAccount().removeFriend(JarAccount.getInstance().getName(), friendName);
         DataSender sender = new DataSender();
         JSONObject responseObject = null;
         String resultStr = "";
         try {
-            responseObject = sender.send(addFriend);
+            responseObject = sender.send(removeFriend);
             resultStr = responseObject.getString("status");
         } catch (IOException e) {
             e.printStackTrace();
