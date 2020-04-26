@@ -10,8 +10,6 @@ import com.example.jarchess.match.DrawResponse;
 import com.example.jarchess.match.MatchNetworkIO;
 import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.PauseResponse;
-import com.example.jarchess.match.events.MatchResultIsInEvent;
-import com.example.jarchess.match.events.MatchResultIsInEventManager;
 import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.result.ChessMatchResult;
 import com.example.jarchess.match.result.ExceptionResult;
@@ -44,7 +42,6 @@ public class RemoteOpponent implements MatchParticipant {
     private final Queue<Turn> recievedTurns = new ConcurrentLinkedQueue<Turn>();
     private final MatchNetworkIO.Receiver receiver;
     private boolean resultWasSent = false;
-    private Thread turnRecieverThread;
 
     /**
      * Creates a remote opponent.
@@ -63,7 +60,6 @@ public class RemoteOpponent implements MatchParticipant {
         MatchNetworkIO.Receiver mNIOReceiver = new MatchNetworkIO.Receiver(receiver, this);
         this.sender = mNIOSender;
         this.receiver = mNIOReceiver;
-        MatchResultIsInEventManager.getInstance().add(this);
 
 
         switch (color) {
@@ -113,13 +109,9 @@ public class RemoteOpponent implements MatchParticipant {
      * {@inheritDoc}
      */
     @Override
-    public Turn getFirstTurn(MatchHistory matchHistory) {
-        try {
-            return receiver.receiveNextTurn();
-        } catch (InterruptedException e) {
-            // just get out
-        }
-        return null;
+    public Turn getFirstTurn(MatchHistory matchHistory) throws InterruptedException {
+
+        return receiver.receiveNextTurn();
     }
 
     private DrawResponse getDrawResponse() {
@@ -150,20 +142,16 @@ public class RemoteOpponent implements MatchParticipant {
     }
 
     @Override
-    public Turn getNextTurn(MatchHistory matchHistory) throws MatchOverException {
+    public Turn getNextTurn(MatchHistory matchHistory) throws InterruptedException {
 
         sender.send(matchHistory.getLastTurn());
 
         Log.i(TAG, "getNextTurn: Turn was sent to sender!");
 
-        try {
             Log.i(TAG, "getNextTurn: Waiting for turn from receiver");
             Turn turn = receiver.receiveNextTurn();
             Log.d(TAG, "getNextTurn() returned: " + turn);
             return turn;
-        } catch (InterruptedException e) {
-            throw new MatchOverException(new ExceptionResult(colorOfLocalParticipant, "InterruptedException", e));
-        }
     }
 
     public void notifyAndWaitForResume() {
@@ -194,16 +182,6 @@ public class RemoteOpponent implements MatchParticipant {
             return pauseResponse;
         } catch (InterruptedException e) {
             throw new MatchOverException(new ExceptionResult(colorOfLocalParticipant, "InterruptedException", e));
-        }
-    }
-
-    @Override
-    public void observe(MatchResultIsInEvent matchResultIsInEvent) {
-        Log.d(TAG, "observe() called with: matchResultIsInEvent = [" + matchResultIsInEvent + "]");
-        Log.d(TAG, "observe is running on thread: " + Thread.currentThread().getName());
-        send(matchResultIsInEvent.getMatchChessMatchResult());
-        if (turnRecieverThread != null) {
-            turnRecieverThread.interrupt();
         }
     }
 
@@ -296,7 +274,4 @@ public class RemoteOpponent implements MatchParticipant {
         sender.send(PauseResponse.REJECT);
     }
 
-    public void setTurnRecieverThread(Thread turnRecieverThread) {
-        this.turnRecieverThread = turnRecieverThread;
-    }
 }

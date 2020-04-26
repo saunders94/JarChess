@@ -64,6 +64,8 @@ class MatchResultDialog {
     }
 
     public void show(ChessMatchResult matchChessMatchResult) {
+        Log.d(TAG, "show() called with: matchChessMatchResult = [" + matchChessMatchResult + "]");
+        Log.d(TAG, "show is running on thread: " + Thread.currentThread().getName());
         final String msg = matchChessMatchResult.toString();
 
         activity.runOnUiThread(new Runnable() {

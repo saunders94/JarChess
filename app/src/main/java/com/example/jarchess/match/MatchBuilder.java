@@ -22,11 +22,11 @@ import static com.example.jarchess.match.MatchNetworkIO.DatapackageQueueAdapter;
 
 //TODO javadocs
 public class MatchBuilder {
+    private static final String TAG = "MatchStarter";
     private static MatchBuilder instance = null;
     private final JarAccount account = JarAccount.getInstance();
     private OnlineMatchInfoBundle onlineMatchInfoBundle;
     private MatchClockChoice matchClockChoice = MatchClockChoice.CLASSIC_FIDE_MATCH_CLOCK;
-    private static final String TAG = "MatchStarter";
 
     private MatchBuilder() {
     }
@@ -39,14 +39,18 @@ public class MatchBuilder {
         return instance;
     }
 
-    public void setMatchClockChoice(@NonNull MatchClockChoice matchClockChoice) {
-        this.matchClockChoice = matchClockChoice;
+    public boolean isReadyToBuildMultiplayerMatch() {
+        return onlineMatchInfoBundle != null;
     }
 
     public void multiplayerSetup(OnlineMatchInfoBundle onlineMatchInfoBundle) {
         Log.d(TAG, "multiplayerSetup() called with: onlineMatchInfoBundle = [" + onlineMatchInfoBundle + "]");
         Log.d(TAG, "multiplayerSetup is running on thread: " + Thread.currentThread().getName());
         this.onlineMatchInfoBundle = onlineMatchInfoBundle;
+    }
+
+    public void setMatchClockChoice(@NonNull MatchClockChoice matchClockChoice) {
+        this.matchClockChoice = matchClockChoice;
     }
 
     public Match startEasyAIMatch(EasyAIMatchActivity easyAIMatchActivity, LocalParticipantController localParticipantController) {
@@ -72,17 +76,21 @@ public class MatchBuilder {
     }
 
     public Match startRemoteMultiplayerMatch(OnlineMultiplayerMatchActivity onlineMultiplayerMatchActivity, LocalParticipantController localParticipantController, RemoteOpponentController remoteOpponentController) {
-        Log.d(TAG, "startRemoteMultiplayerMatch() called with: onlineMultiplayerMatchActivity = [" + onlineMultiplayerMatchActivity + "], localParticipantController = [" + localParticipantController + "]");
-        Log.d(TAG, "startRemoteMultiplayerMatch is running on thread: " + Thread.currentThread().getName());
-        if (onlineMatchInfoBundle == null) {
-            throw new IllegalStateException("MatchStarter.multiplayer Setup method must be called before match is started");
+        try {
+            Log.d(TAG, "startRemoteMultiplayerMatch() called with: onlineMultiplayerMatchActivity = [" + onlineMultiplayerMatchActivity + "], localParticipantController = [" + localParticipantController + "]");
+            Log.d(TAG, "startRemoteMultiplayerMatch is running on thread: " + Thread.currentThread().getName());
+            if (onlineMatchInfoBundle == null) {
+                throw new IllegalStateException("MatchStarter.multiplayer Setup method must be called before match is started");
+            }
+
+            // adapts the queue to act as a sender and as a receiver of Datapackages
+
+            DatapackageQueueAdapter adapter = new DatapackageQueueAdapter(onlineMatchInfoBundle.getDatapackageQueue());
+
+
+            return new OnlineMatch(onlineMatchInfoBundle, matchClockChoice, adapter, adapter, localParticipantController, remoteOpponentController, onlineMultiplayerMatchActivity);
+        } finally {
+            onlineMatchInfoBundle = null;
         }
-
-        // adapts the queue to act as a sender and as a receiver of Datapackages
-
-        DatapackageQueueAdapter adapter = new DatapackageQueueAdapter(onlineMatchInfoBundle.getDatapackageQueue());
-
-
-        return new OnlineMatch(onlineMatchInfoBundle, matchClockChoice, adapter, adapter, localParticipantController, remoteOpponentController, onlineMultiplayerMatchActivity);
     }
 }

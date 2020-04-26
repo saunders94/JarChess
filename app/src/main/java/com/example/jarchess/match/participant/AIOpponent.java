@@ -9,8 +9,9 @@ import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.DrawResponse;
 import com.example.jarchess.match.MoveExpert;
 import com.example.jarchess.match.chessboard.ChessboardReader;
-import com.example.jarchess.match.events.MatchResultIsInEvent;
-import com.example.jarchess.match.events.MatchResultIsInEventManager;
+import com.example.jarchess.match.events.MatchEndingEvent;
+import com.example.jarchess.match.events.MatchEndingEventListener;
+import com.example.jarchess.match.events.MatchEndingEventManager;
 import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.pieces.Piece;
@@ -39,12 +40,12 @@ import static java.lang.Math.abs;
  *
  * @author Joshua Zierman
  */
-public abstract class AIOpponent implements MatchParticipant {
+public abstract class AIOpponent implements MatchParticipant, MatchEndingEventListener {
     private static final String TAG = "AIOpponent";
     private static final long TIME_BETWEEN_WAITS_MILLIS = 400L;
     private final ChessColor color;
     private final String name;
-    protected boolean isCanceled = false;
+    protected volatile boolean isCanceled = false;
     protected DrawResponse drawResponse = null;
     protected Turn turn = null;
     protected AIOpponent me = this;
@@ -61,8 +62,12 @@ public abstract class AIOpponent implements MatchParticipant {
     public AIOpponent(ChessColor color, String name) {
         this.color = color;
         this.name = name;
+        MatchEndingEventManager.getInstance().add(this);
+    }
 
-        MatchResultIsInEventManager.getInstance().add(this);
+    @Override
+    public void observe(MatchEndingEvent flagFallEvent) {
+        isCanceled = true;
     }
 
     /**
@@ -92,13 +97,6 @@ public abstract class AIOpponent implements MatchParticipant {
     }
 
     protected abstract long getMaxTimeBeforeShortcutSeconds();
-
-    @Override
-    public synchronized void observe(MatchResultIsInEvent event) {
-        Log.d(TAG, "observe: MatchResultIsInEvent");
-        isCanceled = true;
-        notifyAll();
-    }
 
     protected class Minimax {
 
