@@ -61,6 +61,7 @@ public abstract class MatchActivity extends AppCompatActivity
     private final Collection<Coordinate> possibleDestinations;
     protected Match match;
     protected MatchView matchView;
+    protected MatchClock matchClock;
     private ChessColor waitingForMove;
     private volatile Move move;
     private volatile Coordinate observedSquareClickCoordinate = null;
@@ -69,7 +70,6 @@ public abstract class MatchActivity extends AppCompatActivity
     private Coordinate destinationInput;
     private volatile PromotionChoice choice = null;
     private boolean resultWasShown = false;
-    protected MatchClock matchClock;
     private boolean inputRequestWasCanceled;
     private ChessColor currentControllerColor;
     private DrawResponse drawResponse = null;
@@ -88,15 +88,6 @@ public abstract class MatchActivity extends AppCompatActivity
         Log.d(TAG, "cancelInput is running on thread: " + Thread.currentThread().getName());
         inputRequestWasCanceled = true;
         notifyAll();
-    }
-
-    private synchronized void exitActivityHelper() {
-        try {
-            super.onBackPressed();
-        } finally {
-            LoggedThread.logAllThreads();
-            LoggedThread.clear();
-        }
     }
 
     @Override
@@ -119,22 +110,6 @@ public abstract class MatchActivity extends AppCompatActivity
 
         // return the move
         return move;
-    }
-
-    @Override
-    public synchronized DrawResponse getDrawRequestResponse() throws InterruptedException, MatchOverException {
-        Log.d(TAG, "getDrawRequestResponse() called");
-        Log.d(TAG, "getDrawRequestResponse is running on thread: " + Thread.currentThread().getName());
-        try {
-            matchView.showDrawRequestResponseDialog();
-            while (drawResponse == null) {
-                wait();
-            }
-            Log.d(TAG, "getDrawRequestResponse() returned: " + drawResponse);
-            return drawResponse;
-        } finally {
-            drawResponse = null;
-        }
     }
 
     @Override
@@ -166,6 +141,26 @@ public abstract class MatchActivity extends AppCompatActivity
         }
 
         return choice;
+    }
+
+    private synchronized void conditionallyThrowMatchOverException() throws MatchOverException {
+        Log.d(TAG, "conditionallyThrowMatchOverException() called");
+        Log.d(TAG, "conditionallyThrowMatchOverException is running on thread: " + Thread.currentThread().getName());
+        Log.d(TAG, "conditionallyThrowMatchOverException: match is done = " + match.isDone());
+        Log.d(TAG, "conditionallyThrowMatchOverException: inputRequestWasCanceled" + inputRequestWasCanceled);
+        if (match.isDone() || inputRequestWasCanceled) {
+            throw new MatchOverException(match.getChessMatchResult());
+        }
+    }
+
+    private synchronized void exitActivityHelper() {
+        Log.d(TAG, "exitActivityHelper() called");
+        Log.d(TAG, "exitActivityHelper is running on thread: " + Thread.currentThread().getName());
+
+        LoggedThread.logAllThreads();
+        LoggedThread.clear();
+        super.finish();
+
     }
 
     public void changeCurrentControllerColorIfNeeded() {
@@ -246,13 +241,19 @@ public abstract class MatchActivity extends AppCompatActivity
         return JarAccount.getInstance().getCommitButtonClickIsRequired();
     }
 
-    private synchronized void conditionallyThrowMatchOverException() throws MatchOverException {
-        Log.d(TAG, "conditionallyThrowMatchOverException() called");
-        Log.d(TAG, "conditionallyThrowMatchOverException is running on thread: " + Thread.currentThread().getName());
-        Log.d(TAG, "conditionallyThrowMatchOverException: match is done = " + match.isDone());
-        Log.d(TAG, "conditionallyThrowMatchOverException: inputRequestWasCanceled" + inputRequestWasCanceled);
-        if (match.isDone() || inputRequestWasCanceled) {
-            throw new MatchOverException(match.getMatchChessMatchResult());
+    @Override
+    public synchronized DrawResponse getDrawRequestResponse() throws InterruptedException, MatchOverException {
+        Log.d(TAG, "getDrawRequestResponse() called");
+        Log.d(TAG, "getDrawRequestResponse is running on thread: " + Thread.currentThread().getName());
+        try {
+            matchView.showDrawRequestResponseDialog();
+            while (drawResponse == null) {
+                wait();
+            }
+            Log.d(TAG, "getDrawRequestResponse() returned: " + drawResponse);
+            return drawResponse;
+        } finally {
+            drawResponse = null;
         }
     }
 
@@ -495,13 +496,17 @@ public abstract class MatchActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_match);
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
 
         // set match to the current match
         match = createMatch();
 
         //GUI Drawn
-        setContentView(R.layout.activity_match);
         matchView = new MatchView(match, this);
 
         matchClock = match.getMatchClock();
@@ -628,9 +633,9 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     public synchronized void showMatchResult() {
-        ChessMatchResult r = match.getMatchChessMatchResult();
+        ChessMatchResult r = match.getChessMatchResult();
         Log.v(TAG, "showMatchResult() called");
-        Log.v(TAG, "showMatchResult: " + match.getMatchChessMatchResult());
+        Log.v(TAG, "showMatchResult: " + match.getChessMatchResult());
         resultWasShown = true;
 
         if (r instanceof ResignationResult) {
@@ -646,7 +651,7 @@ public abstract class MatchActivity extends AppCompatActivity
             }
         }
 
-        matchView.showMatchResultDialog(match.getMatchChessMatchResult());
+        matchView.showMatchResultDialog(match.getChessMatchResult());
     }
 
     private void updatePossibleInputDestinations(@NonNull Coordinate originInput) {

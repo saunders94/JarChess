@@ -3,12 +3,21 @@ package com.example.jarchess;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.jarchess.online.JSONCompiler.JSONAccount;
+import com.example.jarchess.online.networking.DataSender;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 
 
 public class PasswordConfig extends Fragment {
@@ -18,6 +27,7 @@ public class PasswordConfig extends Fragment {
     private TextView originalPasswordArea;
     private TextView newPasswordArea;
     private TextView verifyNewPasswordArea;
+    private String TAG = "PasswordConfig";
 
 
     public PasswordConfig() {
@@ -46,6 +56,16 @@ public class PasswordConfig extends Fragment {
             @Override
             public void onClick(View v) {
                 int duration = Toast.LENGTH_SHORT;
+
+
+                String oldPass = originalPasswordArea.getText().toString();
+                String newPass = newPasswordArea.getText().toString();
+                String validatePass = verifyNewPasswordArea.getText().toString();
+
+                Log.i(TAG, "oldPass: " + oldPass);
+                Log.i(TAG, "newPass: " + newPass);
+
+
                 if (validate()) {
                     FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
                     MainMenu mainMenu = new MainMenu();
@@ -54,6 +74,7 @@ public class PasswordConfig extends Fragment {
                     transaction.commit();
                     Toast toast = Toast.makeText(getContext(), "The password was successfully changed", duration);
                     toast.show();
+
                 } else {
                     Toast toast = Toast.makeText(getContext(), "Password change failed", duration);
                     toast.show();

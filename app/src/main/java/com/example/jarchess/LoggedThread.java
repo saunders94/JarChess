@@ -9,8 +9,10 @@ public class LoggedThread extends Thread {
     private static final String TAG = "LoggedThread";
     private static Collection<LoggedThread> list = new LinkedList<>();
     private final String tag;
+    private final boolean skipOnJoinAll;
 
-    public LoggedThread(final String tag, final Runnable runnable, final String threadName) {
+
+    public LoggedThread(final String tag, final Runnable runnable, final String threadName, final boolean skippOnJoinAll) {
 
         super(new Runnable() {
             @Override
@@ -24,6 +26,11 @@ public class LoggedThread extends Thread {
             }
         }, threadName);
         this.tag = tag;
+        this.skipOnJoinAll = skippOnJoinAll;
+    }
+
+    public LoggedThread(final String tag, final Runnable runnable, final String threadName) {
+        this(tag, runnable, threadName, true);
     }
 
     public static void clear() {
@@ -63,8 +70,9 @@ public class LoggedThread extends Thread {
 
     @Override
     public synchronized void start() {
-        list.add(this);
         super.start();
+        list.add(this);
+
     }
 
 }

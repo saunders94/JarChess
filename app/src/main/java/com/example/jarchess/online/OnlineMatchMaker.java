@@ -165,8 +165,7 @@ public class OnlineMatchMaker {
                                 throw  new SearchCanceledException();
                             }
                         } catch (JSONException e) {
-                            e.printStackTrace();
-                            Log.i(TAG, "Error");
+                            Log.e(TAG, "run: ", e);
                         }
                         //use the received information to create an online match
                         lock.notifyAll();

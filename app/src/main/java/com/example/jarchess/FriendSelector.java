@@ -4,6 +4,7 @@ package com.example.jarchess;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,13 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.jarchess.online.JSONCompiler.JSONAccount;
+import com.example.jarchess.online.networking.DataSender;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -24,6 +32,10 @@ public class FriendSelector extends Fragment {
     private ListView friendList;
     private int indexOfLastSelected;
     private boolean listIsEmpty;
+    private ArrayList<String> supposedlyEmptyList;
+    private ArrayList<String> friendsList;
+    private String TAG = "FriendSelector";
+
 
     public FriendSelector() {
         // Required empty public constructor
@@ -35,8 +47,8 @@ public class FriendSelector extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_friend_selector, container, false);
-        ArrayList<String> supposedlyEmptyList = new ArrayList<>();
-        supposedlyEmptyList.add("No Friends Were Found");
+        supposedlyEmptyList = new ArrayList<>();
+        populateList();
 
         requestMatchButton = view.findViewById(R.id.button_request_match);
         friendList = view.findViewById(R.id.list_friend);
@@ -81,7 +93,8 @@ public class FriendSelector extends Fragment {
                             "Please Select a Friend", Toast.LENGTH_SHORT);
                     toast.show();
                 } else {
-                    callback.onFriendMatchChosen(indexOfLastSelected);
+                    String name = friendsList.get(indexOfLastSelected);
+                    callback.onFriendMatchChosen(name);
                 }
             }
         });
@@ -104,7 +117,49 @@ public class FriendSelector extends Fragment {
 
     public interface FriendSelectorCommunicator {
         ArrayList<String> onSelectorLoad();
-        void onFriendMatchChosen(int index);
+        void onFriendMatchChosen(String name);
+    }
+
+    private void populateList() {
+
+        supposedlyEmptyList = new ArrayList<>();
+        friendsList = new ArrayList<>();
+        //supposedlyEmptyList.add("No Friends Were Found");
+        JSONObject requestObject = new JSONObject();
+        JSONObject data = null;
+        JSONObject user = null;
+
+        DataSender sender = new DataSender();
+
+        try {
+            requestObject = sender.send(new JSONAccount().getFriendsList(JarAccount.getInstance().getName()));
+            Log.i(TAG, requestObject.toString());
+            data = new JSONObject(requestObject.getString("friends"));
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        } catch (JSONException e2) {
+            e2.printStackTrace();
+        }
+        int count = 0;
+        try {
+            count = Integer.parseInt(requestObject.getString("count"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        for (int i = 0; i < count; i++) {
+
+            try {
+                user = new JSONObject(data.getString("friend" + String.valueOf(i)));
+                String username = user.getString("username");
+                String displayString = String.valueOf(i + 1) + ")    " + username;
+                friendsList.add(username);
+                supposedlyEmptyList.add(displayString);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
 
