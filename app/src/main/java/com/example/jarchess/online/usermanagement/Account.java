@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 public class  Account {
     private JSONAccount jsonAccount;
@@ -195,6 +196,37 @@ public class  Account {
         }
         return status;
 
+    }
+
+    public ArrayList<String> getFriendsList(){
+        ArrayList<String> friendsList = new ArrayList<>();
+        JSONObject reqobj = new JSONAccount().getFriendRequests(JarAccount.getInstance().getName());
+        DataSender sender = new DataSender();
+        JSONObject responseObj = null;
+        JSONObject friends = null;
+        JSONObject user = null;
+        int count = 0;
+        try {
+            responseObj = sender.send(reqobj);
+            count = Integer.parseInt(responseObj.getString("count"));
+            friends = new JSONObject(responseObj.getString("friends"));
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+        for(int i = 0; i < count; i++){
+
+            try {
+                user = new JSONObject(friends.getString("friend" + String.valueOf(i)));
+                String username = user.getString("username");
+                String displayString = String.valueOf(i+1) + ")    " + username;
+                friendsList.add(username);
+                //friendsList.add(displayString);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return friendsList;
     }
 
 }

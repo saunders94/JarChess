@@ -59,7 +59,7 @@ public class FriendManager extends Fragment {
         ArrayList<String> supposedlyEmptyList = new ArrayList<>();
         listAdapter = new ArrayAdapter<>
                 (getContext(), R.layout.list_item_style, supposedlyEmptyList);
-
+        friendsToAdd();
         populateList();
 
         friendList.setAdapter(listAdapter);
@@ -98,6 +98,11 @@ public class FriendManager extends Fragment {
                         Toast toast = Toast.makeText(v.getContext(),
                                 "Friend Removed", duration);
                         toast.show();
+                        friendsList.clear();
+                        supposedlyEmptyList.clear();
+                        friendsToAdd();
+                        populateList();
+
                     } else {
                         Toast toast = Toast.makeText(v.getContext(),
                                 "Friend Removal Failed", duration);
@@ -126,8 +131,6 @@ public class FriendManager extends Fragment {
     private void populateList() {
 
         friendInfo = callback.onManagerLoad();
-        supposedlyEmptyList = new ArrayList<>();
-        friendsList = new ArrayList<>();
         //supposedlyEmptyList.add("No Friends Were Found");
         JSONObject requestObject = new JSONObject();
         JSONObject data = null;
@@ -157,6 +160,62 @@ public class FriendManager extends Fragment {
                 user = new JSONObject(data.getString("friend" + String.valueOf(i)));
                 String username = user.getString("username");
                 String displayString = String.valueOf(i+1) + ")    " + username;
+                friendsList.add(username);
+                supposedlyEmptyList.add(displayString);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        if(friendInfo == null){
+            listAdapter.clear();
+            listAdapter.addAll(supposedlyEmptyList);
+            listAdapter.notifyDataSetChanged();
+            listIsEmpty = false;
+        } else {
+            listAdapter.clear();
+            listAdapter.addAll(friendInfo);
+            listAdapter.notifyDataSetChanged();
+            listIsEmpty = false;
+        }
+
+    }
+
+    private void friendsToAdd() {
+
+        friendInfo = callback.onManagerLoad();
+        supposedlyEmptyList = new ArrayList<>();
+        friendsList = new ArrayList<>();
+        //supposedlyEmptyList.add("No Friends Were Found");
+        JSONObject requestObject = new JSONObject();
+        JSONObject data = null;
+        JSONObject user = null;
+
+        DataSender sender = new DataSender();
+
+        try {
+            requestObject = sender.send(new JSONAccount().getFriendRequests(JarAccount.getInstance().getName()));
+            Log.i(TAG, requestObject.toString());
+            data = new JSONObject(requestObject.getString("friends"));
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }catch (JSONException e2){
+            e2.printStackTrace();
+        }
+        int count = 0;
+        try {
+            count = Integer.parseInt(requestObject.getString("count"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        for(int i = 0; i < count; i++){
+
+            try {
+                user = new JSONObject(data.getString("friend" + String.valueOf(i)));
+                String username = user.getString("username");
+                String displayString = String.valueOf(i+1) + ") Friend Request   " + username;
                 friendsList.add(username);
                 supposedlyEmptyList.add(displayString);
             } catch (JSONException e) {

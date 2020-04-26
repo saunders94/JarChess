@@ -349,6 +349,10 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
                 String.valueOf(password));
         if (signonStatus) {
             usernameLabel.setText(username);
+            ArrayList<String> friendsList = new Account().getFriendsList();
+            for(int i = 0; i < friendsList.size(); i++){
+                addNotification(1);
+            }
             return true;
         }
         return false;
