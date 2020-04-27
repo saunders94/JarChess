@@ -55,7 +55,6 @@ public class OnlineMatchMaker {
         return instance;
     }
 
-
     public void cancel() {
         synchronized (lock) {
             Log.d(TAG, "cancel() called");

@@ -47,7 +47,7 @@ public interface MatchParticipant {
      *
      * @return a response
      */
-    DrawResponse getDrawResponse(MatchHistory matchHistory);
+    DrawResponse getDrawResponse(MatchHistory matchHistory) throws InterruptedException;
 
     /**
      * Takes a turn in response to the last turn from the other participant.

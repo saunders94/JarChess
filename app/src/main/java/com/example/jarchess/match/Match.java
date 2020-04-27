@@ -185,7 +185,7 @@ public abstract class Match implements MatchEndingEventListener {
         if (wasSet) {
 //            MatchResultIsInEventManager.getInstance().notifyAllListeners(new MatchResultIsInEvent(matchChessMatchResult)); TODO remove all of the MatchResultIsInStuff
             matchActivity.showMatchResult();
-            matchThread.interrupt();
+            LoggedThread.inputThreads.interruptAll();
         }
     }
 
@@ -358,9 +358,11 @@ public abstract class Match implements MatchEndingEventListener {
             @Override
             public void run() {
                 playMatch();
+                LoggedThread.inputThreads.remove(Thread.currentThread());
             }
         };
         matchThread = new LoggedThread(TAG, runnable, "MatchThread");
+        LoggedThread.inputThreads.add(matchThread);
         matchThread.start();
 
     }

@@ -304,6 +304,10 @@ public class MatchView extends View implements ClockTickEventListener {
     }
 
     public void showMatchResultDialog(ChessMatchResult matchChessMatchResult) {
+        hidePendingPauseDialog();
+        hidePendingDrawDialog();
+        hidePauseRequestResponseDialog();
+        hidePendingResumeDialog();
         matchResultDialog.show(matchChessMatchResult);
     }
 

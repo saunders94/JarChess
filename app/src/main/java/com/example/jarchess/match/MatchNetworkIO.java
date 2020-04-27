@@ -296,6 +296,7 @@ public class MatchNetworkIO {
 
                                     case MATCH_RESULT:
                                         Log.d(TAG, "run: handling received match result");
+                                        LoggedThread.inputThreads.interruptAll();
                                         while (!incomingTurns.isEmpty()) {
                                             lock.wait();
                                         }
@@ -313,7 +314,13 @@ public class MatchNetworkIO {
                                         new LoggedThread(TAG, new Runnable() {
                                             @Override
                                             public void run() {
-                                                listener.processRemotePauseRequest();
+                                                try {
+                                                    listener.processRemotePauseRequest();
+                                                } catch (MatchOverException e) {
+                                                    // do nothing
+                                                } catch (InterruptedException e) {
+                                                    // do nothing
+                                                }
                                             }
                                         }, "pauseRequestThread").start();
                                         break;
@@ -339,7 +346,13 @@ public class MatchNetworkIO {
                                         new LoggedThread(TAG, new Runnable() {
                                             @Override
                                             public void run() {
-                                                listener.processRemoteDrawRequest();
+                                                try {
+                                                    listener.processRemoteDrawRequest();
+                                                } catch (MatchOverException e) {
+                                                    //do nothing
+                                                } catch (InterruptedException e) {
+                                                    //do nothing
+                                                }
                                             }
                                         }, "drawRequestThread").start();
                                         break;

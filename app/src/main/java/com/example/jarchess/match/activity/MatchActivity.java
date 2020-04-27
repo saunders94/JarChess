@@ -83,14 +83,6 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     @Override
-    public synchronized void cancelInput() {
-        Log.d(TAG, "cancelInput() called");
-        Log.d(TAG, "cancelInput is running on thread: " + Thread.currentThread().getName());
-        inputRequestWasCanceled = true;
-        notifyAll();
-    }
-
-    @Override
     public synchronized Move getMoveInput(ChessColor color) throws InterruptedException, MatchOverException {
         Log.d(TAG, "getMoveInput() called with: color = [" + color + "]");
         Log.d(TAG, "getMoveInput is running on thread: " + Thread.currentThread().getName());
@@ -323,7 +315,11 @@ public abstract class MatchActivity extends AppCompatActivity
             new LoggedThread(TAG, new Runnable() {
                 @Override
                 public void run() {
-                    ((PlayerMatch) match).handlePlayerResumeRequest();
+                    try {
+                        ((PlayerMatch) match).handlePlayerResumeRequest();
+                    } catch (InterruptedException e) {
+                        // do nothing
+                    }
                 }
             }, "resumeButtonEventHandlingThread").start();
         } else {
@@ -395,40 +391,58 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     @Override
-    public void observe(RequestDrawButtonPressedEvent event) {
+    public synchronized void observe(RequestDrawButtonPressedEvent event) {
 
         final MatchActivity activity = this;
-        new LoggedThread(TAG, new Runnable() {
+        final Thread t = new LoggedThread(TAG, new Runnable() {
             @Override
             public void run() {
-                if (activity instanceof LocalMultiplayerMatchActivity) {
-                    // we don't need to check for agreement
-                    MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new AgreedUponDrawResult()));
+                try {
+                    if (activity instanceof LocalMultiplayerMatchActivity) {
+                        // we don't need to check for agreement
+                        MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new AgreedUponDrawResult()));
 
-                    exitActivity();
-                } else if (match instanceof PlayerMatch) {
+                        exitActivity();
+                    } else if (match instanceof PlayerMatch) {
 
-                    matchView.showPendingDrawDialog();
-                    ((PlayerMatch) match).handlePlayerDrawRequest();
+                        matchView.showPendingDrawDialog();
+                        ((PlayerMatch) match).handlePlayerDrawRequest();
+                    }
+
+                    matchView.hidePendingDrawDialog();
+                    matchView.makeDrawButtonClickable();
+                } catch (InterruptedException e) {
+                    // do nothing
+                } finally {
+                    LoggedThread.inputThreads.remove(Thread.currentThread());
                 }
-
-                matchView.hidePendingDrawDialog();
-                matchView.makeDrawButtonClickable();
             }
-        }, "drawButtonEventHandlingThread").start();
+        }, "drawButtonEventHandlingThread");
+        LoggedThread.inputThreads.add(t);
+        t.start();
 
 
     }
 
     @Override
-    public void observe(PauseButtonPressedEvent event) {
+    public synchronized void observe(PauseButtonPressedEvent event) {
         if (match instanceof PlayerMatch) {
-            new LoggedThread(TAG, new Runnable() {
+            final Thread t = new LoggedThread(TAG, new Runnable() {
                 @Override
                 public void run() {
-                    ((PlayerMatch) match).handlePlayerPauseRequest();
+                    try {
+                        ((PlayerMatch) match).handlePlayerPauseRequest();
+                    } catch (InterruptedException e) {
+                        // do nothing
+                    } finally {
+
+                        LoggedThread.inputThreads.remove(Thread.currentThread());
+                    }
                 }
-            }, "pauseButtonEventHandlingThread").start();
+            }, "pauseButtonEventHandlingThread");
+            LoggedThread.inputThreads.add(t);
+            t.start();
+
 
 
         } else {
@@ -462,13 +476,17 @@ public abstract class MatchActivity extends AppCompatActivity
         notifyAll();
     }
 
-    public synchronized void observeResignButtonClick() {
+    public void observeResignButtonClick() {
         Log.d(TAG, "observeResignButtonClick() called");
         Log.d(TAG, "observeResignButtonClick is running on thread: " + Thread.currentThread().getName());
 
+        LoggedThread.inputThreads.interruptAll();
+
         // do anything we need to do before match activity ends
-        if (currentControllerColor != null) {
-            MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ResignationResult(ChessColor.getOther(currentControllerColor))));
+        synchronized (this) {
+            if (currentControllerColor != null) {
+                MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ResignationResult(ChessColor.getOther(currentControllerColor))));
+            }
         }
 
         exitActivity();
@@ -637,6 +655,7 @@ public abstract class MatchActivity extends AppCompatActivity
         Log.v(TAG, "showMatchResult() called");
         Log.v(TAG, "showMatchResult: " + match.getChessMatchResult());
         resultWasShown = true;
+
 
         if (r instanceof ResignationResult) {
             ChessColor resigningColor = ((ResignationResult) r).getLoserColor();
