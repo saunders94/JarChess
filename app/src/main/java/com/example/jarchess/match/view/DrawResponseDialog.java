@@ -5,7 +5,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.jarchess.match.DrawResponse;
-import com.example.jarchess.match.activity.MatchActivity;
 
 public class DrawResponseDialog extends BinaryChoiceDialog {
 
@@ -13,8 +12,8 @@ public class DrawResponseDialog extends BinaryChoiceDialog {
     public static final String REJECT = "Reject";
     private static final String TAG = "DrawRequestDialog";
 
-    public DrawResponseDialog(@NonNull MatchActivity matchActivity) {
-        super(matchActivity, "Draw Request", "Will you accept the request?", ACCEPT, REJECT);
+    public DrawResponseDialog(@NonNull final MatchView matchView) {
+        super(matchView, "Draw Request", "Will you accept the request?", ACCEPT, REJECT);
     }
 
     @Override
@@ -23,11 +22,13 @@ public class DrawResponseDialog extends BinaryChoiceDialog {
             case ACCEPT:
                 Log.i(TAG, "onClickOption: " + ACCEPT);
                 activity.setDrawResponse(DrawResponse.ACCEPT);
+                hideWithoutEnablingDrawButton();
                 break;
 
             case REJECT:
                 Log.i(TAG, "onClickOption: " + REJECT);
                 activity.setDrawResponse(DrawResponse.REJECT);
+                hide();
                 break;
 
 

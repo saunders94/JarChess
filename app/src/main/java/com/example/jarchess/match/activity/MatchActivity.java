@@ -234,7 +234,7 @@ public abstract class MatchActivity extends AppCompatActivity
     }
 
     @Override
-    public synchronized DrawResponse getDrawRequestResponse() throws InterruptedException, MatchOverException {
+    public synchronized DrawResponse getDrawRequestResponse() throws InterruptedException {
         Log.d(TAG, "getDrawRequestResponse() called");
         Log.d(TAG, "getDrawRequestResponse is running on thread: " + Thread.currentThread().getName());
         try {
@@ -285,11 +285,8 @@ public abstract class MatchActivity extends AppCompatActivity
             if (pauseResponse.isAccepted()) {
                 Log.i(TAG, "getPauseRequestResponse: Accpeted");
                 matchClock.stop();
-                matchView.showAcceptedPauseDialog();
-                matchView.hidePauseRequestResponseDialog();
             } else {
                 Log.i(TAG, "getPauseRequestResponse: Rejected");
-                matchView.hidePauseRequestResponseDialog();
             }
 
             Log.d(TAG, "getPauseRequestResponse() returned: " + pauseResponse);
@@ -410,7 +407,7 @@ public abstract class MatchActivity extends AppCompatActivity
                     }
 
                     matchView.hidePendingDrawDialog();
-                    matchView.makeDrawButtonClickable();
+                    matchView.enableDrawButton();
                 } catch (InterruptedException e) {
                     // do nothing
                 } finally {

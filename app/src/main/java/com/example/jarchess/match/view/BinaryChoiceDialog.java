@@ -6,14 +6,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-
 import com.example.jarchess.R;
 import com.example.jarchess.match.activity.MatchActivity;
 
 abstract class BinaryChoiceDialog {
     private final TextView titleTextView;
     private static final int MINIMUM_HEIGHT = 120;
+    private final MatchView matchView;
     protected final MatchActivity activity;
     private final TextView bodyTextView;
     private final String title;
@@ -25,8 +24,9 @@ abstract class BinaryChoiceDialog {
     private boolean aDialogIsOpen = false;
     private String buttonText0;
 
-    public BinaryChoiceDialog(@NonNull MatchActivity matchActivity, String title, String body, final String buttonText0, final String buttonText1) {
-        activity = matchActivity;
+    public BinaryChoiceDialog(MatchView matchView, String title, String body, final String buttonText0, final String buttonText1) {
+        this.matchView = matchView;
+        activity = matchView.getActivity();
         this.title = title;
         this.body = body;
         this.buttonText0 = buttonText0;
@@ -55,6 +55,11 @@ abstract class BinaryChoiceDialog {
     }
 
     public synchronized void hide() {
+        matchView.enableDrawButton();
+        hideWithoutEnablingDrawButton();
+    }
+
+    protected void hideWithoutEnablingDrawButton() {
         if (aDialogIsOpen) {
             aDialogIsOpen = false;
             activity.runOnUiThread(new Runnable() {
@@ -72,6 +77,7 @@ abstract class BinaryChoiceDialog {
 
     public synchronized void show() {
 
+        matchView.disableDrawButton();
         if (!aDialogIsOpen) {
             aDialogIsOpen = true;
             activity.runOnUiThread(new Runnable() {
@@ -85,7 +91,6 @@ abstract class BinaryChoiceDialog {
                         @Override
                         public void onClick(View v) {
                             onClickOption(buttonText0);
-                            hide();
                         }
                     });
 
@@ -93,7 +98,6 @@ abstract class BinaryChoiceDialog {
                         @Override
                         public void onClick(View v) {
                             onClickOption(buttonText1);
-                            hide();
                         }
                     });
 

@@ -1,6 +1,5 @@
 package com.example.jarchess.match.view;
 
-import android.app.Activity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -62,7 +61,7 @@ public class MatchView extends View implements ClockTickEventListener {
     private final CapturedPiecesView capturedPieceView;
     private final MatchResultDialog matchResultDialog;
     private final PawnPromotionChoiceDialog pawnPromotionChoiceDialog;
-    private final Activity activity;
+    private final MatchActivity activity;
     private final Button pauseButton;
     private final View drawPendingDialog;
     private final PausePendingDialog pausePendingDialog;
@@ -70,7 +69,7 @@ public class MatchView extends View implements ClockTickEventListener {
     private final PauseResponseDialog pauseResponseDialog;
     private final DrawResponseDialog drawResponseDialog;
 
-    public MatchView(Match match, MatchActivity activity) {
+    public MatchView(final Match match, final MatchActivity activity) {
         super(activity.getBaseContext());
         commitButtonClickObserver = activity;
         this.activity = activity;
@@ -92,12 +91,12 @@ public class MatchView extends View implements ClockTickEventListener {
         if (!JarAccount.getInstance().getCommitButtonClickIsRequired()) {
             commitButton.setVisibility(INVISIBLE);
         }
-        leaveMatchDialog = new LeaveMatchDialog(activity);
-        matchResultDialog = new MatchResultDialog(activity);
-        pawnPromotionChoiceDialog = new PawnPromotionChoiceDialog(activity);
-        drawResponseDialog = new DrawResponseDialog(activity);
-        pauseResponseDialog = new PauseResponseDialog(activity);
-        pausePendingDialog = new PausePendingDialog(activity);
+        leaveMatchDialog = new LeaveMatchDialog(this);
+        matchResultDialog = new MatchResultDialog(this);
+        pawnPromotionChoiceDialog = new PawnPromotionChoiceDialog(this);
+        drawResponseDialog = new DrawResponseDialog(this);
+        pauseResponseDialog = new PauseResponseDialog(this);
+        pausePendingDialog = new PausePendingDialog(this);
 
 
         commitButton.setOnClickListener(new OnClickListener() {
@@ -209,6 +208,18 @@ public class MatchView extends View implements ClockTickEventListener {
         chessboardView.clearDestinationSelectionIndicator(movement.getDestination());
     }
 
+    public void disableDrawButton() {
+        leaveMatchDialog.disableDrawButton();
+    }
+
+    public void enableDrawButton() {
+        leaveMatchDialog.enableDrawButton();
+    }
+
+    public MatchActivity getActivity() {
+        return activity;
+    }
+
     public void hidePauseButton() {
         activity.runOnUiThread(new Runnable() {
             @Override
@@ -223,6 +234,7 @@ public class MatchView extends View implements ClockTickEventListener {
     }
 
     public void hidePendingDrawDialog() {
+        enableDrawButton();
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -239,6 +251,7 @@ public class MatchView extends View implements ClockTickEventListener {
     public void hidePendingResumeDialog() {
         Log.d(TAG, "hidePendingResumeDialog() called");
         Log.d(TAG, "hidePendingResumeDialog is running on thread: " + Thread.currentThread().getName());
+
         pausePendingDialog.hide();
     }
 
@@ -250,10 +263,6 @@ public class MatchView extends View implements ClockTickEventListener {
                 rightParticipantTimeTextView.setVisibility(GONE);
             }
         });
-    }
-
-    public void makeDrawButtonClickable() {
-        leaveMatchDialog.makeDrawButtonClickable();
     }
 
     @Override
@@ -304,10 +313,7 @@ public class MatchView extends View implements ClockTickEventListener {
     }
 
     public void showMatchResultDialog(ChessMatchResult matchChessMatchResult) {
-        hidePendingPauseDialog();
-        hidePendingDrawDialog();
-        hidePauseRequestResponseDialog();
-        hidePendingResumeDialog();
+
         matchResultDialog.show(matchChessMatchResult);
     }
 
@@ -320,6 +326,7 @@ public class MatchView extends View implements ClockTickEventListener {
     }
 
     public void showPendingDrawDialog() {
+        disableDrawButton();
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
