@@ -17,7 +17,8 @@ public enum ResultType implements JSONConvertible<ResultType> {
     AGREED_UPON_DRAW(5),
     REPETITION_RULE_DRAW(6),
     STALEMATE_DRAW(7),
-    X_MOVE_RULE_DRAW(8);
+    X_MOVE_RULE_DRAW(8),
+    SERVER_ERROR(9);
 
     private static final JSONConverter[] jsonConverters = new JSONConverter[values().length];
     private static boolean convertersNeedToBeSetUp = true;
@@ -45,6 +46,7 @@ public enum ResultType implements JSONConvertible<ResultType> {
             jsonConverters[REPETITION_RULE_DRAW.intValue] = RepetitionRuleDrawResult.JSON_CONVERTER;
             jsonConverters[STALEMATE_DRAW.intValue] = StalemateDrawResult.JSON_CONVERTER;
             jsonConverters[X_MOVE_RULE_DRAW.intValue] = XMoveRuleDrawResult.JSON_CONVERTER;
+            jsonConverters[SERVER_ERROR.intValue] = ServerErrorResult.JSON_CONVERTER;
         }
         return jsonConverters[intValue];
     }
