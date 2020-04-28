@@ -5,21 +5,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
-
 import com.example.jarchess.R;
 import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.pieces.PromotionChoice;
 
 class PawnPromotionChoiceDialog {
     private static final int MINIMUM_HEIGHT = 120;
+    private final MatchView matchView;
     private final MatchActivity activity;
     private ViewGroup viewGroup;
     private View backgroundFadeView;
     private Button queen, knight, rook, bishop;
 
-    public PawnPromotionChoiceDialog(@NonNull MatchActivity matchActivity) {
-        activity = matchActivity;
+    public PawnPromotionChoiceDialog(final MatchView matchView) {
+        this.matchView = matchView;
+        activity = matchView.getActivity();
 
 
         viewGroup = activity.findViewById(R.id.promotionChoiceDialogFrameLayout);
@@ -68,6 +68,7 @@ class PawnPromotionChoiceDialog {
             @Override
             public void onClick(View v) {
                 activity.setPromotionChoiceInput(PromotionChoice.PROMOTE_TO_ROOK);
+                matchView.enableDrawButton();
                 hide();
             }
         });
@@ -84,7 +85,7 @@ class PawnPromotionChoiceDialog {
     }
 
     public void show() {
-
+        matchView.disableDrawButton();
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

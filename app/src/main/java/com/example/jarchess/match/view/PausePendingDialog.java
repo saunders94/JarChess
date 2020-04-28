@@ -16,6 +16,7 @@ import java.util.LinkedList;
 class PausePendingDialog {
     private static final String TAG = "PausePendingDialog";
 
+    private final MatchView matchView;
     private final MatchActivity activity;
     private final ViewGroup viewGroup;
     private final Button button;
@@ -27,8 +28,9 @@ class PausePendingDialog {
     private final Collection<TextView> textViews = new LinkedList<>();
     private View backgroundFadeView;
 
-    public PausePendingDialog(MatchActivity matchActivity) {
-        this.activity = matchActivity;
+    public PausePendingDialog(MatchView matchView) {
+        this.matchView = matchView;
+        this.activity = matchView.getActivity();
         viewGroup = activity.findViewById(R.id.pendingPauseDialog);
         pausedTextView = viewGroup.findViewById(R.id.pausePendingTitleTextView_Paused);
         textViews.add(pausedTextView);
@@ -45,6 +47,7 @@ class PausePendingDialog {
     }
 
     public void hide() {
+        matchView.enableDrawButton();
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -67,6 +70,7 @@ class PausePendingDialog {
     }
 
     public void showPauseRequestAccepted() {
+        matchView.disableDrawButton();
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -90,6 +94,7 @@ class PausePendingDialog {
     }
 
     public void showPauseRequestPending() {
+        matchView.disableDrawButton();
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -105,6 +110,7 @@ class PausePendingDialog {
     }
 
     public void showResumeRequestPending() {
+        matchView.disableDrawButton();
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
