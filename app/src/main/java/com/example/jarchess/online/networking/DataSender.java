@@ -94,7 +94,7 @@ public class DataSender {
                 socket = new Socket();
                 socket.setSoTimeout(500);
                 InetSocketAddress inetSocketAddress = new InetSocketAddress(logonServer, serverPort);
-                socket.connect(inetSocketAddress, 5000);
+                socket.connect(inetSocketAddress, 3000);
                 Log.d(TAG, "sendData: socket created");
 
                 String data = jsonObject.toString();

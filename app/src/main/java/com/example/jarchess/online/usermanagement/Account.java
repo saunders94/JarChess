@@ -13,15 +13,16 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
-public class Account {
-    //    private String username;
-//    private String password;
-    private static final String TAG = "Account";
+public class  Account {
     private JSONAccount jsonAccount;
     private DataSender dataSender;
+    private String username;
+    private String password;
+    private static final String TAG = "Account";
 
-    public Account() {
+    public Account(){
         this.jsonAccount = new JSONAccount();
         this.dataSender = new DataSender();
     }
@@ -186,15 +187,15 @@ public class Account {
         boolean status = false;
 
         String hashedPass = getPasswordHash(password);
-        if (hashedPass == null) {
+        if(hashedPass == null){
             return false;
         }
 
-        if (username.equals("")) {
+        if(username.equals("")){
             Log.i(TAG, "signin: username was empty string");
             Log.d(TAG, "signin() returned: " + false);
             return false;
-        } else if (username == null) {
+        }else if(username == null){
             Log.i(TAG, "signin: username was null");
             Log.d(TAG, "signin() returned: " + false);
             return false;
@@ -292,5 +293,35 @@ public class Account {
         return status;
     }
 
+    public ArrayList<String> getFriendsList(){
+        ArrayList<String> friendsList = new ArrayList<>();
+        JSONObject reqobj = new JSONAccount().getFriendRequests(JarAccount.getInstance().getName());
+        DataSender sender = new DataSender();
+        JSONObject responseObj = null;
+        JSONObject friends = null;
+        JSONObject user = null;
+        int count = 0;
+        try {
+            responseObj = sender.send(reqobj);
+            count = Integer.parseInt(responseObj.getString("count"));
+            friends = new JSONObject(responseObj.getString("friends"));
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+        for(int i = 0; i < count; i++){
+
+            try {
+                user = new JSONObject(friends.getString("friend" + String.valueOf(i)));
+                String username = user.getString("username");
+                String displayString = String.valueOf(i+1) + ")    " + username;
+                friendsList.add(username);
+                //friendsList.add(displayString);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return friendsList;
+    }
 
 }
