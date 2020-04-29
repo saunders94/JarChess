@@ -7,6 +7,7 @@ import com.example.jarchess.match.events.MatchEndingEvent;
 import com.example.jarchess.match.events.MatchEndingEventManager;
 import com.example.jarchess.match.participant.RemoteOpponent;
 import com.example.jarchess.match.result.ChessMatchResult;
+import com.example.jarchess.match.result.ServerErrorResult;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.turn.TurnReceiver;
 import com.example.jarchess.match.turn.TurnSender;
@@ -135,7 +136,7 @@ public class MatchNetworkIO {
 
         @Override
         public void send(ChessMatchResult chessMatchResult) {
-            if (chessMatchResult != null) {
+            if (chessMatchResult != null && !(chessMatchResult instanceof ServerErrorResult)) {
                 Log.d(TAG, "send() called with: chessMatchResult = [" + chessMatchResult + "]");
                 Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
 
@@ -380,6 +381,11 @@ public class MatchNetworkIO {
                                             lock.notifyAll();
                                         }
                                         break;
+
+                                    case SERVER_ERROR:
+                                        ChessMatchResult result = new ServerErrorResult();
+                                        MatchEndingEvent event = new MatchEndingEvent(result);
+                                        MatchEndingEventManager.getInstance().notifyAllListeners(event);
 
                                     default:
                                         throw new IllegalStateException("Unexpected datapackage type: " + datapackage.getDatapackageType());

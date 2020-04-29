@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 public enum DatapackageType implements JSONConvertible<DatapackageType> {
     TURN(0),
-    RESIGNATION(1),// this is obsolete with match_result
+    SERVER_ERROR(1),
     PAUSE_REQUEST(2),
     PAUSE_ACCEPT(3),
     PAUSE_REJECT(4),

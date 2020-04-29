@@ -47,6 +47,8 @@ public class MatchMakingActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+        Log.d(TAG, "onStart() called");
+        Log.d(TAG, "onStart is running on thread: " + Thread.currentThread().getName());
         super.onStart();
         matchMakerLauncher.startAction();
     }
@@ -141,7 +143,8 @@ public class MatchMakingActivity extends AppCompatActivity {
         }
 
         public void startAction() {
-
+            Log.d(TAG, "startAction: onlineMatchInfoBundle set to null");
+            onlineMatchInfoBundle = null;
             // start a new thread to launch the online match maker.
             new LoggedThread(TAG, new Runnable() {
                 @Override
@@ -149,7 +152,7 @@ public class MatchMakingActivity extends AppCompatActivity {
                     try {
                         Log.i(TAG, "Creating onlinematchMakerBundle");
                         onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle();
-                        Log.i(TAG, "Online match info bundle = " + onlineMatchInfoBundle);
+                        Log.i(TAG, "Online match info bundle set to " + onlineMatchInfoBundle);
                         MatchBuilder.getInstance().multiplayerSetup(onlineMatchInfoBundle);
                         Intent intent = new Intent();
                         intent.putExtra("CANCELED", false);
