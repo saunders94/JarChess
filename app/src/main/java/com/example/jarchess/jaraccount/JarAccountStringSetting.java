@@ -9,6 +9,11 @@ public class JarAccountStringSetting extends JarAccountSetting<String> {
         super(key, defaultValue, STRING);
     }
 
+    public JarAccountStringSetting(String key, String defaultValue, Flag... flags) {
+        super(key, defaultValue, STRING, flags);
+    }
+
+
     @Override
     public synchronized void loadFromLocal(SharedPreferences sharedPreferences) {
         setValue(sharedPreferences.getString(getKey(), getValue()));

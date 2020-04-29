@@ -66,7 +66,7 @@ public class JarAccount {
         requireCommitPress = new JarAccountBooleanSetting("requireCommitPress", false);
         jarAccountSettings.add(requireCommitPress);
 
-        signonToken = new JarAccountStringSetting("signonToken", "");
+        signonToken = new JarAccountStringSetting("signonToken", "", JarAccountSetting.Flag.DO_NOT_SAVE_TO_SERVER);
         jarAccountSettings.add(signonToken);
 
     }
@@ -82,84 +82,141 @@ public class JarAccount {
         return PlayerAvatarStyles.getFromInt(avatarStyleInt.getValue()).getAvatarStyle();
     }
 
-    public synchronized void setAvatarStyle(PlayerAvatarStyles avatarStyle) {
-        this.avatarStyleInt.setValue(avatarStyle.getIntValue());
-        this.avatarStyleInt.saveToLocal(preferences);
-
-        try {
-            accountIO.setAvatar(getName(), getSignonToken(), avatarStyleInt.getValue());
-        } catch (IOException e) {
-            Log.e(TAG, "setAvatarStyle: ", e);
-            // just continue
-        }
+    public synchronized boolean isCommitButtonClickIsRequired() {
+        return getCommitButtonClickIsRequired();
     }
 
     public synchronized ChessboardStyle getBoardStyle() {
         return ChessboardStyles.getFromInt(chessboardStyleInt.getValue()).getChessboardStyle();
     }
 
-    public synchronized void setBoardStyle(ChessboardStyles boardStyle) {
-        this.chessboardStyleInt.setValue(boardStyle.getIntValue());
-        this.chessboardStyleInt.saveToLocal(preferences);
+    public synchronized void setCommitButtonClickIsRequired(boolean commitButtonClickIsRequired) {
+        JarAccountSetting<Boolean> jas = this.requireCommitPress;
+        jas.setValue(commitButtonClickIsRequired);
+        jas.saveToLocal(preferences);
+
+        try {
+            jas.saveToServer(accountIO, getName(), getSignonToken());
+        } catch (IOException e) {
+            // continue execution
+        }
     }
 
     public synchronized boolean getCommitButtonClickIsRequired() {
         return requireCommitPress.getValue();
     }
 
-    public synchronized void setCommitButtonClickIsRequired(boolean commitButtonClickIsRequired) {
-        this.requireCommitPress.setValue(commitButtonClickIsRequired);
-        this.requireCommitPress.saveToLocal(preferences);
+    public boolean logout() {
+        final String username = getName();
+        final String token = getSignonToken();
+
+
+        //clear all settings.
+        for (JarAccountSetting jarAccountSetting : jarAccountSettings) {
+
+            try {
+                jarAccountSetting.saveToServer(accountIO, username, token);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            //noinspection unchecked
+            jarAccountSetting.clear(preferences);
+        }
+        return accountIO.signout(username, token);
+
     }
 
     public synchronized String getName() {
         return name.getValue();
     }
 
-    public synchronized void setName(String name) {
-        this.name.setValue(name);
-        this.name.saveToLocal(preferences);
+    public synchronized void setAutomaticQueening(boolean automaticQueening) {
+        JarAccountSetting<Boolean> jas = this.automaticQueening;
+        jas.setValue(automaticQueening);
+        jas.saveToLocal(preferences);
+
+        try {
+            jas.saveToServer(accountIO, getName(), getSignonToken());
+        } catch (IOException e) {
+            // continue execution
+        }
     }
 
     public synchronized ChesspieceStyle getPieceStyle() {
         return ChesspieceStyles.getFromInt(chesspieceStyleInt.getValue()).getChesspieceStyle();
     }
 
-    public synchronized void setPieceStyle(ChesspieceStyles pieceStyle) {
+    public synchronized void setAvatarStyle(PlayerAvatarStyles avatarStyle) {
+        JarAccountSetting<Integer> jas = this.avatarStyleInt;
+        jas.setValue(avatarStyle.getIntValue());
+        jas.saveToLocal(preferences);
 
-        this.chesspieceStyleInt.setValue(pieceStyle.getIntValue());
-        this.chessboardStyleInt.saveToLocal(preferences);
+        try {
+            jas.saveToServer(accountIO, getName(), getSignonToken());
+        } catch (IOException e) {
+            // continue execution
+        }
     }
 
     public synchronized MatchClockChoice getPreferredMatchClock() {
         return MatchClockChoice.getFromIntValue(matchClockChoiceInt.getValue());
     }
 
-    public synchronized void setPreferredMatchClock(MatchClockChoice preferredMatchClock) {
-        this.matchClockChoiceInt.setValue(preferredMatchClock.getIntValue());
-        matchClockChoiceInt.saveToLocal(preferences);
+    public synchronized void setBoardStyle(ChessboardStyles boardStyle) {
+        JarAccountSetting<Integer> jas = this.chessboardStyleInt;
+        jas.setValue(boardStyle.getIntValue());
+        jas.saveToLocal(preferences);
+
+        try {
+            jas.saveToServer(accountIO, getName(), getSignonToken());
+        } catch (IOException e) {
+            // continue execution
+        }
     }
 
     public synchronized String getSignonToken() {
         return signonToken.getValue();
     }
 
-    public synchronized void setSignonToken(String signonToken) {
-        this.signonToken.setValue(signonToken);
-        this.signonToken.saveToLocal(preferences);
+    public synchronized void setName(String name) {
+        JarAccountSetting<String> jas = this.name;
+        jas.setValue(name);
+        jas.saveToLocal(preferences);
+
+        try {
+            jas.saveToServer(accountIO, getName(), getSignonToken());
+        } catch (IOException e) {
+            // continue execution
+        }
     }
 
     public synchronized boolean isAutomaticQueening() {
         return automaticQueening.getValue();
     }
 
-    public synchronized void setAutomaticQueening(boolean automaticQueening) {
-        this.automaticQueening.setValue(automaticQueening);
-        this.automaticQueening.saveToLocal(preferences);
+    public synchronized void setPausingDisabled(boolean pausingDisabled) {
+        JarAccountSetting<Boolean> jas = this.disablePausing;
+        jas.setValue(pausingDisabled);
+        jas.saveToLocal(preferences);
+
+        try {
+            jas.saveToServer(accountIO, getName(), getSignonToken());
+        } catch (IOException e) {
+            // continue execution
+        }
     }
 
-    public synchronized boolean isCommitButtonClickIsRequired() {
-        return requireCommitPress.getValue();
+    public synchronized void setPieceStyle(ChesspieceStyles pieceStyle) {
+        JarAccountSetting<Integer> jas = this.chesspieceStyleInt;
+        jas.setValue(pieceStyle.getIntValue());
+        jas.saveToLocal(preferences);
+
+        try {
+            jas.saveToServer(accountIO, getName(), getSignonToken());
+        } catch (IOException e) {
+            // continue execution
+        }
     }
 
     /**
@@ -187,9 +244,16 @@ public class JarAccount {
         return disablePausing.getValue();
     }
 
-    public synchronized void setPausingDisabled(boolean pausingDisabled) {
-        this.disablePausing.setValue(pausingDisabled);
-        this.disablePausing.saveToLocal(preferences);
+    public synchronized void setPreferredMatchClock(MatchClockChoice preferredMatchClock) {
+        JarAccountSetting<Integer> jas = this.matchClockChoiceInt;
+        jas.setValue(preferredMatchClock.getIntValue());
+        jas.saveToLocal(preferences);
+
+        try {
+            jas.saveToServer(accountIO, getName(), getSignonToken());
+        } catch (IOException e) {
+            // continue execution
+        }
     }
 
     public synchronized void loadFromLocal(MainActivity mainActivity) {
@@ -201,16 +265,10 @@ public class JarAccount {
 
     }
 
-    public boolean logout() {
-        try {
-            return accountIO.signout(getName(), getSignonToken());
-        } finally {
-            //clear all settings.
-            for (JarAccountSetting jarAccountSetting : jarAccountSettings) {
-                //noinspection unchecked
-                jarAccountSetting.clear(preferences);
-            }
-        }
+    public synchronized void setSignonToken(String signonToken) {
+        JarAccountSetting<String> jas = this.signonToken;
+        jas.setValue(signonToken);
+        jas.saveToLocal(preferences);
     }
 
     /**

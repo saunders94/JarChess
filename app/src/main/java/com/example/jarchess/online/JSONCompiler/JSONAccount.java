@@ -2,6 +2,8 @@ package com.example.jarchess.online.JSONCompiler;
 
 import android.util.Log;
 
+import com.example.jarchess.jaraccount.JarAccountSettingType;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -107,6 +109,36 @@ public class JSONAccount {
             jsonObj.put("requestType", "removeFriend");
             jsonObj.put("username", username);
             jsonObj.put("friendsUsername", friendsName); //TODO? Should we send a signonToken?
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObj;
+    }
+
+    public <T> JSONObject getAccountInfo(String key, T value, JarAccountSettingType type, String username, String signonToken) {
+        JSONObject jsonObj = new JSONObject();
+        try {
+            jsonObj.put("requestType", "saveAccountInfo");
+            jsonObj.put("username", username);
+            jsonObj.put("signonToken", signonToken);
+            jsonObj.put("key", key);
+            jsonObj.put("value", value);
+            jsonObj.put("type", type.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObj;
+    }
+
+    public <T> JSONObject saveAccountInfo(String key, T value, JarAccountSettingType type, String username, String signonToken) {
+        JSONObject jsonObj = new JSONObject();
+        try {
+            jsonObj.put("requestType", "saveAccountInfo");
+            jsonObj.put("username", username);
+            jsonObj.put("signonToken", signonToken);
+            jsonObj.put("key", key);
+            jsonObj.put("value", value);
+            jsonObj.put("type", type.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }

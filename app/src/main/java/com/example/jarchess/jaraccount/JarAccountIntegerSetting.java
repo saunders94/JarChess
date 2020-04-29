@@ -9,6 +9,10 @@ public class JarAccountIntegerSetting extends JarAccountSetting<Integer> {
         super(key, defaultValue, INTEGER);
     }
 
+    public JarAccountIntegerSetting(String key, Integer defaultValue, Flag... flags) {
+        super(key, defaultValue, INTEGER, flags);
+    }
+
     @Override
     public synchronized void loadFromLocal(SharedPreferences sharedPreferences) {
         setValue(sharedPreferences.getInt(getKey(), getValue()));

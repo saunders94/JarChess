@@ -9,6 +9,11 @@ public class JarAccountBooleanSetting extends JarAccountSetting<Boolean> {
         super(key, defaultValue, BOOLEAN);
     }
 
+
+    public JarAccountBooleanSetting(String key, Boolean defaultValue, Flag... flags) {
+        super(key, defaultValue, BOOLEAN, flags);
+    }
+
     @Override
     public synchronized void loadFromLocal(SharedPreferences sharedPreferences) {
         setValue(sharedPreferences.getBoolean(getKey(), getValue()));
