@@ -36,8 +36,16 @@ public abstract class JarAccountSetting<T> {
         value = defaultValue;
     }
 
+    public void loadFromServer(Account accountIO, String username, String signonToken) {
+        if (!doNotSaveOnServer) {
+            value = accountIO.getAccountInfo(this, username, signonToken);
+        }
+    }
+
     public void saveToServer(Account accountIO, String username, String signonToken) throws IOException {
-        accountIO.saveAccountInfo(this, username, signonToken);
+        if (!doNotSaveOnServer) {
+            accountIO.saveAccountInfo(this, username, signonToken);
+        }
     }
 
     public void clear(SharedPreferences sharedPreferences) {

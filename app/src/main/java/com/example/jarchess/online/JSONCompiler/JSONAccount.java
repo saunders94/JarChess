@@ -118,7 +118,7 @@ public class JSONAccount {
     public <T> JSONObject getAccountInfo(String key, T value, JarAccountSettingType type, String username, String signonToken) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "saveAccountInfo");
+            jsonObj.put("requestType", "getAccountInfo");
             jsonObj.put("username", username);
             jsonObj.put("signonToken", signonToken);
             jsonObj.put("key", key);

@@ -67,7 +67,8 @@ public class Account {
             if (username == null || username.isEmpty() || signonToken == null || signonToken.isEmpty() || jas == null) {
                 return jas.getValue();
             }
-            JSONObject jsonObject = jsonAccount.saveAccountInfo(jas.getKey(), jas.getValue(), jas.getType(), username, signonToken);
+            JSONObject jsonObject = jsonAccount.getAccountInfo(jas.getKey(), jas.getValue(), jas.getType(), username, signonToken);
+            Log.d(TAG, "getAccountInfo: jsonObject = " + jsonObject.toString());
 
             JSONObject jsonResponse = dataSender.send(jsonObject);
 
@@ -158,6 +159,7 @@ public class Account {
             }
             JSONObject jsonObject = jsonAccount.saveAccountInfo(jas.getKey(), jas.getValue(), jas.getType(), username, signonToken);
 
+            Log.d(TAG, "saveAccountInfo: jsonObject = " + jsonObject.toString());
             JSONObject jsonResponse = dataSender.send(jsonObject);
             String statusResp = null;
             statusResp = (String) jsonResponse.get("status");
@@ -220,6 +222,7 @@ public class Account {
             status = false;
         }
 
+        JarAccount.getInstance().loadAccountFromServer();
         return status;
     }
 

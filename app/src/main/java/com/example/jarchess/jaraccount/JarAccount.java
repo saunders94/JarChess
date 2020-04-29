@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static com.example.jarchess.jaraccount.JarAccountSetting.Flag.DO_NOT_SAVE_TO_SERVER;
 import static com.example.jarchess.match.clock.MatchClockChoice.CLASSIC_FIDE_MATCH_CLOCK;
 import static com.example.jarchess.match.styles.avatar.PlayerAvatarStyles.LEOPARD_PRINT;
 import static com.example.jarchess.match.styles.chessboard.ChessboardStyles.MARBLE_1;
@@ -35,6 +36,7 @@ public class JarAccount {
     private final JarAccountBooleanSetting disablePausing;
     private final JarAccountBooleanSetting requireCommitPress;
     private final JarAccountStringSetting signonToken;
+    private final JarAccountIntegerSetting level;
     private final Set<JarAccountSetting> jarAccountSettings;
     private final Account accountIO = new Account();
     private SharedPreferences preferences;
@@ -42,7 +44,7 @@ public class JarAccount {
     private JarAccount() {
         jarAccountSettings = new LinkedHashSet<>();
 
-        name = new JarAccountStringSetting("name", "Display Name");
+        name = new JarAccountStringSetting("name", "Display Name", DO_NOT_SAVE_TO_SERVER);
         jarAccountSettings.add(name);
 
         avatarStyleInt = new JarAccountIntegerSetting("avatarStyle", LEOPARD_PRINT.getIntValue());
@@ -66,8 +68,11 @@ public class JarAccount {
         requireCommitPress = new JarAccountBooleanSetting("requireCommitPress", false);
         jarAccountSettings.add(requireCommitPress);
 
-        signonToken = new JarAccountStringSetting("signonToken", "", JarAccountSetting.Flag.DO_NOT_SAVE_TO_SERVER);
+        signonToken = new JarAccountStringSetting("signonToken", "", DO_NOT_SAVE_TO_SERVER);
         jarAccountSettings.add(signonToken);
+
+        level = new JarAccountIntegerSetting("level", 0);
+        jarAccountSettings.add(level);
 
     }
 
@@ -76,6 +81,10 @@ public class JarAccount {
             instance = new JarAccount();
         }
         return instance;
+    }
+
+    public int getLevel() {
+        return level.getValue();
     }
 
     public synchronized AvatarStyle getAvatarStyle() {
@@ -88,6 +97,12 @@ public class JarAccount {
 
     public synchronized ChessboardStyle getBoardStyle() {
         return ChessboardStyles.getFromInt(chessboardStyleInt.getValue()).getChessboardStyle();
+    }
+
+    public void loadAccountFromServer() {
+        for (JarAccountSetting jas : jarAccountSettings) {
+            jas.loadFromServer(accountIO, getName(), getSignonToken());
+        }
     }
 
     public synchronized void setCommitButtonClickIsRequired(boolean commitButtonClickIsRequired) {
@@ -113,11 +128,11 @@ public class JarAccount {
 
         //clear all settings.
         for (JarAccountSetting jarAccountSetting : jarAccountSettings) {
-
             try {
                 jarAccountSetting.saveToServer(accountIO, username, token);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "logout: ", e);
+                // continue
             }
 
             //noinspection unchecked
@@ -183,12 +198,6 @@ public class JarAccount {
         JarAccountSetting<String> jas = this.name;
         jas.setValue(name);
         jas.saveToLocal(preferences);
-
-        try {
-            jas.saveToServer(accountIO, getName(), getSignonToken());
-        } catch (IOException e) {
-            // continue execution
-        }
     }
 
     public synchronized boolean isAutomaticQueening() {

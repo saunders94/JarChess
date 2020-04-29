@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.example.jarchess.jaraccount.JarAccount;
 import com.example.jarchess.match.styles.avatar.PlayerAvatarStyles;
 
 
@@ -49,10 +50,16 @@ public class AvatarAdapter extends ArrayAdapter<String> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-
+        PlayerAvatarStyles avatar = avatars[position];
+        int unlockedAtInt = avatar.getUnlockedAtValue();
+        boolean isLocked = JarAccount.getInstance().getLevel() < unlockedAtInt;
         viewHolder.iView.setImageResource(avatars[position].getAvatarStyle().getAvatarResourceID());
-        viewHolder.tView.setText(avatars[position].getAvatarStyle().getName());
+        viewHolder.tView.setText(isLocked ? "Unlocked at level " + unlockedAtInt : avatar.getAvatarStyle().getName());
 
+        if (isLocked) {
+            convertView.setEnabled(false);
+            convertView.setOnClickListener(null);
+        }
         return convertView;
     }
 
