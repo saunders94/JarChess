@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static com.example.jarchess.jaraccount.JarAccountSetting.Flag.DO_NOT_SAVE_TO_SERVER;
+import static com.example.jarchess.jaraccount.JarAccountSetting.Flag.DO_NOT_SAVE_TO_OR_LOAD_FROM_SERVER;
 import static com.example.jarchess.match.clock.MatchClockChoice.CLASSIC_FIDE_MATCH_CLOCK;
 import static com.example.jarchess.match.styles.avatar.PlayerAvatarStyles.LEOPARD_PRINT;
 import static com.example.jarchess.match.styles.chessboard.ChessboardStyles.MARBLE_1;
@@ -44,7 +44,7 @@ public class JarAccount {
     private JarAccount() {
         jarAccountSettings = new LinkedHashSet<>();
 
-        name = new JarAccountStringSetting("name", "Display Name", DO_NOT_SAVE_TO_SERVER);
+        name = new JarAccountStringSetting("name", "Display Name", DO_NOT_SAVE_TO_OR_LOAD_FROM_SERVER);
         jarAccountSettings.add(name);
 
         avatarStyleInt = new JarAccountIntegerSetting("avatarStyle", LEOPARD_PRINT.getIntValue());
@@ -68,7 +68,7 @@ public class JarAccount {
         requireCommitPress = new JarAccountBooleanSetting("requireCommitPress", false);
         jarAccountSettings.add(requireCommitPress);
 
-        signonToken = new JarAccountStringSetting("signonToken", "", DO_NOT_SAVE_TO_SERVER);
+        signonToken = new JarAccountStringSetting("signonToken", "", DO_NOT_SAVE_TO_OR_LOAD_FROM_SERVER);
         jarAccountSettings.add(signonToken);
 
         level = new JarAccountIntegerSetting("level", 0);

@@ -22,7 +22,7 @@ public abstract class JarAccountSetting<T> {
         for (Flag flag : flags) {
             switch (flag) {
 
-                case DO_NOT_SAVE_TO_SERVER:
+                case DO_NOT_SAVE_TO_OR_LOAD_FROM_SERVER:
                     doNotSaveOnServer = true;
                     break;
             }
@@ -70,7 +70,7 @@ public abstract class JarAccountSetting<T> {
     }
 
     public enum Flag {
-        DO_NOT_SAVE_TO_SERVER
+        DO_NOT_SAVE_TO_OR_LOAD_FROM_SERVER
     }
 
     public synchronized void setValue(T value) {
