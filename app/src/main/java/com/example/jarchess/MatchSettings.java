@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.example.jarchess.jaraccount.JarAccount;
 import com.example.jarchess.match.MatchBuilder;
 import com.example.jarchess.match.activity.EasyAIMatchActivity;
 import com.example.jarchess.match.activity.HardAIMatchActivity;
@@ -195,7 +196,7 @@ public class MatchSettings extends Fragment {
 
     private void startRandom() {
         try {
-            if (JarAccount.getInstance().isLoggedIn()) {
+            if (JarAccount.getInstance().verifyLogin()) {
                 //start matchmaking
                 Intent intent = new Intent(getActivity(), MatchMakingActivity.class);
                 startActivityForResult(intent, 0);

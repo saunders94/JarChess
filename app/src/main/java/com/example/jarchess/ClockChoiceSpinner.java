@@ -7,6 +7,7 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
+import com.example.jarchess.jaraccount.JarAccount;
 import com.example.jarchess.match.clock.MatchClockChoice;
 
 public class ClockChoiceSpinner {

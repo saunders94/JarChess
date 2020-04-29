@@ -4,7 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.jarchess.JarAccount;
+import com.example.jarchess.jaraccount.JarAccount;
 import com.example.jarchess.match.activity.EasyAIMatchActivity;
 import com.example.jarchess.match.activity.HardAIMatchActivity;
 import com.example.jarchess.match.activity.LocalMultiplayerMatchActivity;

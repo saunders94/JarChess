@@ -2,7 +2,8 @@ package com.example.jarchess.online.usermanagement;
 
 import android.util.Log;
 
-import com.example.jarchess.JarAccount;
+import com.example.jarchess.jaraccount.JarAccount;
+import com.example.jarchess.match.styles.avatar.PlayerAvatarStyles;
 import com.example.jarchess.online.JSONCompiler.JSONAccount;
 import com.example.jarchess.online.networking.DataSender;
 
@@ -10,7 +11,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -196,5 +196,60 @@ public class  Account {
         return status;
 
     }
+
+    public boolean setAvatar(String username, String signonToken, int avatarIndex) throws IOException {
+        if (username == null || username.isEmpty() || signonToken == null || signonToken.isEmpty() || avatarIndex < 0 || avatarIndex >= PlayerAvatarStyles.values().length) {
+            return false;
+        }
+        JSONObject jsonObject = jsonAccount.setAvatar(username, signonToken, avatarIndex);
+
+        JSONObject jsonResponse = dataSender.send(jsonObject);
+        String statusResp = null;
+        try {
+            statusResp = (String) jsonResponse.get("status");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return false;
+        }
+        Log.i(TAG, "Status response: " + statusResp);
+        if (statusResp.equals("success")) {
+            Log.d(TAG, "signonTokenIsValid() returned: " + true);
+            return true;
+        } else {
+            Log.d(TAG, "signonTokenIsValid() returned: " + false);
+            return false;
+        }
+    }
+
+    //TODO This needs to be implemented on the server-side.
+    // This needs to return true if and only if the token can be verified as correct.
+    public boolean signonTokenIsValid(String username, String signonToken) throws IOException {
+        if (username == null || username.isEmpty() || signonToken == null || signonToken.isEmpty()) {
+            return false;
+        }
+        JSONObject jsonObject = jsonAccount.verifySignonToken(username, signonToken);
+
+        Log.d(TAG, "signonTokenIsValid: preparing to send " + jsonObject.toString());
+        JSONObject jsonResponse = dataSender.send(jsonObject);
+        Log.d(TAG, "signonTokenIsValid: jsonResponse =" + jsonResponse);
+        String statusResp = null;
+        try {
+            statusResp = (String) jsonResponse.get("status");
+            Log.i(TAG, "signonTokenIsValid: response = " + statusResp);
+        } catch (JSONException e) {
+            Log.e(TAG, "signonTokenIsValid: ", e);
+            e.printStackTrace();
+
+        }
+        Log.i(TAG, "Status response: " + statusResp);
+        if (statusResp.equals("success")) {
+            Log.d(TAG, "signonTokenIsValid() returned: " + true);
+            return true;
+        } else {
+            Log.d(TAG, "signonTokenIsValid() returned: " + false);
+            return false;
+        }
+    }
+
 
 }

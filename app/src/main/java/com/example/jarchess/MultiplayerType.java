@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.jarchess.jaraccount.JarAccount;
 
 import java.io.IOException;
 
@@ -56,7 +57,7 @@ public class MultiplayerType extends Fragment {
             public void onClick(View v) {
 
                 try {
-                    if (JarAccount.getInstance().isLoggedIn()) {
+                    if (JarAccount.getInstance().verifyLogin()) {
                         FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
                         MatchmakingType matchmakingType = new MatchmakingType();
                         transaction.replace(R.id.fragmentHole, matchmakingType);

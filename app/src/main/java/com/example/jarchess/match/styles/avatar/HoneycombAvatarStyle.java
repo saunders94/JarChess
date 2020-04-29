@@ -9,17 +9,16 @@ import com.example.jarchess.R;
  *
  * @author Joshua Zierman
  */
-public class LeopardPrintAvatarStyle implements AvatarStyle {
+public class HoneycombAvatarStyle implements AvatarStyle {
 
-    private static final int AVATAR_PLAYER_LEOPARD_PRINT = R.drawable.avatar_player_leopard_print;
-    private static LeopardPrintAvatarStyle instance;
+    private static final int AVATAR_PLAYER_HONEYCOMB = R.drawable.honeycomb;
+    private static HoneycombAvatarStyle instance;
 
 
     /**
      * Creates an instance of <code>LeopardPrintAvatarStyle</code> to construct a singleton instance
      */
-    private LeopardPrintAvatarStyle() {
-
+    private HoneycombAvatarStyle() {
     }
 
     /**
@@ -27,9 +26,9 @@ public class LeopardPrintAvatarStyle implements AvatarStyle {
      *
      * @return the instance.
      */
-    public static LeopardPrintAvatarStyle getInstance() {
+    public static HoneycombAvatarStyle getInstance() {
         if (instance == null) {
-            instance = new LeopardPrintAvatarStyle();
+            instance = new HoneycombAvatarStyle();
         }
 
         return instance;
@@ -40,13 +39,13 @@ public class LeopardPrintAvatarStyle implements AvatarStyle {
      */
     @Override
     public final int getAvatarResourceID() {
-        return AVATAR_PLAYER_LEOPARD_PRINT;
+        return AVATAR_PLAYER_HONEYCOMB;
     }
 
     @NonNull
     @Override
     public String getName() {
-        return "Leopard Print";
+        return "Honeycomb";
     }
 
     @NonNull
