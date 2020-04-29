@@ -227,9 +227,11 @@ public class OnlineMatchMaker {
             }
         }, "onlineMatchMakerThread");
 
-        t.start();
         synchronized (lock) {
-            Log.i(TAG, "wasCaceled = " + wasCanceled);
+            wasCanceled = false;
+            done = false;
+            onlineMatchInfoBundle = null;
+            t.start();
             while (!done && !wasCanceled) {
                 lock.wait(500);
             }
