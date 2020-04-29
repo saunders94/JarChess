@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.jarchess.jaraccount.JarAccount;
 import com.example.jarchess.online.JSONCompiler.JSONAccount;
 import com.example.jarchess.online.networking.DataSender;
 
@@ -187,9 +188,9 @@ public class FriendManager extends Fragment {
         for(int i = 0; i < count; i++){
 
             try {
-                user = new JSONObject(data.getString("friend" + String.valueOf(i)));
+                user = new JSONObject(data.getString("friend" + i));
                 String username = user.getString("username");
-                String displayString = String.valueOf(i+1) + ")    " + username;
+                String displayString = (i + 1) + ")    " + username;
                 friendsList.add(username);
                 mainList.add(displayString);
             } catch (JSONException e) {

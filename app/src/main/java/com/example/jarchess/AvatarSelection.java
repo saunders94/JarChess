@@ -10,14 +10,14 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.jarchess.match.styles.avatar.PlayerAvatarStyles;
+
 
 public class AvatarSelection extends Fragment {
 
     private AvatarCommunicator callback;
     private ListView avatarList;
     private Button selectButton;
-    private String[] avatarNameArray;
-    private int[] avatarArray;
     private int indexOfLastSelected;
 
     public AvatarSelection() {
@@ -33,16 +33,14 @@ public class AvatarSelection extends Fragment {
         indexOfLastSelected = -1;
         avatarList = view.findViewById(R.id.list_avatar);
         selectButton = view.findViewById(R.id.button_select_avatar);
-        avatarNameArray = new String[10];
-        avatarArray = new int[10];
+//        avatarArray = new int[PlayerAvatarStyles.values().length];
         //demo for assigning avatar selections
-        for (int i = 0; i < 10; i++) {
-            avatarNameArray[i] = "Honey Combs";
-            avatarArray[i] = R.drawable.honeycomb;
-        }
+//        for (int i = 0; i < PlayerAvatarStyles.values().length; i++) {
+//            avatarArray[i] = R.drawable.honeycomb;
+//        }
 
         setupListeners();
-        AvatarAdapter avatarAdapter = new AvatarAdapter(view.getContext(),avatarNameArray, avatarArray);
+        AvatarAdapter avatarAdapter = new AvatarAdapter(view.getContext());
         avatarList.setAdapter(avatarAdapter);
 
         return view;
@@ -65,7 +63,7 @@ public class AvatarSelection extends Fragment {
                             "Please Select a Avatar", duration);
                     toast.show();
                 } else {
-                    if (callback.onAvatarSelected(indexOfLastSelected)) {
+                    if (callback.onAvatarSelected(PlayerAvatarStyles.getFromInt(indexOfLastSelected))) {
                         Toast toast = Toast.makeText(v.getContext(),
                                 "Avatar Selected", duration);
                         toast.show();
@@ -79,16 +77,12 @@ public class AvatarSelection extends Fragment {
         });
     }
 
-    public int[] getAvatarArray() {
-        return avatarArray;
-    }
-
     //This allows the main activity to share an instance for communication
     public void setCommunicator(AvatarCommunicator callback) {
         this.callback = callback;
     }
 
     public interface AvatarCommunicator {
-        boolean onAvatarSelected(int index);
+        boolean onAvatarSelected(PlayerAvatarStyles style);
     }
 }

@@ -2,8 +2,8 @@ package com.example.jarchess.online.networking;
 
 import android.util.Log;
 
-import com.example.jarchess.JarAccount;
 import com.example.jarchess.RemoteOpponentInfoBundle;
+import com.example.jarchess.jaraccount.JarAccount;
 import com.example.jarchess.online.datapackage.Datapackage;
 import com.example.jarchess.online.move.DatapackageQueue;
 

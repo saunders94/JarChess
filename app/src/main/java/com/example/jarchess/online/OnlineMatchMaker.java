@@ -2,8 +2,8 @@ package com.example.jarchess.online;
 
 import android.util.Log;
 
-import com.example.jarchess.JarAccount;
 import com.example.jarchess.LoggedThread;
+import com.example.jarchess.jaraccount.JarAccount;
 
 import org.json.JSONException;
 import org.json.JSONObject;

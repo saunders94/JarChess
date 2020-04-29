@@ -2,8 +2,8 @@ package com.example.jarchess.online;
 
 import android.util.Log;
 
-import com.example.jarchess.JarAccount;
 import com.example.jarchess.RemoteOpponentInfoBundle;
+import com.example.jarchess.jaraccount.JarAccount;
 import com.example.jarchess.match.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.styles.avatar.PlayerAvatarStyles;
 import com.example.jarchess.online.move.DatapackageQueue;

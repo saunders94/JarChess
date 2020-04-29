@@ -8,8 +8,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.example.jarchess.JarAccount;
 import com.example.jarchess.R;
+import com.example.jarchess.jaraccount.JarAccount;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.Match;
