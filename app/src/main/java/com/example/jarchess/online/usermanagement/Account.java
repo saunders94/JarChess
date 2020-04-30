@@ -18,8 +18,8 @@ import java.util.ArrayList;
 public class  Account {
     private JSONAccount jsonAccount;
     private DataSender dataSender;
-    private String username;
-    private String password;
+    //    private String username;
+//    private String password;
     private static final String TAG = "Account";
 
     public Account(){
@@ -180,6 +180,81 @@ public class  Account {
 
     }
 
+    public ArrayList<String> getFriendsList() {
+        ArrayList<String> friendsList = new ArrayList<>();
+        JSONObject reqobj = new JSONAccount().getFriendRequests(JarAccount.getInstance().getName());
+        DataSender sender = new DataSender();
+        JSONObject responseObj = null;
+        JSONObject friends = null;
+        JSONObject user = null;
+        int count = 0;
+        try {
+            responseObj = sender.send(reqobj);
+            count = Integer.parseInt(responseObj.getString("count"));
+            friends = new JSONObject(responseObj.getString("friends"));
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+        for (int i = 0; i < count; i++) {
+
+            try {
+                user = new JSONObject(friends.getString("friend" + i));
+                String username = user.getString("username");
+                String displayString = (i + 1) + ")    " + username;
+                friendsList.add(username);
+                //friendsList.add(displayString);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return friendsList;
+    }
+
+    public boolean signinWithHash(String username, String hashedPass) {
+        Log.d(TAG, "signinWithHash() called with: username = [" + username + "], hash = [" + hashedPass + "]");
+        Log.d(TAG, "signinWithHash is running on thread: " + Thread.currentThread().getName());
+        boolean status = false;
+
+        if (hashedPass == null) {
+            return false;
+        }
+
+        if (username.equals("")) {
+            Log.i(TAG, "signinWithHash: username was empty string");
+            Log.d(TAG, "signinWithHash() returned: " + false);
+            return false;
+        } else if (username == null) {
+            Log.i(TAG, "signinWithHash: username was null");
+            Log.d(TAG, "signinWithHash() returned: " + false);
+            return false;
+        }
+        JSONObject jsonObject = jsonAccount.signin(username, hashedPass);
+
+
+        try {
+            JSONObject jsonResponse = dataSender.send(jsonObject);
+            String statusResp = jsonResponse == null ? "" : (String) jsonResponse.get("status");
+            if (statusResp.equals("success")) {
+                status = true;
+                JarAccount.getInstance().setSignonToken((String) jsonResponse.get("token"));
+                JarAccount.getInstance().setName(username);
+                Log.i("signinWithHash", (String) jsonResponse.get("status"));
+            } else {
+                status = false;
+                Log.i("signinWithHash", "Logon failure");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            status = false;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            status = false;
+        }
+
+        JarAccount.getInstance().loadAccountFromServer();
+        return status;
+    }
 
     public boolean signin(String username, String password) {
         Log.d(TAG, "signin() called with: username = [" + username + "], password = [" + password + "]");
@@ -227,35 +302,7 @@ public class  Account {
         return status;
     }
 
-    //TODO This needs to be implemented on the server-side.
-    // This needs to return true if and only if the token can be verified as correct.
-    public boolean signonTokenIsValid(String username, String signonToken) throws IOException {
-        if (username == null || username.isEmpty() || signonToken == null || signonToken.isEmpty()) {
-            return false;
-        }
-        JSONObject jsonObject = jsonAccount.verifySignonToken(username, signonToken);
 
-        Log.d(TAG, "signonTokenIsValid: preparing to send " + jsonObject.toString());
-        JSONObject jsonResponse = dataSender.send(jsonObject);
-        Log.d(TAG, "signonTokenIsValid: jsonResponse =" + jsonResponse);
-        String statusResp = null;
-        try {
-            statusResp = (String) jsonResponse.get("status");
-            Log.i(TAG, "signonTokenIsValid: response = " + statusResp);
-        } catch (JSONException e) {
-            Log.e(TAG, "signonTokenIsValid: ", e);
-            e.printStackTrace();
-
-        }
-        Log.i(TAG, "Status response: " + statusResp);
-        if (statusResp.equals("success")) {
-            Log.d(TAG, "signonTokenIsValid() returned: " + true);
-            return true;
-        } else {
-            Log.d(TAG, "signonTokenIsValid() returned: " + false);
-            return false;
-        }
-    }
 
     public boolean signout(String username, String signonToken) {
         Log.d(TAG, "signout() called with: username = [" + username + "], signonToken = [" + signonToken + "]");
@@ -293,35 +340,42 @@ public class  Account {
         return status;
     }
 
-    public ArrayList<String> getFriendsList(){
-        ArrayList<String> friendsList = new ArrayList<>();
-        JSONObject reqobj = new JSONAccount().getFriendRequests(JarAccount.getInstance().getName());
-        DataSender sender = new DataSender();
-        JSONObject responseObj = null;
-        JSONObject friends = null;
-        JSONObject user = null;
-        int count = 0;
+    public boolean verifySignin(String username, String hashedPass) {
+        Log.d(TAG, "verifySignin() called with: username = [" + username + "], hashedPass = [" + hashedPass + "]");
+        Log.d(TAG, "verifySignin is running on thread: " + Thread.currentThread().getName());
+        boolean status = false;
+
+        if (hashedPass == null) {
+            return false;
+        }
+
+        if (username.equals("")) {
+            Log.i(TAG, "verifySignin: username = \"\"");
+            Log.d(TAG, "verifySignin() returned: " + false);
+            return false;
+        } else if (username == null) {
+            Log.i(TAG, "verifySignin: username = null");
+            Log.d(TAG, "verifySignin() returned: " + false);
+            return false;
+        }
+        JSONObject jsonObject = jsonAccount.signin(username, hashedPass);
+
+
         try {
-            responseObj = sender.send(reqobj);
-            count = Integer.parseInt(responseObj.getString("count"));
-            friends = new JSONObject(responseObj.getString("friends"));
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
-        for(int i = 0; i < count; i++){
-
-            try {
-                user = new JSONObject(friends.getString("friend" + String.valueOf(i)));
-                String username = user.getString("username");
-                String displayString = String.valueOf(i+1) + ")    " + username;
-                friendsList.add(username);
-                //friendsList.add(displayString);
-            } catch (JSONException e) {
-                e.printStackTrace();
+            JSONObject jsonResponse = dataSender.send(jsonObject);
+            String statusResp = jsonResponse == null ? "" : (String) jsonResponse.get("status");
+            if (statusResp.equals("success")) {
+                status = true;
             }
-
+        } catch (IOException e) {
+            e.printStackTrace();
+            status = false;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            status = false;
         }
-        return friendsList;
+
+        return status;
     }
 
 }

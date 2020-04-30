@@ -38,6 +38,7 @@ public class JarAccount {
     private final JarAccountStringSetting signonToken;
     private final JarAccountIntegerSetting level;
     private final Set<JarAccountSetting> jarAccountSettings;
+    private final JarAccountStringSetting passwordHash;
     private final Account accountIO = new Account();
     private SharedPreferences preferences;
 
@@ -70,6 +71,9 @@ public class JarAccount {
 
         signonToken = new JarAccountStringSetting("signonToken", "", DO_NOT_SAVE_TO_OR_LOAD_FROM_SERVER);
         jarAccountSettings.add(signonToken);
+
+        passwordHash = new JarAccountStringSetting("passwordHash", "", DO_NOT_SAVE_TO_OR_LOAD_FROM_SERVER);
+        jarAccountSettings.add(passwordHash);
 
         level = new JarAccountIntegerSetting("level", 0);
         jarAccountSettings.add(level);
@@ -121,25 +125,8 @@ public class JarAccount {
         return requireCommitPress.getValue();
     }
 
-    public boolean logout() {
-        final String username = getName();
-        final String token = getSignonToken();
-
-
-        //clear all settings.
-        for (JarAccountSetting jarAccountSetting : jarAccountSettings) {
-            try {
-                jarAccountSetting.saveToServer(accountIO, username, token);
-            } catch (IOException e) {
-                Log.e(TAG, "logout: ", e);
-                // continue
-            }
-
-            //noinspection unchecked
-            jarAccountSetting.clear(preferences);
-        }
-        return accountIO.signout(username, token);
-
+    private String getPasswordHash() {
+        return passwordHash.getValue();
     }
 
     public synchronized String getName() {
@@ -280,6 +267,31 @@ public class JarAccount {
         jas.saveToLocal(preferences);
     }
 
+    private void setPasswordHash(String passwordHash) {
+        this.passwordHash.setValue(passwordHash);
+    }
+
+    public boolean logout() {
+        final String username = getName();
+        final String token = getSignonToken();
+
+//
+//        //clear all settings.
+//        for (JarAccountSetting jarAccountSetting : jarAccountSettings) {
+//            try {
+//                jarAccountSetting.saveToServer(accountIO, username, token);
+//            } catch (IOException e) {
+//                Log.e(TAG, "logout: ", e);
+//                // continue
+//            }
+//
+//            //noinspection unchecked
+//            jarAccountSetting.clear(preferences);
+//        }
+        return accountIO.signout(username, token);
+
+    }
+
     /**
      * Verifies the loginToken
      *
@@ -287,6 +299,6 @@ public class JarAccount {
      * @throws IOException If communication with the server fails
      */
     public synchronized boolean verifyLogin() throws IOException {
-        return accountIO.signonTokenIsValid(getName(), getSignonToken());
+        return accountIO.verifySignin(getName(), getPasswordHash());
     }
 }
