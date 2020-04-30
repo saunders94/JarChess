@@ -15,14 +15,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
-public class  Account {
-    private JSONAccount jsonAccount;
-    private DataSender dataSender;
+public class Account {
     //    private String username;
 //    private String password;
     private static final String TAG = "Account";
+    private JSONAccount jsonAccount;
+    private DataSender dataSender;
 
-    public Account(){
+    public Account() {
         this.jsonAccount = new JSONAccount();
         this.dataSender = new DataSender();
     }
@@ -73,6 +73,11 @@ public class  Account {
 
             JSONObject jsonResponse = dataSender.send(jsonObject);
 
+            Log.d(TAG, "getAccountInfo: response = " + jsonResponse);
+            if (jsonResponse.get(jas.getKey()) == null) {
+                Log.d(TAG, "getAccountInfo: " + jas.getKey() + " was null ");
+                return jas.getValue();
+            }
             Object returnValue = jas.getValue();
             switch (jas.getType()) {
 
@@ -96,6 +101,37 @@ public class  Account {
             Log.e(TAG, "getAccountInfo: ", e);
             return jas.getValue();
         }
+    }
+
+    public ArrayList<String> getFriendsList() {
+        ArrayList<String> friendsList = new ArrayList<>();
+        JSONObject reqobj = new JSONAccount().getFriendRequests(JarAccount.getInstance().getName());
+        DataSender sender = new DataSender();
+        JSONObject responseObj = null;
+        JSONObject friends = null;
+        JSONObject user = null;
+        int count = 0;
+        try {
+            responseObj = sender.send(reqobj);
+            count = Integer.parseInt(responseObj.getString("count"));
+            friends = new JSONObject(responseObj.getString("friends"));
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+        for (int i = 0; i < count; i++) {
+
+            try {
+                user = new JSONObject(friends.getString("friend" + i));
+                String username = user.getString("username");
+                String displayString = (i + 1) + ")    " + username;
+                friendsList.add(username);
+                //friendsList.add(displayString);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return friendsList;
     }
 
     private String getPasswordHash(String password) {
@@ -180,35 +216,50 @@ public class  Account {
 
     }
 
-    public ArrayList<String> getFriendsList() {
-        ArrayList<String> friendsList = new ArrayList<>();
-        JSONObject reqobj = new JSONAccount().getFriendRequests(JarAccount.getInstance().getName());
-        DataSender sender = new DataSender();
-        JSONObject responseObj = null;
-        JSONObject friends = null;
-        JSONObject user = null;
-        int count = 0;
+    public boolean signin(String username, String password) {
+        Log.d(TAG, "signin() called with: username = [" + username + "], password = [" + password + "]");
+        Log.d(TAG, "signin is running on thread: " + Thread.currentThread().getName());
+        boolean status = false;
+
+        String hashedPass = getPasswordHash(password);
+        if (hashedPass == null) {
+            return false;
+        }
+
+        if (username.equals("")) {
+            Log.i(TAG, "signin: username was empty string");
+            Log.d(TAG, "signin() returned: " + false);
+            return false;
+        } else if (username == null) {
+            Log.i(TAG, "signin: username was null");
+            Log.d(TAG, "signin() returned: " + false);
+            return false;
+        }
+        JSONObject jsonObject = jsonAccount.signin(username, hashedPass);
+
+
         try {
-            responseObj = sender.send(reqobj);
-            count = Integer.parseInt(responseObj.getString("count"));
-            friends = new JSONObject(responseObj.getString("friends"));
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
-        for (int i = 0; i < count; i++) {
-
-            try {
-                user = new JSONObject(friends.getString("friend" + i));
-                String username = user.getString("username");
-                String displayString = (i + 1) + ")    " + username;
-                friendsList.add(username);
-                //friendsList.add(displayString);
-            } catch (JSONException e) {
-                e.printStackTrace();
+            JSONObject jsonResponse = dataSender.send(jsonObject);
+            String statusResp = jsonResponse == null ? "" : (String) jsonResponse.get("status");
+            if (statusResp.equals("success")) {
+                status = true;
+                JarAccount.getInstance().setSignonToken((String) jsonResponse.get("token"));
+                JarAccount.getInstance().setName(username);
+                Log.i("Signin", (String) jsonResponse.get("status"));
+            } else {
+                status = false;
+                Log.i("Signin", "Logon failure");
             }
-
+        } catch (IOException e) {
+            e.printStackTrace();
+            status = false;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            status = false;
         }
-        return friendsList;
+
+        JarAccount.getInstance().loadAccountFromServer();
+        return status;
     }
 
     public boolean signinWithHash(String username, String hashedPass) {
@@ -255,54 +306,6 @@ public class  Account {
         JarAccount.getInstance().loadAccountFromServer();
         return status;
     }
-
-    public boolean signin(String username, String password) {
-        Log.d(TAG, "signin() called with: username = [" + username + "], password = [" + password + "]");
-        Log.d(TAG, "signin is running on thread: " + Thread.currentThread().getName());
-        boolean status = false;
-
-        String hashedPass = getPasswordHash(password);
-        if(hashedPass == null){
-            return false;
-        }
-
-        if(username.equals("")){
-            Log.i(TAG, "signin: username was empty string");
-            Log.d(TAG, "signin() returned: " + false);
-            return false;
-        }else if(username == null){
-            Log.i(TAG, "signin: username was null");
-            Log.d(TAG, "signin() returned: " + false);
-            return false;
-        }
-        JSONObject jsonObject = jsonAccount.signin(username, hashedPass);
-
-
-        try {
-            JSONObject jsonResponse = dataSender.send(jsonObject);
-            String statusResp = jsonResponse == null ? "" : (String) jsonResponse.get("status");
-            if (statusResp.equals("success")) {
-                status = true;
-                JarAccount.getInstance().setSignonToken((String) jsonResponse.get("token"));
-                JarAccount.getInstance().setName(username);
-                Log.i("Signin", (String) jsonResponse.get("status"));
-            } else {
-                status = false;
-                Log.i("Signin", "Logon failure");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            status = false;
-        } catch (JSONException e) {
-            e.printStackTrace();
-            status = false;
-        }
-
-        JarAccount.getInstance().loadAccountFromServer();
-        return status;
-    }
-
-
 
     public boolean signout(String username, String signonToken) {
         Log.d(TAG, "signout() called with: username = [" + username + "], signonToken = [" + signonToken + "]");

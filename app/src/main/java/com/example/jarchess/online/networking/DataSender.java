@@ -121,7 +121,7 @@ public class DataSender {
                 lock.notifyAll();
             }
 
-            if (respString.equals(BAD_REQUEST)) {
+            if (respString == null || respString.equals(BAD_REQUEST)) {
                 IOException e = new BadRequestIOException();
                 Log.e(TAG, "sendData: ", e);
                 ioException = e;
