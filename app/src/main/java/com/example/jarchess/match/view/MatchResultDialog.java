@@ -18,6 +18,8 @@ import static android.support.constraint.Constraints.TAG;
 class MatchResultDialog {
 
     private static final int MINIMUM_HEIGHT = 120;
+    @NonNull
+    private final MatchView matchView;
     private final MatchActivity activity;
     private ViewGroup viewGroup;
     private View backgroundFadeView;
@@ -25,8 +27,9 @@ class MatchResultDialog {
     private TextView bodyTextView;
     private Button okButton;
 
-    public MatchResultDialog(@NonNull MatchActivity matchActivity) {
-        activity = matchActivity;
+    public MatchResultDialog(@NonNull final MatchView matchView) {
+        this.matchView = matchView;
+        activity = matchView.getActivity();
 
 
         viewGroup = activity.findViewById(R.id.matchResultFrameLayout);
@@ -64,7 +67,15 @@ class MatchResultDialog {
     }
 
     public void show(ChessMatchResult matchChessMatchResult) {
+        Log.d(TAG, "show() called with: matchChessMatchResult = [" + matchChessMatchResult + "]");
+        Log.d(TAG, "show is running on thread: " + Thread.currentThread().getName());
         final String msg = matchChessMatchResult.toString();
+
+        matchView.hidePendingPauseDialog();
+        matchView.hidePendingDrawDialog();
+        matchView.hidePauseRequestResponseDialog();
+        matchView.hidePendingResumeDialog();
+        matchView.disableDrawButton();
 
         activity.runOnUiThread(new Runnable() {
             @Override

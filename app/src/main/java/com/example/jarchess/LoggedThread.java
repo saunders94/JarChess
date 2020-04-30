@@ -2,6 +2,8 @@ package com.example.jarchess;
 
 import android.util.Log;
 
+import com.example.jarchess.match.ThreadInterrupter;
+
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -9,8 +11,10 @@ public class LoggedThread extends Thread {
     private static final String TAG = "LoggedThread";
     private static Collection<LoggedThread> list = new LinkedList<>();
     private final String tag;
+    private final boolean skipOnJoinAll;
+    public static final ThreadInterrupter inputThreads = new ThreadInterrupter();
 
-    public LoggedThread(final String tag, final Runnable runnable, final String threadName) {
+    public LoggedThread(final String tag, final Runnable runnable, final String threadName, final boolean skippOnJoinAll) {
 
         super(new Runnable() {
             @Override
@@ -18,12 +22,19 @@ public class LoggedThread extends Thread {
                 Log.d(tag, "starting thread: " + Thread.currentThread().getName());
                 try {
                     runnable.run();
+                } catch (Exception e) {
+                    Log.e(TAG, "run: ", e);
                 } finally {
                     Log.d(tag, "ending thread: " + Thread.currentThread().getName());
                 }
             }
         }, threadName);
         this.tag = tag;
+        this.skipOnJoinAll = skippOnJoinAll;
+    }
+
+    public LoggedThread(final String tag, final Runnable runnable, final String threadName) {
+        this(tag, runnable, threadName, true);
     }
 
     public static void clear() {
@@ -63,8 +74,9 @@ public class LoggedThread extends Thread {
 
     @Override
     public synchronized void start() {
-        list.add(this);
         super.start();
+        list.add(this);
+
     }
 
 }

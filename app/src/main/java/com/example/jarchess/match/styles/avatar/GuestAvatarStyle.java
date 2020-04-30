@@ -1,5 +1,7 @@
 package com.example.jarchess.match.styles.avatar;
 
+import androidx.annotation.NonNull;
+
 import com.example.jarchess.R;
 
 /**
@@ -39,5 +41,11 @@ public class GuestAvatarStyle implements AvatarStyle {
     @Override
     public final int getAvatarResourceID() {
         return AVATAR_RESOURCE_ID;
+    }
+
+    @NonNull
+    @Override
+    public String getName() {
+        return "Guest";
     }
 }

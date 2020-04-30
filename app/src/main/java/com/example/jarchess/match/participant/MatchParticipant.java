@@ -3,7 +3,6 @@ package com.example.jarchess.match.participant;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.DrawResponse;
 import com.example.jarchess.match.MatchOverException;
-import com.example.jarchess.match.events.MatchResultIsInEventListener;
 import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
@@ -13,7 +12,7 @@ import com.example.jarchess.match.turn.Turn;
  *
  * @author Joshua Zierman
  */
-public interface MatchParticipant extends MatchResultIsInEventListener {
+public interface MatchParticipant {
 
     /**
      * Gets the avatar style for this participant
@@ -48,7 +47,7 @@ public interface MatchParticipant extends MatchResultIsInEventListener {
      *
      * @return a response
      */
-    DrawResponse getDrawResponse(MatchHistory matchHistory);
+    DrawResponse getDrawResponse(MatchHistory matchHistory) throws InterruptedException;
 
     /**
      * Takes a turn in response to the last turn from the other participant.

@@ -7,6 +7,7 @@ import com.example.jarchess.match.events.MatchEndingEvent;
 import com.example.jarchess.match.events.MatchEndingEventManager;
 import com.example.jarchess.match.participant.RemoteOpponent;
 import com.example.jarchess.match.result.ChessMatchResult;
+import com.example.jarchess.match.result.ServerErrorResult;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.match.turn.TurnReceiver;
 import com.example.jarchess.match.turn.TurnSender;
@@ -135,7 +136,7 @@ public class MatchNetworkIO {
 
         @Override
         public void send(ChessMatchResult chessMatchResult) {
-            if (chessMatchResult != null) {
+            if (chessMatchResult != null && !(chessMatchResult instanceof ServerErrorResult)) {
                 Log.d(TAG, "send() called with: chessMatchResult = [" + chessMatchResult + "]");
                 Log.d(TAG, "send is running on thread: " + Thread.currentThread().getName());
 
@@ -296,6 +297,7 @@ public class MatchNetworkIO {
 
                                     case MATCH_RESULT:
                                         Log.d(TAG, "run: handling received match result");
+                                        LoggedThread.inputThreads.interruptAll();
                                         while (!incomingTurns.isEmpty()) {
                                             lock.wait();
                                         }
@@ -313,7 +315,13 @@ public class MatchNetworkIO {
                                         new LoggedThread(TAG, new Runnable() {
                                             @Override
                                             public void run() {
-                                                listener.processRemotePauseRequest();
+                                                try {
+                                                    listener.processRemotePauseRequest();
+                                                } catch (MatchOverException e) {
+                                                    // do nothing
+                                                } catch (InterruptedException e) {
+                                                    // do nothing
+                                                }
                                             }
                                         }, "pauseRequestThread").start();
                                         break;
@@ -339,7 +347,13 @@ public class MatchNetworkIO {
                                         new LoggedThread(TAG, new Runnable() {
                                             @Override
                                             public void run() {
-                                                listener.processRemoteDrawRequest();
+                                                try {
+                                                    listener.processRemoteDrawRequest();
+                                                } catch (MatchOverException e) {
+                                                    //do nothing
+                                                } catch (InterruptedException e) {
+                                                    //do nothing
+                                                }
                                             }
                                         }, "drawRequestThread").start();
                                         break;
@@ -367,6 +381,11 @@ public class MatchNetworkIO {
                                             lock.notifyAll();
                                         }
                                         break;
+
+                                    case SERVER_ERROR:
+                                        ChessMatchResult result = new ServerErrorResult();
+                                        MatchEndingEvent event = new MatchEndingEvent(result);
+                                        MatchEndingEventManager.getInstance().notifyAllListeners(event);
 
                                     default:
                                         throw new IllegalStateException("Unexpected datapackage type: " + datapackage.getDatapackageType());

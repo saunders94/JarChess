@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import static com.example.jarchess.online.networking.BadRequestIOException.BAD_REQUEST;
+
 
 public class DataSender {
     private static final String TAG = "DataSender";
@@ -28,6 +30,7 @@ public class DataSender {
     private Socket socket;
     private JSONObject jsonObject;
     private JSONObject responseObject;
+    IOException ioException;
 
     public DataSender() {
         this.lock = new Object();
@@ -40,6 +43,7 @@ public class DataSender {
 
 
         responseObject = null;
+        ioException = null;
 
         Runnable r = new Runnable() {
             @Override
@@ -48,6 +52,8 @@ public class DataSender {
                     sendData();
                 } catch (IOException e) {
                     Log.e(TAG, "run: ", e);
+                    ioException = e;
+                    lock.notifyAll();
                 }
             }
         };
@@ -56,10 +62,18 @@ public class DataSender {
         synchronized (lock){
             try {
                 t.start();
-                lock.wait();
+                while (responseObject == null && ioException == null) {
+                    lock.wait();
+                    Log.d(TAG, "send: responseObject = " + responseObject);
+                    Log.d(TAG, "send: ioException " + ioException);
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+
+        if (ioException != null) {
+            throw ioException;
         }
 
         Log.d(TAG, "send() returned: " + this.responseObject);
@@ -99,15 +113,21 @@ public class DataSender {
                 respString = new String(buffer).trim();
                 Log.i(TAG, "Response String: " + respString);
             } catch (IOException e) {
-                e.printStackTrace();
+                ioException = e;
             } finally {
                 socket.close();
                 out.close();
                 in.close();
                 lock.notifyAll();
             }
-            try {
 
+            if (respString.equals(BAD_REQUEST)) {
+                IOException e = new BadRequestIOException();
+                Log.e(TAG, "sendData: ", e);
+                ioException = e;
+                throw e;
+            }
+            try {
                 JSONObject jsonObj = new JSONObject(respString);
                 Log.i(TAG, "JSON response object: " + jsonObj.toString());
                 //String reqType = jsonObj.getString("ERROR");

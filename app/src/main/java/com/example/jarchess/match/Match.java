@@ -13,8 +13,6 @@ import com.example.jarchess.match.clock.MatchClockChoice;
 import com.example.jarchess.match.events.MatchEndingEvent;
 import com.example.jarchess.match.events.MatchEndingEventListener;
 import com.example.jarchess.match.events.MatchEndingEventManager;
-import com.example.jarchess.match.events.MatchResultIsInEvent;
-import com.example.jarchess.match.events.MatchResultIsInEventManager;
 import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.move.PieceMovement;
@@ -44,6 +42,7 @@ import static com.example.jarchess.match.ChessColor.WHITE;
 
 //TODO javadocs
 public abstract class Match implements MatchEndingEventListener {
+    private static final String TAG = "Match";
     protected final MatchHistory matchHistory;
     protected final MatchParticipant blackPlayer;
     protected final MatchParticipant whitePlayer;
@@ -51,9 +50,9 @@ public abstract class Match implements MatchEndingEventListener {
     protected final MoveExpert moveExpert;
     protected final MatchClock matchClock;
     protected final MatchActivity matchActivity;
-    protected ChessMatchResult matchChessMatchResult = null;
+    protected ChessMatchResult chessMatchResult = null;
+    private Thread matchThread;
     protected String gameToken;
-    private static final String TAG = "Match";
 
     public Match(@NonNull MatchParticipant participant1, @NonNull MatchParticipant participant2, MatchClockChoice matchClockChoice, MatchActivity matchActivity) {
         this.matchActivity = matchActivity;
@@ -75,10 +74,10 @@ public abstract class Match implements MatchEndingEventListener {
 
     private void checkForGameEnd(ChessColor nextTurnColor) {
 
-        if (matchChessMatchResult == null) {
+        if (chessMatchResult == null) {
 
             checkForTimeout();
-            if (matchChessMatchResult == null) {
+            if (chessMatchResult == null) {
 
 
                 if (matchClock.flagHasFallen()) {
@@ -107,6 +106,139 @@ public abstract class Match implements MatchEndingEventListener {
                 }
             }
         }
+    }
+
+    private void checkForTimeout() {
+        if (matchClock.flagHasFallen()) {
+            ChessColor colorOfWinner;
+            colorOfWinner = matchClock.getColorOfFallenFlag();
+            setChessMatchResult(new FlagFallResult(colorOfWinner));
+        }
+    }
+
+    private void execute(Turn turn) {
+        Piece capturedPiece = null;
+        Coordinate capturedPieceCoordinate = null;
+        Log.v(TAG, "execute is running on thread: " + Thread.currentThread().getName());
+        Move move = turn.getMove();
+        for (PieceMovement movement : move) {
+
+            Coordinate origin = movement.getOrigin();
+            Coordinate destination = movement.getDestination();
+
+            if (getPieceAt(destination) != null) {
+                //perform normal capture
+                capturedPieceCoordinate = destination;
+                capturedPiece = capture(capturedPieceCoordinate);
+                matchActivity.getMatchView().addCapturedPiece(capturedPiece);
+            } else if (matchHistory.getEnPassantVulnerableCoordinate() == destination && getPieceAt(origin) instanceof Pawn) {
+                // perform en passant capture
+                capturedPieceCoordinate = matchHistory.getEnPassantRiskedPieceLocation();
+                capturedPiece = capture(capturedPieceCoordinate);
+                matchActivity.getMatchView().addCapturedPiece(capturedPiece);
+                matchActivity.getMatchView().updatePiece(matchHistory.getEnPassantRiskedPieceLocation());
+            }
+            move(movement.getOrigin(), movement.getDestination());
+            PromotionChoice choice = turn.getPromotionChoice();
+            if (choice != null) {
+                promote(destination, choice);
+            }
+        }
+        matchHistory.add(turn);
+        checkForGameEnd(ChessColor.getOther(turn.getColor()));
+    }
+
+    public void forceEndMatch(String msg) {
+        MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(getForceExitWinningColor(), msg, new Exception("Match end was forced"))));
+    }
+
+    public MatchParticipant getBlackParticipant() {
+        return blackPlayer;
+    }
+
+    public abstract ChessColor getForceExitWinningColor();
+
+    public Collection<? extends PieceMovement> getLegalCastleMovements(Coordinate origin, Coordinate destination) {
+        return moveExpert.getLegalCastleMovements(origin, destination, matchHistory);
+    }
+
+    public ChessMatchResult getChessMatchResult() {
+        return chessMatchResult;
+    }
+
+    protected void setChessMatchResult(ChessMatchResult chessMatchResult) {
+        Log.d(TAG, "setMatchResult() called with: matchResult = [" + chessMatchResult + "]");
+        Log.d(TAG, "setMatchResult is running on thread: " + Thread.currentThread().getName());
+
+        boolean wasSet;
+        Log.d(TAG, "setMatchChessMatchResult: waiting for lock");
+        synchronized (this) {
+            Log.d(TAG, "setMatchChessMatchResult: got lock");
+            wasSet = this.chessMatchResult == null;
+
+            if (wasSet) {
+                Log.i(TAG, "setMatchResult: " + chessMatchResult);
+                this.chessMatchResult = chessMatchResult;
+                notifyAll();
+            }
+        }
+        if (wasSet) {
+//            MatchResultIsInEventManager.getInstance().notifyAllListeners(new MatchResultIsInEvent(matchChessMatchResult)); TODO remove all of the MatchResultIsInStuff
+            matchActivity.showMatchResult();
+            LoggedThread.inputThreads.interruptAll();
+        }
+    }
+
+    public MatchClock getMatchClock() {
+        return matchClock;
+    }
+
+    public MatchHistory getMatchHistory() {
+        return matchHistory;
+    }
+
+    public MatchParticipant getParticipant(ChessColor color) {
+        switch (color) {
+
+            case BLACK:
+                return blackPlayer;
+            case WHITE:
+                return whitePlayer;
+            default:
+                throw new IllegalStateException("Unexpected color value: " + color);
+        }
+    }
+
+    public Piece getPieceAt(@NonNull Coordinate coordinate) {
+        return chessboard.getPieceAt(coordinate);
+    }
+
+    public Collection<Coordinate> getPossibleMoves(Coordinate origin) {
+        return moveExpert.getLegalDestinations(origin, matchHistory);
+    }
+
+    private Turn getTurn() throws MatchOverException, InterruptedException {
+        if (matchHistory.getLastTurn() == null) {
+            return getParticipant(WHITE).getFirstTurn(matchHistory);
+        }
+        return getParticipant(matchHistory.getNextTurnColor()).getNextTurn(matchHistory);
+    }
+
+    public MatchParticipant getWhiteParticipant() {
+        return whitePlayer;
+    }
+
+    public boolean isDone() {
+        return chessMatchResult != null;
+    }
+
+    public void move(Coordinate origin, Coordinate destination) {
+        chessboard.move(origin, destination);
+    }
+
+    @Override
+    public void observe(MatchEndingEvent matchEndingEvent) {
+        setChessMatchResult(matchEndingEvent.getResult());
     }
 
     private void playMatch() {
@@ -172,8 +304,8 @@ public abstract class Match implements MatchEndingEventListener {
         if (this instanceof OnlineMatch) {
 
             Log.i(TAG, "playMatch: trying to send the match result");
-            if (matchChessMatchResult != null) {
-                ((OnlineMatch) this).getOpponent().send(matchChessMatchResult);
+            if (chessMatchResult != null) {
+                ((OnlineMatch) this).getOpponent().send(chessMatchResult);
             } else {
                 Log.d(TAG, "playMatch: sending a no match result exception match result");
                 ((OnlineMatch) this).getOpponent().send(new ExceptionResult(null, "no match result", new IllegalStateException("no match result to send")));
@@ -184,142 +316,6 @@ public abstract class Match implements MatchEndingEventListener {
         Log.i(TAG, "playMatch: showing match result");
         matchActivity.showMatchResult();
 
-    }
-
-    private void checkForTimeout() {
-        if (matchClock.flagHasFallen()) {
-            ChessColor colorOfWinner;
-            colorOfWinner = matchClock.getColorOfFallenFlag();
-            setMatchChessMatchResult(new FlagFallResult(colorOfWinner));
-        }
-    }
-
-    private void execute(Turn turn) {
-        Piece capturedPiece = null;
-        Coordinate capturedPieceCoordinate = null;
-        Log.v(TAG, "execute is running on thread: " + Thread.currentThread().getName());
-        Move move = turn.getMove();
-        for (PieceMovement movement : move) {
-
-            Coordinate origin = movement.getOrigin();
-            Coordinate destination = movement.getDestination();
-
-            if (getPieceAt(destination) != null) {
-                //perform normal capture
-                capturedPieceCoordinate = destination;
-                capturedPiece = capture(capturedPieceCoordinate);
-                matchActivity.getMatchView().addCapturedPiece(capturedPiece);
-            } else if (matchHistory.getEnPassantVulnerableCoordinate() == destination && getPieceAt(origin) instanceof Pawn) {
-                // perform en passant capture
-                capturedPieceCoordinate = matchHistory.getEnPassantRiskedPieceLocation();
-                capturedPiece = capture(capturedPieceCoordinate);
-                matchActivity.getMatchView().addCapturedPiece(capturedPiece);
-                matchActivity.getMatchView().updatePiece(matchHistory.getEnPassantRiskedPieceLocation());
-            }
-            move(movement.getOrigin(), movement.getDestination());
-            PromotionChoice choice = turn.getPromotionChoice();
-            if (choice != null) {
-                promote(destination, choice);
-            }
-        }
-        matchHistory.add(turn);
-        checkForGameEnd(ChessColor.getOther(turn.getColor()));
-    }
-
-    public void forceEndMatch(String msg) {
-        MatchEndingEventManager.getInstance().notifyAllListeners(new MatchEndingEvent(new ExceptionResult(getForceExitWinningColor(), msg, new Exception("Match end was forced"))));
-    }
-
-    public MatchParticipant getBlackParticipant() {
-        return blackPlayer;
-    }
-
-    public abstract ChessColor getForceExitWinningColor();
-
-    public Collection<? extends PieceMovement> getLegalCastleMovements(Coordinate origin, Coordinate destination) {
-        return moveExpert.getLegalCastleMovements(origin, destination, matchHistory);
-    }
-
-    public ChessMatchResult getMatchChessMatchResult() {
-        return matchChessMatchResult;
-    }
-
-    private void setMatchChessMatchResult(ChessMatchResult matchChessMatchResult) {
-        Log.d(TAG, "setMatchResult() called with: matchResult = [" + matchChessMatchResult + "]");
-        Log.d(TAG, "setMatchResult is running on thread: " + Thread.currentThread().getName());
-
-        boolean wasSet;
-        Log.d(TAG, "setMatchChessMatchResult: waiting for lock");
-        synchronized (this) {
-            Log.d(TAG, "setMatchChessMatchResult: got lock");
-            wasSet = this.matchChessMatchResult == null;
-
-            if (wasSet) {
-                Log.i(TAG, "setMatchResult: " + matchChessMatchResult);
-                this.matchChessMatchResult = matchChessMatchResult;
-                notifyAll();
-            }
-        }
-        if (wasSet) {
-
-            MatchResultIsInEventManager.getInstance().notifyAllListeners(new MatchResultIsInEvent(matchChessMatchResult));
-        }
-    }
-
-    public MatchClock getMatchClock() {
-        return matchClock;
-    }
-
-    public MatchHistory getMatchHistory() {
-        return matchHistory;
-    }
-
-    public MatchParticipant getParticipant(ChessColor color) {
-        switch (color) {
-
-            case BLACK:
-                return blackPlayer;
-            case WHITE:
-                return whitePlayer;
-            default:
-                throw new IllegalStateException("Unexpected color value: " + color);
-        }
-    }
-
-    public Piece getPieceAt(@NonNull Coordinate coordinate) {
-        return chessboard.getPieceAt(coordinate);
-    }
-
-    public Collection<Coordinate> getPossibleMoves(Coordinate origin) {
-        return moveExpert.getLegalDestinations(origin, matchHistory);
-    }
-
-    private Turn getTurn() throws MatchOverException, InterruptedException {
-        if (matchHistory.getLastTurn() == null) {
-            return getParticipant(WHITE).getFirstTurn(matchHistory);
-        }
-        return getParticipant(matchHistory.getNextTurnColor()).getNextTurn(matchHistory);
-    }
-
-    public MatchParticipant getWhiteParticipant() {
-        return whitePlayer;
-    }
-
-    public boolean isDone() {
-        return matchChessMatchResult != null;
-    }
-
-    public void move(Coordinate origin, Coordinate destination) {
-        chessboard.move(origin, destination);
-    }
-
-    @Override
-    public void observe(MatchEndingEvent matchEndingEvent) {
-        setMatchChessMatchResult(matchEndingEvent.getResult());
-    }
-
-    protected void setMatchChessMatchResult(ChessMatchResult chessMatchResult, MatchHistory matchHistory) {
-        setMatchChessMatchResult(chessMatchResult);
     }
 
     public void promote(Coordinate coordinate, PromotionChoice choice) {
@@ -353,14 +349,21 @@ public abstract class Match implements MatchEndingEventListener {
         }
     }
 
+    protected void setMatchChessMatchResult(ChessMatchResult chessMatchResult, MatchHistory matchHistory) {
+        setChessMatchResult(chessMatchResult);
+    }
+
     public void start() {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 playMatch();
+                LoggedThread.inputThreads.remove(Thread.currentThread());
             }
         };
-        new LoggedThread(TAG, runnable, "MatchThread").start();
+        matchThread = new LoggedThread(TAG, runnable, "MatchThread");
+        LoggedThread.inputThreads.add(matchThread);
+        matchThread.start();
 
     }
 

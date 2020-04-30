@@ -35,8 +35,18 @@ public class OnlineMatch extends PlayerMatch {
     }
 
     @Override
+    protected void setChessMatchResult(ChessMatchResult chessMatchResult) {
+        if (this.chessMatchResult == null) {
+            super.setChessMatchResult(chessMatchResult);
+        }
+    }
+
+    @Override
     protected void setMatchChessMatchResult(ChessMatchResult chessMatchResult, MatchHistory matchHistory) {
-        getOpponent().sendLastTurn(matchHistory);
-        super.setMatchChessMatchResult(chessMatchResult, matchHistory);
+        if (this.chessMatchResult == null) {
+            getOpponent().sendLastTurn(matchHistory);
+            getOpponent().send(chessMatchResult);
+            super.setMatchChessMatchResult(chessMatchResult, matchHistory);
+        }
     }
 }

@@ -13,7 +13,6 @@ import com.example.jarchess.match.pieces.PromotionChoice;
  * @author Joshua Zierman
  */
 public interface LocalParticipantController {
-    void cancelInput();
 
     Move getMoveInput(ChessColor color) throws InterruptedException, MatchOverException;
 

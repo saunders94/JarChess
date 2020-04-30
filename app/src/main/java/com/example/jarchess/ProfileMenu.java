@@ -1,17 +1,13 @@
 package com.example.jarchess;
 
 
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 
@@ -46,6 +42,11 @@ public class ProfileMenu extends Fragment {
 
 
         return view;
+    }
+
+    //This allows the main activity to share an instance for communication
+    public void setCommunicator(signOutCommunicator callback) {
+        this.callback = callback;
     }
 
     private void setupListeners() {
@@ -87,13 +88,14 @@ public class ProfileMenu extends Fragment {
             public void onClick(View v) {
                 int duration = Toast.LENGTH_SHORT;
 
-                if (callback.onLogout()) {
-                    FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                    MainMenu mainMenu = new MainMenu();
-                    transaction.replace(R.id.fragmentHole, mainMenu);
-                    transaction.addToBackStack("MainMenu");
-                    transaction.commit();
+                // go back to main menu even if logout failed
+                FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
+                MainMenu mainMenu = new MainMenu();
+                transaction.replace(R.id.fragmentHole, mainMenu);
+                transaction.addToBackStack("MainMenu");
+                transaction.commit();
 
+                if (callback.onLogout()) {
                     Toast toast = Toast.makeText(v.getContext(), "Logout Successful", duration);
                     toast.show();
 
@@ -106,12 +108,6 @@ public class ProfileMenu extends Fragment {
 
             }
         });
-    }
-
-
-    //This allows the main activity to share an instance for communication
-    public void setCommunicator(signOutCommunicator callback) {
-        this.callback = callback;
     }
 
     public interface signOutCommunicator {

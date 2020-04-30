@@ -1,5 +1,7 @@
 package com.example.jarchess.match.styles.avatar;
 
+import androidx.annotation.NonNull;
+
 import com.example.jarchess.R;
 
 /**
@@ -37,5 +39,17 @@ public class YellowBlackYellowCircleAvatarStyle implements AvatarStyle {
     @Override
     public final int getAvatarResourceID() {
         return AVATAR_RESOURCE_ID;
+    }
+
+    @NonNull
+    @Override
+    public String getName() {
+        return "Yellow and Black Circles";
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return getName();
     }
 }

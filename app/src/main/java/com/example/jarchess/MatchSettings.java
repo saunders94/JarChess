@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.example.jarchess.jaraccount.JarAccount;
 import com.example.jarchess.match.MatchBuilder;
 import com.example.jarchess.match.activity.EasyAIMatchActivity;
 import com.example.jarchess.match.activity.HardAIMatchActivity;
@@ -67,6 +68,32 @@ public class MatchSettings extends Fragment {
             }
         } catch (NullPointerException e) {
             System.out.println("Null must've been added to the back stack");
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult() called with: requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
+        Log.d(TAG, "onActivityResult is running on thread: " + Thread.currentThread().getName());
+        switch (requestCode) {
+            case 0:
+                boolean canceled = data.getBooleanExtra("CANCELED", true);
+                Log.i(TAG, "onActivityResult: canceled = " + canceled);
+                if (!canceled && MatchBuilder.getInstance().isReadyToBuildMultiplayerMatch()) {
+                    Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
+                    startActivityForResult(intent, 1);
+                    Log.i(TAG, "onActivityResult: afterMatchLine");
+                }
+                break;
+
+            case 1:
+                Log.i(TAG, "onActivityResult: case 1");
+                if (getActivity() != null) {
+                    getActivity().onBackPressed();
+                }
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + requestCode);
         }
     }
 
@@ -167,28 +194,9 @@ public class MatchSettings extends Fragment {
         startActivity(intent);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "onActivityResult() called with: requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
-        Log.d(TAG, "onActivityResult is running on thread: " + Thread.currentThread().getName());
-        switch (requestCode) {
-            case 0:
-                boolean canceled = data.getBooleanExtra("CANCELED", true);
-                Log.i(TAG, "onActivityResult: canceled = " + canceled);
-                if (!canceled) {
-                    Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
-                    startActivity(intent);
-                }
-                break;
-
-            default:
-                throw new IllegalStateException("Unexpected value: " + requestCode);
-        }
-    }
-
     private void startRandom() {
         try {
-            if (JarAccount.getInstance().isLoggedIn()) {
+            if (JarAccount.getInstance().verifyLogin()) {
                 //start matchmaking
                 Intent intent = new Intent(getActivity(), MatchMakingActivity.class);
                 startActivityForResult(intent, 0);

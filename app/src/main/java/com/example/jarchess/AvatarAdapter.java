@@ -10,24 +10,28 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.example.jarchess.jaraccount.JarAccount;
+import com.example.jarchess.match.styles.avatar.PlayerAvatarStyles;
+
 
 public class AvatarAdapter extends ArrayAdapter<String> {
 
-    private String[] avatarNameArray;
-    private int[] avatarArray;
+    //    private String[] avatarNameArray;
+//    private int[] avatarArray;
+    private final PlayerAvatarStyles[] avatars = PlayerAvatarStyles.values();
     private Context context;
 
-    protected AvatarAdapter(Context context, String[] avatarNameArray, int[] avatarArray) {
+    protected AvatarAdapter(Context context) {
         super(context, R.layout.avatar_item);
-        this.avatarNameArray = avatarNameArray;
-        this.avatarArray = avatarArray;
+//        this.avatarNameArray = avatarNameArray;
+//        this.avatarArray = avatarArray;
         this.context = context;
 
     }
 
     @Override
     public int getCount() {
-        return avatarNameArray.length;
+        return avatars.length;
     }
 
     @NonNull
@@ -46,10 +50,16 @@ public class AvatarAdapter extends ArrayAdapter<String> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
+        PlayerAvatarStyles avatar = avatars[position];
+        int unlockedAtInt = avatar.getUnlockedAtValue();
+        boolean isLocked = JarAccount.getInstance().getLevel() < unlockedAtInt;
+        viewHolder.iView.setImageResource(avatars[position].getAvatarStyle().getAvatarResourceID());
+        viewHolder.tView.setText(isLocked ? "Unlocked at level " + unlockedAtInt : avatar.getAvatarStyle().getName());
 
-        viewHolder.iView.setImageResource(avatarArray[position]);
-        viewHolder.tView.setText(avatarNameArray[position]);
-
+        if (isLocked) {
+            convertView.setEnabled(false);
+            convertView.setOnClickListener(null);
+        }
         return convertView;
     }
 

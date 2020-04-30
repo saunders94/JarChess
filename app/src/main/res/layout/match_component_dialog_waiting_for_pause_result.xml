@@ -14,14 +14,55 @@
         android:gravity="center">
 
         <TextView
-            android:id="@+id/pausePendingTitleTextView"
+            android:id="@+id/pausePendingTitleTextView_Paused"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal|center_vertical"
             android:padding="15dp"
             android:scrollHorizontally="false"
-            android:text="Waiting for Response"
+            android:text="Paused"
+            android:textAppearance="@style/CustomDialogTitle"
+            android:visibility="gone" />
+
+
+        <TextView
+            android:id="@+id/pausePendingTitleTextView_ResumeRequestPending"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal|center_vertical"
+            android:padding="15dp"
+            android:scrollHorizontally="false"
+            android:text="Resume Request Pending"
             android:textAppearance="@style/CustomDialogTitle" />
+
+
+        <TextView
+            android:id="@+id/pausePendingTitleTextView_PauseRequestPending"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal|center_vertical"
+            android:padding="15dp"
+            android:scrollHorizontally="false"
+            android:text="Pause Request Pending"
+            android:textAppearance="@style/CustomDialogTitle"
+            android:visibility="gone" />
+
+
+        <TextView
+            android:id="@+id/pausePendingTitleTextView_Resume"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal|center_vertical"
+            android:padding="15dp"
+            android:scrollHorizontally="false"
+            android:text="Resume"
+            android:textAppearance="@style/CustomDialogTitle"
+            android:visibility="gone" />
+
     </TableRow>
 
     <TableRow

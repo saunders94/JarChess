@@ -1,6 +1,6 @@
 package com.example.jarchess.match.participant;
 
-import com.example.jarchess.JarAccount;
+import com.example.jarchess.jaraccount.JarAccount;
 import com.example.jarchess.match.ChessColor;
 
 /**

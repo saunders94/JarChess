@@ -15,14 +15,17 @@ import com.example.jarchess.match.events.RequestDrawButtonPressedEventManager;
 class LeaveMatchDialog {
 
     private final MatchActivity activity;
+    @NonNull
+    private final MatchView matchView;
     private View view;
     private ImageView backgroundFadeImageView;
     private Button resignButton;
     private Button requestDrawButton;
     private static final String TAG = "LeaveMatchDialog";
 
-    public LeaveMatchDialog(@NonNull MatchActivity matchActivity) {
-        activity = matchActivity;
+    public LeaveMatchDialog(@NonNull MatchView matchView) {
+        this.matchView = matchView;
+        activity = matchView.getActivity();
 
 
         view = activity.findViewById(R.id.leaveMatchDialogFrameLayout);
@@ -30,6 +33,8 @@ class LeaveMatchDialog {
         backgroundFadeImageView = view.findViewById(R.id.leaveMatchFadeBackgroundImageView);
         resignButton = view.findViewById(R.id.resignButton);
         requestDrawButton = view.findViewById(R.id.requestDrawButton);
+        requestDrawButton.setVisibility(View.VISIBLE);
+        requestDrawButton.setClickable(true);
 
         backgroundFadeImageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -42,6 +47,8 @@ class LeaveMatchDialog {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "Resign Button Clicked");
+                requestDrawButton.setVisibility(View.INVISIBLE);
+                requestDrawButton.setClickable(false);
                 activity.observeResignButtonClick();
             }
         });
@@ -62,7 +69,17 @@ class LeaveMatchDialog {
         view.setVisibility(View.INVISIBLE);
     }
 
-    public void makeDrawButtonClickable(){
+    public void disableDrawButton() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                requestDrawButton.setVisibility(View.INVISIBLE);
+                requestDrawButton.setClickable(false);
+            }
+        });
+    }
+
+    public void enableDrawButton() {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

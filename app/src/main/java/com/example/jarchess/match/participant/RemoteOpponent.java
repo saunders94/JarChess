@@ -10,11 +10,8 @@ import com.example.jarchess.match.DrawResponse;
 import com.example.jarchess.match.MatchNetworkIO;
 import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.PauseResponse;
-import com.example.jarchess.match.events.MatchResultIsInEvent;
-import com.example.jarchess.match.events.MatchResultIsInEventManager;
 import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.result.ChessMatchResult;
-import com.example.jarchess.match.result.ExceptionResult;
 import com.example.jarchess.match.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.online.datapackage.DatapackageReceiver;
@@ -44,7 +41,6 @@ public class RemoteOpponent implements MatchParticipant {
     private final Queue<Turn> recievedTurns = new ConcurrentLinkedQueue<Turn>();
     private final MatchNetworkIO.Receiver receiver;
     private boolean resultWasSent = false;
-    private Thread turnRecieverThread;
 
     /**
      * Creates a remote opponent.
@@ -63,7 +59,6 @@ public class RemoteOpponent implements MatchParticipant {
         MatchNetworkIO.Receiver mNIOReceiver = new MatchNetworkIO.Receiver(receiver, this);
         this.sender = mNIOSender;
         this.receiver = mNIOReceiver;
-        MatchResultIsInEventManager.getInstance().add(this);
 
 
         switch (color) {
@@ -113,32 +108,9 @@ public class RemoteOpponent implements MatchParticipant {
      * {@inheritDoc}
      */
     @Override
-    public Turn getFirstTurn(MatchHistory matchHistory) {
-        try {
-            return receiver.receiveNextTurn();
-        } catch (InterruptedException e) {
-            // just get out
-        }
-        return null;
-    }
+    public Turn getFirstTurn(MatchHistory matchHistory) throws InterruptedException {
 
-    private DrawResponse getDrawResponse() {
-
-        Log.d(TAG, "getDrawResponse() called");
-        Log.d(TAG, "getDrawResponse is running on thread: " + Thread.currentThread().getName());
-
-        Log.i(TAG, "getDrawResponse: sending draw request");
-        sender.sendDrawRequest();
-
-        try {
-            Log.i(TAG, "getDrawResponse: Waiting for drawResponse from receiver");
-            DrawResponse drawResponse = receiver.receiveNextDrawResponse();
-            Log.d(TAG, "getDrawResponse() returned: " + drawResponse);
-            return drawResponse;
-        } catch (InterruptedException e) {
-            Log.e(TAG, "getDrawResponse: ", e);
-            return DrawResponse.REJECT;
-        }
+        return receiver.receiveNextTurn();
     }
 
     /**
@@ -150,111 +122,94 @@ public class RemoteOpponent implements MatchParticipant {
     }
 
     @Override
-    public Turn getNextTurn(MatchHistory matchHistory) throws MatchOverException {
+    public DrawResponse getDrawResponse(MatchHistory matchHistory) throws InterruptedException {
+        return getDrawResponse();
+    }
+
+    @Override
+    public Turn getNextTurn(MatchHistory matchHistory) throws InterruptedException {
 
         sender.send(matchHistory.getLastTurn());
 
         Log.i(TAG, "getNextTurn: Turn was sent to sender!");
 
-        try {
-            Log.i(TAG, "getNextTurn: Waiting for turn from receiver");
-            Turn turn = receiver.receiveNextTurn();
-            Log.d(TAG, "getNextTurn() returned: " + turn);
-            return turn;
-        } catch (InterruptedException e) {
-            throw new MatchOverException(new ExceptionResult(colorOfLocalParticipant, "InterruptedException", e));
-        }
+        Log.i(TAG, "getNextTurn: Waiting for turn from receiver");
+        Turn turn = receiver.receiveNextTurn();
+        Log.d(TAG, "getNextTurn() returned: " + turn);
+        return turn;
     }
 
-    public void notifyAndWaitForResume() {
-        Log.d(TAG, "notifyAndWaitForResume() called");
-        Log.d(TAG, "notifyAndWaitForResume is running on thread: " + Thread.currentThread().getName());
-        sender.sendResumeRequest();
-        try {
-            receiver.receiveNextResumeRequest();
-        } catch (InterruptedException e) {
-            // just continue;
-        }
-        Log.d(TAG, "notifyAndWaitForResume() returned");
+    private DrawResponse getDrawResponse() throws InterruptedException {
+
+        Log.d(TAG, "getDrawResponse() called");
+        Log.d(TAG, "getDrawResponse is running on thread: " + Thread.currentThread().getName());
+
+        Log.i(TAG, "getDrawResponse: sending draw request");
+        sender.sendDrawRequest();
+
+        Log.i(TAG, "getDrawResponse: Waiting for drawResponse from receiver");
+        DrawResponse drawResponse = receiver.receiveNextDrawResponse();
+        Log.d(TAG, "getDrawResponse() returned: " + drawResponse);
+        return drawResponse;
     }
 
-    @Override
-    public DrawResponse getDrawResponse(MatchHistory matchHistory) {
-        return getDrawResponse();
-    }
-
-    public PauseResponse getPauseResponse() throws MatchOverException {
+    public PauseResponse getPauseResponse() throws InterruptedException {
 
         sender.sendPauseRequest();
 
-        try {
-            Log.i(TAG, "getPauseResponse: Waiting for pauseResponse from receiver");
-            PauseResponse pauseResponse = receiver.receiveNextPauseResponse();
-            Log.d(TAG, "getPauseResponse() returned: " + pauseResponse);
-            return pauseResponse;
-        } catch (InterruptedException e) {
-            throw new MatchOverException(new ExceptionResult(colorOfLocalParticipant, "InterruptedException", e));
-        }
+
+        Log.i(TAG, "getPauseResponse: Waiting for pauseResponse from receiver");
+        PauseResponse pauseResponse = receiver.receiveNextPauseResponse();
+        Log.d(TAG, "getPauseResponse() returned: " + pauseResponse);
+        return pauseResponse;
+
     }
 
-    @Override
-    public void observe(MatchResultIsInEvent matchResultIsInEvent) {
-        Log.d(TAG, "observe() called with: matchResultIsInEvent = [" + matchResultIsInEvent + "]");
-        Log.d(TAG, "observe is running on thread: " + Thread.currentThread().getName());
-        send(matchResultIsInEvent.getMatchChessMatchResult());
-        if (turnRecieverThread != null) {
-            turnRecieverThread.interrupt();
-        }
+    public void notifyAndWaitForResume() throws InterruptedException {
+        Log.d(TAG, "notifyAndWaitForResume() called");
+        Log.d(TAG, "notifyAndWaitForResume is running on thread: " + Thread.currentThread().getName());
+        sender.sendResumeRequest();
+        receiver.receiveNextResumeRequest();
+
+        Log.d(TAG, "notifyAndWaitForResume() returned");
     }
 
-    public void processRemotePauseRequest() {
+    public void processRemoteDrawRequest() throws MatchOverException, InterruptedException {
+        Log.d(TAG, "processRemoteDrawRequest() called");
+        Log.d(TAG, "processRemoteDrawRequest is running on thread: " + Thread.currentThread().getName());
+
+        // get response from the controller
+        DrawResponse drawResponse = remoteOpponentController.getDrawRequestResponseForRemoteOpponent();
+        Log.i(TAG, "processRemoteDrawRequest: sending " + drawResponse);
+
+        // send the response
+        sender.send(drawResponse);
+        Log.d(TAG, "processRemoteDrawRequest() returned: ");
+    }
+
+    public void processRemotePauseRequest() throws MatchOverException, InterruptedException {
         Log.d(TAG, "processRemotePauseRequest() called");
         Log.d(TAG, "processRemotePauseRequest is running on thread: " + Thread.currentThread().getName());
-        try {
-            // get response from the controller
-            PauseResponse pauseResponse = remoteOpponentController.getPauseRequestResponseForRemoteOpponent();
-            Log.i(TAG, "processRemotePauseRequest: sending " + pauseResponse);
 
-            // send the response
-            sender.send(pauseResponse);
+        // get response from the controller
+        PauseResponse pauseResponse = remoteOpponentController.getPauseRequestResponseForRemoteOpponent();
+        Log.i(TAG, "processRemotePauseRequest: sending " + pauseResponse);
 
-
-        } catch (MatchOverException e) {
-            Log.e(TAG, "processRemotePauseRequest: ", e);
-            Log.i(TAG, "processRemotePauseRequest: sending " + PauseResponse.REJECT);
-            sender.send(PauseResponse.REJECT);
-        } catch (InterruptedException e) {
-            Log.e(TAG, "processRemotePauseRequest: ", e);
-            Log.i(TAG, "processRemotePauseRequest: sending " + PauseResponse.REJECT);
-            sender.send(PauseResponse.REJECT);
-        }
+        // send the response
+        sender.send(pauseResponse);
         Log.d(TAG, "processRemotePauseRequest() returned: ");
     }
 
-    public void sendLastTurn(MatchHistory matchHistory) {
-        sender.send(matchHistory.getLastTurn());
+    public void rejectDrawRequest() {
+        Log.d(TAG, "rejectDrawRequest() called");
+        Log.d(TAG, "rejectDrawRequest is running on thread: " + Thread.currentThread().getName());
+        sender.send(PauseResponse.REJECT);
     }
 
-    public void processRemoteDrawRequest() {
-        Log.d(TAG, "processRemoteDrawRequest() called");
-        Log.d(TAG, "processRemoteDrawRequest is running on thread: " + Thread.currentThread().getName());
-        try {
-            // get response from the controller
-            DrawResponse drawResponse = remoteOpponentController.getDrawRequestResponseForRemoteOpponent();
-            Log.i(TAG, "processRemoteDrawRequest: sending " + drawResponse);
-
-            // send the response
-            sender.send(drawResponse);
-        } catch (MatchOverException e) {
-            Log.e(TAG, "processRemoteDrawRequest: ", e);
-            Log.i(TAG, "processRemoteDrawRequest: sending " + DrawResponse.REJECT);
-            sender.send(DrawResponse.REJECT);
-        } catch (InterruptedException e) {
-            Log.e(TAG, "processRemoteDrawRequest: ", e);
-            Log.i(TAG, "processRemoteDrawRequest: sending " + DrawResponse.REJECT);
-            sender.send(DrawResponse.REJECT);
-        }
-        Log.d(TAG, "processRemoteDrawRequest() returned: ");
+    public void rejectPauseRequest() {
+        Log.d(TAG, "rejectPauseRequest() called");
+        Log.d(TAG, "rejectPauseRequest is running on thread: " + Thread.currentThread().getName());
+        sender.send(PauseResponse.REJECT);
     }
 
     public void send(ChessMatchResult result) {
@@ -282,21 +237,8 @@ public class RemoteOpponent implements MatchParticipant {
         }
     }
 
-
-    public void rejectDrawRequest() {
-        Log.d(TAG, "rejectDrawRequest() called");
-        Log.d(TAG, "rejectDrawRequest is running on thread: " + Thread.currentThread().getName());
-        sender.send(PauseResponse.REJECT);
+    public void sendLastTurn(MatchHistory matchHistory) {
+        sender.send(matchHistory.getLastTurn());
     }
 
-
-    public void rejectPauseRequest() {
-        Log.d(TAG, "rejectPauseRequest() called");
-        Log.d(TAG, "rejectPauseRequest is running on thread: " + Thread.currentThread().getName());
-        sender.send(PauseResponse.REJECT);
-    }
-
-    public void setTurnRecieverThread(Thread turnRecieverThread) {
-        this.turnRecieverThread = turnRecieverThread;
-    }
 }

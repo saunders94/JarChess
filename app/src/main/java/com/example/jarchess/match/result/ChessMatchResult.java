@@ -88,7 +88,7 @@ public abstract class ChessMatchResult implements JSONConvertible<ChessMatchResu
 
             JSONConverter converter = resultType.getJSONConverter();
             Log.d(TAG, "convertFromJSONObject: converter = " + converter);
-            JSONConvertible tmp = converter.convertFromJSONObject(jsonObject); //TODO check this
+            JSONConvertible tmp = converter.convertFromJSONObject(jsonObject);
 
             if (tmp instanceof ChessMatchResult) {
                 return (ChessMatchResult) tmp;

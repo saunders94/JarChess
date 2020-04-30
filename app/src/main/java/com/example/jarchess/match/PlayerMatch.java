@@ -46,7 +46,7 @@ public class PlayerMatch extends Match {
         return player;
     }
 
-    public void handlePlayerDrawRequest() {
+    public void handlePlayerDrawRequest() throws InterruptedException {
 
         if (matchHistory.getNextTurnColor() == player.getColor()) {
             Log.d(TAG, "handlePlayerDrawRequest: a");
@@ -84,7 +84,7 @@ public class PlayerMatch extends Match {
         }
     }
 
-    public synchronized void handlePlayerPauseRequest() {
+    public synchronized void handlePlayerPauseRequest() throws InterruptedException {
         Log.d(TAG, "handlePlayerPauseRequest() called");
         Log.d(TAG, "handlePlayerPauseRequest is running on thread: " + Thread.currentThread().getName());
         MatchView matchView = matchActivity.getMatchView();
@@ -107,14 +107,11 @@ public class PlayerMatch extends Match {
                 final RemoteOpponent remoteOpponent = (RemoteOpponent) opponent;
                 matchView.showPendingPauseDialog();
                 boolean accepted;
-                try {
-                    Log.i(TAG, "handlePlayerPauseRequest: trying to get pause response from remote opponent");
-                    accepted = remoteOpponent.getPauseResponse().isAccepted();
-                    Log.i(TAG, "handlePlayerPauseRequest: accepted = " + accepted);
-                } catch (MatchOverException e) {
-                    Log.e(TAG, "handlePlayerPauseRequest: ", e);
-                    accepted = false;
-                }
+
+                Log.i(TAG, "handlePlayerPauseRequest: trying to get pause response from remote opponent");
+                accepted = remoteOpponent.getPauseResponse().isAccepted();
+                Log.i(TAG, "handlePlayerPauseRequest: accepted = " + accepted);
+
                 if (accepted) {
                     matchClock.stop();
                     Log.i(TAG, "handlePlayerPauseRequest: accepted !!!!!!!!!!");
@@ -149,7 +146,7 @@ public class PlayerMatch extends Match {
     }
 
 
-    public synchronized void handlePlayerResumeRequest() {
+    public synchronized void handlePlayerResumeRequest() throws InterruptedException {
         Log.d(TAG, "handlePlayerResumeRequest() called");
         Log.d(TAG, "handlePlayerResumeRequest is running on thread: " + Thread.currentThread().getName());
 
