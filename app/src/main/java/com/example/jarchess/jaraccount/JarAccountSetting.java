@@ -95,7 +95,9 @@ public abstract class JarAccountSetting<T> {
     }
 
     public enum Flag {
-        DO_NOT_SAVE_TO_OR_LOAD_FROM_SERVER
+        DO_NOT_SAVE_TO_OR_LOAD_FROM_SERVER,
+        DO_NOT_SAVE_TO_SERVER,
+        DO_NOT_LOAD_FROM_SERVER
     }
 
     public synchronized void setValue(T value) {
