@@ -115,12 +115,11 @@ public class GameIO {
             Log.i(TAG, "waiting on IO");
             Log.i(TAG, String.valueOf(socket));
             Integer resp = null;
-            while (resp == null) {
-                try {
+            try { while (resp == null) {
                     resp = in.read(buffer);
-                } catch (IOException e) {
-                    // just keep trying
                 }
+            }catch (IOException e) {
+                // just keep trying
             }
             String respSting = new String(buffer).trim();
             if (respSting.isEmpty()) {
