@@ -5,6 +5,7 @@ import android.util.Log;
 import com.example.jarchess.online.datapackage.Datapackage;
 
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class DatapackageQueue {
     private final String TAG = "DatapackageQueue";
@@ -19,7 +20,7 @@ public class DatapackageQueue {
 
     public Datapackage getClientBoundDatapackage() {
         try {
-            Datapackage datapackage = clientBoundDatapackageQueue.take();
+            Datapackage datapackage = clientBoundDatapackageQueue.poll(500L, TimeUnit.MILLISECONDS );
             Log.i(TAG, "getClientBoundDatapackage: " + datapackage);
             return datapackage;
         } catch (InterruptedException e) {
@@ -30,7 +31,7 @@ public class DatapackageQueue {
 
     public Datapackage getServerBoundDatapackage() {
         try {
-            Datapackage datapackage = serverBoundDatapackageQueue.take();
+            Datapackage datapackage = serverBoundDatapackageQueue.poll(500L, TimeUnit.MILLISECONDS );
             Log.i(TAG, "getServerBoundDatapackage: " + datapackage);
             return datapackage;
         } catch (InterruptedException e) {
