@@ -56,16 +56,26 @@ public class MultiplayerType extends Fragment {
 
 //                try {
                 if (JarAccount.getInstance().isLoggedIn()) {
-                        FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                        MatchmakingType matchmakingType = new MatchmakingType();
-                        transaction.replace(R.id.fragmentHole, matchmakingType);
-                        transaction.addToBackStack("matchMakingType");
-                        transaction.commit();
 
-                    } else {
-                        int duration = Toast.LENGTH_SHORT;
-                        Toast.makeText(v.getContext(), "Login Required to play Online", duration).show();
-                    }
+                    // TODO put this back in when Friend Games are working
+//                        FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
+//                        MatchmakingType matchmakingType = new MatchmakingType();
+//                        transaction.replace(R.id.fragmentHole, matchmakingType);
+//                        transaction.addToBackStack("matchMakingType");
+//                        transaction.commit();
+
+
+                    //TODO remove this when Friend games are working
+                    FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
+                    MatchSettings matchSettings = new MatchSettings();
+                    transaction.replace(R.id.fragmentHole, matchSettings);
+                    transaction.addToBackStack("RANDOM");
+                    transaction.commit();
+
+                } else {
+                    int duration = Toast.LENGTH_SHORT;
+                    Toast.makeText(v.getContext(), "Login Required to play Online", duration).show();
+                }
 //                } catch (IOException e) {
 //                    int duration = Toast.LENGTH_LONG;
 //                    Toast.makeText(v.getContext(), "Cannot connect to the server. " +
