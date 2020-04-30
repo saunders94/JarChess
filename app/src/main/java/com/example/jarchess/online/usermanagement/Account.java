@@ -243,9 +243,12 @@ public class Account {
             String statusResp = jsonResponse == null ? "" : (String) jsonResponse.get("status");
             if (statusResp.equals("success")) {
                 status = true;
-                JarAccount.getInstance().setSignonToken((String) jsonResponse.get("token"));
+                JarAccount.getInstance().setSignonToken(jsonResponse.get("token").toString());
                 JarAccount.getInstance().setName(username);
                 Log.i("Signin", (String) jsonResponse.get("status"));
+
+//                JarAccount.getInstance().setFromSignin(jsonObject);
+
             } else {
                 status = false;
                 Log.i("Signin", "Logon failure");

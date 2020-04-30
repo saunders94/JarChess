@@ -1,6 +1,7 @@
 package com.example.jarchess.jaraccount;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -15,6 +16,7 @@ public abstract class JarAccountSetting<T> {
     private final JarAccountSettingType type;
     private final T defaultValue;
     private T value;
+    private static final String TAG = "JarAccountSetting";
 
     public JarAccountSetting(String key, T defaultValue, JarAccountSettingType type, Flag... flags) {
         this(key, defaultValue, type);
@@ -39,12 +41,16 @@ public abstract class JarAccountSetting<T> {
     public void loadFromServer(Account accountIO, String username, String signonToken) {
         if (!doNotSaveOnServer) {
             value = accountIO.getAccountInfo(this, username, signonToken);
+        } else {
+            Log.d(TAG, "loadFromServer: not going to load " + key);
         }
     }
 
     public void saveToServer(Account accountIO, String username, String signonToken) throws IOException {
         if (!doNotSaveOnServer) {
             accountIO.saveAccountInfo(this, username, signonToken);
+        } else {
+            Log.d(TAG, "loadFromServer: not going to save " + key);
         }
     }
 
