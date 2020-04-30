@@ -14,12 +14,12 @@ import java.io.IOException;
 
 public abstract class JarAccountSetting<T> {
 
-    private boolean doNotSaveOnServer = false;
-    private boolean doNotLoadFromServer = false;
-    private final String key;
-    private final JarAccountSettingType type;
+    protected final String key;
+    protected final JarAccountSettingType type;
+    protected boolean doNotSaveOnServer = false;
+    protected boolean doNotLoadFromServer = false;
     private final T defaultValue;
-    private T value;
+    protected T value;
     private static final String TAG = "JarAccountSetting";
 
     public JarAccountSetting(String key, T defaultValue, JarAccountSettingType type, Flag... flags) {
@@ -30,6 +30,7 @@ public abstract class JarAccountSetting<T> {
 
                 case DO_NOT_SAVE_TO_OR_LOAD_FROM_SERVER:
                     doNotSaveOnServer = true;
+                    doNotLoadFromServer = true;
                     break;
             }
         }
@@ -89,6 +90,7 @@ public abstract class JarAccountSetting<T> {
     }
 
     public synchronized T getValue() {
+
         return value;
     }
 

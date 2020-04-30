@@ -106,7 +106,7 @@ public class GameIO {
             Log.i(TAG, "getClientBoundDatapackage");
             Datapackage datapackage = datapackageQueue.getServerBoundDatapackage();
             Log.i(TAG, "processMoves: datapackage received = " + datapackage);
-            if(datapackage != null){
+            if (datapackage != null) {
                 jsonObject.put("move", datapackage.getJSONObject());
                 out.writeUTF(jsonObject.toString());
                 out.flush();
@@ -117,10 +117,11 @@ public class GameIO {
             Log.i(TAG, String.valueOf(socket));
             Log.i(TAG, "waiting on IO");
             Integer resp = null;
-            try { while (resp == null) {
+            try {
+                while (resp == null) {
                     resp = in.read(buffer);
                 }
-            }catch (IOException e) {
+            } catch (IOException e) {
                 // just keep trying
             }
             String respSting = new String(buffer).trim();

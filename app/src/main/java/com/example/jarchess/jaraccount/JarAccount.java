@@ -310,14 +310,14 @@ public class JarAccount {
     public boolean signOut() {
         return accountIO.signout(getName(), getSignonToken());
     }
-
-    /**
-     * Verifies the loginToken
-     *
-     * @return true if the token can be verified as valid, false if the token can be verified as incorrect
-     * @throws IOException If communication with the server fails
-     */
-    public synchronized boolean verifyLogin() throws IOException {
-        return accountIO.verifySignin(getName(), getPasswordHash());
-    }
+//
+//    /**
+//     * Verifies the loginToken
+//     *
+//     * @return true if the token can be verified as valid, false if the token can be verified as incorrect
+//     * @throws IOException If communication with the server fails
+//     */
+//    public synchronized boolean verifyLogin() throws IOException {
+//        return accountIO.verifySignin(getName(), getPasswordHash());
+//    }
 }
