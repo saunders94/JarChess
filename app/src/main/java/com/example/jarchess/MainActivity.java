@@ -385,10 +385,11 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
     //use this method to get login details, return true if login succeeded
     public boolean onLogin(CharSequence username, CharSequence password) {
 
-        signonStatus = new Account().signin(String.valueOf(username),
-                String.valueOf(password));
+
+        signonStatus = jarAccount.signIn(username.toString(), password.toString());
         if (signonStatus) {
             usernameLabel.setText(username);
+            avatarIcon.setIcon(jarAccount.getAvatarStyle().getAvatarResourceID());
             ArrayList<String> friendsList = new Account().getFriendsList();
             for (int i = 0; i < friendsList.size(); i++) {
                 addNotification(1);
@@ -400,7 +401,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
 
     @Override
     public boolean onLogout() {
-        boolean logoutStatus = jarAccount.logout();
+        boolean logoutStatus = jarAccount.signOut();
         signonStatus = false;
         usernameLabel.setText(DEFAULT_USERNAME_LABEL);
         avatarIcon.setIcon(jarAccount.getAvatarStyle().getAvatarResourceID());

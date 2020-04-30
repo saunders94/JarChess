@@ -115,13 +115,18 @@ public class DataSender {
             } catch (IOException e) {
                 ioException = e;
             } finally {
-                socket.close();
-                out.close();
-                in.close();
-                lock.notifyAll();
+                try {
+                    socket.close();
+                    out.close();
+                    in.close();
+                    lock.notifyAll();
+                } catch (NullPointerException e) {
+                    Log.e(TAG, "sendData: ", e);
+                    throw new IOException(e);
+                }
             }
 
-            if (respString.equals(BAD_REQUEST)) {
+            if (respString == null || respString.equals(BAD_REQUEST)) {
                 IOException e = new BadRequestIOException();
                 Log.e(TAG, "sendData: ", e);
                 ioException = e;

@@ -11,8 +11,6 @@ import android.widget.Toast;
 
 import com.example.jarchess.jaraccount.JarAccount;
 
-import java.io.IOException;
-
 
 public class MultiplayerType extends Fragment {
 
@@ -56,22 +54,32 @@ public class MultiplayerType extends Fragment {
             @Override
             public void onClick(View v) {
 
-                try {
-                    if (JarAccount.getInstance().verifyLogin()) {
-                        FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
-                        MatchmakingType matchmakingType = new MatchmakingType();
-                        transaction.replace(R.id.fragmentHole, matchmakingType);
-                        transaction.addToBackStack("matchMakingType");
-                        transaction.commit();
+//                try {
+                if (JarAccount.getInstance().isLoggedIn()) {
 
-                    } else {
-                        int duration = Toast.LENGTH_SHORT;
-                        Toast.makeText(v.getContext(), "Login Required to play Online", duration).show();
-                    }
-                } catch (IOException e) {
-                    int duration = Toast.LENGTH_LONG;
-                    Toast.makeText(v.getContext(), "Cannot connect to the server. " +
-                            "Please make sure you have internet access.", duration).show(); }
+                    // TODO put this back in when Friend Games are working
+//                        FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
+//                        MatchmakingType matchmakingType = new MatchmakingType();
+//                        transaction.replace(R.id.fragmentHole, matchmakingType);
+//                        transaction.addToBackStack("matchMakingType");
+//                        transaction.commit();
+
+
+                    //TODO remove this when Friend games are working
+                    FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
+                    MatchSettings matchSettings = new MatchSettings();
+                    transaction.replace(R.id.fragmentHole, matchSettings);
+                    transaction.addToBackStack("RANDOM");
+                    transaction.commit();
+
+                } else {
+                    int duration = Toast.LENGTH_SHORT;
+                    Toast.makeText(v.getContext(), "Login Required to play Online", duration).show();
+                }
+//                } catch (IOException e) {
+//                    int duration = Toast.LENGTH_LONG;
+//                    Toast.makeText(v.getContext(), "Cannot connect to the server. " +
+//                            "Please make sure you have internet access.", duration).show(); }
             }
         });
     }

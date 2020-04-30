@@ -20,7 +20,9 @@ public class DatapackageQueue {
     public Datapackage getClientBoundDatapackage() {
         try {
             Datapackage datapackage = clientBoundDatapackageQueue.take();
-            Log.i(TAG, "getClientBoundDatapackage: " + datapackage);
+            if (datapackage != null) {
+                Log.i(TAG, "getClientBoundDatapackage: " + datapackage);
+            }
             return datapackage;
         } catch (InterruptedException e) {
             e.printStackTrace();

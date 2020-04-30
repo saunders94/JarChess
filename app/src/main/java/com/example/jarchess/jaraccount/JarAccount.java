@@ -14,6 +14,9 @@ import com.example.jarchess.match.styles.chesspiece.ChesspieceStyle;
 import com.example.jarchess.match.styles.chesspiece.ChesspieceStyles;
 import com.example.jarchess.online.usermanagement.Account;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -38,6 +41,7 @@ public class JarAccount {
     private final JarAccountStringSetting signonToken;
     private final JarAccountIntegerSetting level;
     private final Set<JarAccountSetting> jarAccountSettings;
+    private final JarAccountStringSetting passwordHash;
     private final Account accountIO = new Account();
     private SharedPreferences preferences;
 
@@ -71,6 +75,9 @@ public class JarAccount {
         signonToken = new JarAccountStringSetting("signonToken", "", DO_NOT_SAVE_TO_OR_LOAD_FROM_SERVER);
         jarAccountSettings.add(signonToken);
 
+        passwordHash = new JarAccountStringSetting("passwordHash", "", DO_NOT_SAVE_TO_OR_LOAD_FROM_SERVER);
+        jarAccountSettings.add(passwordHash);
+
         level = new JarAccountIntegerSetting("level", 0);
         jarAccountSettings.add(level);
 
@@ -99,38 +106,17 @@ public class JarAccount {
         return ChessboardStyles.getFromInt(chessboardStyleInt.getValue()).getChessboardStyle();
     }
 
-    public void loadAccountFromServer() {
-        for (JarAccountSetting jas : jarAccountSettings) {
-            jas.loadFromServer(accountIO, getName(), getSignonToken());
-        }
-    }
-
-    public synchronized void setCommitButtonClickIsRequired(boolean commitButtonClickIsRequired) {
-        JarAccountSetting<Boolean> jas = this.requireCommitPress;
-        jas.setValue(commitButtonClickIsRequired);
-        jas.saveToLocal(preferences);
-
-        try {
-            jas.saveToServer(accountIO, getName(), getSignonToken());
-        } catch (IOException e) {
-            // continue execution
-        }
-    }
-
-    public synchronized boolean getCommitButtonClickIsRequired() {
-        return requireCommitPress.getValue();
-    }
-
-    public boolean logout() {
+    public JSONObject getJsonForLogout(JSONObject signoutJson) {
         final String username = getName();
         final String token = getSignonToken();
 
 
-        //clear all settings.
+        //save to server and clear all settings from local storage.
         for (JarAccountSetting jarAccountSetting : jarAccountSettings) {
             try {
-                jarAccountSetting.saveToServer(accountIO, username, token);
-            } catch (IOException e) {
+                jarAccountSetting.saveToJson(signoutJson, accountIO, username, token);
+
+            } catch (JSONException e) {
                 Log.e(TAG, "logout: ", e);
                 // continue
             }
@@ -138,12 +124,9 @@ public class JarAccount {
             //noinspection unchecked
             jarAccountSetting.clear(preferences);
         }
-        return accountIO.signout(username, token);
 
-    }
 
-    public synchronized String getName() {
-        return name.getValue();
+        return signoutJson;
     }
 
     public synchronized void setAutomaticQueening(boolean automaticQueening) {
@@ -151,15 +134,23 @@ public class JarAccount {
         jas.setValue(automaticQueening);
         jas.saveToLocal(preferences);
 
-        try {
-            jas.saveToServer(accountIO, getName(), getSignonToken());
-        } catch (IOException e) {
-            // continue execution
-        }
+//        try {
+//            jas.saveToServer(accountIO, getName(), getSignonToken());
+//        } catch (IOException e) {
+//            // continue execution
+//        }
     }
 
-    public synchronized ChesspieceStyle getPieceStyle() {
-        return ChesspieceStyles.getFromInt(chesspieceStyleInt.getValue()).getChesspieceStyle();
+    public synchronized boolean getCommitButtonClickIsRequired() {
+        return requireCommitPress.getValue();
+    }
+
+    private String getPasswordHash() {
+        return passwordHash.getValue();
+    }
+
+    public synchronized String getName() {
+        return name.getValue();
     }
 
     public synchronized void setAvatarStyle(PlayerAvatarStyles avatarStyle) {
@@ -174,8 +165,8 @@ public class JarAccount {
         }
     }
 
-    public synchronized MatchClockChoice getPreferredMatchClock() {
-        return MatchClockChoice.getFromIntValue(matchClockChoiceInt.getValue());
+    public synchronized ChesspieceStyle getPieceStyle() {
+        return ChesspieceStyles.getFromInt(chesspieceStyleInt.getValue()).getChesspieceStyle();
     }
 
     public synchronized void setBoardStyle(ChessboardStyles boardStyle) {
@@ -183,11 +174,27 @@ public class JarAccount {
         jas.setValue(boardStyle.getIntValue());
         jas.saveToLocal(preferences);
 
-        try {
-            jas.saveToServer(accountIO, getName(), getSignonToken());
-        } catch (IOException e) {
-            // continue execution
-        }
+//        try {
+//            jas.saveToServer(accountIO, getName(), getSignonToken());
+//        } catch (IOException e) {
+//            // continue execution
+//        }
+    }
+
+    public synchronized MatchClockChoice getPreferredMatchClock() {
+        return MatchClockChoice.getFromIntValue(matchClockChoiceInt.getValue());
+    }
+
+    public synchronized void setCommitButtonClickIsRequired(boolean commitButtonClickIsRequired) {
+        JarAccountSetting<Boolean> jas = this.requireCommitPress;
+        jas.setValue(commitButtonClickIsRequired);
+        jas.saveToLocal(preferences);
+
+//        try {
+//            jas.saveToServer(accountIO, getName(), getSignonToken());
+//        } catch (IOException e) {
+//            // continue execution
+//        }
     }
 
     public synchronized String getSignonToken() {
@@ -209,11 +216,11 @@ public class JarAccount {
         jas.setValue(pausingDisabled);
         jas.saveToLocal(preferences);
 
-        try {
-            jas.saveToServer(accountIO, getName(), getSignonToken());
-        } catch (IOException e) {
-            // continue execution
-        }
+//        try {
+//            jas.saveToServer(accountIO, getName(), getSignonToken());
+//        } catch (IOException e) {
+//            // continue execution
+//        }
     }
 
     public synchronized void setPieceStyle(ChesspieceStyles pieceStyle) {
@@ -221,11 +228,11 @@ public class JarAccount {
         jas.setValue(pieceStyle.getIntValue());
         jas.saveToLocal(preferences);
 
-        try {
-            jas.saveToServer(accountIO, getName(), getSignonToken());
-        } catch (IOException e) {
-            // continue execution
-        }
+//        try {
+//            jas.saveToServer(accountIO, getName(), getSignonToken());
+//        } catch (IOException e) {
+//            // continue execution
+//        }
     }
 
     /**
@@ -237,11 +244,12 @@ public class JarAccount {
      */
     public synchronized boolean isLoggedIn() {
         boolean result;
-        try {
-            result = verifyLogin();
-        } catch (IOException e) {
-            Log.e(TAG, "isLoggedIn: ", e);
-        }
+        //TODO uncomment when we get verifyLogin working
+//        try {
+//            result = verifyLogin();
+//        } catch (IOException e) {
+//            Log.e(TAG, "isLoggedIn: ", e);
+//        }
         result = !signonToken.getValue().isEmpty();
 
         Log.d(TAG, "isLoggedIn() returned: " + result);
@@ -258,11 +266,11 @@ public class JarAccount {
         jas.setValue(preferredMatchClock.getIntValue());
         jas.saveToLocal(preferences);
 
-        try {
-            jas.saveToServer(accountIO, getName(), getSignonToken());
-        } catch (IOException e) {
-            // continue execution
-        }
+//        try {
+//            jas.saveToServer(accountIO, getName(), getSignonToken());
+//        } catch (IOException e) {
+//            // continue execution
+//        }
     }
 
     public synchronized void loadFromLocal(MainActivity mainActivity) {
@@ -280,13 +288,36 @@ public class JarAccount {
         jas.saveToLocal(preferences);
     }
 
-    /**
-     * Verifies the loginToken
-     *
-     * @return true if the token can be verified as valid, false if the token can be verified as incorrect
-     * @throws IOException If communication with the server fails
-     */
-    public synchronized boolean verifyLogin() throws IOException {
-        return accountIO.signonTokenIsValid(getName(), getSignonToken());
+    private void setPasswordHash(String passwordHash) {
+        this.passwordHash.setValue(passwordHash);
     }
+
+    public void loadAccountFromJson(JSONObject jsonObject) {
+        for (JarAccountSetting jas : jarAccountSettings) {
+            try {
+                jas.loadFromJson(jsonObject, accountIO, getName(), getSignonToken());
+            } catch (JSONException e) {
+                Log.e(TAG, "loadAccountFromJson: ", e);
+                //continue
+            }
+        }
+    }
+
+    public boolean signIn(String username, String password) {
+        return accountIO.signin(username, password);
+    }
+
+    public boolean signOut() {
+        return accountIO.signout(getName(), getSignonToken());
+    }
+//
+//    /**
+//     * Verifies the loginToken
+//     *
+//     * @return true if the token can be verified as valid, false if the token can be verified as incorrect
+//     * @throws IOException If communication with the server fails
+//     */
+//    public synchronized boolean verifyLogin() throws IOException {
+//        return accountIO.verifySignin(getName(), getPasswordHash());
+//    }
 }

@@ -106,21 +106,23 @@ public class GameIO {
             Log.i(TAG, "getClientBoundDatapackage");
             Datapackage datapackage = datapackageQueue.getServerBoundDatapackage();
             Log.i(TAG, "processMoves: datapackage received = " + datapackage);
-            jsonObject.put("move", datapackage.getJSONObject());
+            if (datapackage != null) {
+                jsonObject.put("move", datapackage.getJSONObject());
+                out.writeUTF(jsonObject.toString());
+                out.flush();
+            }
+
             Log.i(TAG, "JsonObject: " + jsonObject.toString());
             Log.i(TAG, "sending datapackage");
             Log.i(TAG, String.valueOf(socket));
-            out.writeUTF(jsonObject.toString());
-            out.flush();
             Log.i(TAG, "waiting on IO");
-            Log.i(TAG, String.valueOf(socket));
             Integer resp = null;
-            while (resp == null) {
-                try {
+            try {
+                while (resp == null) {
                     resp = in.read(buffer);
-                } catch (IOException e) {
-                    // just keep trying
                 }
+            } catch (IOException e) {
+                // just keep trying
             }
             String respSting = new String(buffer).trim();
             if (respSting.isEmpty()) {

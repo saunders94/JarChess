@@ -23,8 +23,6 @@ import com.example.jarchess.match.participant.EasyAIOpponent;
 import com.example.jarchess.match.participant.HardAIOpponent;
 import com.example.jarchess.testmode.TestMode;
 
-import java.io.IOException;
-
 import static com.example.jarchess.MainActivity.fragmentManager;
 
 
@@ -195,8 +193,8 @@ public class MatchSettings extends Fragment {
     }
 
     private void startRandom() {
-        try {
-            if (JarAccount.getInstance().verifyLogin()) {
+//        try {
+        if (JarAccount.getInstance().isLoggedIn()) {
                 //start matchmaking
                 Intent intent = new Intent(getActivity(), MatchMakingActivity.class);
                 startActivityForResult(intent, 0);
@@ -205,10 +203,10 @@ public class MatchSettings extends Fragment {
                 int duration = Toast.LENGTH_SHORT;
                 Toast.makeText(getContext(), "Login Required to play Online", duration).show();
             }
-        } catch (IOException e) {
-            int duration = Toast.LENGTH_LONG;
-            Toast.makeText(getContext(), "Cannot connect to the server. Please make sure you have internet access.", duration).show();
-        }
+//        } catch (IOException e) {
+//            int duration = Toast.LENGTH_LONG;
+//            Toast.makeText(getContext(), "Cannot connect to the server. Please make sure you have internet access.", duration).show();
+//        }
 
     }
 }
