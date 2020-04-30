@@ -158,11 +158,11 @@ public class JarAccount {
         jas.setValue(avatarStyle.getIntValue());
         jas.saveToLocal(preferences);
 
-//        try {
-//            jas.saveToServer(accountIO, getName(), getSignonToken());
-//        } catch (IOException e) {
-//            // continue execution
-//        }
+        try {
+            jas.saveToServer(accountIO, getName(), getSignonToken());
+        } catch (IOException e) {
+            // continue execution
+        }
     }
 
     public synchronized ChesspieceStyle getPieceStyle() {
