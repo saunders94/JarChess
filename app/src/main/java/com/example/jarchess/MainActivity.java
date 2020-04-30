@@ -389,6 +389,7 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
         signonStatus = jarAccount.signIn(username.toString(), password.toString());
         if (signonStatus) {
             usernameLabel.setText(username);
+            avatarIcon.setIcon(jarAccount.getAvatarStyle().getAvatarResourceID());
             ArrayList<String> friendsList = new Account().getFriendsList();
             for (int i = 0; i < friendsList.size(); i++) {
                 addNotification(1);

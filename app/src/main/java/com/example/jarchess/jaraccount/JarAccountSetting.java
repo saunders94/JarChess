@@ -60,6 +60,7 @@ public abstract class JarAccountSetting<T> {
 
     public void saveToJson(JSONObject jsonObject, Account accountIO, String username, String token) throws JSONException {
         jsonObject.put(key, value);
+        Log.d(TAG, "saveToJson: " + jsonObject);
     }
 
     public void saveToServer(Account accountIO, String username, String signonToken) throws IOException {

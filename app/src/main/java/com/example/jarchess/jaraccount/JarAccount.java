@@ -129,16 +129,16 @@ public class JarAccount {
         return signoutJson;
     }
 
-    public synchronized void setCommitButtonClickIsRequired(boolean commitButtonClickIsRequired) {
-        JarAccountSetting<Boolean> jas = this.requireCommitPress;
-        jas.setValue(commitButtonClickIsRequired);
+    public synchronized void setAutomaticQueening(boolean automaticQueening) {
+        JarAccountSetting<Boolean> jas = this.automaticQueening;
+        jas.setValue(automaticQueening);
         jas.saveToLocal(preferences);
 
-        try {
-            jas.saveToServer(accountIO, getName(), getSignonToken());
-        } catch (IOException e) {
-            // continue execution
-        }
+//        try {
+//            jas.saveToServer(accountIO, getName(), getSignonToken());
+//        } catch (IOException e) {
+//            // continue execution
+//        }
     }
 
     public synchronized boolean getCommitButtonClickIsRequired() {
@@ -153,36 +153,20 @@ public class JarAccount {
         return name.getValue();
     }
 
-    public synchronized void setAutomaticQueening(boolean automaticQueening) {
-        JarAccountSetting<Boolean> jas = this.automaticQueening;
-        jas.setValue(automaticQueening);
-        jas.saveToLocal(preferences);
-
-        try {
-            jas.saveToServer(accountIO, getName(), getSignonToken());
-        } catch (IOException e) {
-            // continue execution
-        }
-    }
-
-    public synchronized ChesspieceStyle getPieceStyle() {
-        return ChesspieceStyles.getFromInt(chesspieceStyleInt.getValue()).getChesspieceStyle();
-    }
-
     public synchronized void setAvatarStyle(PlayerAvatarStyles avatarStyle) {
         JarAccountSetting<Integer> jas = this.avatarStyleInt;
         jas.setValue(avatarStyle.getIntValue());
         jas.saveToLocal(preferences);
 
-        try {
-            jas.saveToServer(accountIO, getName(), getSignonToken());
-        } catch (IOException e) {
-            // continue execution
-        }
+//        try {
+//            jas.saveToServer(accountIO, getName(), getSignonToken());
+//        } catch (IOException e) {
+//            // continue execution
+//        }
     }
 
-    public synchronized MatchClockChoice getPreferredMatchClock() {
-        return MatchClockChoice.getFromIntValue(matchClockChoiceInt.getValue());
+    public synchronized ChesspieceStyle getPieceStyle() {
+        return ChesspieceStyles.getFromInt(chesspieceStyleInt.getValue()).getChesspieceStyle();
     }
 
     public synchronized void setBoardStyle(ChessboardStyles boardStyle) {
@@ -190,11 +174,27 @@ public class JarAccount {
         jas.setValue(boardStyle.getIntValue());
         jas.saveToLocal(preferences);
 
-        try {
-            jas.saveToServer(accountIO, getName(), getSignonToken());
-        } catch (IOException e) {
-            // continue execution
-        }
+//        try {
+//            jas.saveToServer(accountIO, getName(), getSignonToken());
+//        } catch (IOException e) {
+//            // continue execution
+//        }
+    }
+
+    public synchronized MatchClockChoice getPreferredMatchClock() {
+        return MatchClockChoice.getFromIntValue(matchClockChoiceInt.getValue());
+    }
+
+    public synchronized void setCommitButtonClickIsRequired(boolean commitButtonClickIsRequired) {
+        JarAccountSetting<Boolean> jas = this.requireCommitPress;
+        jas.setValue(commitButtonClickIsRequired);
+        jas.saveToLocal(preferences);
+
+//        try {
+//            jas.saveToServer(accountIO, getName(), getSignonToken());
+//        } catch (IOException e) {
+//            // continue execution
+//        }
     }
 
     public synchronized String getSignonToken() {
@@ -216,11 +216,11 @@ public class JarAccount {
         jas.setValue(pausingDisabled);
         jas.saveToLocal(preferences);
 
-        try {
-            jas.saveToServer(accountIO, getName(), getSignonToken());
-        } catch (IOException e) {
-            // continue execution
-        }
+//        try {
+//            jas.saveToServer(accountIO, getName(), getSignonToken());
+//        } catch (IOException e) {
+//            // continue execution
+//        }
     }
 
     public synchronized void setPieceStyle(ChesspieceStyles pieceStyle) {
@@ -228,11 +228,11 @@ public class JarAccount {
         jas.setValue(pieceStyle.getIntValue());
         jas.saveToLocal(preferences);
 
-        try {
-            jas.saveToServer(accountIO, getName(), getSignonToken());
-        } catch (IOException e) {
-            // continue execution
-        }
+//        try {
+//            jas.saveToServer(accountIO, getName(), getSignonToken());
+//        } catch (IOException e) {
+//            // continue execution
+//        }
     }
 
     /**
@@ -266,11 +266,11 @@ public class JarAccount {
         jas.setValue(preferredMatchClock.getIntValue());
         jas.saveToLocal(preferences);
 
-        try {
-            jas.saveToServer(accountIO, getName(), getSignonToken());
-        } catch (IOException e) {
-            // continue execution
-        }
+//        try {
+//            jas.saveToServer(accountIO, getName(), getSignonToken());
+//        } catch (IOException e) {
+//            // continue execution
+//        }
     }
 
     public synchronized void loadFromLocal(MainActivity mainActivity) {
