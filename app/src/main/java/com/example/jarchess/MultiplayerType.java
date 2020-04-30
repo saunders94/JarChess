@@ -11,8 +11,6 @@ import android.widget.Toast;
 
 import com.example.jarchess.jaraccount.JarAccount;
 
-import java.io.IOException;
-
 
 public class MultiplayerType extends Fragment {
 
@@ -56,8 +54,8 @@ public class MultiplayerType extends Fragment {
             @Override
             public void onClick(View v) {
 
-                try {
-                    if (JarAccount.getInstance().verifyLogin()) {
+//                try {
+                if (JarAccount.getInstance().isLoggedIn()) {
                         FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
                         MatchmakingType matchmakingType = new MatchmakingType();
                         transaction.replace(R.id.fragmentHole, matchmakingType);
@@ -68,10 +66,10 @@ public class MultiplayerType extends Fragment {
                         int duration = Toast.LENGTH_SHORT;
                         Toast.makeText(v.getContext(), "Login Required to play Online", duration).show();
                     }
-                } catch (IOException e) {
-                    int duration = Toast.LENGTH_LONG;
-                    Toast.makeText(v.getContext(), "Cannot connect to the server. " +
-                            "Please make sure you have internet access.", duration).show(); }
+//                } catch (IOException e) {
+//                    int duration = Toast.LENGTH_LONG;
+//                    Toast.makeText(v.getContext(), "Cannot connect to the server. " +
+//                            "Please make sure you have internet access.", duration).show(); }
             }
         });
     }

@@ -245,8 +245,8 @@ public class Account {
                 status = true;
                 JarAccount.getInstance().setSignonToken(jsonResponse.get("token").toString());
                 JarAccount.getInstance().setName(username);
+                JarAccount.getInstance().loadAccountFromJson(jsonResponse);
                 Log.i("Signin", (String) jsonResponse.get("status"));
-
 
             } else {
                 status = false;
