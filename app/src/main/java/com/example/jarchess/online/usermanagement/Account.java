@@ -226,12 +226,12 @@ public class Account {
             return false;
         }
 
-        if (username.equals("")) {
-            Log.i(TAG, "signin: username was empty string");
+        if (username == null) {
+            Log.i(TAG, "signin: username was null");
             Log.d(TAG, "signin() returned: " + false);
             return false;
-        } else if (username == null) {
-            Log.i(TAG, "signin: username was null");
+        } else if (username.equals("")) {
+            Log.i(TAG, "signin: username was empty string");
             Log.d(TAG, "signin() returned: " + false);
             return false;
         }
@@ -247,7 +247,6 @@ public class Account {
                 JarAccount.getInstance().setName(username);
                 Log.i("Signin", (String) jsonResponse.get("status"));
 
-//                JarAccount.getInstance().setFromSignin(jsonObject);
 
             } else {
                 status = false;
@@ -261,7 +260,6 @@ public class Account {
             status = false;
         }
 
-        JarAccount.getInstance().loadAccountFromServer();
         return status;
     }
 
@@ -306,7 +304,7 @@ public class Account {
             status = false;
         }
 
-        JarAccount.getInstance().loadAccountFromServer();
+//        JarAccount.getInstance().loadAccountFromServer();
         return status;
     }
 
@@ -324,6 +322,9 @@ public class Account {
             return false;
         }
         JSONObject jsonObject = jsonAccount.signout(username, signonToken);
+
+        JarAccount.getInstance().getJsonForLogout(jsonObject);
+
         try {
             JSONObject jsonResponse = dataSender.send(jsonObject);
             String statusResp = (String) jsonResponse.get("status");

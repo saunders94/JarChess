@@ -7,11 +7,15 @@ import androidx.annotation.NonNull;
 
 import com.example.jarchess.online.usermanagement.Account;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 public abstract class JarAccountSetting<T> {
 
     private boolean doNotSaveOnServer = false;
+    private boolean doNotLoadFromServer = false;
     private final String key;
     private final JarAccountSettingType type;
     private final T defaultValue;
@@ -38,12 +42,24 @@ public abstract class JarAccountSetting<T> {
         value = defaultValue;
     }
 
+    public void loadFromJson(JSONObject jsonObject, Account accountIO, String name, String signonToken) throws JSONException {
+        if (!doNotLoadFromServer) {
+            value = (T) jsonObject.get(key);
+        } else {
+            Log.d(TAG, "loadFromJson: not going to load " + key);
+        }
+    }
+
     public void loadFromServer(Account accountIO, String username, String signonToken) {
         if (!doNotSaveOnServer) {
             value = accountIO.getAccountInfo(this, username, signonToken);
         } else {
             Log.d(TAG, "loadFromServer: not going to load " + key);
         }
+    }
+
+    public void saveToJson(JSONObject jsonObject, Account accountIO, String username, String token) throws JSONException {
+        jsonObject.put(key, value);
     }
 
     public void saveToServer(Account accountIO, String username, String signonToken) throws IOException {

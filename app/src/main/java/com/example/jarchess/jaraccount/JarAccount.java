@@ -14,6 +14,9 @@ import com.example.jarchess.match.styles.chesspiece.ChesspieceStyle;
 import com.example.jarchess.match.styles.chesspiece.ChesspieceStyles;
 import com.example.jarchess.online.usermanagement.Account;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -103,10 +106,27 @@ public class JarAccount {
         return ChessboardStyles.getFromInt(chessboardStyleInt.getValue()).getChessboardStyle();
     }
 
-    public void loadAccountFromServer() {
-        for (JarAccountSetting jas : jarAccountSettings) {
-            jas.loadFromServer(accountIO, getName(), getSignonToken());
+    public JSONObject getJsonForLogout(JSONObject signoutJson) {
+        final String username = getName();
+        final String token = getSignonToken();
+
+
+        //save to server and clear all settings from local storage.
+        for (JarAccountSetting jarAccountSetting : jarAccountSettings) {
+            try {
+                jarAccountSetting.saveToJson(signoutJson, accountIO, username, token);
+
+            } catch (JSONException e) {
+                Log.e(TAG, "logout: ", e);
+                // continue
+            }
+
+            //noinspection unchecked
+            jarAccountSetting.clear(preferences);
         }
+
+
+        return signoutJson;
     }
 
     public synchronized void setCommitButtonClickIsRequired(boolean commitButtonClickIsRequired) {
@@ -224,11 +244,12 @@ public class JarAccount {
      */
     public synchronized boolean isLoggedIn() {
         boolean result;
-        try {
-            result = verifyLogin();
-        } catch (IOException e) {
-            Log.e(TAG, "isLoggedIn: ", e);
-        }
+        //TODO uncomment when we get verifyLogin working
+//        try {
+//            result = verifyLogin();
+//        } catch (IOException e) {
+//            Log.e(TAG, "isLoggedIn: ", e);
+//        }
         result = !signonToken.getValue().isEmpty();
 
         Log.d(TAG, "isLoggedIn() returned: " + result);
@@ -271,25 +292,23 @@ public class JarAccount {
         this.passwordHash.setValue(passwordHash);
     }
 
-    public boolean logout() {
-        final String username = getName();
-        final String token = getSignonToken();
+    public void loadAccountFromJson(JSONObject jsonObject) {
+        for (JarAccountSetting jas : jarAccountSettings) {
+            try {
+                jas.loadFromJson(jsonObject, accountIO, getName(), getSignonToken());
+            } catch (JSONException e) {
+                Log.e(TAG, "loadAccountFromJson: ", e);
+                //continue
+            }
+        }
+    }
 
-//
-//        //clear all settings.
-//        for (JarAccountSetting jarAccountSetting : jarAccountSettings) {
-//            try {
-//                jarAccountSetting.saveToServer(accountIO, username, token);
-//            } catch (IOException e) {
-//                Log.e(TAG, "logout: ", e);
-//                // continue
-//            }
-//
-//            //noinspection unchecked
-//            jarAccountSetting.clear(preferences);
-//        }
-        return accountIO.signout(username, token);
+    public boolean signIn(String username, String password) {
+        return accountIO.signin(username, password);
+    }
 
+    public boolean signOut() {
+        return accountIO.signout(getName(), getSignonToken());
     }
 
     /**
