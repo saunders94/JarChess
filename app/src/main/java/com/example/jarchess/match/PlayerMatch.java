@@ -159,7 +159,7 @@ public class PlayerMatch extends Match {
             // we don't need to check for agreement
             if (!matchClock.isRunning()) {
                 matchClock.resume();
-                matchView.hidePendingResumeDialog();
+                matchView.hidePendingDrawDialog();
             }
         } else if (opponent instanceof RemoteOpponent) {
             Log.i(TAG, "handlePlayerResumeRequest: remote opponent detected");
