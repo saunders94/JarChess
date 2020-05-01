@@ -7,7 +7,7 @@ Currently the game is in development.
 
 JarChess is a Android chess game that incorporates a progression and customization system. The goal from the start was to offer multiple modes of play including single player, local multiplayer, and online multiplayer. The team is also adamant about the app remaining advertisement and gimmick free.
 
-JarChess started as a senior level college project. Three students who happened to sit next to each other on the first day of class decided to form a team and eventually decided to create a mobile chess game. While the class project is over, the continued development and maintenance of the app is continued as a hobby.
+JarChess started as a senior level college project. Three students who happened to sit next to each other on the first day of class decided to form a team and eventually decided to create a mobile chess game.
 
 ## Bug Reports and Support Contact
 
