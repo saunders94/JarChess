@@ -3,11 +3,19 @@
 Thanks for checking out JarChess.
 Currently the game is in development.
 
-## Bug Reports
+## What is JarChess?
+
+JarChess is a Android chess game that incorporates a progression and customization system. The goal from the start was to offer multiple modes of play including single player, local multiplayer, and online multiplayer. The team is also adamant about the app remaining advertisement and gimmick free.
+
+JarChess started as a senior level college project. Three students who happened to sit next to each other on the first day of class decided to form a team and eventually decided to create a mobile chess game. While the class project is over, the continued development and maintenance of the app is continued as a hobby.
+
+## Bug Reports and Support Contact
 
 For now, if you want to report a bug, please use [this defect report form](https://docs.google.com/forms/d/e/1FAIpQLSc_3-Xq4efiIWx3IJfl3kW1WSK6FeHCZfFzHrJ0si8hr5cwhw/viewform?usp=sf_link).
 
-## Installing and running the software
+If you need to get hold of our team you can contact us at support@jarchess.com. Keep in mind that this project is something we do in our free time, and it may take time for our small team to respond.
+
+## Installing and Running the Software
 
 Because the game is not yet released, installation and execution requires the use of a development tool called Android Studio. Android Studio can be downloaded at [Android Studio's Website](https://developer.android.com/studio).
 
@@ -21,3 +29,6 @@ At that point you should be able to use the "Run..." option in the Run menu, cho
 
 These instructions worked for us, but additional steps may be needed to get the emulator working on your machine. If things are not working, try to restart your machine and try again. If you continue to have difficulty, you may need to see Android Studio's help resources. We can't offer too much assistance when it comes to android studio problems.
 
+## Additional Resources
+
+Please see the user manual pdf for more details on how to run the application.
