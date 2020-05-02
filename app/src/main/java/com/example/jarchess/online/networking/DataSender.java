@@ -9,8 +9,10 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.Flushable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -139,15 +141,19 @@ public class DataSender {
             } catch (IOException e) {
                 ioException = e;
             } finally {
-                try {
-                    socket.close();
-                    out.close();
-                    in.close();
-                    lock.notifyAll();
-                } catch (NullPointerException e) {
-                    Log.e(TAG, "sendData: ", e);
-                    throw new IOException(e);
+                Closeable[] closeables = new Closeable[]{socket, out, in};
+                for (Closeable c : closeables) {
+                    try {
+                        if (c instanceof Flushable) {
+                            ((Flushable) c).flush();
+                        }
+                        c.close();
+                    } catch (NullPointerException e) {
+                    } catch (IOException e) {
+                        Log.e(TAG, "sendData: ", e);
+                    }
                 }
+                lock.notifyAll();
             }
 
             if (fullString.equals("") || respString.equals(BAD_REQUEST)) {
