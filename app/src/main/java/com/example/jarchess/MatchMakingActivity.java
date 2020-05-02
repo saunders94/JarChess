@@ -69,7 +69,22 @@ public class MatchMakingActivity extends AppCompatActivity {
         public void cancel() {
             Log.d(TAG, "cancel() called");
             Log.d(TAG, "cancel is running on thread: " + Thread.currentThread().getName());
+//            Runnable r = new Runnable() {
+//                @Override
+//                public void run() {
+//                    OnlineMatchMaker.getInstance().cancel();
+//                }
+//            };
+//            Thread t = new Thread(r);
+//            t.start();
+//            try {
+//                t.join();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+
             OnlineMatchMaker.getInstance().cancel();
+
             if (getActivity() != null) {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override

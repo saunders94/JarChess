@@ -34,6 +34,8 @@ public class OnlineMatchMaker {
     private DataOutputStream out;
     private Socket socket;
     private boolean done;
+    private int cancelRecursiveCalls = 0;
+    private final byte[] buffer = new byte[1024];
 
     /**
      * Creates an instance of <code>OnlineMatchMaker</code> to construct a singleton instance
@@ -57,6 +59,7 @@ public class OnlineMatchMaker {
 
     public void cancel() {
         synchronized (lock) {
+
             Log.d(TAG, "cancel() called");
             Log.d(TAG, "cancel is running on thread: " + Thread.currentThread().getName());
 
@@ -76,6 +79,36 @@ public class OnlineMatchMaker {
                     //        Any thing that gets put here should have a 500 ms timeout, or starts a background thread
                     //        with a longer timeout.
 
+                    JSONObject jsonObj = new JSONObject();
+                    try {
+                        jsonObj.put("requestType", "RequestGameCanceled");
+                        jsonObj.put("username", JarAccount.getInstance().getName());
+                        jsonObj.put("signon_token", JarAccount.getInstance().getSignonToken());
+                        Log.i(TAG, "Cancel request string: " + jsonObj.toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    Log.i(TAG, "Socket: " + this.socket.toString());
+                    out.writeUTF(jsonObj.toString());
+                    out.flush();
+                    response = in.read(buffer);
+                    String respString = new String(buffer).trim();
+
+                    try {
+                        JSONObject jsonResp = new JSONObject(respString);
+                        Log.i(TAG, jsonResp.toString());
+                        if (jsonResp.getString("status").equals("success")) {
+                            Log.i(TAG, "Status of cancel game: " + jsonResp.getString("status"));
+                        } else {
+                            if(cancelRecursiveCalls < 2){
+                                cancel();
+                            }
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, "run: ", e);
+                    }
+
                     if (responseString != null && !responseString.isEmpty()) {
                         switch (responseString) {
 
@@ -93,6 +126,8 @@ public class OnlineMatchMaker {
                     }
 
 
+                } catch (IOException e) {
+                    e.printStackTrace();
                 } finally {
                     //close the socket to stop the match making thread TODO make sure this actually stops thread
                     try {
@@ -119,9 +154,9 @@ public class OnlineMatchMaker {
         } catch (IOException e) {
             throw e;
         }
-        socket.setSoTimeout(500);
+        socket.setSoTimeout(5000);
         boolean failed;
-        final byte[] buffer = new byte[1024];
+
 
         this.in = new DataInputStream(
                 new BufferedInputStream(
@@ -148,7 +183,6 @@ public class OnlineMatchMaker {
                             jsonObj.put("requestType", "RequestGame");
                             jsonObj.put("username", JarAccount.getInstance().getName());
                             jsonObj.put("signon_token", JarAccount.getInstance().getSignonToken());
-                            Log.i("reqString", jsonObj.toString());
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
