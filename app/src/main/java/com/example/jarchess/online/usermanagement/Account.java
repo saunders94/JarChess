@@ -170,6 +170,10 @@ public class Account {
         boolean lowerCasePresent = false;
         boolean specialCharacterPresent = false;
 
+        if (input == null) {
+            return false;
+        }
+
         for (int i = 0; i < input.length(); i++) {
             currentCharacter = input.charAt(i);
             if (Character.isDigit(currentCharacter)) {
@@ -194,8 +198,13 @@ public class Account {
         boolean status = false;
 
         boolean result = isValidPassword(password);
-        Log.i(TAG, "String result = " + result);
-        Log.i(TAG, "password length = " +  password.length() );
+        if (password == null) {
+            Log.i(TAG, "password was null");
+            return false;
+        } else {
+            Log.i(TAG, "String result = " + result);
+            Log.i(TAG, "password length = " + password.length());
+        }
 
         if(password.length() < 8 || password.length() > 64){
             return false;
