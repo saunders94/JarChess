@@ -206,6 +206,9 @@ public class Account {
             Log.i(TAG, "password length = " + password.length());
         }
 
+        if (username == null || username.length() < 3 || username.length() > 10) {
+            return false;
+        }
         if(password.length() < 8 || password.length() > 64){
             return false;
         }
