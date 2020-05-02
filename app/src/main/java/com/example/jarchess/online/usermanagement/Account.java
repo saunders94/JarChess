@@ -157,8 +157,52 @@ public class Account {
         return generatedPassword;
     }
 
+    private boolean isValidPassword(String input) {
+        String specialChars = "~`!@#$%^&*()-_=+\\|[{]};:'\",<.>/?";
+        char currentCharacter;
+        int numberPresent = 0;
+        int upperCasePresent = 0;
+        int lowerCasePresent = 0;
+        int specialCharacterPresent = 0;
+
+        for (int i = 0; i < input.length(); i++) {
+            currentCharacter = input.charAt(i);
+            if (Character.isDigit(currentCharacter)) {
+                numberPresent++;
+            } else if (Character.isUpperCase(currentCharacter)) {
+                upperCasePresent++;
+            } else if (Character.isLowerCase(currentCharacter)) {
+                lowerCasePresent++;
+            } else if (specialChars.contains(String.valueOf(currentCharacter))) {
+                specialCharacterPresent++;
+            }
+        }
+//        Log.i(TAG,"lowerCasePresent: " + lowerCasePresent);
+//        Log.i(TAG,"UpperCasePressent: " + upperCasePresent);
+//        Log.i(TAG,"numberPresent: " + numberPresent);
+//        Log.i(TAG,"specialCharacterPresent: " + specialCharacterPresent);
+
+        if(( upperCasePresent + specialCharacterPresent + numberPresent ) >= 3){
+            Log.i(TAG, "Password is valid");
+            return true;
+        }
+
+        return false;
+    }
+
     public boolean registerAccount(String username, String password) {
         boolean status = false;
+
+        boolean result = isValidPassword(password);
+        Log.i(TAG, "String result = " +  String.valueOf(result));
+        Log.i(TAG, "password length = " +  password.length() );
+
+        if(password.length() < 8 || password.length() > 64){
+            return false;
+        }
+        if (!isValidPassword(password)){
+            return false;
+        }
 
         String hashedPass = getPasswordHash(password);
         if (hashedPass == null) {
@@ -330,7 +374,6 @@ public class Account {
             String statusResp = (String) jsonResponse.get("status");
             if (statusResp.equals("success")) {
                 status = true;
-                JarAccount.getInstance().setSignonToken((String) jsonResponse.get("token"));
                 JarAccount.getInstance().setName(username);
                 Log.i("signout", (String) jsonResponse.get("status"));
             } else {

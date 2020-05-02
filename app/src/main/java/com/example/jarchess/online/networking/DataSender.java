@@ -90,6 +90,9 @@ public class DataSender {
 
             Log.d(TAG, "sendData: creating socket");
             String respString = null;
+            String fullString = "";
+            boolean readAgain = true;
+            JSONObject jsonObj = null;
             try {
                 socket = new Socket();
                 socket.setSoTimeout(500);
@@ -109,9 +112,30 @@ public class DataSender {
 
                 out.writeUTF(data);
                 out.flush();
-                int response = in.read(buffer);
-                respString = new String(buffer).trim();
-                Log.i(TAG, "Response String: " + respString);
+
+
+                while(readAgain){
+                    try{
+                        respString = "";
+                        int response = in.read(buffer);
+                        respString = new String(buffer).trim();
+                        fullString = fullString + respString;
+                        Log.i(TAG, "Response String: " + respString);
+                        jsonObj = new JSONObject(fullString);
+
+                        Log.i(TAG, "JSON response object: " + jsonObj.toString());
+                        readAgain = false;
+                    }catch(JSONException e){
+                        readAgain = true;
+                    }
+                }
+
+
+
+                //String reqType = jsonObj.getString("ERROR");
+                //Log.i("reqType",respString);
+                this.responseObject = jsonObj;
+
             } catch (IOException e) {
                 ioException = e;
             } finally {
@@ -126,23 +150,12 @@ public class DataSender {
                 }
             }
 
-            if (respString == null || respString.equals(BAD_REQUEST)) {
+            if (fullString.equals("") || respString.equals(BAD_REQUEST)) {
                 IOException e = new BadRequestIOException();
                 Log.e(TAG, "sendData: ", e);
                 ioException = e;
                 throw e;
             }
-            try {
-                JSONObject jsonObj = new JSONObject(respString);
-                Log.i(TAG, "JSON response object: " + jsonObj.toString());
-                //String reqType = jsonObj.getString("ERROR");
-                //Log.i("reqType",respString);
-                this.responseObject = jsonObj;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                this.responseObject = null;
-            }
-
             Log.d(TAG, "sendData() returned");
         }
 
