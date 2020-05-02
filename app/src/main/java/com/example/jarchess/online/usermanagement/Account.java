@@ -165,33 +165,32 @@ public class Account {
     private boolean isValidPassword(String input) {
         String specialChars = "~`!@#$%^&*()-_=+\\|[{]};:'\",<.>/?";
         char currentCharacter;
-        int numberPresent = 0;
-        int upperCasePresent = 0;
-        int lowerCasePresent = 0;
-        int specialCharacterPresent = 0;
+        boolean numberPresent = false;
+        boolean upperCasePresent = false;
+        boolean lowerCasePresent = false;
+        boolean specialCharacterPresent = false;
+
+        if (input == null) {
+            return false;
+        }
 
         for (int i = 0; i < input.length(); i++) {
             currentCharacter = input.charAt(i);
             if (Character.isDigit(currentCharacter)) {
-                numberPresent++;
+                numberPresent = true;
             } else if (Character.isUpperCase(currentCharacter)) {
-                upperCasePresent++;
+                upperCasePresent = true;
             } else if (Character.isLowerCase(currentCharacter)) {
-                lowerCasePresent++;
+                lowerCasePresent = true;
             } else if (specialChars.contains(String.valueOf(currentCharacter))) {
-                specialCharacterPresent++;
+                specialCharacterPresent = true;
+            }
+
+            if (((lowerCasePresent ? 1 : 0) + (upperCasePresent ? 1 : 0) + (specialCharacterPresent ? 1 : 0) + (numberPresent ? 1 : 0)) >= 3) {
+                Log.i(TAG, "Password is valid");
+                return true;
             }
         }
-//        Log.i(TAG,"lowerCasePresent: " + lowerCasePresent);
-//        Log.i(TAG,"UpperCasePressent: " + upperCasePresent);
-//        Log.i(TAG,"numberPresent: " + numberPresent);
-//        Log.i(TAG,"specialCharacterPresent: " + specialCharacterPresent);
-
-        if(( upperCasePresent + specialCharacterPresent + numberPresent ) >= 3){
-            Log.i(TAG, "Password is valid");
-            return true;
-        }
-
         return false;
     }
 
@@ -199,9 +198,17 @@ public class Account {
         boolean status = false;
 
         boolean result = isValidPassword(password);
-        Log.i(TAG, "String result = " + result);
-        Log.i(TAG, "password length = " +  password.length() );
+        if (password == null) {
+            Log.i(TAG, "password was null");
+            return false;
+        } else {
+            Log.i(TAG, "String result = " + result);
+            Log.i(TAG, "password length = " + password.length());
+        }
 
+        if (username == null || username.length() < 3 || username.length() > 10) {
+            return false;
+        }
         if(password.length() < 8 || password.length() > 64){
             return false;
         }
