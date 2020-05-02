@@ -27,6 +27,11 @@ public class Account {
         this.dataSender = new DataSender();
     }
 
+    protected Account(JSONAccount jsonAccount, DataSender dataSender) {
+        this.jsonAccount = jsonAccount;
+        this.dataSender = dataSender;
+    }
+
     public boolean changePassword(String oldPass, String newPass) {
         boolean status = false;
 
@@ -194,7 +199,7 @@ public class Account {
         boolean status = false;
 
         boolean result = isValidPassword(password);
-        Log.i(TAG, "String result = " +  String.valueOf(result));
+        Log.i(TAG, "String result = " + result);
         Log.i(TAG, "password length = " +  password.length() );
 
         if(password.length() < 8 || password.length() > 64){
