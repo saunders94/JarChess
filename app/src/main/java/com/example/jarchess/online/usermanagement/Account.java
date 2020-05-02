@@ -30,6 +30,10 @@ public class Account {
     public boolean changePassword(String oldPass, String newPass) {
         boolean status = false;
 
+        if (!isValidPassword(newPass)){
+            return false;
+        }
+
         String hashedOldPass = getPasswordHash(oldPass);
         String hashedNewPass = getPasswordHash(newPass);
 
