@@ -157,9 +157,13 @@ public class DataSender {
                 }
                 lock.notifyAll();
             }
-
-            if (fullString.equals("") || respString.equals(BAD_REQUEST)) {
+            if (fullString == null) {
+                Log.d(TAG, "sendData: null fullString");
+            } else if (fullString.equals("")) {
+                Log.d(TAG, "sendData: empty fullString");
+            } else if (respString.equals(BAD_REQUEST)) {
                 IOException e = new BadRequestIOException();
+                Log.d(TAG, "sendData: fullString: " + fullString);
                 Log.e(TAG, "sendData: ", e);
                 ioException = e;
                 throw e;
