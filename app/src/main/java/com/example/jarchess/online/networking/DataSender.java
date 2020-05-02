@@ -50,12 +50,14 @@ public class DataSender {
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                try {
-                    sendData();
-                } catch (IOException e) {
-                    Log.e(TAG, "run: ", e);
-                    ioException = e;
-                    lock.notifyAll();
+                synchronized (lock) {
+                    try {
+                        sendData();
+                    } catch (IOException e) {
+                        Log.e(TAG, "run: ", e);
+                        ioException = e;
+                        lock.notifyAll();
+                    }
                 }
             }
         };
