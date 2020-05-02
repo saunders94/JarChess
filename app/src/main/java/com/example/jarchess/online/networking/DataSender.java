@@ -50,12 +50,14 @@ public class DataSender {
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                try {
-                    sendData();
-                } catch (IOException e) {
-                    Log.e(TAG, "run: ", e);
-                    ioException = e;
-                    lock.notifyAll();
+                synchronized (lock) {
+                    try {
+                        sendData();
+                    } catch (IOException e) {
+                        Log.e(TAG, "run: ", e);
+                        ioException = e;
+                        lock.notifyAll();
+                    }
                 }
             }
         };
@@ -155,9 +157,13 @@ public class DataSender {
                 }
                 lock.notifyAll();
             }
-
-            if (fullString.equals("") || respString.equals(BAD_REQUEST)) {
+            if (fullString == null) {
+                Log.d(TAG, "sendData: null fullString");
+            } else if (fullString.equals("")) {
+                Log.d(TAG, "sendData: empty fullString");
+            } else if (respString.equals(BAD_REQUEST)) {
                 IOException e = new BadRequestIOException();
+                Log.d(TAG, "sendData: fullString: " + fullString);
                 Log.e(TAG, "sendData: ", e);
                 ioException = e;
                 throw e;
