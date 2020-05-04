@@ -24,14 +24,24 @@ import java.io.IOException;
 
 public class MatchMakingActivity extends AppCompatActivity {
 
-    public static final int SUCCESS_RESULT_CODE = 0;
     private static final String TAG = "MatchMakingActivity";
-    private static final int FAILURE_RESULT_CODE = 1;
+    public static volatile boolean cancelIsInProgress = false;
+    private static MatchMakingActivity activity;
     private final MatchMakerLauncher matchMakerLauncher = new MatchMakerLauncher();
+
+    public void finishWith(Result result, boolean wasCanceled) {
+        Log.d(TAG, "finishWith() called with: result = [" + result + "], wasCanceled = [" + wasCanceled + "]");
+        Log.d(TAG, "finishWith is running on thread: " + Thread.currentThread().getName());
+        Intent intent = new Intent();
+        intent.putExtra("CANCELED", wasCanceled);
+        setResult(result.getInt(), intent);
+        finish();
+    }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+
+        matchMakerLauncher.cancel();
 
         // cancel matchmaking
         //OnlineMatchMaker.getInstance().cancel();
@@ -40,6 +50,7 @@ public class MatchMakingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        activity = this;
         setContentView(R.layout.activity_match_making);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -52,12 +63,37 @@ public class MatchMakingActivity extends AppCompatActivity {
         Log.d(TAG, "onStart() called");
         Log.d(TAG, "onStart is running on thread: " + Thread.currentThread().getName());
         super.onStart();
-        matchMakerLauncher.startAction();
+        if (cancelIsInProgress) {
+
+            finishWith(Result.CANCEL_WAS_PROCESSING, true);
+        } else {
+            matchMakerLauncher.startAction();
+        }
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
+    }
+
+    public enum Result {
+        SUCCESS,
+        CANCELED,
+        CANCEL_WAS_PROCESSING;
+
+        private static final String TAG = "RequestCode";
+
+        public int getInt() {
+            Result[] values = values();
+
+            for (int i = 0; i < values.length; i++) {
+                if (values[i] == this) {
+                    return i;
+                }
+            }
+            Log.wtf(TAG, JZStringBuilder.build("getInt: ", this, "is not a value of ", this.getClass().getSimpleName()));
+            return -1;
+        }
     }
 
     public static class MatchMakerLauncher extends Fragment {
@@ -71,6 +107,10 @@ public class MatchMakingActivity extends AppCompatActivity {
         public void cancel() {
             Log.d(TAG, "cancel() called");
             Log.d(TAG, "cancel is running on thread: " + Thread.currentThread().getName());
+            if (cancelIsInProgress) {
+                Log.i(TAG, "cancel: ignoring because cancel is in progress");
+                return;
+            }
 //            Runnable r = new Runnable() {
 //                @Override
 //                public void run() {
@@ -85,70 +125,23 @@ public class MatchMakingActivity extends AppCompatActivity {
 //                e.printStackTrace();
 //            }
 
-            try {
-                OnlineMatchMaker.getInstance().cancel();
-            } catch (InterruptedException e) {
-                Intent intent = new Intent();
-                intent.putExtra("CANCELED", true);
-                getActivity().setResult(MatchMakingActivity.FAILURE_RESULT_CODE, intent);
-                getActivity().finish();
-                return;
-            }
 
-            if (getActivity() != null) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.i(TAG, "run: cancel should be successful");
-                        Intent intent = new Intent();
-                        intent.putExtra("CANCELED", true);
-                        getActivity().setResult(SUCCESS_RESULT_CODE, intent);
-                        getActivity().finish();
-                    }
-                });
-            }
+            Thread t = new LoggedThread(TAG, new Runnable() {
+                @Override
+                public void run() {
+                    OnlineMatchMaker.getInstance().cancel();
+                    cancelIsInProgress = false;
+                }
+            }, "cancelThread");
+            cancelIsInProgress = true;
+            t.start();
+
+            activity.finishWith(Result.CANCELED, true);
         }
 
         @Nullable
         @Override
         public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-            // start a new thread to launch the online match maker.
-//            new LoggedThread(TAG, new Runnable() {
-//                @Override
-//                public void run() {
-//                    try {
-//                        Log.i(TAG, "Creating onlinematchMakerBundle");
-//                        onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle();
-//                        Log.i(TAG, "Online match info bundle = " + onlineMatchInfoBundle);
-//                        MatchBuilder.getInstance().multiplayerSetup(onlineMatchInfoBundle);
-//                        Intent intent = new Intent();
-//                        intent.putExtra("CANCELED", false);
-//                        getActivity().setResult(0, intent);
-//                        getActivity().finish();
-//
-//                    } catch (OnlineMatchMaker.SearchCanceledException e) {
-//                        // just get out... nothing more needs to be done;
-//                    } catch (IOException e) {
-//                        final String msg = "Connection Failure";
-//                        if (getActivity() != null) {
-//                            getActivity().runOnUiThread(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
-//                                }
-//                            });
-//                        }
-//                        Log.e(TAG, "onCreateView's run caught: ", e);
-//
-//                        cancel();
-//                    } catch (InterruptedException e) {
-//                        Log.e(TAG, "onCreateView's run caught: ", e);
-//
-//                        cancel();
-//                    }
-//                }
-//            }, "matchMakerLauncherThread").start();
 
             // Inflate the layout for this fragment
 
@@ -179,13 +172,9 @@ public class MatchMakingActivity extends AppCompatActivity {
                         onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle();
                         Log.i(TAG, "Online match info bundle set to " + onlineMatchInfoBundle);
                         MatchBuilder.getInstance().multiplayerSetup(onlineMatchInfoBundle);
-                        Intent intent = new Intent();
-                        intent.putExtra("CANCELED", false);
-                        getActivity().setResult(0, intent);
-                        getActivity().finish();
+                        activity.finishWith(Result.SUCCESS, false);
 
                     } catch (OnlineMatchMaker.SearchCanceledException e) {
-                        // just get out... nothing more needs to be done;
                     } catch (IOException e) {
                         final String msg = "Connection Failure";
                         if (getActivity() != null) {

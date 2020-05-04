@@ -75,12 +75,22 @@ public class MatchSettings extends Fragment {
         Log.d(TAG, "onActivityResult is running on thread: " + Thread.currentThread().getName());
         switch (RequestCode.values()[requestCode]) {
             case FIND_RANDOM_OPPONENT_FOR_ONLINE_MATCH_REQUEST_CODE:
-                boolean canceled = data.getBooleanExtra("CANCELED", true);
-                Log.i(TAG, "onActivityResult: canceled = " + canceled);
-                if (!canceled && MatchBuilder.getInstance().isReadyToBuildMultiplayerMatch()) {
-                    Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
-                    startActivityForResult(intent, 1);
-                    Log.i(TAG, "onActivityResult: afterMatchLine");
+
+                switch (MatchMakingActivity.Result.values()[resultCode]) {
+
+                    case SUCCESS:
+                        Log.i(TAG, "onActivityResult: success");
+                        Intent intent = new Intent(getActivity(), OnlineMultiplayerMatchActivity.class);
+                        startActivityForResult(intent, RequestCode.START_MATCH.getInt());
+                        break;
+                    case CANCELED:
+                        Log.i(TAG, "onActivityResult: canceled");
+                        // just get back
+                        break;
+                    case CANCEL_WAS_PROCESSING:
+                        Log.i(TAG, "onActivityResult: cancel was pending");
+                        Toast.makeText(getContext(), "previous cancel is being processed. Please try again in a moment.", Toast.LENGTH_LONG).show();
+                        break;
                 }
                 break;
 
@@ -195,14 +205,14 @@ public class MatchSettings extends Fragment {
     private void startRandom() {
 //        try {
         if (JarAccount.getInstance().isLoggedIn()) {
-                //start matchmaking
-                Intent intent = new Intent(getActivity(), MatchMakingActivity.class);
+            //start matchmaking
+            Intent intent = new Intent(getActivity(), MatchMakingActivity.class);
             startActivityForResult(intent, RequestCode.FIND_RANDOM_OPPONENT_FOR_ONLINE_MATCH_REQUEST_CODE.getInt());
 
-            } else {
-                int duration = Toast.LENGTH_SHORT;
-                Toast.makeText(getContext(), "Login Required to play Online", duration).show();
-            }
+        } else {
+            int duration = Toast.LENGTH_SHORT;
+            Toast.makeText(getContext(), "Login Required to play Online", duration).show();
+        }
 //        } catch (IOException e) {
 //            int duration = Toast.LENGTH_LONG;
 //            Toast.makeText(getContext(), "Cannot connect to the server. Please make sure you have internet access.", duration).show();
