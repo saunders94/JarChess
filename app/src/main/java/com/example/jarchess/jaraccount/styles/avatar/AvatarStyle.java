@@ -1,4 +1,4 @@
-package com.example.jarchess.match.styles.avatar;
+package com.example.jarchess.jaraccount.styles.avatar;
 
 import androidx.annotation.NonNull;
 

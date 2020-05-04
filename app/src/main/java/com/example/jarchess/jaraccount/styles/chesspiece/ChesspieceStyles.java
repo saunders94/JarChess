@@ -1,4 +1,4 @@
-package com.example.jarchess.match.styles.chesspiece;
+package com.example.jarchess.jaraccount.styles.chesspiece;
 
 public enum ChesspieceStyles {
 

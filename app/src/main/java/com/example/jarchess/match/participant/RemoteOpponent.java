@@ -12,7 +12,7 @@ import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.PauseResponse;
 import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.result.ChessMatchResult;
-import com.example.jarchess.match.styles.avatar.AvatarStyle;
+import com.example.jarchess.jaraccount.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.online.datapackage.DatapackageReceiver;
 import com.example.jarchess.online.datapackage.DatapackageSender;

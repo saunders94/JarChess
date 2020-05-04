@@ -1,4 +1,4 @@
-package com.example.jarchess.match.styles.chessboard;
+package com.example.jarchess.jaraccount.styles.chessboard;
 
 import androidx.annotation.NonNull;
 

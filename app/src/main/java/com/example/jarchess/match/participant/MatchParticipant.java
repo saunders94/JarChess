@@ -4,7 +4,7 @@ import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.DrawResponse;
 import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.history.MatchHistory;
-import com.example.jarchess.match.styles.avatar.AvatarStyle;
+import com.example.jarchess.jaraccount.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 
 /**

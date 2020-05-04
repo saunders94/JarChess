@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.example.jarchess.jaraccount.JarAccount;
-import com.example.jarchess.match.styles.avatar.PlayerAvatarStyles;
+import com.example.jarchess.jaraccount.styles.avatar.PlayerAvatarStyles;
 
 
 public class AvatarAdapter extends ArrayAdapter<String> {

@@ -1,4 +1,4 @@
-package com.example.jarchess.match.styles.avatar;
+package com.example.jarchess.jaraccount.styles.avatar;
 
 import androidx.annotation.NonNull;
 
@@ -9,16 +9,17 @@ import com.example.jarchess.R;
  *
  * @author Joshua Zierman
  */
-public class HoneycombAvatarStyle implements AvatarStyle {
+public class LeopardPrintAvatarStyle implements AvatarStyle {
 
-    private static final int AVATAR_PLAYER_HONEYCOMB = R.drawable.honeycomb;
-    private static HoneycombAvatarStyle instance;
+    private static final int AVATAR_PLAYER_LEOPARD_PRINT = R.drawable.avatar_player_leopard_print;
+    private static LeopardPrintAvatarStyle instance;
 
 
     /**
      * Creates an instance of <code>LeopardPrintAvatarStyle</code> to construct a singleton instance
      */
-    private HoneycombAvatarStyle() {
+    private LeopardPrintAvatarStyle() {
+
     }
 
     /**
@@ -26,9 +27,9 @@ public class HoneycombAvatarStyle implements AvatarStyle {
      *
      * @return the instance.
      */
-    public static HoneycombAvatarStyle getInstance() {
+    public static LeopardPrintAvatarStyle getInstance() {
         if (instance == null) {
-            instance = new HoneycombAvatarStyle();
+            instance = new LeopardPrintAvatarStyle();
         }
 
         return instance;
@@ -39,13 +40,13 @@ public class HoneycombAvatarStyle implements AvatarStyle {
      */
     @Override
     public final int getAvatarResourceID() {
-        return AVATAR_PLAYER_HONEYCOMB;
+        return AVATAR_PLAYER_LEOPARD_PRINT;
     }
 
     @NonNull
     @Override
     public String getName() {
-        return "Honeycomb";
+        return "Leopard Print";
     }
 
     @NonNull
