@@ -2,7 +2,9 @@ package com.example.jarchess.jaraccount.styles.chessboard;
 
 public enum ChessboardStyles {
 
-    MARBLE_1(0, MarbleChessboardStyle.getInstance());
+    MARBLE_1(0, MarbleChessboardStyle.getInstance()),
+    WOOD_1(1, Wood1ChessboardStyle.getInstance()),
+    SOLID_1(2, Solid1ChessboardStyle.getInstance());
 
     private final int intValue;
     private final ChessboardStyle chessboardStyle;

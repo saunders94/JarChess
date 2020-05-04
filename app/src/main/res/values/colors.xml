@@ -5,4 +5,6 @@
     <color name="colorAccent">#D81B60</color>
     <color name="matchDialogBodyTextColor">#FFFFFF</color>
     <color name="OutOfFocusFadeColor">#7F000000</color>
+    <color name="solid1_dark">#00574B</color>
+    <color name="solid1_light">#00C0AC</color>
 </resources>
