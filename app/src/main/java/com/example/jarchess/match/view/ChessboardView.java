@@ -12,8 +12,8 @@ import com.example.jarchess.match.Match;
 import com.example.jarchess.match.activity.MatchActivity;
 import com.example.jarchess.match.move.PieceMovement;
 import com.example.jarchess.match.pieces.Piece;
-import com.example.jarchess.match.styles.chessboard.ChessboardStyle;
-import com.example.jarchess.match.styles.chesspiece.ChesspieceStyle;
+import com.example.jarchess.jaraccount.styles.chessboard.ChessboardStyle;
+import com.example.jarchess.jaraccount.styles.chesspiece.ChesspieceStyle;
 
 import java.util.Collection;
 

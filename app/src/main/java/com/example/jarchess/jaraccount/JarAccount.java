@@ -6,12 +6,12 @@ import android.util.Log;
 
 import com.example.jarchess.MainActivity;
 import com.example.jarchess.match.clock.MatchClockChoice;
-import com.example.jarchess.match.styles.avatar.AvatarStyle;
-import com.example.jarchess.match.styles.avatar.PlayerAvatarStyles;
-import com.example.jarchess.match.styles.chessboard.ChessboardStyle;
-import com.example.jarchess.match.styles.chessboard.ChessboardStyles;
-import com.example.jarchess.match.styles.chesspiece.ChesspieceStyle;
-import com.example.jarchess.match.styles.chesspiece.ChesspieceStyles;
+import com.example.jarchess.jaraccount.styles.avatar.AvatarStyle;
+import com.example.jarchess.jaraccount.styles.avatar.PlayerAvatarStyles;
+import com.example.jarchess.jaraccount.styles.chessboard.ChessboardStyle;
+import com.example.jarchess.jaraccount.styles.chessboard.ChessboardStyles;
+import com.example.jarchess.jaraccount.styles.chesspiece.ChesspieceStyle;
+import com.example.jarchess.jaraccount.styles.chesspiece.ChesspieceStyles;
 import com.example.jarchess.online.usermanagement.Account;
 
 import org.json.JSONException;
@@ -23,9 +23,9 @@ import java.util.Set;
 
 import static com.example.jarchess.jaraccount.JarAccountSetting.Flag.DO_NOT_SAVE_TO_OR_LOAD_FROM_SERVER;
 import static com.example.jarchess.match.clock.MatchClockChoice.CLASSIC_FIDE_MATCH_CLOCK;
-import static com.example.jarchess.match.styles.avatar.PlayerAvatarStyles.LEOPARD_PRINT;
-import static com.example.jarchess.match.styles.chessboard.ChessboardStyles.MARBLE_1;
-import static com.example.jarchess.match.styles.chesspiece.ChesspieceStyles.NEON_LETTERS;
+import static com.example.jarchess.jaraccount.styles.avatar.PlayerAvatarStyles.LEOPARD_PRINT;
+import static com.example.jarchess.jaraccount.styles.chessboard.ChessboardStyles.MARBLE_1;
+import static com.example.jarchess.jaraccount.styles.chesspiece.ChesspieceStyles.NEON_LETTERS;
 
 public class JarAccount {
     private static JarAccount instance = null;

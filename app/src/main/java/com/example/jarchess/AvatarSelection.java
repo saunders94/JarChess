@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.jarchess.match.styles.avatar.PlayerAvatarStyles;
+import com.example.jarchess.jaraccount.styles.avatar.PlayerAvatarStyles;
 
 
 public class AvatarSelection extends Fragment {

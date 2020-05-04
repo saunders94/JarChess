@@ -1,4 +1,4 @@
-package com.example.jarchess.match.styles.avatar;
+package com.example.jarchess.jaraccount.styles.avatar;
 
 import androidx.annotation.NonNull;
 
@@ -9,16 +9,15 @@ import com.example.jarchess.R;
  *
  * @author Joshua Zierman
  */
-public class GuestAvatarStyle implements AvatarStyle {
+public class AIAvatarStyle implements AvatarStyle {
 
-    private static final int AVATAR_RESOURCE_ID = R.drawable.avatar_guest;
-    private static GuestAvatarStyle instance;
-
+    private static final int AVATAR_RESOURCE_ID = R.drawable.avatar_ai;
+    private static AIAvatarStyle instance;
 
     /**
-     * Creates an instance of <code>GuestAvatarStyle</code> to construct a singleton instance
+     * Creates an instance of <code>AIAvatarStyle</code> to construct a singleton instance
      */
-    private GuestAvatarStyle() {
+    private AIAvatarStyle() {
         //TODO
     }
 
@@ -27,9 +26,9 @@ public class GuestAvatarStyle implements AvatarStyle {
      *
      * @return the instance.
      */
-    public static GuestAvatarStyle getInstance() {
+    public static AIAvatarStyle getInstance() {
         if (instance == null) {
-            instance = new GuestAvatarStyle();
+            instance = new AIAvatarStyle();
         }
 
         return instance;
@@ -46,6 +45,6 @@ public class GuestAvatarStyle implements AvatarStyle {
     @NonNull
     @Override
     public String getName() {
-        return "Guest";
+        return "AI";
     }
 }

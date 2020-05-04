@@ -6,7 +6,7 @@ import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.move.Move;
 import com.example.jarchess.match.pieces.PromotionChoice;
-import com.example.jarchess.match.styles.avatar.AvatarStyle;
+import com.example.jarchess.jaraccount.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.testmode.TestableCurrentTime;
 

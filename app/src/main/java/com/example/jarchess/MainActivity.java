@@ -15,7 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.jarchess.jaraccount.JarAccount;
-import com.example.jarchess.match.styles.avatar.PlayerAvatarStyles;
+import com.example.jarchess.jaraccount.styles.avatar.PlayerAvatarStyles;
 import com.example.jarchess.online.JSONCompiler.JSONAccount;
 import com.example.jarchess.online.networking.DataSender;
 import com.example.jarchess.online.usermanagement.Account;

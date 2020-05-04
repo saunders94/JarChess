@@ -1,7 +1,7 @@
 package com.example.jarchess.match.participant;
 
 import com.example.jarchess.match.ChessColor;
-import com.example.jarchess.match.styles.avatar.GuestAvatarStyle;
+import com.example.jarchess.jaraccount.styles.avatar.GuestAvatarStyle;
 
 /**
  * a local opponent is a match participant that is controlled by a person using the same device as the player
