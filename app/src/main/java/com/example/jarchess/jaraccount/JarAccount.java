@@ -103,8 +103,7 @@ public class JarAccount {
     }
 
     public synchronized ChessboardStyle getBoardStyle() {
-//        return ChessboardStyles.getFromInt(chessboardStyleInt.getValue()).getChessboardStyle();
-        return ChessboardStyleChoice.WOOD_2.getChessboardStyle();
+        return ChessboardStyleChoice.getFromInt(chessboardStyleInt.getValue()).getChessboardStyle();
     }
 
     public JSONObject getJsonForLogout(JSONObject signoutJson) {
