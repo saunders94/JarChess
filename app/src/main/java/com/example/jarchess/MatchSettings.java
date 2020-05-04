@@ -73,8 +73,8 @@ public class MatchSettings extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "onActivityResult() called with: requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
         Log.d(TAG, "onActivityResult is running on thread: " + Thread.currentThread().getName());
-        switch (requestCode) {
-            case 0:
+        switch (RequestCode.values()[requestCode]) {
+            case FIND_RANDOM_OPPONENT_FOR_ONLINE_MATCH_REQUEST_CODE:
                 boolean canceled = data.getBooleanExtra("CANCELED", true);
                 Log.i(TAG, "onActivityResult: canceled = " + canceled);
                 if (!canceled && MatchBuilder.getInstance().isReadyToBuildMultiplayerMatch()) {
@@ -84,7 +84,7 @@ public class MatchSettings extends Fragment {
                 }
                 break;
 
-            case 1:
+            case START_MATCH:
                 Log.i(TAG, "onActivityResult: case 1");
                 if (getActivity() != null) {
                     getActivity().onBackPressed();
@@ -197,7 +197,7 @@ public class MatchSettings extends Fragment {
         if (JarAccount.getInstance().isLoggedIn()) {
                 //start matchmaking
                 Intent intent = new Intent(getActivity(), MatchMakingActivity.class);
-                startActivityForResult(intent, 0);
+            startActivityForResult(intent, RequestCode.FIND_RANDOM_OPPONENT_FOR_ONLINE_MATCH_REQUEST_CODE.getInt());
 
             } else {
                 int duration = Toast.LENGTH_SHORT;

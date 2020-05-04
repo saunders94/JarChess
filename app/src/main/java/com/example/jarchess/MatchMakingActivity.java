@@ -24,7 +24,9 @@ import java.io.IOException;
 
 public class MatchMakingActivity extends AppCompatActivity {
 
+    public static final int SUCCESS_RESULT_CODE = 0;
     private static final String TAG = "MatchMakingActivity";
+    private static final int FAILURE_RESULT_CODE = 1;
     private final MatchMakerLauncher matchMakerLauncher = new MatchMakerLauncher();
 
     @Override
@@ -83,7 +85,15 @@ public class MatchMakingActivity extends AppCompatActivity {
 //                e.printStackTrace();
 //            }
 
-            OnlineMatchMaker.getInstance().cancel();
+            try {
+                OnlineMatchMaker.getInstance().cancel();
+            } catch (InterruptedException e) {
+                Intent intent = new Intent();
+                intent.putExtra("CANCELED", true);
+                getActivity().setResult(MatchMakingActivity.FAILURE_RESULT_CODE, intent);
+                getActivity().finish();
+                return;
+            }
 
             if (getActivity() != null) {
                 getActivity().runOnUiThread(new Runnable() {
@@ -92,7 +102,7 @@ public class MatchMakingActivity extends AppCompatActivity {
                         Log.i(TAG, "run: cancel should be successful");
                         Intent intent = new Intent();
                         intent.putExtra("CANCELED", true);
-                        getActivity().setResult(0, intent);
+                        getActivity().setResult(SUCCESS_RESULT_CODE, intent);
                         getActivity().finish();
                     }
                 });
