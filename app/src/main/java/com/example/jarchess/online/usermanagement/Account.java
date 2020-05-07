@@ -19,6 +19,10 @@ public class Account {
     //    private String username;
 //    private String password;
     private static final String TAG = "Account";
+    public static final int MAX_USERNAME_LENGTH = 10;
+    public static final int MIN_USERNAME_LENGTH = 3;
+    public static final int MIN_PASSWORD_LENGTH = 8;
+    public static final int MAX_PASSWORD_LENGTH = 64;
     private JSONAccount jsonAccount;
     private DataSender dataSender;
 
@@ -210,13 +214,16 @@ public class Account {
             Log.i(TAG, "password length = " + password.length());
         }
 
-        if (username == null || username.length() < 3 || username.length() > 10) {
+        if (username == null || username.length() < MIN_USERNAME_LENGTH || username.length() > MAX_USERNAME_LENGTH) {
+            Log.i(TAG, "registerAccount: username length of " + username.length() + " not in [" + MIN_USERNAME_LENGTH + ", " + MAX_USERNAME_LENGTH + "].");
             return false;
         }
-        if(password.length() < 8 || password.length() > 64){
+        if (password.length() < MIN_PASSWORD_LENGTH || password.length() > MAX_PASSWORD_LENGTH) {
+            Log.i(TAG, "registerAccount: password length of " + password.length() + " not in [" + MIN_PASSWORD_LENGTH + ", " + MAX_PASSWORD_LENGTH + "].");
             return false;
         }
         if (!isValidPassword(password)){
+            Log.i(TAG, "registerAccount: password was invalid");
             return false;
         }
 
@@ -228,6 +235,7 @@ public class Account {
         JSONObject jsonObject = jsonAccount.registerAccount(username, hashedPass);
         try {
             JSONObject jsonResponse = dataSender.send(jsonObject);
+            Log.i(TAG, "registerAccount: sending request: " + jsonObject.toString());
             String statusResp = (String) jsonResponse.get("status");
             Log.i(TAG, "Status response: " + statusResp);
             if (statusResp.equals("success")) {
