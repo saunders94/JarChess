@@ -67,7 +67,8 @@ public class MatchMakingActivity extends AppCompatActivity {
 
             finishWith(Result.CANCEL_WAS_PROCESSING, true);
         } else {
-            matchMakerLauncher.startAction();
+            String opponentUsername = getIntent().getStringExtra("opponentUsername");
+            matchMakerLauncher.startAction(opponentUsername);
         }
     }
 
@@ -160,7 +161,7 @@ public class MatchMakingActivity extends AppCompatActivity {
             return view;
         }
 
-        public void startAction() {
+        public void startAction(@Nullable final String opponentUsername) {
             Log.d(TAG, "startAction: onlineMatchInfoBundle set to null");
             onlineMatchInfoBundle = null;
             // start a new thread to launch the online match maker.
@@ -169,7 +170,11 @@ public class MatchMakingActivity extends AppCompatActivity {
                 public void run() {
                     try {
                         Log.i(TAG, "Creating onlinematchMakerBundle");
-                        onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle();
+                        if (opponentUsername != null) {
+                            onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle(opponentUsername);
+                        } else {
+                            onlineMatchInfoBundle = OnlineMatchMaker.getInstance().getOnlineMatchInfoBundle();
+                        }
                         Log.i(TAG, "Online match info bundle set to " + onlineMatchInfoBundle);
                         MatchBuilder.getInstance().multiplayerSetup(onlineMatchInfoBundle);
                         activity.finishWith(Result.SUCCESS, false);
@@ -195,7 +200,10 @@ public class MatchMakingActivity extends AppCompatActivity {
                     }
                 }
             }, "matchMakerLauncherThread").start();
+        }
 
+        public void startAction() {
+            startAction(null);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.example.jarchess.online;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.jarchess.LoggedThread;
@@ -23,6 +24,7 @@ public class OnlineMatchMaker {
     private static final String TAG = "OnlineMatchMaker";
     private static OnlineMatchMaker instance;
     private final Object lock;
+    private final byte[] buffer = new byte[1024];
     int response;
     private boolean wasCanceled = false;
     private IOException ioException = null;
@@ -35,7 +37,6 @@ public class OnlineMatchMaker {
     private Socket socket;
     private boolean done;
     private int cancelRecursiveCalls = 0;
-    private final byte[] buffer = new byte[1024];
 
     /**
      * Creates an instance of <code>OnlineMatchMaker</code> to construct a singleton instance
@@ -101,7 +102,7 @@ public class OnlineMatchMaker {
                         if (jsonResp.getString("status").equals("success")) {
                             Log.i(TAG, "Status of cancel game: " + jsonResp.getString("status"));
                         } else {
-                            if(cancelRecursiveCalls < 2){
+                            if (cancelRecursiveCalls < 2) {
                                 cancel();
                             }
                         }
@@ -146,6 +147,10 @@ public class OnlineMatchMaker {
     }
 
     public OnlineMatchInfoBundle getOnlineMatchInfoBundle() throws SearchCanceledException, IOException, InterruptedException {
+        return getOnlineMatchInfoBundle(null);
+    }
+
+    public OnlineMatchInfoBundle getOnlineMatchInfoBundle(@Nullable final String usernameOfDesiredOpponent) throws SearchCanceledException, IOException, InterruptedException {
 
         Log.v(TAG, "getOnlineMatchInfoBundle() called");
         Log.v(TAG, "getOnlineMatchInfoBundle is running on thread: " + Thread.currentThread().getName());
@@ -183,6 +188,9 @@ public class OnlineMatchMaker {
                             jsonObj.put("requestType", "RequestGame");
                             jsonObj.put("username", JarAccount.getInstance().getName());
                             jsonObj.put("signon_token", JarAccount.getInstance().getSignonToken());
+                            if (usernameOfDesiredOpponent != null && !usernameOfDesiredOpponent.isEmpty()) {
+                                jsonObj.put("username_of_opponent", usernameOfDesiredOpponent);
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
