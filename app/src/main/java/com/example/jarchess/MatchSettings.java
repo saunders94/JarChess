@@ -35,6 +35,7 @@ public class MatchSettings extends Fragment {
     private Switch disablePausingSwitch;
     private ClockChoiceSpinner clockChoiceSpinner;
     private Button readyButton;
+    private String opponent;
 
     public MatchSettings() {
         // Required empty public constructor
@@ -60,6 +61,8 @@ public class MatchSettings extends Fragment {
                     startRandom();
                     break;
                 case "FRIEND":
+                    startFriendMatch(opponent);
+                    opponent = null;
                     break;
                 default:
                     System.err.println("Unknown match type");
@@ -67,6 +70,14 @@ public class MatchSettings extends Fragment {
         } catch (NullPointerException e) {
             System.out.println("Null must've been added to the back stack");
         }
+    }
+
+    public String getOpponent() {
+        return opponent;
+    }
+
+    public void setOpponent(String opponent) {
+        this.opponent = opponent;
     }
 
     @Override
@@ -160,6 +171,19 @@ public class MatchSettings extends Fragment {
 
     private void saveSettings() {
         MatchBuilder.getInstance().setMatchClockChoice(clockChoiceSpinner.getSelectedItem());
+    }
+
+    private void startFriendMatch(String opponentUsername) {
+        if (JarAccount.getInstance().isLoggedIn()) {
+            //start matchmaking
+            Intent intent = new Intent(getActivity(), MatchMakingActivity.class);
+            intent.putExtra("opponentUsername", opponentUsername);
+            startActivityForResult(intent, RequestCode.FIND_FRIEND_OPPONENT_FOR_ONLINE_MATCH.getInt());
+
+        } else {
+            int duration = Toast.LENGTH_SHORT;
+            Toast.makeText(getContext(), "Login Required to play Online", duration).show();
+        }
     }
 
     private void setupListeners() {

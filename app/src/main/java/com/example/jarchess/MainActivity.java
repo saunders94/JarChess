@@ -471,6 +471,16 @@ public class MainActivity extends AppCompatActivity implements ProfileSignIn.Sig
         //this system assumes that the player's friend list hasn't changed since they last loaded
         //the friend selector page
 
+
+        // open match settings
+        FragmentTransaction transaction = MainActivity.fragmentManager.beginTransaction();
+        MatchSettings matchSettings = new MatchSettings();
+        matchSettings.setOpponent(name);
+        transaction.replace(R.id.fragmentHole, matchSettings);
+        transaction.addToBackStack("FRIEND");
+        transaction.commit();
+
+
     }
 
     private void openLoginAssociatedPage() {
