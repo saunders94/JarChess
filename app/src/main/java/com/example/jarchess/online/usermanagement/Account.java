@@ -351,7 +351,7 @@ public class Account {
             Log.d(TAG, "signinWithHash() returned: " + false);
             return false;
         }
-        JSONObject jsonObject = jsonAccount.signinWithHash(username, hashedPass);
+        JSONObject jsonObject = jsonAccount.signin(username, hashedPass);
 
 
         try {

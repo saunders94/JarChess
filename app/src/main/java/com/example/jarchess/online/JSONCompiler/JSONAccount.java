@@ -183,18 +183,6 @@ public class JSONAccount {
         return jsonObj;
     }
 
-    public JSONObject signinWithHash(String username, String hashedPass) {
-        JSONObject jsonObj = new JSONObject();
-        try {
-            jsonObj.put("requestType", "signinWithHash");
-            jsonObj.put("username", username);
-            jsonObj.put("hashedPass", hashedPass);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return jsonObj;
-    }
-
     public JSONObject signout(String username, String signonToken) {
         JSONObject jsonObj = new JSONObject();
         try {
