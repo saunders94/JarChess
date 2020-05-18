@@ -244,17 +244,19 @@ public class JarAccount {
      */
     public synchronized boolean isLoggedIn() {
         boolean result;
-        //TODO uncomment when we get verifyLogin working
-//        try {
-//            result = verifyLogin();
-//        } catch (IOException e) {
-//            Log.e(TAG, "isLoggedIn: ", e);
-//        }
-        result = !signonToken.getValue().isEmpty();
+
+        result = verifyLogin();
+//        result = !signonToken.getValue().isEmpty();
 
         Log.d(TAG, "isLoggedIn() returned: " + result);
 
         return result;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        final JarAccountStringSetting jas = this.passwordHash;
+        jas.setValue(passwordHash);
+        jas.saveToLocal(preferences);
     }
 
     public synchronized boolean isPausingDisabled() {
@@ -288,8 +290,8 @@ public class JarAccount {
         jas.saveToLocal(preferences);
     }
 
-    private void setPasswordHash(String passwordHash) {
-        this.passwordHash.setValue(passwordHash);
+    private boolean verifyLogin() {
+        return accountIO.verifySignin(name.getValue(), passwordHash.getValue());
     }
 
     public void loadAccountFromJson(JSONObject jsonObject) {
