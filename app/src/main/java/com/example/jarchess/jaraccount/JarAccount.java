@@ -159,8 +159,9 @@ public class JarAccount {
         jas.saveToLocal(preferences);
 
         try {
-            jas.saveToServer(accountIO, getName(), getSignonToken());
+            jas.saveToServer(accountIO, getName(), getSignonToken(), getPasswordHash());
         } catch (IOException e) {
+            Log.e(TAG, "setAvatarStyle: ", e);
             // continue execution
         }
     }

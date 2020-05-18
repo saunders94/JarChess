@@ -130,12 +130,13 @@ public class JSONAccount {
         return jsonObj;
     }
 
-    public <T> JSONObject saveAccountInfo(String key, T value, JarAccountSettingType type, String username, String signonToken) {
+    public <T> JSONObject saveAccountInfoByKey(String key, T value, JarAccountSettingType type, String username, String signonToken, String hash) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "saveAccountInfo");
+            jsonObj.put("requestType", "saveAccountInfoByKey");
             jsonObj.put("username", username);
             jsonObj.put("signonToken", signonToken);
+            jsonObj.put("hash", hash);
             jsonObj.put("key", key);
             jsonObj.put("value", value);
             jsonObj.put("type", type.toString());

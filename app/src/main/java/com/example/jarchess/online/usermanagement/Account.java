@@ -254,17 +254,16 @@ public class Account {
         return status;
     }
 
-    //TODO build and test
-    public <T> boolean saveAccountInfo(JarAccountSetting<T> jas, String username, String signonToken) {
+    public <T> boolean saveAccountInfoByKey(JarAccountSetting<T> jas, String username, String signonToken, String hash) {
 
         try {
 
             if (username == null || username.isEmpty() || signonToken == null || signonToken.isEmpty() || jas == null) {
                 return false;
             }
-            JSONObject jsonObject = jsonAccount.saveAccountInfo(jas.getKey(), jas.getValue(), jas.getType(), username, signonToken);
+            JSONObject jsonObject = jsonAccount.saveAccountInfoByKey(jas.getKey(), jas.getValue(), jas.getType(), username, signonToken, hash);
 
-            Log.d(TAG, "saveAccountInfo: jsonObject = " + jsonObject.toString());
+            Log.d(TAG, "saveAccountInfoByKey: jsonObject = " + jsonObject.toString());
             JSONObject jsonResponse = dataSender.send(jsonObject);
             String statusResp = null;
             statusResp = (String) jsonResponse.get("status");
@@ -278,7 +277,7 @@ public class Account {
             }
 
         } catch (Exception e) {
-            Log.e(TAG, "saveAccountInfo: ", e);
+            Log.e(TAG, "saveAccountInfoByKey: ", e);
             return false; // failed save
         }
 
