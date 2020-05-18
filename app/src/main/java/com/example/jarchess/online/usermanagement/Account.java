@@ -311,9 +311,11 @@ public class Account {
             String statusResp = jsonResponse == null ? "" : (String) jsonResponse.get("status");
             if (statusResp.equals("success")) {
                 status = true;
-                JarAccount.getInstance().setSignonToken(jsonResponse.get("token").toString());
-                JarAccount.getInstance().setName(username);
-                JarAccount.getInstance().loadAccountFromJson(jsonResponse);
+                final JarAccount account = JarAccount.getInstance();
+                account.setSignonToken(jsonResponse.get("token").toString());
+                account.setName(username);
+                account.loadAccountFromJson(jsonResponse);
+                account.setPasswordHash(hashedPass);
                 Log.i("Signin", (String) jsonResponse.get("status"));
 
             } else {
@@ -357,8 +359,9 @@ public class Account {
             String statusResp = jsonResponse == null ? "" : (String) jsonResponse.get("status");
             if (statusResp.equals("success")) {
                 status = true;
-                JarAccount.getInstance().setSignonToken((String) jsonResponse.get("token"));
-                JarAccount.getInstance().setName(username);
+                JarAccount account = JarAccount.getInstance();
+                account.setSignonToken((String) jsonResponse.get("token"));
+                account.setName(username);
                 Log.i("signinWithHash", (String) jsonResponse.get("status"));
             } else {
                 status = false;
@@ -415,41 +418,7 @@ public class Account {
     }
 
     public boolean verifySignin(String username, String hashedPass) {
-        Log.d(TAG, "verifySignin() called with: username = [" + username + "], hashedPass = [" + hashedPass + "]");
-        Log.d(TAG, "verifySignin is running on thread: " + Thread.currentThread().getName());
-        boolean status = false;
-
-        if (hashedPass == null) {
-            return false;
-        }
-
-        if (username.equals("")) {
-            Log.i(TAG, "verifySignin: username = \"\"");
-            Log.d(TAG, "verifySignin() returned: " + false);
-            return false;
-        } else if (username == null) {
-            Log.i(TAG, "verifySignin: username = null");
-            Log.d(TAG, "verifySignin() returned: " + false);
-            return false;
-        }
-        JSONObject jsonObject = jsonAccount.signin(username, hashedPass);
-
-
-        try {
-            JSONObject jsonResponse = dataSender.send(jsonObject);
-            String statusResp = jsonResponse == null ? "" : (String) jsonResponse.get("status");
-            if (statusResp.equals("success")) {
-                status = true;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            status = false;
-        } catch (JSONException e) {
-            e.printStackTrace();
-            status = false;
-        }
-
-        return status;
+        return signinWithHash(username, hashedPass);
     }
 
 }
