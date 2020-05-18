@@ -64,9 +64,9 @@ public abstract class JarAccountSetting<T> {
         Log.d(TAG, "saveToJson: " + jsonObject);
     }
 
-    public void saveToServer(Account accountIO, String username, String signonToken) throws IOException {
+    public void saveToServer(Account accountIO, String username, String signonToken, String hash) throws IOException {
         if (!doNotSaveOnServer) {
-            accountIO.saveAccountInfo(this, username, signonToken);
+            accountIO.saveAccountInfoByKey(this, username, signonToken, hash);
         } else {
             Log.d(TAG, "loadFromServer: not going to save " + key);
         }
