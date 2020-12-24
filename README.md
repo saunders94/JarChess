@@ -1,7 +1,7 @@
 # JarChess
 
 Thanks for checking out JarChess.
-Currently the game is in development.
+Development of this game has stopped for now.
 
 ## What is JarChess?
 
@@ -11,9 +11,7 @@ JarChess started as a senior level college project. Three students who happened 
 
 ## Bug Reports and Support Contact
 
-For now, if you want to report a bug, please use [this defect report form](https://docs.google.com/forms/d/e/1FAIpQLSc_3-Xq4efiIWx3IJfl3kW1WSK6FeHCZfFzHrJ0si8hr5cwhw/viewform?usp=sf_link).
-
-If you need to get hold of our team you can contact us at support@jarchess.com. Keep in mind that this project is something we do in our free time, and it may take time for our small team to respond.
+The support email is no longer monitored.
 
 ## Installing and Running the Software
 
