@@ -205,14 +205,14 @@ public class GameIO implements Closeable {
     }
 
     private void receiveNext() throws JSONException, IOException {
-        int bytesRead;
+        int bytesRead = 0;
         StringBuilder msgBuilder = new StringBuilder();
         final byte[] buffer = new byte[1024];
 
-        do {
+        while (!isDone() && bytesRead != -1) {
             bytesRead = in.read(buffer);
             msgBuilder.append(buffer);
-        } while (!isDone() && bytesRead != -1);
+        }
         String msg = msgBuilder.toString().trim();
         if (msg.isEmpty() || isDone()) {
             return;
