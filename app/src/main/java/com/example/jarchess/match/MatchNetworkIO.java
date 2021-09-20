@@ -35,18 +35,14 @@ public class MatchNetworkIO {
         private final DatapackageSender datapackageSender;
         private final Queue<Datapackage> outGoingDatapackages = new LinkedList<Datapackage>();
         private final Object lock = new Object();
-        private final String destinationIP;
-        private final int destinationPort;
 
         private boolean isAlive;
 
-        public Sender(final DatapackageSender datapackageSender, String destinationIP, int destinationPort) {
-            Log.d(TAG, "Sender() called with: datapackageSender = [" + datapackageSender + "], destinationIP = [" + destinationIP + "], destinationPort = [" + destinationPort + "]");
+        public Sender(final DatapackageSender datapackageSender) {
+            Log.d(TAG, "Sender() called with: datapackageSender = [" + datapackageSender + "]");
             Log.d(TAG, "Sender is running on thread: " + Thread.currentThread().getName());
 
             this.datapackageSender = datapackageSender;
-            this.destinationIP = destinationIP;
-            this.destinationPort = destinationPort;
             if (datapackageSender instanceof Closeable) {
                 closeables.add((Closeable) datapackageSender);
             }
@@ -127,7 +123,7 @@ public class MatchNetworkIO {
                 Log.d(TAG, "send: waiting for lock");
                 synchronized (lock) {
                     Log.d(TAG, "send: got lock");
-                    outGoingDatapackages.add(new Datapackage(turn, destinationIP, destinationPort));
+                    outGoingDatapackages.add(new Datapackage(turn));
                     lock.notifyAll();
                 }
                 Log.d(TAG, "send() returned: ");
@@ -143,7 +139,7 @@ public class MatchNetworkIO {
                 Log.d(TAG, "send: waiting for lock");
                 synchronized (lock) {
                     Log.d(TAG, "send: got lock");
-                    Datapackage datapackage = new Datapackage(chessMatchResult, destinationIP, destinationPort);
+                    Datapackage datapackage = new Datapackage(chessMatchResult);
                     outGoingDatapackages.add(datapackage);
                     lock.notifyAll();
                 }
@@ -165,7 +161,7 @@ public class MatchNetworkIO {
                 Log.d(TAG, "send: waiting for lock");
                 synchronized (lock) {
                     Log.d(TAG, "send: got lock");
-                    Datapackage datapackage = new Datapackage(datapackageType, destinationIP, destinationPort);
+                    Datapackage datapackage = new Datapackage(datapackageType);
                     outGoingDatapackages.add(datapackage);
                     lock.notifyAll();
                 }
@@ -188,7 +184,7 @@ public class MatchNetworkIO {
                 Log.d(TAG, "send: waiting for lock");
                 synchronized (lock) {
                     Log.d(TAG, "send: got lock");
-                    Datapackage datapackage = new Datapackage(datapackageType, destinationIP, destinationPort);
+                    Datapackage datapackage = new Datapackage(datapackageType);
                     outGoingDatapackages.add(datapackage);
                     lock.notifyAll();
                 }
@@ -203,7 +199,7 @@ public class MatchNetworkIO {
             Log.d(TAG, "send: waiting for lock");
             synchronized (lock) {
                 Log.d(TAG, "send: got lock");
-                Datapackage datapackage = new Datapackage(DatapackageType.DRAW_REQUEST, destinationIP, destinationPort);
+                Datapackage datapackage = new Datapackage(DatapackageType.DRAW_REQUEST);
                 outGoingDatapackages.add(datapackage);
                 lock.notifyAll();
             }
@@ -217,7 +213,7 @@ public class MatchNetworkIO {
             Log.d(TAG, "send: waiting for lock");
             synchronized (lock) {
                 Log.d(TAG, "send: got lock");
-                Datapackage datapackage = new Datapackage(DatapackageType.PAUSE_REQUEST, destinationIP, destinationPort);
+                Datapackage datapackage = new Datapackage(DatapackageType.PAUSE_REQUEST);
                 outGoingDatapackages.add(datapackage);
                 lock.notifyAll();
             }
@@ -231,7 +227,7 @@ public class MatchNetworkIO {
             Log.d(TAG, "send: waiting for lock");
             synchronized (lock) {
                 Log.d(TAG, "send: got lock");
-                Datapackage datapackage = new Datapackage(DatapackageType.RESUME_REQUEST, destinationIP, destinationPort);
+                Datapackage datapackage = new Datapackage(DatapackageType.RESUME_REQUEST);
                 outGoingDatapackages.add(datapackage);
                 lock.notifyAll();
             }
@@ -382,7 +378,7 @@ public class MatchNetworkIO {
                                         }
                                         break;
 
-                                    case SERVER_ERROR:
+                                    case ERROR:
                                         ChessMatchResult result = new ServerErrorResult();
                                         MatchEndingEvent event = new MatchEndingEvent(result);
                                         MatchEndingEventManager.getInstance().notifyAllListeners(event);
