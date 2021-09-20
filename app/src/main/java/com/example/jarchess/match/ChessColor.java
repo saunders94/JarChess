@@ -116,4 +116,10 @@ public enum ChessColor implements JSONConvertible<ChessColor> {
             }
         }
     }
+
+//    public static void main(String[] args) {
+//        for(Object o:values()){
+//            System.out.println("\""+o.toString()+"\"");
+//        }
+//    }
 }

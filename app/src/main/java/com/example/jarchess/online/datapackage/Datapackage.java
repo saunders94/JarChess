@@ -31,6 +31,7 @@ public class Datapackage implements JSONConvertible<Datapackage> {
     private final DatapackageType datapackageType;
     private final Turn turn;
     private final ChessMatchResult matchResult;
+    private final String errorMsg;
 
 
     /**
@@ -41,6 +42,7 @@ public class Datapackage implements JSONConvertible<Datapackage> {
     public Datapackage(@NonNull Turn turn) {
         this.turn = turn;
         this.matchResult = null;
+        this.errorMsg = null;
 
         if (turn.getMove() == null) {
             throw new IllegalStateException("unexpected null move contained in a turn");
@@ -60,15 +62,27 @@ public class Datapackage implements JSONConvertible<Datapackage> {
         if (type == DatapackageType.MATCH_RESULT) {
             throw new IllegalArgumentException("Creating a datapackage with the type of MATCH_RESULT requires providing the matchResult as an argument");
         }
+        if (type == DatapackageType.ERROR) {
+            throw new IllegalArgumentException("Creating a datapackage with the type of ERROR requires providing the errorMsg as an argument");
+        }
         this.turn = null;
         this.matchResult = null;
+        this.errorMsg = null;
         datapackageType = type;
     }
 
     public Datapackage(ChessMatchResult matchResult) {
         this.turn = null;
         this.matchResult = matchResult;
+        this.errorMsg = null;
         datapackageType = DatapackageType.MATCH_RESULT;
+    }
+
+    public Datapackage(String errorMsg) {
+        this.turn = null;
+        this.matchResult = null;
+        this.errorMsg = errorMsg;
+        datapackageType = DatapackageType.ERROR;
     }
 
     public DatapackageType getDatapackageType() {
@@ -176,5 +190,7 @@ public class Datapackage implements JSONConvertible<Datapackage> {
         }
     }
 
-
+    public String getErrorMsg() {
+        return errorMsg;
+    }
 }

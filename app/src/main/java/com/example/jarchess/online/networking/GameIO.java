@@ -5,6 +5,8 @@ import android.util.Log;
 import com.example.jarchess.LoggedThread;
 import com.example.jarchess.RemoteOpponentInfoBundle;
 import com.example.jarchess.jaraccount.JarAccount;
+import com.example.jarchess.match.result.ChessMatchResult;
+import com.example.jarchess.match.result.WinResult;
 import com.example.jarchess.online.datapackage.Datapackage;
 import com.example.jarchess.online.move.DatapackageQueue;
 
@@ -34,12 +36,13 @@ public class GameIO implements Closeable {
 
     private static final String PAYLOAD_KEY = "payload";
     private static final String MATCH_COMMUNICATION = "MatchCommunication";
+    private static final String ERROR_REPORT = "ErrorReport";
+    private static final String MATCH_RESULT_REPORT = "MatchResultReport";
     private static final String TYPE_KEY = "type";
     private static final Datapackage.DatapackageJSONConverter JSON_TO_DATAPACKAGE_CONVERTER = Datapackage.DatapackageJSONConverter.getInstance();
     private static final int SERVER_BOUND_MESSAGES = 0;
     private static final int CLIENT_BOUND_MESSAGES = 1;
     private static final String CLIENT_RESPONSE = "clientResponse";
-    private static final String ERROR_REPORT = "errorReport";
     private final String TAG = "GameIO";
     private final LoggedThread senderThread;
     private final LoggedThread receiverThread;
@@ -301,9 +304,6 @@ public class GameIO implements Closeable {
     }
 
     private void sendError(Datapackage datapackage) throws IOException {
-//        //FIXME
-//        throw new UnsupportedOperationException("Unimplemented");
-
 
         int bytesRead = 0;
         StringBuilder msgBuilder = new StringBuilder();
@@ -323,7 +323,7 @@ public class GameIO implements Closeable {
             jsonObject.put("username", JarAccount.getInstance().getName());
             jsonObject.put("game_token", gameToken);
             jsonObject.put("signon_token", JarAccount.getInstance().getSignonToken());
-            jsonObject.put("payload", outgoingDatapackageJSON);
+            jsonObject.put("error_msg", datapackage.getErrorMsg());
         } catch (JSONException e) {
             Log.e(TAG, "sendMatchCommunication exception: ", e);
             throw new Error(e);
@@ -392,9 +392,57 @@ public class GameIO implements Closeable {
         // currently we just ignore the response.
     }
 
-    private void sendMatchResult(Datapackage datapackage) {
-        //FIXME
-        throw new UnsupportedOperationException("Unimplemented");
+    private void sendMatchResult(Datapackage datapackage) throws IOException {
+
+        int bytesRead = 0;
+        StringBuilder msgBuilder = new StringBuilder();
+        final byte[] buffer = new byte[1024];
+
+        // create the json object for the match communication server request
+        JSONObject outgoingDatapackageJSON = null;
+        try {
+            outgoingDatapackageJSON = datapackage.getJSONObject();
+        } catch (JSONException e) {
+            Log.e(TAG, "sendMatchCommunication exception: ", e);
+            throw new Error(e);
+        }
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("requestType", MATCH_RESULT_REPORT);
+            jsonObject.put("username", JarAccount.getInstance().getName());
+            jsonObject.put("game_token", gameToken);
+            jsonObject.put("signon_token", JarAccount.getInstance().getSignonToken());
+
+            ChessMatchResult result = datapackage.getMatchResult();
+            String resultType = result.getType().toString();
+            jsonObject.put("resultType", resultType);
+
+            if (result instanceof WinResult) {
+                jsonObject.put("winner", ((WinResult) result).getWinnerColor().toString());
+            }
+
+        } catch (JSONException e) {
+            Log.e(TAG, "sendMatchCommunication exception: ", e);
+            throw new Error(e);
+        }
+
+        // send the message
+        out[SERVER_BOUND_MESSAGES].writeUTF(jsonObject.toString());
+        out[SERVER_BOUND_MESSAGES].flush();
+        Log.i(TAG, "Sent JsonObject: " + jsonObject.toString());
+        Log.i(TAG, String.valueOf(socket[SERVER_BOUND_MESSAGES]));
+
+        // Wait for server response
+        Log.i(TAG, "waiting on IO");
+        while (!isDone() && bytesRead != -1) {
+            bytesRead = in[SERVER_BOUND_MESSAGES].read(buffer);
+            msgBuilder.append(new String(buffer));
+        }
+        String msg = msgBuilder.toString().trim();
+
+        // TODO
+        // Process the received response
+        // currently we just ignore the response.
     }
 
     private void sendNext() throws JSONException, IOException {
