@@ -25,9 +25,14 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
+import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UTFDataFormatException;
 import java.net.Socket;
 import java.util.Collection;
 import java.util.Iterator;
@@ -65,11 +70,9 @@ public class GameIO implements Closeable {
     private String serverIp = "3.18.79.149";
     private int serverPort = 12345;
     private DatapackageQueue datapackageQueue;
-    private Socket socket;
-    private DataInputStream in;
-    private DataOutputStream out;
+    private ThreadSafeSocketStream socketStream;
     private RemoteOpponentInfoBundle remoteOpponentInfoBundle;
-    private Closeable[] closeables;
+
     /**
      * Creates a GameIO object, which will connect to the server and begin sending and receiving available messages.
      *
@@ -84,45 +87,7 @@ public class GameIO implements Closeable {
         this.datapackageQueue = datapackageQueue;
         this.remoteOpponentInfoBundle = remoteOpponentInfoBundle;
         this.gameToken = gameToken;
-        try {
-
-            // set up socket and data streams
-            this.socket = new Socket(serverIp, serverPort);
-            this.socket.setSoTimeout(TIMEOUT);
-
-            this.in = new DataInputStream(
-                    new BufferedInputStream(
-                            socket.getInputStream()));
-
-            this.out = new DataOutputStream(
-                    new BufferedOutputStream(
-                            socket.getOutputStream()));
-
-            canStart = true;
-
-        } catch (IOException e) {
-
-            Log.e(TAG, e.getLocalizedMessage());
-
-            //close everything we need to close and rethrow the exception
-            try {
-                in.close();
-            } catch (Exception ex) {
-                // just continue
-            }
-            try {
-                out.close();
-            } catch (Exception ex) {
-                // just continue
-            }
-            try {
-                socket.close();
-            } catch (Exception ex) {
-                // just continue;
-            }
-
-            throw e;
-        }
+        this.socketStream = new ThreadSafeSocketStream();
 
         receiverThread = new LoggedThread(TAG, new Runnable() {
             @Override
@@ -157,9 +122,6 @@ public class GameIO implements Closeable {
                     } catch (IOException e) {
                         Log.e(TAG, e.getLocalizedMessage());
                         // We log the error message and continue
-                    } catch (JSONException e) {
-                        Log.e(TAG, e.getLocalizedMessage());
-                        // We log the error message and continue
                     }
                 }
                 synchronized (GameIO.this) {
@@ -171,10 +133,6 @@ public class GameIO implements Closeable {
         }, "GameIO-Sender-Thread");
 
         if (canStart) {
-            closeables = new Closeable[]{
-                    in,
-                    out,
-                    socket};
             this.start();
         }
     }
@@ -212,15 +170,7 @@ public class GameIO implements Closeable {
                     // just continue
                 }
                 synchronized (GameIO.this) {
-
-                    // close all the stuff we need to close
-                    for (Closeable c : closeables) {
-                        try {
-                            c.close();
-                        } catch (IOException e) {
-                            // just keep moving along
-                        }
-                    }
+                    socketStream.close();
 
                     // signal that the GameIO is dead
                     isDying = false;
@@ -233,10 +183,21 @@ public class GameIO implements Closeable {
         new LoggedThread(TAG, r, "GameIO-KillThread").start();
     }
 
+    /**
+     * Checks to see if the GameIO is done.
+     *
+     * @return true if it is in the process of dying or if the the connection is closed
+     */
     private synchronized boolean isDone() {
-        return isDying || socket == null || !socket.isConnected();
+        return isDying || socketStream == null || !socketStream.isConnected();
     }
 
+    /**
+     * Receives the next message
+     * @throws JSONException if the received message cannot be converted into JSON
+     * @throws IOException if the input is unsuccessful
+     * @throws InterruptedException if the thread is interrupted while waiting.
+     */
     private void receiveNext() throws JSONException, IOException, InterruptedException {
 
         // wait for next client bound message
@@ -245,7 +206,7 @@ public class GameIO implements Closeable {
         final byte[] buffer = new byte[1024];
 
         while (!isDone() && bytesRead != -1) {
-            bytesRead = in.read(buffer);
+            bytesRead = socketStream.read(buffer);
             msgBuilder.append(new String(buffer));
         }
         String msg = msgBuilder.toString().trim();
@@ -319,7 +280,12 @@ public class GameIO implements Closeable {
         }
     }
 
-    private void sendNext() throws JSONException, IOException {
+    /**
+     * Sends the next Message
+     *
+     * @throws IOException if the output is unsuccessful
+     */
+    private void sendNext() throws IOException {
         Datapackage datapackage = datapackageQueue.getServerBoundDatapackage();
 
         switch (datapackage.getDatapackageType()) {
@@ -343,6 +309,9 @@ public class GameIO implements Closeable {
         }
     }
 
+    /**
+     * Starts running the GameIO threads
+     */
     private void start() {
 
         Log.i(TAG, "starting GameIO");
@@ -610,10 +579,9 @@ public class GameIO implements Closeable {
 
         public ServerResponse send() throws IOException {
 
-            out.writeUTF(jsonObject.toString());
-            out.flush();
+            socketStream.writeUTF(jsonObject.toString());
+            socketStream.flush();
             Log.i(TAG, "Sent JsonObject: " + jsonObject.toString());
-            Log.i(TAG, String.valueOf(socket));
 
             return serverResponseQueue.poll();
         }
@@ -680,7 +648,7 @@ public class GameIO implements Closeable {
 
         public void send() throws IOException {
 
-            if (out == null) {
+            if (socketStream == null) {
                 return;
             }
 
@@ -702,8 +670,8 @@ public class GameIO implements Closeable {
                 throw new Error(e); // this should not happen
             }
 
-            out.writeUTF(jsonObject.toString());
-            out.flush();
+            socketStream.writeUTF(jsonObject.toString());
+            socketStream.flush();
         }
     }
 
@@ -719,5 +687,753 @@ public class GameIO implements Closeable {
         public FailureResponse(JSONObject originalMessage) {
             super(originalMessage, FAILURE_RESPONSE);
         }
+    }
+
+    private class ThreadSafeSocketStream implements Closeable {
+        Object outLock, inLock;
+        private Socket socket = null;
+        private DataInputStream in = null;
+        private DataOutputStream out = null;
+
+
+        public ThreadSafeSocketStream() throws IOException {
+            try {
+
+                // set up socket and data streams
+                this.socket = new Socket(serverIp, serverPort);
+                this.socket.setSoTimeout(TIMEOUT);
+
+                this.in = new DataInputStream(
+                        new BufferedInputStream(
+                                socket.getInputStream()));
+
+                this.out = new DataOutputStream(
+                        new BufferedOutputStream(
+                                socket.getOutputStream()));
+            } catch (IOException e) {
+
+                Log.e(TAG, e.getLocalizedMessage());
+
+                //close everything we need to close and rethrow the exception
+                try {
+                    in.close();
+                } catch (Exception ex) {
+                    // just continue
+                }
+                try {
+                    out.close();
+                } catch (Exception ex) {
+                    // just continue
+                }
+                try {
+                    socket.close();
+                } catch (Exception ex) {
+                    // just continue;
+                }
+
+                throw e;
+            }
+        }
+
+        /**
+         * Closes this stream and releases any system resources associated
+         * with it. If the stream is already closed then invoking this
+         * method has no effect.
+         *
+         * <p> As noted in {@link AutoCloseable#close()}, cases where the
+         * close may fail require careful attention. It is strongly advised
+         * to relinquish the underlying resources and to internally
+         * <em>mark</em> the {@code Closeable} as closed, prior to throwing
+         * the {@code IOException}.
+         *
+         * @throws IOException if an I/O error occurs
+         */
+        @Override
+        public synchronized void close() {
+            try {
+                synchronized (inLock) {
+                    in.close();
+                }
+            } catch (Exception e) {
+                // just continue
+            }
+
+            try {
+                synchronized (inLock) {
+                    out.close();
+                }
+            } catch (Exception e) {
+                // just continue
+            }
+
+            try {
+                synchronized (this) {
+                    socket.close();
+                }
+            } catch (Exception e) {
+                // just continue
+            }
+
+        }
+
+        /**
+         * Flushes this data output stream. This forces any buffered output
+         * bytes to be written out to the stream.
+         * <p>
+         * The <code>flush</code> method of <code>DataOutputStream</code>
+         * calls the <code>flush</code> method of its underlying output stream.
+         *
+         * @throws IOException if an I/O error occurs.
+         * @see OutputStream#flush()
+         */
+        public void flush() throws IOException {
+            synchronized (outLock) {
+                out.flush();
+            }
+        }
+
+        /**
+         * Returns the connection state of the socket.
+         * <p>
+         * Note: Closing a socket doesn't clear its connection state, which means
+         * this method will return {@code true} for a closed socket
+         * (see ) if it was successfuly connected prior
+         * to being closed.
+         *
+         * @return true if the socket was successfuly connected to a server
+         * @since 1.4
+         */
+        public synchronized boolean isConnected() {
+            return socket.isConnected();
+        }
+
+        /**
+         * Reads some number of bytes from the contained input stream and
+         * stores them into the buffer array <code>b</code>. The number of
+         * bytes actually read is returned as an integer. This method blocks
+         * until input data is available, end of file is detected, or an
+         * exception is thrown.
+         *
+         * <p>If <code>b</code> is null, a <code>NullPointerException</code> is
+         * thrown. If the length of <code>b</code> is zero, then no bytes are
+         * read and <code>0</code> is returned; otherwise, there is an attempt
+         * to read at least one byte. If no byte is available because the
+         * stream is at end of file, the value <code>-1</code> is returned;
+         * otherwise, at least one byte is read and stored into <code>b</code>.
+         *
+         * <p>The first byte read is stored into element <code>b[0]</code>, the
+         * next one into <code>b[1]</code>, and so on. The number of bytes read
+         * is, at most, equal to the length of <code>b</code>. Let <code>k</code>
+         * be the number of bytes actually read; these bytes will be stored in
+         * elements <code>b[0]</code> through <code>b[k-1]</code>, leaving
+         * elements <code>b[k]</code> through <code>b[b.length-1]</code>
+         * unaffected.
+         *
+         * <p>The <code>read(b)</code> method has the same effect as:
+         * <blockquote><pre>
+         * read(b, 0, b.length)
+         * </pre></blockquote>
+         *
+         * @param b the buffer into which the data is read.
+         * @return the total number of bytes read into the buffer, or
+         * <code>-1</code> if there is no more data because the end
+         * of the stream has been reached.
+         * @throws IOException if the first byte cannot be read for any reason
+         *                     other than end of file, the stream has been closed and the underlying
+         *                     input stream does not support reading after close, or another I/O
+         *                     error occurs.
+         * @see InputStream#read(byte[], int, int)
+         */
+        public int read(byte[] b) throws IOException {
+            synchronized (inLock) {
+                return in.read(b);
+            }
+        }
+
+        /**
+         * Reads up to <code>len</code> bytes of data from the contained
+         * input stream into an array of bytes.  An attempt is made to read
+         * as many as <code>len</code> bytes, but a smaller number may be read,
+         * possibly zero. The number of bytes actually read is returned as an
+         * integer.
+         *
+         * <p> This method blocks until input data is available, end of file is
+         * detected, or an exception is thrown.
+         *
+         * <p> If <code>len</code> is zero, then no bytes are read and
+         * <code>0</code> is returned; otherwise, there is an attempt to read at
+         * least one byte. If no byte is available because the stream is at end of
+         * file, the value <code>-1</code> is returned; otherwise, at least one
+         * byte is read and stored into <code>b</code>.
+         *
+         * <p> The first byte read is stored into element <code>b[off]</code>, the
+         * next one into <code>b[off+1]</code>, and so on. The number of bytes read
+         * is, at most, equal to <code>len</code>. Let <i>k</i> be the number of
+         * bytes actually read; these bytes will be stored in elements
+         * <code>b[off]</code> through <code>b[off+</code><i>k</i><code>-1]</code>,
+         * leaving elements <code>b[off+</code><i>k</i><code>]</code> through
+         * <code>b[off+len-1]</code> unaffected.
+         *
+         * <p> In every case, elements <code>b[0]</code> through
+         * <code>b[off]</code> and elements <code>b[off+len]</code> through
+         * <code>b[b.length-1]</code> are unaffected.
+         *
+         * @param b   the buffer into which the data is read.
+         * @param off the start offset in the destination array <code>b</code>
+         * @param len the maximum number of bytes read.
+         * @return the total number of bytes read into the buffer, or
+         * <code>-1</code> if there is no more data because the end
+         * of the stream has been reached.
+         * @throws NullPointerException      If <code>b</code> is <code>null</code>.
+         * @throws IndexOutOfBoundsException If <code>off</code> is negative,
+         *                                   <code>len</code> is negative, or <code>len</code> is greater than
+         *                                   <code>b.length - off</code>
+         * @throws IOException               if the first byte cannot be read for any reason
+         *                                   other than end of file, the stream has been closed and the underlying
+         *                                   input stream does not support reading after close, or another I/O
+         *                                   error occurs.
+         * @see InputStream#read(byte[], int, int)
+         */
+        public int read(byte[] b, int off, int len) throws IOException {
+            synchronized (inLock) {
+                return in.read(b, off, len);
+            }
+        }
+
+        /**
+         * See the general contract of the <code>readBoolean</code>
+         * method of <code>DataInput</code>.
+         * <p>
+         * Bytes for this operation are read from the contained
+         * input stream.
+         *
+         * @return the <code>boolean</code> value read.
+         * @throws EOFException if this input stream has reached the end.
+         * @throws IOException  the stream has been closed and the contained
+         *                      input stream does not support reading after close, or
+         *                      another I/O error occurs.
+         */
+        public boolean readBoolean() throws IOException {
+            synchronized (inLock) {
+                return in.readBoolean();
+            }
+        }
+
+        /**
+         * See the general contract of the <code>readByte</code>
+         * method of <code>DataInput</code>.
+         * <p>
+         * Bytes
+         * for this operation are read from the contained
+         * input stream.
+         *
+         * @return the next byte of this input stream as a signed 8-bit
+         * <code>byte</code>.
+         * @throws EOFException if this input stream has reached the end.
+         * @throws IOException  the stream has been closed and the contained
+         *                      input stream does not support reading after close, or
+         *                      another I/O error occurs.
+         */
+        public byte readByte() throws IOException {
+            synchronized (inLock) {
+                return in.readByte();
+            }
+        }
+
+        /**
+         * See the general contract of the <code>readChar</code>
+         * method of <code>DataInput</code>.
+         * <p>
+         * Bytes
+         * for this operation are read from the contained
+         * input stream.
+         *
+         * @return the next two bytes of this input stream, interpreted as a
+         * <code>char</code>.
+         * @throws EOFException if this input stream reaches the end before
+         *                      reading two bytes.
+         * @throws IOException  the stream has been closed and the contained
+         *                      input stream does not support reading after close, or
+         *                      another I/O error occurs.
+         */
+        public char readChar() throws IOException {
+            synchronized (inLock) {
+                return in.readChar();
+            }
+        }
+
+        /**
+         * See the general contract of the <code>readDouble</code>
+         * method of <code>DataInput</code>.
+         * <p>
+         * Bytes
+         * for this operation are read from the contained
+         * input stream.
+         *
+         * @return the next eight bytes of this input stream, interpreted as a
+         * <code>double</code>.
+         * @throws EOFException if this input stream reaches the end before
+         *                      reading eight bytes.
+         * @throws IOException  the stream has been closed and the contained
+         *                      input stream does not support reading after close, or
+         *                      another I/O error occurs.
+         * @see DataInputStream#readLong()
+         * @see Double#longBitsToDouble(long)
+         */
+        public double readDouble() throws IOException {
+            synchronized (inLock) {
+                return in.readDouble();
+            }
+        }
+
+        /**
+         * See the general contract of the <code>readFloat</code>
+         * method of <code>DataInput</code>.
+         * <p>
+         * Bytes
+         * for this operation are read from the contained
+         * input stream.
+         *
+         * @return the next four bytes of this input stream, interpreted as a
+         * <code>float</code>.
+         * @throws EOFException if this input stream reaches the end before
+         *                      reading four bytes.
+         * @throws IOException  the stream has been closed and the contained
+         *                      input stream does not support reading after close, or
+         *                      another I/O error occurs.
+         * @see DataInputStream#readInt()
+         * @see Float#intBitsToFloat(int)
+         */
+        public float readFloat() throws IOException {
+            synchronized (inLock) {
+                return in.readFloat();
+            }
+        }
+
+        /**
+         * See the general contract of the <code>readFully</code>
+         * method of <code>DataInput</code>.
+         * <p>
+         * Bytes
+         * for this operation are read from the contained
+         * input stream.
+         *
+         * @param b the buffer into which the data is read.
+         * @throws EOFException if this input stream reaches the end before
+         *                      reading all the bytes.
+         * @throws IOException  the stream has been closed and the contained
+         *                      input stream does not support reading after close, or
+         *                      another I/O error occurs.
+         */
+        public void readFully(byte[] b) throws IOException {
+            synchronized (inLock) {
+                in.readFully(b);
+            }
+        }
+
+        /**
+         * See the general contract of the <code>readFully</code>
+         * method of <code>DataInput</code>.
+         * <p>
+         * Bytes
+         * for this operation are read from the contained
+         * input stream.
+         *
+         * @param b   the buffer into which the data is read.
+         * @param off the start offset of the data.
+         * @param len the number of bytes to read.
+         * @throws EOFException if this input stream reaches the end before
+         *                      reading all the bytes.
+         * @throws IOException  the stream has been closed and the contained
+         *                      input stream does not support reading after close, or
+         *                      another I/O error occurs.
+         */
+        public void readFully(byte[] b, int off, int len) throws IOException {
+            synchronized (inLock) {
+                in.readFully(b, off, len);
+            }
+        }
+
+        /**
+         * See the general contract of the <code>readInt</code>
+         * method of <code>DataInput</code>.
+         * <p>
+         * Bytes
+         * for this operation are read from the contained
+         * input stream.
+         *
+         * @return the next four bytes of this input stream, interpreted as an
+         * <code>int</code>.
+         * @throws EOFException if this input stream reaches the end before
+         *                      reading four bytes.
+         * @throws IOException  the stream has been closed and the contained
+         *                      input stream does not support reading after close, or
+         *                      another I/O error occurs.
+         */
+        public int readInt() throws IOException {
+            synchronized (inLock) {
+                return in.readInt();
+            }
+        }
+
+        /**
+         * See the general contract of the <code>readLong</code>
+         * method of <code>DataInput</code>.
+         * <p>
+         * Bytes
+         * for this operation are read from the contained
+         * input stream.
+         *
+         * @return the next eight bytes of this input stream, interpreted as a
+         * <code>long</code>.
+         * @throws EOFException if this input stream reaches the end before
+         *                      reading eight bytes.
+         * @throws IOException  the stream has been closed and the contained
+         *                      input stream does not support reading after close, or
+         *                      another I/O error occurs.
+         */
+        public long readLong() throws IOException {
+            synchronized (inLock) {
+                return in.readLong();
+            }
+        }
+
+        /**
+         * See the general contract of the <code>readShort</code>
+         * method of <code>DataInput</code>.
+         * <p>
+         * Bytes
+         * for this operation are read from the contained
+         * input stream.
+         *
+         * @return the next two bytes of this input stream, interpreted as a
+         * signed 16-bit number.
+         * @throws EOFException if this input stream reaches the end before
+         *                      reading two bytes.
+         * @throws IOException  the stream has been closed and the contained
+         *                      input stream does not support reading after close, or
+         *                      another I/O error occurs.
+         */
+        public short readShort() throws IOException {
+            synchronized (inLock) {
+                return in.readShort();
+            }
+        }
+
+        /**
+         * See the general contract of the <code>readUTF</code>
+         * method of <code>DataInput</code>.
+         * <p>
+         * Bytes
+         * for this operation are read from the contained
+         * input stream.
+         *
+         * @return a Unicode string.
+         * @throws EOFException           if this input stream reaches the end before
+         *                                reading all the bytes.
+         * @throws IOException            the stream has been closed and the contained
+         *                                input stream does not support reading after close, or
+         *                                another I/O error occurs.
+         * @throws UTFDataFormatException if the bytes do not represent a valid
+         *                                modified UTF-8 encoding of a string.
+         * @see DataInputStream#readUTF(DataInput)
+         */
+        public String readUTF() throws IOException {
+            synchronized (inLock) {
+                return in.readUTF();
+            }
+        }
+
+        /**
+         * See the general contract of the <code>readUnsignedByte</code>
+         * method of <code>DataInput</code>.
+         * <p>
+         * Bytes
+         * for this operation are read from the contained
+         * input stream.
+         *
+         * @return the next byte of this input stream, interpreted as an
+         * unsigned 8-bit number.
+         * @throws EOFException if this input stream has reached the end.
+         * @throws IOException  the stream has been closed and the contained
+         *                      input stream does not support reading after close, or
+         *                      another I/O error occurs.
+         */
+        public int readUnsignedByte() throws IOException {
+            synchronized (inLock) {
+                return in.readUnsignedByte();
+            }
+        }
+
+        /**
+         * See the general contract of the <code>readUnsignedShort</code>
+         * method of <code>DataInput</code>.
+         * <p>
+         * Bytes
+         * for this operation are read from the contained
+         * input stream.
+         *
+         * @return the next two bytes of this input stream, interpreted as an
+         * unsigned 16-bit integer.
+         * @throws EOFException if this input stream reaches the end before
+         *                      reading two bytes.
+         * @throws IOException  the stream has been closed and the contained
+         *                      input stream does not support reading after close, or
+         *                      another I/O error occurs.
+         */
+        public int readUnsignedShort() throws IOException {
+            synchronized (inLock) {
+                return in.readUnsignedShort();
+            }
+        }
+
+        /**
+         * Returns the current value of the counter <code>written</code>,
+         * the number of bytes written to this data output stream so far.
+         * If the counter overflows, it will be wrapped to Integer.MAX_VALUE.
+         *
+         * @return the value of the <code>written</code> field.
+         */
+        public int size() {
+            synchronized (outLock) {
+                return out.size();
+            }
+        }
+
+        /**
+         * See the general contract of the <code>skipBytes</code>
+         * method of <code>DataInput</code>.
+         * <p>
+         * Bytes for this operation are read from the contained
+         * input stream.
+         *
+         * @param n the number of bytes to be skipped.
+         * @return the actual number of bytes skipped.
+         * @throws IOException if the contained input stream does not support
+         *                     seek, or the stream has been closed and
+         *                     the contained input stream does not support
+         *                     reading after close, or another I/O error occurs.
+         */
+        public int skipBytes(int n) throws IOException {
+            synchronized (inLock) {
+                return in.skipBytes(n);
+            }
+        }
+
+        /**
+         * Writes the specified byte (the low eight bits of the argument
+         * <code>b</code>) to the underlying output stream. If no exception
+         * is thrown, the counter <code>written</code> is incremented by
+         * <code>1</code>.
+         * <p>
+         * Implements the <code>write</code> method of <code>OutputStream</code>.
+         *
+         * @param b the <code>byte</code> to be written.
+         * @throws IOException if an I/O error occurs.
+         */
+        public void write(int b) throws IOException {
+            synchronized (outLock) {
+                out.write(b);
+            }
+        }
+
+        /**
+         * Writes <code>len</code> bytes from the specified byte array
+         * starting at offset <code>off</code> to the underlying output stream.
+         * If no exception is thrown, the counter <code>written</code> is
+         * incremented by <code>len</code>.
+         *
+         * @param b   the data.
+         * @param off the start offset in the data.
+         * @param len the number of bytes to write.
+         * @throws IOException if an I/O error occurs.
+         */
+        public void write(byte[] b, int off, int len) throws IOException {
+            synchronized (outLock) {
+                out.write(b, off, len);
+            }
+        }
+
+        /**
+         * Writes a <code>boolean</code> to the underlying output stream as
+         * a 1-byte value. The value <code>true</code> is written out as the
+         * value <code>(byte)1</code>; the value <code>false</code> is
+         * written out as the value <code>(byte)0</code>. If no exception is
+         * thrown, the counter <code>written</code> is incremented by
+         * <code>1</code>.
+         *
+         * @param v a <code>boolean</code> value to be written.
+         * @throws IOException if an I/O error occurs.
+         */
+        public void writeBoolean(boolean v) throws IOException {
+            synchronized (outLock) {
+                out.writeBoolean(v);
+            }
+        }
+
+        /**
+         * Writes out a <code>byte</code> to the underlying output stream as
+         * a 1-byte value. If no exception is thrown, the counter
+         * <code>written</code> is incremented by <code>1</code>.
+         *
+         * @param v a <code>byte</code> value to be written.
+         * @throws IOException if an I/O error occurs.
+         */
+        public void writeByte(int v) throws IOException {
+            synchronized (outLock) {
+                out.writeByte(v);
+            }
+        }
+
+        /**
+         * Writes out the string to the underlying output stream as a
+         * sequence of bytes. Each character in the string is written out, in
+         * sequence, by discarding its high eight bits. If no exception is
+         * thrown, the counter <code>written</code> is incremented by the
+         * length of <code>s</code>.
+         *
+         * @param s a string of bytes to be written.
+         * @throws IOException if an I/O error occurs.
+         */
+        public void writeBytes(String s) throws IOException {
+            synchronized (outLock) {
+                out.writeBytes(s);
+            }
+        }
+
+        /**
+         * Writes a <code>char</code> to the underlying output stream as a
+         * 2-byte value, high byte first. If no exception is thrown, the
+         * counter <code>written</code> is incremented by <code>2</code>.
+         *
+         * @param v a <code>char</code> value to be written.
+         * @throws IOException if an I/O error occurs.
+         */
+        public void writeChar(int v) throws IOException {
+            synchronized (outLock) {
+                out.writeChar(v);
+            }
+        }
+
+        /**
+         * Writes a string to the underlying output stream as a sequence of
+         * characters. Each character is written to the data output stream as
+         * if by the <code>writeChar</code> method. If no exception is
+         * thrown, the counter <code>written</code> is incremented by twice
+         * the length of <code>s</code>.
+         *
+         * @param s a <code>String</code> value to be written.
+         * @throws IOException if an I/O error occurs.
+         * @see DataOutputStream#writeChar(int)
+         */
+        public void writeChars(String s) throws IOException {
+            synchronized (outLock) {
+                out.writeChars(s);
+            }
+        }
+
+        /**
+         * Converts the double argument to a <code>long</code> using the
+         * <code>doubleToLongBits</code> method in class <code>Double</code>,
+         * and then writes that <code>long</code> value to the underlying
+         * output stream as an 8-byte quantity, high byte first. If no
+         * exception is thrown, the counter <code>written</code> is
+         * incremented by <code>8</code>.
+         *
+         * @param v a <code>double</code> value to be written.
+         * @throws IOException if an I/O error occurs.
+         * @see Double#doubleToLongBits(double)
+         */
+        public void writeDouble(double v) throws IOException {
+            synchronized (outLock) {
+                out.writeDouble(v);
+            }
+        }
+
+        /**
+         * Converts the float argument to an <code>int</code> using the
+         * <code>floatToIntBits</code> method in class <code>Float</code>,
+         * and then writes that <code>int</code> value to the underlying
+         * output stream as a 4-byte quantity, high byte first. If no
+         * exception is thrown, the counter <code>written</code> is
+         * incremented by <code>4</code>.
+         *
+         * @param v a <code>float</code> value to be written.
+         * @throws IOException if an I/O error occurs.
+         * @see Float#floatToIntBits(float)
+         */
+        public void writeFloat(float v) throws IOException {
+            synchronized (outLock) {
+                out.writeFloat(v);
+            }
+        }
+
+        /**
+         * Writes an <code>int</code> to the underlying output stream as four
+         * bytes, high byte first. If no exception is thrown, the counter
+         * <code>written</code> is incremented by <code>4</code>.
+         *
+         * @param v an <code>int</code> to be written.
+         * @throws IOException if an I/O error occurs.
+         */
+        public void writeInt(int v) throws IOException {
+            synchronized (outLock) {
+                out.writeInt(v);
+            }
+        }
+
+        /**
+         * Writes a <code>long</code> to the underlying output stream as eight
+         * bytes, high byte first. In no exception is thrown, the counter
+         * <code>written</code> is incremented by <code>8</code>.
+         *
+         * @param v a <code>long</code> to be written.
+         * @throws IOException if an I/O error occurs.
+         */
+        public void writeLong(long v) throws IOException {
+            synchronized (outLock) {
+                out.writeLong(v);
+            }
+        }
+
+        /**
+         * Writes a <code>short</code> to the underlying output stream as two
+         * bytes, high byte first. If no exception is thrown, the counter
+         * <code>written</code> is incremented by <code>2</code>.
+         *
+         * @param v a <code>short</code> to be written.
+         * @throws IOException if an I/O error occurs.
+         */
+        public void writeShort(int v) throws IOException {
+            synchronized (outLock) {
+                out.writeShort(v);
+            }
+        }
+
+        /**
+         * Writes a string to the underlying output stream using
+         * <a href="DataInput.html#modified-utf-8">modified UTF-8</a>
+         * encoding in a machine-independent manner.
+         * <p>
+         * First, two bytes are written to the output stream as if by the
+         * <code>writeShort</code> method giving the number of bytes to
+         * follow. This value is the number of bytes actually written out,
+         * not the length of the string. Following the length, each character
+         * of the string is output, in sequence, using the modified UTF-8 encoding
+         * for the character. If no exception is thrown, the counter
+         * <code>written</code> is incremented by the total number of
+         * bytes written to the output stream. This will be at least two
+         * plus the length of <code>str</code>, and at most two plus
+         * thrice the length of <code>str</code>.
+         *
+         * @param str a string to be written.
+         * @throws IOException if an I/O error occurs.
+         */
+        public void writeUTF(String str) throws IOException {
+            synchronized (outLock) {
+                out.writeUTF(str);
+            }
+        }
+
     }
 }
