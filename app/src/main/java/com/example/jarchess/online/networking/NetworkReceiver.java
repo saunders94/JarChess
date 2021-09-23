@@ -57,7 +57,7 @@ public class NetworkReceiver {
                 String request = in.readUTF();
                 try {
                     JSONObject jsonObj = new JSONObject(request);
-                    String reqType = jsonObj.getString("requestType");
+                    String reqType = jsonObj.getString("request_type");
                     Log.i("reqType",reqType);
                     moveQueue.insert(jsonObj);
                 } catch (JSONException e) {

@@ -6,22 +6,22 @@ import org.json.JSONObject;
 public class JSONLeaderboard {
 
 
-    public JSONObject getMostGamesWon(int numberOfPlayers){
+    public JSONObject getLongestWinStreak(int numberOfPlayers) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "getMostChessGamesWon");
-            jsonObj.put("numberOfGames", numberOfPlayers);
+            jsonObj.put("request_type", "getLongestWinStreak");
+            jsonObj.put("number_of_games", numberOfPlayers);
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return jsonObj;
     }
 
-    public JSONObject getLongestWinStreak(int numberOfPlayers){
+    public JSONObject getMostGamesWon(int numberOfPlayers) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "getLongestWinStreak");
-            jsonObj.put("numberOfGames", numberOfPlayers);
+            jsonObj.put("request_type", "getMostChessGamesWon");
+            jsonObj.put("number_of_games", numberOfPlayers);
         } catch (JSONException e) {
             e.printStackTrace();
         }

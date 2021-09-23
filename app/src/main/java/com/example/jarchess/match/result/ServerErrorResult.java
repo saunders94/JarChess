@@ -13,7 +13,7 @@ import static com.example.jarchess.match.result.ResultType.SERVER_ERROR;
 public class ServerErrorResult extends DrawResult {
     public static final String JSON_PROPERTY_NAME_MSG = "msg";
     public static final JSONConverter<ChessMatchResult> JSON_CONVERTER = ServerErrorResult.ServerErrorResultJSONConverter.getInstance();
-    private static final String JSON_PROPERTY_NAME_EXCEPTION_MSG = "eMsg";
+    private static final String JSON_PROPERTY_NAME_EXCEPTION_MSG = "e_msg";
 
     public ServerErrorResult() {
         super(SERVER_ERROR);

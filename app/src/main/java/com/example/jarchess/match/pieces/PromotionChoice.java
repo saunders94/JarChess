@@ -17,7 +17,7 @@ public enum PromotionChoice implements JSONConvertible<PromotionChoice> {
 
     public static final JSONConverter<PromotionChoice> JSON_CONVERTER = PromotionChoiceJSONConverter.getInstance();
     public static final String JSON_PROPERTY_NAME_NAME = "name";
-    public static final String JSON_PROPERTY_NAME_INT_VALUE = "intValue";
+    public static final String JSON_PROPERTY_NAME_INT_VALUE = "int_value";
 
     private final int intValue;
     private final Piece.Type pieceType;

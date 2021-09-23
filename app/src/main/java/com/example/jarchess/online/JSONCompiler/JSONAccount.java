@@ -14,7 +14,7 @@ public class JSONAccount {
     public JSONObject acceptFriendReq(String username, String signonToken, String friendsName) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "validateFriendRequest");
+            jsonObj.put("request_type", "validateFriendRequest");
             jsonObj.put("username", username);
             jsonObj.put("signonToken", signonToken);
             jsonObj.put("friendsUsername", friendsName);
@@ -27,7 +27,7 @@ public class JSONAccount {
     public JSONObject changePassword(String username, String oldPassword, String newPassword) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "changePassword");
+            jsonObj.put("request_type", "changePassword");
             jsonObj.put("username", username);
             jsonObj.put("old_password", oldPassword);
             jsonObj.put("new_password", newPassword);
@@ -43,7 +43,7 @@ public class JSONAccount {
         JSONObject jsonObj = new JSONObject();
 
         try {
-            jsonObj.put("requestType", "createAccount");
+            jsonObj.put("request_type", "createAccount");
             jsonObj.put("username", username);
             jsonObj.put("firstName", firstName);
             jsonObj.put("lastName", lastname);
@@ -55,10 +55,25 @@ public class JSONAccount {
         return jsonObj;
     }
 
+    public <T> JSONObject getAccountInfo(String key, T value, JarAccountSettingType type, String username, String signonToken) {
+        JSONObject jsonObj = new JSONObject();
+        try {
+            jsonObj.put("request_type", "getAccountInfo");
+            jsonObj.put("username", username);
+            jsonObj.put("signonToken", signonToken);
+            jsonObj.put("key", key);
+            jsonObj.put("value", value);
+            jsonObj.put("type", type.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObj;
+    }
+
     public JSONObject getFriendRequests(String username) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "getFriendRequests");
+            jsonObj.put("request_type", "getFriendRequests");
             jsonObj.put("username", username);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -69,7 +84,7 @@ public class JSONAccount {
     public JSONObject getFriendsList(String username) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "getFriendsList");
+            jsonObj.put("request_type", "getFriendsList");
             jsonObj.put("username", username);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -80,7 +95,7 @@ public class JSONAccount {
     public JSONObject getUserStats(String username) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "getUserStats");
+            jsonObj.put("request_type", "getUserStats");
             jsonObj.put("username", username);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -91,7 +106,7 @@ public class JSONAccount {
     public JSONObject registerAccount(String username, String password) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "createAccount");
+            jsonObj.put("request_type", "createAccount");
             jsonObj.put("username", username);
             jsonObj.put("firstName", "");
             jsonObj.put("lastName", "");
@@ -106,24 +121,9 @@ public class JSONAccount {
     public JSONObject removeFriend(String username, String friendsName) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "removeFriend");
+            jsonObj.put("request_type", "removeFriend");
             jsonObj.put("username", username);
             jsonObj.put("friendsUsername", friendsName); //TODO? Should we send a signonToken?
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return jsonObj;
-    }
-
-    public <T> JSONObject getAccountInfo(String key, T value, JarAccountSettingType type, String username, String signonToken) {
-        JSONObject jsonObj = new JSONObject();
-        try {
-            jsonObj.put("requestType", "getAccountInfo");
-            jsonObj.put("username", username);
-            jsonObj.put("signonToken", signonToken);
-            jsonObj.put("key", key);
-            jsonObj.put("value", value);
-            jsonObj.put("type", type.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -133,7 +133,7 @@ public class JSONAccount {
     public <T> JSONObject saveAccountInfoByKey(String key, T value, JarAccountSettingType type, String username, String signonToken, String hash) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "saveAccountInfoByKey");
+            jsonObj.put("request_type", "saveAccountInfoByKey");
             jsonObj.put("username", username);
             jsonObj.put("signonToken", signonToken);
             jsonObj.put("hash", hash);
@@ -149,7 +149,7 @@ public class JSONAccount {
     public JSONObject sendFriendReq(String username, String signonToken, String friendsName) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "sendFriendRequest");
+            jsonObj.put("request_type", "sendFriendRequest");
             jsonObj.put("username", username);
             jsonObj.put("signonToken", signonToken);
             jsonObj.put("friendsUsername", friendsName);
@@ -162,7 +162,7 @@ public class JSONAccount {
     public JSONObject setAvatar(String username, String signonToken, int avatarInt) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "setAvatar");
+            jsonObj.put("request_type", "setAvatar");
             jsonObj.put("username", username);
             jsonObj.put("signonToken", signonToken);
             jsonObj.put("avatarInt", avatarInt);
@@ -175,7 +175,7 @@ public class JSONAccount {
     public JSONObject signin(String username, String password) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "signin");
+            jsonObj.put("request_type", "signin");
             jsonObj.put("username", username);
             jsonObj.put("password", password);
         } catch (JSONException e) {
@@ -187,7 +187,7 @@ public class JSONAccount {
     public JSONObject signout(String username, String signonToken) {
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("requestType", "signout");
+            jsonObj.put("request_type", "signout");
             jsonObj.put("username", username);
             jsonObj.put("signonToken", signonToken);
         } catch (JSONException e) {
@@ -199,7 +199,7 @@ public class JSONAccount {
     public JSONObject verifySignonToken(String username, String token) {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("requestType", "validateSignonToken");
+            jsonObject.put("request_type", "validateSignonToken");
             jsonObject.put("username", username);
             jsonObject.put("signonToken", token);
         } catch (JSONException e) {

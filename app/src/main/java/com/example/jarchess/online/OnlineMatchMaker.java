@@ -82,7 +82,7 @@ public class OnlineMatchMaker {
 
                     JSONObject jsonObj = new JSONObject();
                     try {
-                        jsonObj.put("requestType", "RequestGameCanceled");
+                        jsonObj.put("request_type", "RequestGameCanceled");
                         jsonObj.put("username", JarAccount.getInstance().getName());
                         jsonObj.put("signon_token", JarAccount.getInstance().getSignonToken());
                         Log.i(TAG, "Cancel request string: " + jsonObj.toString());
@@ -185,7 +185,7 @@ public class OnlineMatchMaker {
                         //send a request to the server to find a match for an online game
                         JSONObject jsonObj = new JSONObject();
                         try {
-                            jsonObj.put("requestType", "RequestGame");
+                            jsonObj.put("request_type", "RequestGame");
                             jsonObj.put("username", JarAccount.getInstance().getName());
                             jsonObj.put("signon_token", JarAccount.getInstance().getSignonToken());
                             if (usernameOfDesiredOpponent != null && !usernameOfDesiredOpponent.isEmpty()) {

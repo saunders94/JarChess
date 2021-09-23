@@ -11,7 +11,7 @@ import static com.example.jarchess.match.result.ResultType.X_MOVE_RULE_DRAW;
 
 public class XMoveRuleDrawResult extends DrawResult {
     public static final JSONConverter<ChessMatchResult> JSON_CONVERTER = XMoveRuleDrawResult.XMoveRuleDrawResultJSONConverter.getInstance();
-    public static final String JSON_PROPERTY_NAME_TURNS_SINCE_CAP_OR_PAWN_MOVE = "turnsSinceCaptureOrPawnMovement";
+    public static final String JSON_PROPERTY_NAME_TURNS_SINCE_CAP_OR_PAWN_MOVE = "turns_since_capture_or_pawn_movement";
     public final static int FORCED_DRAW_AMOUNT = 75;
     public final static int APPROVED_DRAW_AMOUNT = 50;
     private final int turnsSinceCaptureOrPawnMovement;

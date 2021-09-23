@@ -24,7 +24,7 @@ public enum ChessColor implements JSONConvertible<ChessColor> {
     BLACK(0), WHITE(1);
 
     public final static ChessColorJSONConverter JSON_CONVERTER = ChessColorJSONConverter.getInstance();
-    public static final String JSON_PROPERTY_NAME_INT_VALUE = "intValue";
+    public static final String JSON_PROPERTY_NAME_INT_VALUE = "int_value";
     public static final String JSON_PROPERTY_NAME_NAME = "name";
     private final static Random random = new Random();
     private final int intValue;

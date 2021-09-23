@@ -13,7 +13,7 @@ import org.json.JSONObject;
 
 public abstract class ChessMatchResult implements JSONConvertible<ChessMatchResult> {
 
-    public static final String JSON_PROPERTY_NAME_WINNING_COLOR = "winningColor";
+    public static final String JSON_PROPERTY_NAME_WINNING_COLOR = "winning_color";
     public static final String JSON_PROPERTY_NAME_TYPE = "type";
     final ChessColor winnerColor;
     private final ResultType type;

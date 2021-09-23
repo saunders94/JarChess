@@ -49,7 +49,7 @@ public class DatapackageFormatter {
 //        String strDestination = "" + destinationFile + destinationRank;
 //
 //        JSONObject jsonObject = new JSONObject();
-//        jsonObject.put("requestType","MakeMove");
+//        jsonObject.put("request_type","MakeMove");
 //        jsonObject.put("username","MakeMove");
 //        jsonObject.put("signon_token","MakeMove");
 //        jsonObject.put("game_token","MakeMove");
@@ -62,7 +62,7 @@ public class DatapackageFormatter {
 
         JSONObject jsonObject = null;
         try {
-            jsonObject = datapackage.JSON_CONVERTER.convertToJSONObject(datapackage);
+            jsonObject = Datapackage.JSON_CONVERTER.convertToJSONObject(datapackage);
         } catch (JSONException e) {
             e.printStackTrace();
         }

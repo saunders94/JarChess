@@ -16,7 +16,7 @@ public enum DatapackageType implements JSONConvertible<DatapackageType> {
     RESUME_REQUEST(9);
 
 
-    public static final String JSON_PROPERTY_NAME_INT_VALUE = "intValue";
+    public static final String JSON_PROPERTY_NAME_INT_VALUE = "int_value";
     public static final String JSON_PROPERTY_NAME_NAME = "name";
     public static final DatapackageTypeJSONConverter JSON_CONVERTER = DatapackageTypeJSONConverter.getInstance();
     private final int intValue;

@@ -26,8 +26,8 @@ public class Turn implements JSONConvertible<Turn> {
     public static final TurnJSONConverter JSON_CONVERTER = TurnJSONConverter.getInstance();
     public static final String JSON_PROPERTY_NAME_COLOR = "color";
     public static final String JSON_PROPERTY_NAME_MOVE = "move";
-    public static final String JSON_PROPERTY_NAME_ELAPSED_TIME = "elapsedTime";
-    public static final String JSON_PROPERTY_NAME_PROMOTION_CHOICE = "promotionChoice";
+    public static final String JSON_PROPERTY_NAME_ELAPSED_TIME = "elapsed_time";
+    public static final String JSON_PROPERTY_NAME_PROMOTION_CHOICE = "promotion_choice";
     private final ChessColor color;
     private final Move move;
     private final long elapsedTime;

@@ -50,6 +50,8 @@ public class GameIO implements Closeable {
     public static final int TIMEOUT = 300000;
     public static final String SUCCESS_RESPONSE = "success";
     public static final String FAILURE_RESPONSE = "failure";
+    public static final String RESULT_TYPE = "resultType";
+    public static final String WINNER = "winner";
     private static final String PAYLOAD_KEY = "payload";
     private static final String MATCH_COMMUNICATION = "MatchCommunication";
     private static final String ERROR_REPORT = "ErrorReport";
@@ -57,8 +59,6 @@ public class GameIO implements Closeable {
     private static final String TYPE_KEY = "type";
     private static final Datapackage.DatapackageJSONConverter JSON_TO_DATAPACKAGE_CONVERTER = Datapackage.DatapackageJSONConverter.getInstance();
     private static final String CLIENT_RESPONSE = "clientResponse";
-    public static final String RESULT_TYPE = "resultType";
-    public static final String WINNER = "winner";
     private final ServerResponseQueue serverResponseQueue = new ServerResponseQueue();
     private final String TAG = "GameIO";
     private final LoggedThread senderThread;
@@ -194,8 +194,9 @@ public class GameIO implements Closeable {
 
     /**
      * Receives the next message
-     * @throws JSONException if the received message cannot be converted into JSON
-     * @throws IOException if the input is unsuccessful
+     *
+     * @throws JSONException        if the received message cannot be converted into JSON
+     * @throws IOException          if the input is unsuccessful
      * @throws InterruptedException if the thread is interrupted while waiting.
      */
     private void receiveNext() throws JSONException, IOException, InterruptedException {
@@ -568,7 +569,7 @@ public class GameIO implements Closeable {
 
             JSONObject jsonObject = new JSONObject();
             try {
-                jsonObject.put("requestType", requestType);
+                jsonObject.put("request_type", requestType);
                 jsonObject.put("username", JarAccount.getInstance().getName());
                 jsonObject.put("game_token", gameToken);
                 jsonObject.put("signon_token", JarAccount.getInstance().getSignonToken());
@@ -659,11 +660,11 @@ public class GameIO implements Closeable {
             JSONObject jsonObject = new JSONObject();
 
             try {
-                jsonObject.put("requestType", CLIENT_RESPONSE);
+                jsonObject.put("request_type", CLIENT_RESPONSE);
                 jsonObject.put("username", JarAccount.getInstance().getName());
                 jsonObject.put("game_token", gameToken);
                 jsonObject.put("signon_token", JarAccount.getInstance().getSignonToken());
-                jsonObject.put("originalMessage", originalMessage);
+                jsonObject.put("original_message", originalMessage);
                 jsonObject.put("response", msg);
             } catch (JSONException e) {
                 Log.e(TAG, "sendResponse exception: ", e);

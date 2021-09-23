@@ -6,11 +6,6 @@ import androidx.annotation.Nullable;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.Coordinate;
 import com.example.jarchess.match.pieces.movementpatterns.MovementPattern;
-import com.example.jarchess.online.datapackage.JSONConverter;
-import com.example.jarchess.online.datapackage.JSONConvertible;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -187,7 +182,7 @@ public abstract class Piece implements Cloneable {
 
 
         public static final String JSON_PROPERTY_NAME_NAME = "name";
-        public static final String JSON_PROPERTY_NAME_INT_VALUE = "intValue";
+        public static final String JSON_PROPERTY_NAME_INT_VALUE = "int_value";
         int intValue;
 
         /**

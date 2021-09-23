@@ -27,7 +27,7 @@ public class Datapackage implements JSONConvertible<Datapackage> {
     public static final DatapackageJSONConverter JSON_CONVERTER = DatapackageJSONConverter.getInstance();
     public static final String JSON_PROPERTY_NAME_TYPE = "type";
     public static final String JSON_PROPERTY_NAME_TURN = "turn";
-    public static final String JSON_PROPERTY_NAME_MATCH_RESULT = "matchResult";
+    public static final String JSON_PROPERTY_NAME_MATCH_RESULT = "match_result";
     private final DatapackageType datapackageType;
     private final Turn turn;
     private final ChessMatchResult matchResult;

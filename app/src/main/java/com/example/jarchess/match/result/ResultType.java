@@ -24,7 +24,7 @@ public enum ResultType implements JSONConvertible<ResultType> {
     private static boolean convertersNeedToBeSetUp = true;
     public static final JSONConverter<ResultType> JSON_CONVERTER = ResultTypeJSONConverter.getInstance();
     public static final String JSON_PROPERTY_NAME_NAME = "name";
-    public static final String JSON_PROPERTY_NAME_INT_VALUE = "intValue";
+    public static final String JSON_PROPERTY_NAME_INT_VALUE = "int_value";
     private final int intValue;
 
     ResultType(int i) {

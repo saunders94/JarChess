@@ -15,7 +15,7 @@ public class ExceptionResult extends WinResult {
     public static final JSONConverter<ChessMatchResult> JSON_CONVERTER = ExceptionResult.ExceptionResultJSONConverter.getInstance();
     private final String message;
     private final Exception exception;
-    private static final String JSON_PROPERTY_NAME_EXCEPTION_MSG = "eMsg";
+    private static final String JSON_PROPERTY_NAME_EXCEPTION_MSG = "e_msg";
 
     public ExceptionResult(ChessColor winnerColor, String message, Exception e) {
         super(winnerColor, EXCEPTION);
