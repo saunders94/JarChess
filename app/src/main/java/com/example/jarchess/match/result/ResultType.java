@@ -90,5 +90,23 @@ public enum ResultType implements JSONConvertible<ResultType> {
         }
     }
 
+    @Override
+    public String toString() {
+        switch (this) {
+            case INVALID_TURN_RECEIVED:
+            case EXCEPTION:
+            case SERVER_ERROR:
+                return "ERROR";
+            default:
+                break;
+        }
 
+        return super.toString();
+    }
+
+    //    public static void main(String[] args) {
+//        for (ResultType t :ResultType.values()) {
+//            System.out.println("\"" + t.toString() + "\"");
+//        }
+//    }
 }

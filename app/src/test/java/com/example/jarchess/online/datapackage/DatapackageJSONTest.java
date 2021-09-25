@@ -57,7 +57,7 @@ public class DatapackageJSONTest {
 
         @Test
         public void agreedUponDraw() throws JSONException {
-            Datapackage d = new Datapackage(new AgreedUponDrawResult(), "1.1.1.1", 1);
+            Datapackage d = new Datapackage(new AgreedUponDrawResult());
             JSONObject j = d.getJSONObject();
             try {
                 Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
@@ -70,7 +70,7 @@ public class DatapackageJSONTest {
 
         @Test
         public void checkmate() throws JSONException {
-            Datapackage d = new Datapackage(new CheckmateResult(BLACK), "1.1.1.1", 1);
+            Datapackage d = new Datapackage(new CheckmateResult(BLACK));
             JSONObject j = d.getJSONObject();
             try {
                 Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
@@ -83,7 +83,7 @@ public class DatapackageJSONTest {
 
         @Test
         public void exception() throws JSONException {
-            Datapackage d = new Datapackage(new ExceptionResult(BLACK, "this is a message", new RuntimeException("this is an exception message")), "1.1.1.1", 1);
+            Datapackage d = new Datapackage(new ExceptionResult(BLACK, "this is a message", new RuntimeException("this is an exception message")));
             JSONObject j = d.getJSONObject();
             try {
                 Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
@@ -96,7 +96,7 @@ public class DatapackageJSONTest {
 
         @Test
         public void flagFall() throws JSONException {
-            Datapackage d = new Datapackage(new FlagFallResult(BLACK), "1.1.1.1", 1);
+            Datapackage d = new Datapackage(new FlagFallResult(BLACK));
             JSONObject j = d.getJSONObject();
             try {
                 Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
@@ -109,7 +109,7 @@ public class DatapackageJSONTest {
 
         @Test
         public void invalidTurn() throws JSONException {
-            Datapackage d = new Datapackage(new InvalidTurnReceivedResult(BLACK), "1.1.1.1", 1);
+            Datapackage d = new Datapackage(new InvalidTurnReceivedResult(BLACK));
             JSONObject j = d.getJSONObject();
             try {
                 Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
@@ -122,7 +122,7 @@ public class DatapackageJSONTest {
 
         @Test
         public void repetitionDraw() throws JSONException {
-            Datapackage d = new Datapackage(new RepetitionRuleDrawResult(5), "1.1.1.1", 1);
+            Datapackage d = new Datapackage(new RepetitionRuleDrawResult(5));
             JSONObject j = d.getJSONObject();
             try {
                 Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
@@ -135,7 +135,7 @@ public class DatapackageJSONTest {
 
         @Test
         public void resignation() throws JSONException {
-            Datapackage d = new Datapackage(new ResignationResult(BLACK), "1.1.1.1", 1);
+            Datapackage d = new Datapackage(new ResignationResult(BLACK));
             JSONObject j = d.getJSONObject();
             try {
                 Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
@@ -162,7 +162,7 @@ public class DatapackageJSONTest {
 
         @Test
         public void stalemate() throws JSONException {
-            Datapackage d = new Datapackage(new StalemateDrawResult(), "1.1.1.1", 1);
+            Datapackage d = new Datapackage(new StalemateDrawResult());
             JSONObject j = d.getJSONObject();
             try {
                 Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
@@ -175,7 +175,7 @@ public class DatapackageJSONTest {
 
         @Test
         public void xMoveRule() throws JSONException {
-            Datapackage d = new Datapackage(new XMoveRuleDrawResult(75), "1.1.1.1", 1);
+            Datapackage d = new Datapackage(new XMoveRuleDrawResult(75));
             JSONObject j = d.getJSONObject();
             try {
                 Datapackage d2 = Datapackage.JSON_CONVERTER.convertFromJSONObject(j);
@@ -193,47 +193,47 @@ public class DatapackageJSONTest {
 
         @Test
         public void agreedUponDraw() throws JSONException {
-            System.out.println(new Datapackage(new AgreedUponDrawResult(), "1.1.1.1", 1).getJSONObject().toString());
+            System.out.println(new Datapackage(new AgreedUponDrawResult()).getJSONObject().toString());
         }
 
         @Test
         public void checkmate() throws JSONException {
-            System.out.println(new Datapackage(new CheckmateResult(BLACK), "1.1.1.1", 1).getJSONObject().toString());
+            System.out.println(new Datapackage(new CheckmateResult(BLACK)).getJSONObject().toString());
         }
 
         @Test
         public void exception() throws JSONException {
-            System.out.println(new Datapackage(new ExceptionResult(BLACK, "this is a message", new RuntimeException("this is an exception message")), "1.1.1.1", 1).getJSONObject().toString());
+            System.out.println(new Datapackage(new ExceptionResult(BLACK, "this is a message", new RuntimeException("this is an exception message"))).getJSONObject().toString());
         }
 
         @Test
         public void flagFall() throws JSONException {
-            System.out.println(new Datapackage(new FlagFallResult(BLACK), "1.1.1.1", 1).getJSONObject().toString());
+            System.out.println(new Datapackage(new FlagFallResult(BLACK)).getJSONObject().toString());
         }
 
         @Test
         public void invalidTurn() throws JSONException {
-            System.out.println(new Datapackage(new InvalidTurnReceivedResult(BLACK), "1.1.1.1", 1).getJSONObject().toString());
+            System.out.println(new Datapackage(new InvalidTurnReceivedResult(BLACK)).getJSONObject().toString());
         }
 
         @Test
         public void repetitionDraw() throws JSONException {
-            System.out.println(new Datapackage(new RepetitionRuleDrawResult(5), "1.1.1.1", 1).getJSONObject().toString());
+            System.out.println(new Datapackage(new RepetitionRuleDrawResult(5)).getJSONObject().toString());
         }
 
         @Test
         public void resignation() throws JSONException {
-            System.out.println(new Datapackage(new ResignationResult(BLACK), "1.1.1.1", 1).getJSONObject().toString());
+            System.out.println(new Datapackage(new ResignationResult(BLACK)).getJSONObject().toString());
         }
 
         @Test
         public void stalemate() throws JSONException {
-            System.out.println(new Datapackage(new StalemateDrawResult(), "1.1.1.1", 1).getJSONObject().toString());
+            System.out.println(new Datapackage(new StalemateDrawResult()).getJSONObject().toString());
         }
 
         @Test
         public void xMoveRule() throws JSONException {
-            System.out.println(new Datapackage(new XMoveRuleDrawResult(75), "1.1.1.1", 1).getJSONObject().toString());
+            System.out.println(new Datapackage(new XMoveRuleDrawResult(75)).getJSONObject().toString());
         }
     }
 
@@ -430,7 +430,7 @@ public class DatapackageJSONTest {
 
             Turn turnExpected = new Turn(color, move, time, pieceType);
 
-            Datapackage datapackageUnderTest = new Datapackage(turnExpected, "1.2.3.4", 1111);
+            Datapackage datapackageUnderTest = new Datapackage(turnExpected);
             JSONObject jsonObject = datapackageUnderTest.getJSONObject();
 
             Datapackage resultingDatapackage = Datapackage.JSON_CONVERTER.convertFromJSONObject(jsonObject);

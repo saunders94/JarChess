@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 public enum DatapackageType implements JSONConvertible<DatapackageType> {
     TURN(0),
-    SERVER_ERROR(1),
+    ERROR(1),
     PAUSE_REQUEST(2),
     PAUSE_ACCEPT(3),
     PAUSE_REJECT(4),

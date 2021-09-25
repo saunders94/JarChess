@@ -10,8 +10,6 @@ import com.example.jarchess.match.turn.Turn;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static org.json.JSONObject.NULL;
-
 
 /**
  * A datapackage is a package that contains data to be sent from one remote opponent and recieved by another.
@@ -29,28 +27,22 @@ public class Datapackage implements JSONConvertible<Datapackage> {
     public static final DatapackageJSONConverter JSON_CONVERTER = DatapackageJSONConverter.getInstance();
     public static final String JSON_PROPERTY_NAME_TYPE = "type";
     public static final String JSON_PROPERTY_NAME_TURN = "turn";
-    public static final String JSON_PROPERTY_NAME_DESTINATION_IP = "destinationIP";
-    public static final String JSON_PROPERTY_NAME_DESTINATION_PORT = "destinationPort";
     public static final String JSON_PROPERTY_NAME_MATCH_RESULT = "matchResult";
     private final DatapackageType datapackageType;
     private final Turn turn;
     private final ChessMatchResult matchResult;
-    private final String destinationIP;
-    private final int destinationPort;
+    private final String errorMsg;
 
 
     /**
      * Creates a Datapackage from a Turn object.
      *
      * @param turn            the turn to be packaged
-     * @param destinationIP
-     * @param destinationPort
      */
-    public Datapackage(@NonNull Turn turn, String destinationIP, int destinationPort) {
+    public Datapackage(@NonNull Turn turn) {
         this.turn = turn;
-        this.destinationIP = destinationIP;
-        this.destinationPort = destinationPort;
         this.matchResult = null;
+        this.errorMsg = null;
 
         if (turn.getMove() == null) {
             throw new IllegalStateException("unexpected null move contained in a turn");
@@ -62,42 +54,39 @@ public class Datapackage implements JSONConvertible<Datapackage> {
 
     /**
      * Creates a Datapackage from a DatapackageType object.
-     *
-     * @param destinationIP
-     * @param destinationPort
      */
-    public Datapackage(DatapackageType type, String destinationIP, int destinationPort) {
+    public Datapackage(DatapackageType type) {
         if (type == DatapackageType.TURN) {
             throw new IllegalArgumentException("Creating a datapackage with the type of TURN requires providing the turn as an argument");
         }
         if (type == DatapackageType.MATCH_RESULT) {
             throw new IllegalArgumentException("Creating a datapackage with the type of MATCH_RESULT requires providing the matchResult as an argument");
         }
-        this.destinationIP = destinationIP;
-        this.destinationPort = destinationPort;
+        if (type == DatapackageType.ERROR) {
+            throw new IllegalArgumentException("Creating a datapackage with the type of ERROR requires providing the errorMsg as an argument");
+        }
         this.turn = null;
         this.matchResult = null;
+        this.errorMsg = null;
         datapackageType = type;
     }
 
-    public Datapackage(ChessMatchResult matchResult, String destinationIP, int destinationPort) {
-        this.destinationIP = destinationIP;
-        this.destinationPort = destinationPort;
+    public Datapackage(ChessMatchResult matchResult) {
         this.turn = null;
         this.matchResult = matchResult;
+        this.errorMsg = null;
         datapackageType = DatapackageType.MATCH_RESULT;
+    }
+
+    public Datapackage(String errorMsg) {
+        this.turn = null;
+        this.matchResult = null;
+        this.errorMsg = errorMsg;
+        datapackageType = DatapackageType.ERROR;
     }
 
     public DatapackageType getDatapackageType() {
         return datapackageType;
-    }
-
-    public String getDestinationIP() {
-        return destinationIP;
-    }
-
-    public int getDestinationPort() {
-        return destinationPort;
     }
 
     public long getElapsedTime() {
@@ -108,10 +97,15 @@ public class Datapackage implements JSONConvertible<Datapackage> {
     public JSONObject getJSONObject() throws JSONException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(JSON_PROPERTY_NAME_TYPE, datapackageType.getJSONObject());
-        jsonObject.put(JSON_PROPERTY_NAME_TURN, turn == null ? NULL : turn.getJSONObject());
-        jsonObject.put(JSON_PROPERTY_NAME_MATCH_RESULT, matchResult == null ? NULL : matchResult.getJSONObject());
-        jsonObject.put(JSON_PROPERTY_NAME_DESTINATION_IP, destinationIP);
-        jsonObject.put(JSON_PROPERTY_NAME_DESTINATION_PORT, destinationPort);
+
+        if (turn != null) {
+            jsonObject.put(JSON_PROPERTY_NAME_TURN, turn.getJSONObject());
+        }
+
+        if (matchResult != null) {
+            jsonObject.put(JSON_PROPERTY_NAME_MATCH_RESULT, matchResult.getJSONObject());
+        }
+
         return jsonObject;
     }
 
@@ -178,25 +172,25 @@ public class Datapackage implements JSONConvertible<Datapackage> {
             JSONObject obj = jsonObject.getJSONObject(JSON_PROPERTY_NAME_TYPE);
 
             DatapackageType type = DatapackageType.JSON_CONVERTER.convertFromJSONObject(obj);
-            String destinationIP = jsonObject.getString(JSON_PROPERTY_NAME_DESTINATION_IP);
-            int destinationPort = jsonObject.getInt(JSON_PROPERTY_NAME_DESTINATION_PORT);
 
 
             switch (type) {
 
                 case TURN:
                     Turn turn = Turn.JSON_CONVERTER.convertFromJSONObject(jsonObject.getJSONObject(JSON_PROPERTY_NAME_TURN));
-                    return new Datapackage(turn, destinationIP, destinationPort);
+                    return new Datapackage(turn);
 
                 case MATCH_RESULT:
                     ChessMatchResult result = ChessMatchResult.ResultJSONConverter.getInstance().convertFromJSONObject(jsonObject.getJSONObject(JSON_PROPERTY_NAME_MATCH_RESULT));
-                    return new Datapackage(result, destinationIP, destinationPort);
+                    return new Datapackage(result);
 
                 default:
-                    return new Datapackage(type, destinationIP, destinationPort);
+                    return new Datapackage(type);
             }
         }
     }
 
-
+    public String getErrorMsg() {
+        return errorMsg;
+    }
 }

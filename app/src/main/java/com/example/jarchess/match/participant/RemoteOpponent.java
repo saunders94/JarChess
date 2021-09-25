@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.jarchess.RemoteOpponentInfoBundle;
+import com.example.jarchess.jaraccount.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.ChessColor;
 import com.example.jarchess.match.DrawResponse;
 import com.example.jarchess.match.MatchNetworkIO;
@@ -12,7 +13,6 @@ import com.example.jarchess.match.MatchOverException;
 import com.example.jarchess.match.PauseResponse;
 import com.example.jarchess.match.history.MatchHistory;
 import com.example.jarchess.match.result.ChessMatchResult;
-import com.example.jarchess.jaraccount.styles.avatar.AvatarStyle;
 import com.example.jarchess.match.turn.Turn;
 import com.example.jarchess.online.datapackage.DatapackageReceiver;
 import com.example.jarchess.online.datapackage.DatapackageSender;
@@ -55,7 +55,7 @@ public class RemoteOpponent implements MatchParticipant {
         this.avatarStyle = remoteOpponentInfoBundle.getAvatarStyle();
         this.color = color;
         this.remoteOpponentController = remoteOpponentController;
-        MatchNetworkIO.Sender mNIOSender = new MatchNetworkIO.Sender(sender, remoteOpponentInfoBundle.getIP(), remoteOpponentInfoBundle.getPort());
+        MatchNetworkIO.Sender mNIOSender = new MatchNetworkIO.Sender(sender);
         MatchNetworkIO.Receiver mNIOReceiver = new MatchNetworkIO.Receiver(receiver, this);
         this.sender = mNIOSender;
         this.receiver = mNIOReceiver;
